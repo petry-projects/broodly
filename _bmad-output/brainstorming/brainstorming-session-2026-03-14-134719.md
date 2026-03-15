@@ -1,7 +1,5 @@
 ---
 stepsCompleted: [1, 2, 3, 4]
-session_continued: true
-continuation_date: '2026-03-14 22:24:00 UTC'
 inputDocuments: []
 session_topic: 'A new beekeeping app that enables anyone to improve their beekeeping outcomes.'
 session_goals: 'Produce inputs for a PRD.'
