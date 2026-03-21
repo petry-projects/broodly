@@ -320,7 +320,7 @@ Each custom component is built on Gluestack v3 primitives using `tva()` for vari
 | GraphQL Client | urql or Apollo Client |
 | Backend | Go (chi + gqlgen) |
 | Database | PostgreSQL 16 + pgvector |
-| Auth | Firebase Authentication |
+| Auth | Firebase Authentication (Google + Apple Sign-In only, no passwords) |
 | AI/ML | Vertex AI (Embedding 2.0, Gemini) |
 | Hosting | Google Cloud Platform (Cloud Run) |
 | IaC | Terraform |
