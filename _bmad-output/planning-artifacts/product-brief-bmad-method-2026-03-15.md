@@ -175,3 +175,68 @@ Proposed initial numeric targets (v1 planning baseline):
 - Swarm Risk Predictor: Predictive alerting for likely swarm risk before costly outcomes occur.
 - Adaptive Learning Path: Skill-aware coaching that evolves with user capability over time.
 - 911 mode: Emergency-support capability for critical incidents (subject to safety/legal validation).
+- Conversational Inspection Companion: A voice-driven Q&A capability where beekeepers can ask natural-language questions during inspections and receive context-aware, skill-adapted answers grounded in their hive history, regional norms, and domain knowledge.
+
+## Monetization Framework
+
+### Tier Structure
+
+- **Free Tier (Permanent):** Single apiary (up to 3 hives), basic guided inspections, seasonal calendar, limited recommendation history (30 days). Purpose: acquisition funnel, habit formation, and word-of-mouth driver.
+- **Beekeeper Tier (~$5-8/month or ~$50-70/year):** Unlimited hives and apiaries, full recommendation history, Vision AI analysis, voice logging, data export, read-only collaborator access. Target: serious hobbyists and amateurs.
+- **Pro Tier (~$12-18/month or ~$120-160/year):** Everything in Beekeeper plus multi-location operational dashboard, batch operations, advanced predictive alerts, compliance-formatted exports, priority support. Target: sideliners and small commercial operators.
+
+### Pricing Strategy Principles
+
+- Anchor free tier to demonstrate recommendation value before paywall.
+- Gate operational scale features (multi-location, batch), not core guidance quality.
+- Price below the cost of a single lost colony (~$150-250 replacement cost) to make ROI argument self-evident.
+- Offer annual discount (2 months free) to improve LTV and reduce churn.
+
+### Freemium Boundary Rules
+
+- Never gate safety-critical recommendations behind payment.
+- Free tier must be genuinely useful for a first-year beekeeper with 1-3 hives.
+- Upgrade triggers should align with natural scaling moments (adding hives, second season, adding apiaries).
+
+## Community and Network Strategy
+
+- **Regional Knowledge Network:** Anonymized, aggregated signals from users in the same climate zone create "what's happening in your area" context cards (e.g., "72% of beekeepers in your region have started spring feeding this week"). This transforms individual usage into collective intelligence without requiring explicit social features.
+- **Mentor Matching:** Connect experienced beekeepers willing to mentor with newbies in the same region. Mentors get a dashboard showing their mentee's hive status (with permission), enabling targeted advice. This creates acquisition loops (mentors invite mentees) and retention loops (mentees stay because of the relationship).
+- **Association Integration:** Partner with state/local beekeeping associations to offer the app as a member benefit. Associations get anonymized aggregate data about member colony health trends.
+
+## Data Asset Strategy
+
+The product's longitudinal dataset — linking management actions to colony outcomes across diverse regions, climates, and skill levels — will become an increasingly valuable and defensible asset over time.
+
+- **Outcome-Calibrated Recommendations:** As data accumulates, recommendations improve because outcome feedback tunes the model. This creates a flywheel: more users generate more outcome data, which improves recommendations, which attracts more users.
+- **Regional Baselines:** Aggregated anonymized data produces the most accurate regional seasonal baselines in the industry. These baselines become the foundation for recommendation accuracy and are impossible to replicate without distributed user presence.
+- **Research Partnership Value:** Anonymized, structured colony-health datasets are valuable to university researchers, USDA programs, and pollinator health initiatives. Offering research-grade data access (with user consent) creates institutional partnerships, brand credibility, and potential co-funding opportunities.
+- **Benchmarking Service:** Enable beekeepers to compare their colony outcomes against anonymized regional averages — a retention driver and a premium feature candidate.
+
+## Partnership Strategy
+
+### Equipment Supplier Partnerships
+- **Mann Lake / Dadant / Betterbee:** Co-marketing agreements where the app is recommended in beginner kits and starter packages. Equipment suppliers benefit from reduced customer churn (better outcomes mean customers stay in beekeeping and buy more equipment).
+
+### Sensor Integration Partnerships
+- **BroodMinder:** Position as the recommended telemetry integration. BroodMinder sells hardware; Broodly provides the intelligence layer. Avoid building competing hardware.
+
+### Association and Extension Partnerships
+- **State Beekeeping Associations:** Offer group licensing or member discounts. Associations get anonymized aggregate colony health reporting for their region.
+- **University Extension Services:** Integrate extension-published regional management calendars as baseline seasonal guidance.
+
+### Adoption Accelerators
+- **Beginner Course Providers:** Partner with popular beekeeping course providers to integrate the app into their curriculum. Students download the app as part of coursework.
+
+## Growth Loops and Viral Mechanics
+
+### Natural Sharing Triggers
+- **Inspection Summary Sharing:** After completing an inspection, offer a one-tap "Share with my mentor" or "Share with my bee club" export that produces a clean, branded summary card.
+- **Seasonal Achievement Cards:** Generate shareable visual cards for seasonal milestones ("My colonies survived winter!" or "First honey harvest: 42 lbs"). Each card includes subtle product attribution.
+
+### Referral Mechanics
+- **Mentor Referral Loop:** When a user adds a mentor collaborator, the mentor receives an invitation that highlights the dashboard they will access. One active mentor can drive 5-15 new user acquisitions per season.
+- **Bee Club Group Onboarding:** Offer a "Start your club on Broodly" flow where a club leader creates a group and invites members.
+
+### Content-Driven Acquisition
+- **Public Seasonal Guidance Pages:** Publish region-specific, seasonally updated "What to do this week" web pages derived from the recommendation engine. These rank for high-intent search queries and serve as top-of-funnel acquisition.

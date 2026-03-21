@@ -86,7 +86,8 @@ This product is differentiated by a confidence-first recommendation contract: ea
 - Trial-to-paid conversion: at least 8% by month 6, at least 12% by month 12.
 - Positive value feedback (“helps me decide confidently”): at least 75% agreement.
 - Monthly qualified-trial growth: at least 10% MoM.
-- Outcome trend target: measurable season-over-season reduction in preventable losses in active cohorts.
+- Outcome trend target: season-over-season improvement in the ratio of recommended-action-taken to recommended-action-ignored for high-priority items, as a proxy for decision-quality improvement. Direct colony outcome tracking is a post-MVP instrumentation goal requiring user-reported seasonal outcome surveys.
+- Time-to-first-recommendation: median time from account creation to first personalized recommendation delivered shall be under 10 minutes.
 
 ## Product Scope
 
@@ -95,8 +96,9 @@ This product is differentiated by a confidence-first recommendation contract: ea
 - Localized, skill-adaptive decision guidance for weekly planning and in-inspection “next best action.”
 - Guided inspection flow with structured logging and recommendation rationale/confidence.
 - Milestone-based skill progression tied to user activity and learning progress.
-- Vision AI inspection analysis that surfaces interpretable findings with confidence-aware guidance.
+- Vision AI inspection analysis that surfaces interpretable findings with confidence-aware guidance. Scope note: Vision AI is elevated from the product brief's future vision into MVP based on field research indicating that visual interpretation uncertainty is a primary driver of newbie decision paralysis. MVP scope is limited to common inspection photo types (brood pattern, queen cells, pest signs) with a minimum 70% interpretable-result rate on supported categories. If accuracy targets are not met in beta, Vision AI degrades to media-capture-only with manual tagging.
 - Baseline planning calendar and prioritized weekly action queue.
+- Baseline multi-hive and multi-location: MVP supports up to 5 locations and 100 hives per account with single-user management. Batch operations, route optimization, and multi-user location management are post-MVP.
 - Core onboarding that captures context needed to generate immediate personalized value.
 - Foundational integration layer for local context and telemetry-ready recommendations.
 - Core success instrumentation for retention, workflow completion, confidence, and conversion.
@@ -178,6 +180,20 @@ Capabilities revealed: integration APIs and webhooks, identity mapping, ingestio
 - Trust and governance: recommendation traceability, role-based access, privacy controls, support-grade auditability.
 - Integration backbone: telemetry ingestion, mapping and validation, and proof that integration changes decision outputs.
 
+### Edge Case - Recommendation Outcome Failure (Trust Recovery)
+
+Hannah followed the app's recommendation to delay treatment. Two weeks later, her colony shows severe mite damage. She returns to the app angry and distrustful. The system surfaces the original recommendation with its confidence level (which was moderate, not high) and the evidence context at the time. It acknowledges the outcome, offers a recovery action plan, and adjusts future recommendation calibration for her profile. The key moment: the app does not hide or excuse the outcome — it explains the decision basis transparently and provides a concrete recovery path.
+
+Emotional arc: angry and betrayed -> heard and understood -> cautiously re-engaged.
+
+Capabilities revealed: outcome tracking linked to recommendations, transparent post-hoc explanation, recommendation recalibration, recovery workflow generation.
+
+### Edge Case - Abandoned Onboarding Recovery
+
+A new user begins onboarding but closes the app after entering region but before completing hive setup. On return, the system restores onboarding state and resumes from the last completed step. If the user skips optional steps, the system generates guidance using available context and flags areas where missing information limits recommendation quality.
+
+Capabilities revealed: onboarding state persistence, progressive context enrichment, degraded-but-functional guidance with missing profile data.
+
 ## Domain-Specific Requirements
 
 ### Compliance and Regulatory
@@ -186,8 +202,19 @@ Capabilities revealed: integration APIs and webhooks, identity mapping, ingestio
 - Recommendation outputs must avoid presenting uncertain guidance as authoritative; low-confidence cases should explicitly downgrade certainty and direct users to local extension or expert validation.
 - If the product later supports loss-reporting or compliance exports such as USDA-linked documentation, record structure should be designed now to avoid expensive retrofit later.
 - Privacy compliance should cover standard consumer data protections for account, location, and operational records, with clear consent for optional integrations and data sharing.
+- The product shall display a persistent, accessible disclaimer that recommendations are decision-support tools and do not constitute professional veterinary, agricultural, or legal advice. This disclaimer shall be: (a) accepted during onboarding before first recommendation is shown, (b) accessible from any recommendation detail view, (c) included in exported records.
+- Treatment recommendations shall include: "Verify treatment suitability for your specific conditions. The app cannot assess whether procedures were performed correctly."
 
 ### Technical Constraints
+
+- Guidance must be localized by region and seasonal phase; generic advice is a product failure, not just a UX issue.
+- Recommendation logic must expose confidence and evidence source so users can understand why an action is suggested.
+- Field workflows must tolerate low-connectivity conditions, interrupted inspections, and partial data.
+- Logging must be fast and multimodal, with voice/media-first entry and structured correction after capture.
+- Multi-hive and multi-location support is a first-class constraint across data model, notifications, planning, and navigation.
+- Voice recognition shall support a beekeeping-specific vocabulary model or custom glossary to improve accuracy for domain terms (e.g., varroa, propolis, brood, nuc, supersedure, absconding, robbing, nosema). The system shall allow users to train or correct recurring misrecognitions to improve per-user accuracy over time.
+
+### Integration Requirements
 
 - Guidance must be localized by region and seasonal phase; generic advice is a product failure, not just a UX issue.
 - Recommendation logic must expose confidence and evidence source so users can understand why an action is suggested.
@@ -221,6 +248,7 @@ Capabilities revealed: integration APIs and webhooks, identity mapping, ingestio
 - Multi-persona rendering on one decision engine: Newbie, Amateur, and Sideliner each get different guidance depth without fragmenting core logic.
 - Telemetry-to-action linkage: integration value is defined by changed recommendations, not passive dashboards.
 - Vision AI inspection analysis extends the recommendation loop by turning captured imagery into interpretable inspection evidence rather than passive media storage.
+- Acoustic colony analysis via device microphone: Users can capture a short hive-entrance audio sample during inspection. The system uses ML-based acoustic classification to surface colony-state signals (queenright confidence, agitation level, swarm-readiness indicators) as additional evidence inputs to the recommendation engine. This provides sensor-grade colony intelligence without requiring dedicated hardware, differentiating from sensor-dependent competitors.
 
 ### Market Context & Competitive Landscape
 
@@ -338,6 +366,12 @@ Phase 2 (Post-MVP):
 - Enhanced operations features (batch workflows, deeper multi-location optimization).
 - Improved support and audit tooling and recommendation trace depth.
 - Early predictive models where data quality supports reliability.
+- Regional activity signals: surface anonymized, aggregated management-activity patterns from users in the same climate zone as contextual decision support (e.g., treatment timing consensus, feeding activity trends).
+- Mentor-mentee pairing: optional structured mentorship connections with shared visibility into hive status (permission-gated), enabling guided coaching within the platform.
+- Compliance-formatted record exports: generate jurisdiction-aware inspection, treatment, and hive-movement reports compatible with state apiary program requirements.
+- Conversational inspection Q&A: voice-driven, context-aware question answering during inspections, using RAG over curated domain knowledge combined with user hive context.
+- AI-generated inspection narratives: after each inspection, automatically generate a human-readable summary report from structured observations, photos, and voice notes.
+- Predictive colony trajectory modeling: per-colony health trajectory projections based on longitudinal inspection data, telemetry, and regional patterns.
 
 Phase 3 (Expansion):
 - Mature predictive intelligence (for example swarm-risk forecasting at higher confidence).
@@ -358,12 +392,32 @@ Resource Risks:
 - Highest risk: over-scoped MVP delays learning.
 - Mitigation: enforce strict phase gates; defer non-core differentiators unless they improve the proving loop directly.
 
+Liability Risks:
+- Highest risk: recommendations are advisory, not professional veterinary or agricultural guidance. If a user follows guidance and loses colonies, there is potential legal exposure.
+- Mitigation: terms of service must include explicit disclaimers. In-app recommendation language must consistently frame actions as suggestions with user discretion emphasized. Legal review of recommendation copy is required before launch.
+
+AI Inference Cost Risks:
+- Highest risk: Vision AI and recommendation engine inference costs may exceed sustainable per-user thresholds at scale.
+- Mitigation: model per-user-per-month AI costs and monitor against revenue targets. Implement usage-based throttling or tiered access if per-user AI costs exceed sustainable thresholds.
+- Vision AI scope gate: if image-analysis precision on the MVP validation set does not reach 70% by the end of beta, Vision AI will be descoped to media capture with manual tagging and deferred to Phase 2.
+
+Seasonal Usage Concentration Risks:
+- Highest risk: active usage will spike sharply in spring/early summer and drop in winter. Infrastructure must handle 3-5x peak-to-trough load variation.
+- Mitigation: retention and engagement metrics must be interpreted with seasonal normalization. Winter engagement features (e.g., season review, next-season planning, skill progression) should be considered for post-MVP to reduce churn during off-season.
+
 ## Functional Requirements
 
 ### User Identity, Profiles, and Access
 
-- FR1: A user can create and manage an account.
+- FR1a: A user can create an account using email-and-password or supported social authentication.
+- FR1b: A user can update account settings including email, password, and display name.
+- FR1c: A user can initiate account recovery via email.
+- FR1d: A user can delete their account and all associated data.
 - FR2: A user can set and update a beekeeper profile including experience level, goals, and operating preferences.
+- FR2a: The system shall allow users to modify all onboarding-provided profile data (experience level, region, hive count, goals) at any time from settings, with immediate effect on recommendation depth and seasonal context.
+- FR2b: A new user must complete a guided onboarding flow that captures region, hive configuration, experience level, and management goals before the system generates personalized guidance.
+- FR2c: The system shall block or visibly degrade guidance quality if required onboarding context (region, experience level) is incomplete.
+- FR2d: The system shall monitor user behavior for signals of skill-level mismatch (e.g., an "Experienced" user frequently viewing educational explanations, or a "Newbie" user consistently dismissing guided steps) and suggest profile adjustment.
 - FR3: A user can register and manage multiple apiary locations.
 - FR4: A user can register and manage multiple hives within each location.
 - FR5: An account owner can grant read-only access to designated collaborators.
@@ -373,10 +427,17 @@ Resource Risks:
 ### Localization and Context Intelligence
 
 - FR8: The system can determine and maintain a user’s active regional and seasonal context.
+- FR8a: The system shall detect when a user’s device location significantly diverges from their registered apiary locations and prompt for confirmation or re-registration.
+- FR8b: When a user registers apiaries in a new region, the system shall reset seasonal context for those apiaries to the new region’s baseline and clearly inform the user that personal history from a prior region will not be used for seasonal timing recommendations in the new location until local history is established.
 - FR9: The system can prevent or clearly flag guidance when required localization context is unavailable.
 - FR10: The system can incorporate local weather context into guidance decisions.
 - FR11: The system can incorporate bloom/flora context into guidance decisions.
+- FR11a: The system shall allow users to apply microclimate adjustments to their apiary's seasonal context, including elevation offset and observed bloom timing relative to regional baseline.
+- FR11b: When a user consistently overrides or delays acting on regionally-timed recommendations, the system shall detect this pattern and suggest a microclimate adjustment.
 - FR12: The system can combine user history and regional context when generating recommendations.
+- FR12a: The system shall maintain a jurisdiction-aware treatment registry that flags treatments by legal status (approved, restricted, prescription-required, prohibited) for each supported region.
+- FR12b: The system shall never recommend a treatment flagged as prohibited in the user's registered jurisdiction. Treatments flagged as restricted or prescription-required shall include a visible regulatory notice and a directive to consult local authorities or a veterinarian before use.
+- FR12c: When the jurisdiction registry does not have data for a user's region, treatment recommendations shall include a disclaimer: "Treatment regulations vary by location — verify legality with your local agricultural authority before use."
 
 ### Planning and Prioritization
 
@@ -384,18 +445,21 @@ Resource Risks:
 - FR14: The system can rank actions by urgency and expected outcome impact.
 - FR15: A user can view a seasonal planning calendar of recommended activities.
 - FR16: The system can identify overdue high-impact tasks and surface catch-up guidance.
+- FR16b: A user can defer, reschedule, or dismiss a queued action with optional reason capture, and the system shall adjust remaining priorities accordingly.
 - FR17: A user can view risk-themed seasonal signals (for example swarm, starvation, pest pressure, queen risk).
 - FR18: The system can update priorities when new relevant context is received.
 
 ### Guided Inspection and Decision Support
 
 - FR19: A user can start a guided inspection workflow for a selected hive.
+- FR19a: The system shall present a safety awareness checklist before a user's first guided inspection, covering protective equipment, sting allergy risk, and emergency preparedness. The checklist must be acknowledged before the inspection workflow begins.
 - FR20: The system can adapt inspection guidance based on observations captured during the session.
 - FR21: The system can provide a recommended next action during inspection.
 - FR22: The system can provide rationale for each recommendation.
 - FR23: The system can provide a confidence level for each recommendation.
 - FR24: The system can provide a safe fallback action when recommendation confidence is limited.
 - FR25: A user can complete a shortened inspection path for time-constrained sessions.
+- FR25b: A user can pause and resume an in-progress inspection workflow, with the system preserving captured observations and adapting remaining guidance to the resumed context.
 - FR26: The system can distinguish and communicate normal versus cautionary versus urgent observations.
 
 ### Logging, Records, and Data Portability
@@ -404,9 +468,11 @@ Resource Risks:
 - FR28: A user can add media-based observations to hive records.
 - FR29: The system can convert captured inputs into structured, action-typed records.
 - FR30: A user can review and correct structured records after capture.
+- FR30a: The system shall retain original audio recordings for voice-captured observations to support post-session correction.
+- FR30b: The system shall flag voice entries with low transcription confidence for user review during a post-inspection correction step.
 - FR31: The system can maintain longitudinal hive and action history.
-- FR32: A user can export their records in machine-readable format.
-- FR33: A user can export their records in spreadsheet-compatible format.
+- FR32: A user can export their records in JSON format.
+- FR33: A user can export their records in CSV format.
 
 ### Learning Progression and Inspection Intelligence
 
@@ -430,7 +496,12 @@ Resource Risks:
 - FR45: The system can ingest telemetry linked to specific hives and locations.
 - FR46: The system can indicate telemetry freshness and sync status.
 - FR47: The system can adjust recommendation priority based on connected telemetry.
+- FR47a: The system shall apply plausibility checks to incoming telemetry data before using it to trigger alerts or alter recommendation priority. Single-reading anomalies (e.g., sudden large weight change without corroborating temperature or prior trend signals) shall be flagged as "unconfirmed sensor reading" rather than treated as confirmed events.
+- FR47b: Telemetry-triggered urgent alerts shall require corroboration from at least one additional signal (e.g., sustained trend over multiple readings, corroborating sensor type, or seasonal plausibility) before escalating to push notification level.
 - FR48: The system can continue operating with degraded guidance when integrations are unavailable.
+- FR48a: The system shall track and expose freshness timestamps for each external context source (weather, bloom/flora, telemetry) independently.
+- FR48b: The system shall apply confidence penalties to recommendations when any contributing external context source exceeds its defined staleness threshold, and shall communicate which source is degraded.
+- FR48c: The system shall define maximum acceptable staleness thresholds per external data category (e.g., weather: 24 hours, bloom/flora: 7 days, telemetry: configurable per sensor type).
 - FR49: A user can disconnect integrations while preserving historical records.
 
 ### Supportability, Trust, and Governance
@@ -440,7 +511,14 @@ Resource Risks:
 - FR52: The system can support recovery guidance flows after missed or delayed actions.
 - FR53: The system can retain an auditable trail of recommendation and user action events relevant to trust and support.
 - FR54: The system can present uncertainty explicitly to users when evidence is incomplete.
+- FR54a: The system shall distinguish between low confidence due to conflicting evidence and low confidence due to insufficient data, and communicate each state differently to users.
+- FR54b: The system shall allow users to report that a recommendation led to a negative outcome, and shall store this feedback linked to the recommendation evidence context for calibration review.
+- FR54c: The system shall flag recommendation scenarios where the training data or regional baseline coverage is below a defined threshold, and present these as "limited experience" rather than a numeric confidence score.
 - FR55: The system can enforce role-appropriate visibility for sensitive account data.
+- FR55b: The system can present periodic in-app feedback prompts to measure user-reported decision confidence and perceived value.
+- FR56: A user can capture a short audio recording of hive activity during an inspection workflow.
+- FR57: The system can analyze hive audio recordings to surface colony-state indicators (e.g., queenright confidence, agitation, swarm readiness) with associated confidence levels.
+- FR58: The system can incorporate audio-derived colony-state indicators as evidence inputs to recommendation generation.
 
 ## Non-Functional Requirements
 
@@ -451,6 +529,7 @@ Resource Risks:
 - NFR3: The system shall allow creation of a voice-first inspection log entry in 60 seconds or less for standard workflows.
 - NFR4: The system shall preserve usable interaction performance on commonly used modern mobile devices across supported OS versions.
 - NFR5: The system shall return image-analysis results for standard inspection photos within 5 seconds under normal network conditions or provide explicit pending-state feedback when longer processing is required.
+- NFR5b: The system shall achieve voice-to-text transcription accuracy of at least 90% word accuracy for common beekeeping terminology under typical outdoor noise conditions.
 
 ### Reliability and Availability
 
@@ -458,6 +537,9 @@ Resource Risks:
 - NFR7: The system shall queue offline writes and synchronize them once connectivity is restored without user data loss.
 - NFR8: The system shall achieve monthly service availability of at least 99.5% for core planning and recommendation services.
 - NFR9: The system shall provide visible sync-status indicators when local and server state are not yet aligned.
+- NFR9b: The system shall perform automated backups of all user data with a recovery point objective (RPO) of no more than 4 hours and a recovery time objective (RTO) of no more than 2 hours.
+- NFR9c: The system shall retain user hive records and recommendation history for at least 3 years from creation, or until account deletion is requested.
+- NFR9d: Each observation, voice capture, and action logged during an inspection session shall be persisted to local storage incrementally as it is captured, not batched at session completion. If the app terminates unexpectedly, the user shall be able to resume from the last persisted observation.
 
 ### Security and Privacy
 
@@ -466,12 +548,16 @@ Resource Risks:
 - NFR12: The system shall support user-controlled data export and account-level access revocation.
 - NFR13: The system shall log security-relevant access and permission-change events for auditability.
 - NFR14: The system shall collect only required permission scopes and provide purpose-specific consent messaging for location, microphone, camera, and notifications.
+- NFR14b: The system shall complete account deletion and associated data purge within 30 days of user request, consistent with GDPR Article 17 and comparable privacy regulations.
 
 ### Scalability
 
-- NFR15: The system shall support at least 10x growth from initial MVP active-user baseline without requiring capability redesign.
+- NFR15: The system architecture shall support at least 5,000 concurrent active users without requiring fundamental redesign of recommendation, queue, or sync subsystems. Initial MVP baseline shall be documented at launch and the 10x target recalibrated.
 - NFR16: The system shall maintain core recommendation and queue responsiveness with less than 10% degradation under planned seasonal peak usage loads.
 - NFR17: The system shall support multi-location, multi-hive accounts at Sideliner scale within defined MVP and post-MVP limits.
+- NFR17a: Explicit scale tiers: MVP must support up to 50 hives across up to 5 locations; Post-MVP Phase 2 must support up to 250 hives across up to 15 locations; Phase 3 targets TBD based on usage data.
+- NFR17b: Weekly action queues exceeding 20 items per apiary shall be paginated or grouped by action type with counts, rather than rendered as a flat list.
+- NFR17c: Action queue computation for accounts exceeding 100 hives shall use progressive loading — display highest-priority apiary within 2 seconds and load remaining apiaries in background.
 
 ### Accessibility and Usability Quality
 
@@ -484,6 +570,7 @@ Resource Risks:
 - NFR21: The system shall detect and surface telemetry freshness and staleness status for connected integrations.
 - NFR22: The system shall degrade recommendation confidence when required external inputs are stale or unavailable.
 - NFR23: The system shall support version-tolerant integration contracts to minimize disruption from provider-side API changes.
+- NFR23b: The system shall enforce rate limits on integration API endpoints, with documented thresholds per provider, and return standard HTTP 429 responses when limits are exceeded.
 
 ### Observability and Trust
 
@@ -491,3 +578,4 @@ Resource Risks:
 - NFR25: The system shall capture product telemetry needed to measure confidence impact, workflow completion, and recommendation acceptance and override behavior.
 - NFR26: The system shall expose operational health metrics and alerting for critical sync, recommendation, notification, and image-analysis pipelines.
 - NFR27: The system shall suppress high-confidence visual-analysis conclusions when model confidence falls below the defined trust threshold and present a fallback guidance path instead.
+- NFR28: The system shall achieve at least 80% precision on supported inspection image categories (brood pattern assessment, queen cell detection, pest/disease indicators) as measured against expert-labeled validation sets before production deployment.

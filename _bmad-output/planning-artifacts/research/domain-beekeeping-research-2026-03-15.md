@@ -127,6 +127,8 @@ The strongest pattern is a **two-speed industry**: a mature biological commodity
 
 The competitive field is best understood as two connected arenas: (1) traditional beekeeping supply and honey value-chain companies, and (2) precision-beekeeping/pollination technology players. In traditional supply, highly visible leaders include Dadant, Mann Lake, and Betterbee, each with broad equipment catalogs and established channel presence. In the precision layer, BeeHero and BroodMinder clearly position around telemetry, monitoring, and operational decision support.
 _Market Leaders: Mann Lake (self-positioned as largest manufacturer/supplier), Dadant (long-established beekeeping supplier), Betterbee (supply + education), BeeHero and BroodMinder (tech-enabled hive/pollination monitoring)_
+_BeeHero Competitive Context: BeeHero has raised approximately $64M+ in venture funding (through Series B as of 2023-2024), positioning it as the most well-capitalized precision beekeeping startup. Its primary focus is commercial pollination optimization for large agricultural operations, not hobbyist/beginner beekeeping. This capital concentration in the commercial segment leaves the hobbyist/beginner digital experience relatively underserved by venture-backed competitors._
+_Additional Digital Competitors: HiveTracks (web + mobile colony management with 100K+ registered users claimed), Arnia (UK-based remote monitoring with research partnerships), Nectar (AI-powered hive management from OSBeehives), and multiple regional/open-source options. The open-source ecosystem is relevant because it establishes baseline feature expectations and creates pressure on proprietary pricing._
 _Major Competitors: Regional equipment manufacturers and direct-to-beekeeper online suppliers; tech competitors include software-first and sensor-first offerings_
 _Emerging Players: Digital hive-management platforms (e.g., Beearo) and additional precision-beekeeping startups_
 _Global vs Regional: Traditional supply leadership is often regional/national, while precision pollination services target multi-region commercial agriculture networks_
@@ -284,6 +286,14 @@ _Source: https://commission.europa.eu/law/law-topic/data-protection/data-protect
 
 Overall, the regulatory posture favors configurable compliance architecture over static rules, with strong emphasis on recordkeeping and jurisdiction-specific operational controls.
 
+### Regulatory Relevance by Segment
+
+For the primary target segment (hobbyist, <50 hives, not selling commercially):
+- **Applicable:** State apiary registration (varies; some states require registration at 1+ hive, others have higher thresholds), Varroa treatment label compliance (FIFRA applies regardless of operation size), local zoning ordinances for backyard beekeeping
+- **Typically not applicable:** FSMA food safety requirements (triggered by commercial food sales), USDA import controls (relevant only for purchasing/importing bees), CCPA/GDPR (relevant to the app developer, not the beekeeper user)
+
+This distinction matters for product design: the app should not overwhelm hobbyist users with commercial compliance workflows that are irrelevant to their operation.
+
 ## Technical Trends and Innovation
 
 ### Emerging Technologies
@@ -368,10 +378,13 @@ _Source: https://doi.org/10.3390/s23010460_
 
 ### Innovation Roadmap
 
-- **Phase 1 (0-6 months):** baseline telemetry + dashboards + digital BMP logging.
-- **Phase 2 (6-12 months):** colony-risk prediction and alert ranking.
-- **Phase 3 (12-18 months):** recommendation optimization based on outcome data.
-- **Phase 4 (18+ months):** partner APIs for grower/pollination workflows and ecosystem integrations.
+- **Phase 0 (0-3 months):** Software-only MVP with manual inspection input, weather/climate API integration, seasonal BMP calendar, and guided checklists. No hardware dependency. Validates core value proposition (does guided management reduce perceived uncertainty and improve outcomes?).
+- **Phase 1 (3-9 months):** Enhanced decision support with colony-state inference from inspection inputs + environmental data. Optional sensor integration for users who adopt hardware.
+- **Phase 2 (9-15 months):** Colony-risk prediction, alert ranking, and recommendation confidence scoring. Sensor data improves model accuracy but is not required.
+- **Phase 3 (15-24 months):** Outcome feedback loops, recommendation optimization, and partner integrations. Hardware telemetry becomes a premium tier differentiator.
+- **Phase 4 (24+ months):** Partner APIs for grower/pollination workflows, fleet management features for scaling users.
+
+_Rationale: A software-first approach matches the primary segment's investment tolerance and validates demand before hardware capital expenditure._
 
 ### Risk Mitigation
 
@@ -456,9 +469,11 @@ _Competitive Positioning Opportunities: Build trusted recommendation intelligenc
 
 ### Strategic Opportunities
 
-- **Market Opportunities**: Commercial pollination operations and multi-apiary management scenarios with high coordination overhead.
+- **Primary Market Opportunity (Hobbyist/Beginner):** Software-guided inspection workflows, seasonal BMP recommendations, and confidence-building decision support for backyard beekeepers (<50 hives). This segment is underserved by existing precision-beekeeping solutions that target commercial operations.
+- **Secondary Market Opportunity (Sideliner/Professional):** Multi-apiary coordination, priority-based alerts, and operational planning for growing operations (50-500 hives).
+- **Tertiary Market Opportunity (Commercial/Pollination):** Fleet operations, pollination-performance metrics, and grower partnership workflows (>500 hives).
 - **Technology Opportunities**: Explainable risk scoring, anomaly detection, intervention ranking, and automated documentation.
-- **Partnership Opportunities**: Collaboration with growers, pollination service providers, equipment channels, and research institutions.
+- **Partnership Opportunities**: Collaboration with beekeeping associations, extension services, equipment retailers, and research institutions.
 
 ## 7. Implementation Considerations and Risk Assessment
 

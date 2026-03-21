@@ -74,7 +74,14 @@ The primary emotional goal of bmad-method is to make users feel safe and confide
 
 ### Emotional Journey Mapping
 
-The emotional journey begins with curiosity at discovery, where the product should feel approachable and intriguing rather than intimidating. During first use, the experience should create immediate relief by helping users feel supported and understood. In the core workflow, especially during inspections and planning, users should feel helped, guided, and steady. After completing important tasks, the emotional outcome should be pride in having done something meaningful and responsible. On return visits, the experience should create excitement by showing useful progress, fresh clarity, and a sense that the user is becoming a better beekeeper over time.
+| Stage | Target Emotion | Design Mechanism | Measurement Signal |
+|---|---|---|---|
+| Discovery | Curiosity, not overwhelm | App store assets show real inspection scenarios, not feature lists. Onboarding starts with "What kind of beekeeper are you?" not "Create account." | Install-to-onboarding-complete rate |
+| First Use | Relief, feeling supported | First homepage shows personalized context immediately after onboarding. First inspection recommendation appears within 30 seconds of reaching homepage. | Time to first recommendation view |
+| Core Workflow | Guided, steady, helped | Recommendations always lead with action, never raw data. Confidence labels prevent second-guessing. Non-blocking warnings avoid panic. | Recommendation acceptance rate; inspection completion rate |
+| Task Complete | Pride, accomplishment | Session summary highlights what was done well. ColonyImprovementSignal shows positive trends. Language: "Nice work" not "Task complete." | Post-session satisfaction (in-app micro-survey) |
+| Return Visit | Excitement, progress | Homepage shows "Since your last visit" delta. Skill progression milestone progress is visible. Week-over-week improvement signals appear. | Return visit rate; time between sessions |
+| Inactivity | Welcome, not guilt | Re-engagement uses "Here's what matters now" framing. No shame language about missed inspections. | Reactivation rate after 7+ day gap |
 
 ### Micro-Emotions
 
@@ -223,12 +230,22 @@ This is not a wholly new interaction metaphor; it is a high-value orchestration 
 
 bmad-method will use a bee-inspired, trust-first color system that balances natural warmth with high field legibility.
 
-Core palette strategy:
-- Base neutrals: warm wax and charcoal tones for readability and outdoor contrast.
-- Primary brand color: honey-amber for action emphasis and recognizable product identity.
-- Secondary support color: pollen-gold for highlights and progress cues.
-- Nature anchor color: deep leaf-green for healthy-state signals and grounded calm.
-- Utility tones: sky-blue for informational context and muted earth-brown for secondary metadata.
+Core palette with token values:
+
+| Token Name | Role | Hex Value | Usage |
+|---|---|---|---|
+| `color-primary` | Honey Amber | #D4880F | Primary actions, CTAs |
+| `color-secondary` | Pollen Gold | #E8B931 | Highlights, progress cues |
+| `color-success` | Leaf Green | #2D7A3A | Healthy state, success feedback |
+| `color-warning` | Dark Amber | #B8720A | Emerging risk indicators |
+| `color-error` | Deep Rust Red | #A63D2F | Critical alerts, errors |
+| `color-info` | Sky Blue | #4A90C4 | Informational context |
+| `color-surface` | Warm Wax | #FDF6E8 | Background surfaces |
+| `color-surface-alt` | Off-White | #FAFAF7 | Secondary backgrounds |
+| `color-text` | Charcoal | #2C2C2C | Primary text |
+| `color-text-muted` | Muted Slate | #6B7280 | Secondary text, metadata |
+
+Note: All pairings must be validated against WCAG 2.1 AA contrast ratios (minimum 4.5:1 for normal text, 3:1 for large text). Specifically validate: Honey Amber on Warm Wax, Muted Slate on Warm Wax, and Pollen Gold on Off-White, which are the highest-risk pairings.
 
 Semantic mapping:
 - Primary actions: Honey Amber
@@ -256,10 +273,22 @@ Type strategy:
 - Body copy is prioritized for short actionable guidance, with optional deeper explanatory layers.
 - Recommendation cards should use clear visual hierarchy: action first, rationale second, confidence third.
 
-Type scale approach:
-- H1 and H2 tuned for quick scanning in sunlight.
-- Body text and labels sized above minimum accessibility defaults.
-- Numeric telemetry values use tabular-friendly styling for easy comparison.
+Type scale (8px base, 1.25 ratio):
+
+| Token | Size | Weight | Line Height | Usage |
+|---|---|---|---|---|
+| `text-h1` | 28px | 700 | 36px | Screen titles |
+| `text-h2` | 22px | 600 | 28px | Section headers |
+| `text-h3` | 18px | 600 | 24px | Card titles |
+| `text-body` | 16px | 400 | 24px | Body copy, guidance text |
+| `text-body-sm` | 14px | 400 | 20px | Secondary descriptions |
+| `text-caption` | 12px | 500 | 16px | Metadata, timestamps |
+| `text-label` | 14px | 600 | 20px | Button labels, form labels |
+| `text-data` | 20px | 500 mono | 28px | Telemetry values, numeric displays |
+
+Minimum body text size: 16px. No text in the core UI should be smaller than 12px. Field-use screens (inspection, logging) should default to `text-body` or larger.
+
+Typeface: System default sans-serif (San Francisco on iOS, Roboto on Android) for maximum rendering reliability and zero font-loading latency. Tabular/monospace figures for numeric displays use the platform monospace variant.
 
 ### Spacing & Layout Foundation
 
@@ -267,7 +296,9 @@ Layout should prioritize speed and clarity in high-focus inspection contexts.
 
 Spacing system:
 - Use an 8px base spacing system with consistent token increments.
-- Minimum comfortable touch targets for gloves and field use contexts.
+- Minimum touch target: 48x48px for all interactive elements (exceeding WCAG 44x44px minimum to accommodate gloved use).
+- Recommended touch target for primary actions during inspection flows: 56x48px minimum.
+- Minimum spacing between adjacent touch targets: 8px to prevent mis-taps with gloves.
 - Dense-critical data blocks balanced with breathing room around decision elements.
 
 Layout principles:
@@ -417,6 +448,45 @@ flowchart TD
   R --> S
 ```
 
+### Journey 0: Onboarding (All Personas)
+
+New users must complete a lightweight onboarding flow before reaching the Happy Context Homepage. This flow captures the minimum context required for personalized guidance.
+
+```mermaid
+flowchart TD
+  A([Install & Open]) --> B[Welcome Screen\nValue proposition: one clear sentence]
+  B --> C[Account Creation\nemail/social auth, minimal fields]
+  C --> D[Experience Level Selection\nNewbie / Amateur / Sideliner\nwith plain-language descriptions]
+  D --> E[Region & Location Setup\nauto-detect via GPS with manual override\npermission request with trust messaging]
+  E --> F[First Apiary Setup\nname, location pin, hive count]
+  F --> G[Goal Selection\ncolony health / honey production / learning / all\nmulti-select with defaults]
+  G --> H{Telemetry devices?}
+  H -- Yes --> I[Connect Telemetry\nguided pairing flow]
+  H -- Not now --> J[Skip with reassurance:\nyou can connect later]
+  I --> K[Onboarding Summary\nyour setup at a glance]
+  J --> K
+  K --> L[Happy Context Homepage\nfirst personalized session]
+```
+
+#### Onboarding Design Requirements
+
+- Total flow target: under 3 minutes.
+- Each step must show why the information matters for guidance quality.
+- GPS permission request uses trust-first messaging: "Your location helps us give you regionally accurate seasonal guidance."
+- Microphone permission is deferred to first voice interaction, not requested during onboarding.
+- Camera permission is deferred to first inspection with image capture.
+- Users can skip non-critical steps and complete them later via Settings.
+- Progress indicator shows completion state across onboarding steps.
+- Offline-safe: if network is unavailable, allow local setup and defer account creation.
+
+#### Mid-Season Onboarding Variant
+
+When a user onboards outside the typical season start window, the system shall present a "Catch-up Assessment" flow that captures current colony state through a guided checklist (e.g., approximate colony strength, queen status, whether treatments have been applied, whether supers are on). This establishes a synthetic baseline so that recommendations can begin immediately with reasonable context. The seasonal planning calendar shall show past milestones as "not tracked" rather than "missed."
+
+### Pre-Inspection Safety Gate (Newbie Persona)
+
+Before the first guided inspection begins, the system shall display a non-skippable safety checklist covering: (1) protective equipment (veil, gloves, suit), (2) sting allergy awareness and recommendation to carry an epinephrine auto-injector if prescribed, (3) recommendation to have a companion present for early inspections, (4) emergency contact accessibility. The user must acknowledge the safety checklist before proceeding. For the first 3 inspections, a condensed safety reminder shall appear at inspection start. After 3 completed inspections, the reminder becomes optional.
+
 ### Journey Patterns
 
 - Happy Context Homepage first: every session opens with useful feel-good regional context before operational decisions.
@@ -435,6 +505,50 @@ flowchart TD
 - Confirm voice scope before batch writes to prevent accidental bulk updates.
 - Use progressive reveal: summary first, detail only when requested.
 - End every flow with a next signal: follow-up date, improvement metric, or risk indicator.
+
+### Settings & Profile Management
+
+Settings is accessible from the bottom navigation bar and organized into the following sections:
+
+#### Profile & Preferences
+- Experience level (changeable; triggers guidance depth recalibration)
+- Goals and operating preferences
+- Region and seasonal context override
+
+#### Apiaries & Hives
+- Add, edit, archive apiaries and hives
+- Hive naming, ordering, and metadata
+- Apiary and hive creation is also accessible from Apiary Summary Screen via a "+" button
+
+#### Notifications
+- Global notification toggle
+- Per-apiary sensitivity slider (Low / Normal / High)
+- Seasonal escalation auto-adjust toggle
+- Suppression windows (e.g., "quiet hours")
+- Notification history log
+
+#### Integrations
+- Connected telemetry devices with sync status
+- Connect / disconnect controls
+- Freshness and health indicators per integration
+
+#### Collaborators
+- Invite read-only collaborator (email or link)
+- View active collaborators with access date
+- Revoke access with confirmation
+
+#### Data & Privacy
+- Export all data (JSON / CSV) with progress indicator and scope selection (all data, specific apiary, or date range)
+- Account deletion with data-handling explanation
+- Privacy policy and consent management
+
+### Re-engagement After Inactivity
+
+When a user returns after more than 7 days of inactivity:
+- The Happy Context Homepage shows a "Welcome back" header with a summary of what has changed: weather shifts, seasonal phase transitions, and any telemetry alerts that occurred during absence.
+- A priority CTA replaces the standard homepage CTAs: "Catch up on [X] hives that need attention."
+- Overdue actions are flagged with time-since-due indicators and re-ranked by current urgency rather than original schedule.
+- Tone is recovery-oriented: "It's been a while. Here's what matters most right now." Never punitive.
 
 ## Component Strategy
 
@@ -477,11 +591,34 @@ All tiered health cards use a shared base contract (`HealthStatusCardBase`) and 
 - `RecommendationActionRow`: response controls using `Did It` and `Ignore` with optional voice shortcut.
 - `HiveWarningIndicator`: non-blocking warning marker used inline at list and detail levels.
 
+#### Vision AI Components
+
+- `InspectionImageCapture`: camera overlay during guided inspection with capture prompt and framing guide. Supports offline queuing when network is unavailable.
+- `ImageAnalysisResultCard`: displays AI-identified findings (e.g., queen cells, mite presence, brood pattern quality) with per-finding confidence level, interpretive label, and link to relevant recommendation. Includes explicit "AI confidence: [level]" badge and fallback text when confidence is below threshold: "Could not interpret with high confidence. Consider asking an experienced beekeeper."
+- `ImageAnalysisLoadingState`: progress indicator during analysis with estimated wait time. If analysis exceeds 5 seconds, shows: "Still analyzing... you can continue your inspection and we'll notify you when results are ready."
+
+#### Skill Progression Components
+
+- `SkillProgressionCard`: displays current skill level (Newbie / Amateur / Sideliner), milestones completed, and next milestone with progress bar. Shown on profile screen and optionally on homepage.
+- `MilestoneAchievementToast`: celebratory but restrained notification when a milestone is reached. Uses Pollen Gold accent. Tone: "You've completed 10 guided inspections. Your guidance will now include more concise options."
+
+#### Notification Components
+
+- `NotificationCenter`: accessible from app header; shows chronological list of alerts grouped by today / this week / earlier.
+- `ActionableNotificationCard`: displays alert reason, affected hive/apiary, recommended next step, and action buttons (Go to Hive, Dismiss, Snooze).
+- `NotificationBadge`: appears on the header bell icon with unread count; clears on open.
+
+#### Planning Components
+
+- `SeasonalPlanningCalendar`: month-view calendar showing recommended activity windows (feeding, treatment, inspection types) color-coded by activity type. Tapping a date shows that day's recommended actions. Current week is highlighted. Seasonal phase labels appear as horizontal bands across relevant date ranges.
+- `WeeklyActionQueue`: the existing planning view, linked from the calendar's current-week focus.
+
 #### Planning and Voice Components
 
 - `ApiaryAccordionQueue`: scalable per-apiary recommendation grouping with progressive disclosure.
-- `LiveVoiceInputDiscussionMode`: free-form conversational capture for guidance, clarifications, and commands.
-- `ScopeConfirmationSheet`: confirmation step for voice-derived bulk actions before commit.
+- `VoiceLogCapture`: single-utterance voice input for observation and action logging during inspections. Includes: microphone button (56x56px minimum), live transcript preview, structured interpretation display, confirm/edit/retry controls, and tap-based fallback. This is the MVP voice primitive.
+- `LiveVoiceInputDiscussionMode`: conversational voice interface for free-form guidance queries, clarifications, and multi-step commands. Interaction model: user activates via microphone button or wake phrase; system listens and displays live transcript; on pause detection (1.5 seconds of silence), system processes and responds; conversation context is maintained within a session (multi-turn); exit via "Done" button or 30 seconds of inactivity; all voice exchanges are logged as part of the inspection record; fallback: if voice is unavailable, same interface accepts typed input.
+- `ScopeConfirmationSheet`: confirmation step for voice-derived bulk actions before commit. The sheet shall read back the interpreted scope audibly (via text-to-speech) before requiring confirmation. After a batch action is confirmed and written, a 30-second undo window with a prominent undo button is provided. The system shall warn when a batch action conflicts with recent records.
 
 ### Component Implementation Strategy
 
@@ -501,6 +638,10 @@ All tiered health cards use a shared base contract (`HealthStatusCardBase`) and 
 - `RecommendationActionRow`
 - `HiveWarningIndicator`
 - `HiveHealthCard` (with embedded `ColonyImprovementSignal`)
+- `VoiceLogCapture`
+- `InspectionImageCapture`
+- `ImageAnalysisResultCard`
+- `SkillProgressionCard`
 
 #### Phase 2 - Planning and Scale Components
 
@@ -579,6 +720,67 @@ ColonyImprovementSignal is implemented as a nested progress subcomponent within 
 
 Accessibility baseline requirements include WCAG 2.1 AA contrast targets, large field-ready touch targets, visible focus states, and restrained motion.
 
+### Voice Interaction Patterns
+
+#### Voice Activation
+- Voice input is activated via a persistent, high-visibility microphone button (56x56px minimum) anchored to the bottom of inspection and logging screens.
+- Visual feedback: pulsing ring animation during active listening; waveform visualization shows audio is being captured.
+- Hands-free activation option: configurable wake phrase (default: "Hey Broodly") for fully hands-free operation. Disabled by default; enabled in Settings.
+
+#### Voice Processing Feedback
+- Real-time transcript preview appears as the user speaks, confirming the system is hearing correctly.
+- On completion, the structured interpretation is shown with a 3-second auto-confirm window: "I heard: 'Added super to Hive 4.' [Confirm] [Edit] [Retry]"
+- Auto-confirm can be disabled in Settings for users who prefer explicit confirmation.
+
+#### Voice Failure Handling
+- If no speech is detected for 5 seconds after activation, show: "Didn't catch that. Tap to try again or type instead." with Retry and Type buttons.
+- If ambient noise prevents recognition, show: "Too much background noise. Try moving closer to your phone or switch to tap input." Automatically offer tap-based quick-select alternatives for common actions.
+- If speech is captured but interpretation confidence is low, show the raw transcript with: "Not sure I got that right. Please confirm or edit:" with editable text field pre-populated with the best-guess transcript.
+- Network-dependent voice processing: if offline, use on-device recognition with reduced accuracy label. If on-device recognition is unavailable, voice button shows "Voice unavailable offline" and defaults to tap input.
+
+#### Voice Capture in High-Noise Environments
+- The system shall detect ambient noise levels before and during voice capture and display a noise-quality indicator.
+- If noise exceeds a usable threshold, suggest the user move away from the hive or switch to tap-based quick-select observation entry.
+- All voice-captured observations shall be stored with the original audio recording alongside the transcription, enabling post-inspection correction.
+- A post-inspection review queue shall surface all voice entries with below-threshold transcription confidence, allowing batch correction after gloves are removed.
+
+#### Common Voice Commands
+- Document and surface a list of reliable voice command patterns in an accessible help overlay:
+  - "Fed [hive name]"
+  - "Added super to [hive name]"
+  - "Spotted queen in [hive name]"
+  - "All hives treated with [treatment]"
+  - "Skip this step"
+  - "Go back"
+
+### Offline and Sync Patterns
+
+#### Offline Indicator
+- A persistent but non-intrusive banner appears at the top of the screen when the device has no network connectivity.
+- Banner text: "You're offline. Your work is saved locally and will sync when you reconnect."
+- Banner uses the Sky Blue informational color with a cloud-offline icon.
+- The banner dismisses automatically when connectivity returns, with a brief "Back online. Syncing..." confirmation.
+
+#### Staleness Escalation Pattern
+- Less than 24 hours offline: subtle "offline" badge on context cards; recommendations operate normally with last-known data.
+- 24-72 hours offline: amber banner at top of recommendation screens stating "Context data is [X] hours old — recommendations may not reflect current conditions"; confidence scores are visually downgraded one tier.
+- More than 72 hours offline: persistent red banner with "Recommendations are based on significantly outdated context — verify conditions independently before acting"; recommendations revert to conservative safe-action defaults; the system suppresses high-confidence labels entirely.
+
+#### Sync Status
+- A sync status icon appears in the app header when local data has not yet been written to the server.
+- States: Synced (hidden), Pending (subtle dot indicator), Syncing (animated), Sync Failed (warning icon with retry action).
+- Tapping the sync indicator opens a sync detail sheet showing pending items count and last successful sync timestamp.
+
+#### Degraded Recommendation State
+- When recommendations are generated without live weather, telemetry, or bloom data, the recommendation card displays a "Based on last known data" label with a timestamp.
+- Confidence scores are visually downgraded (e.g., shown in Muted Slate rather than standard color).
+
+#### Error Recovery
+- Voice capture failure: show transcript attempt, offer retry button and manual text fallback.
+- Image upload failure: queue locally with visible "will upload when online" label; allow inspection to continue.
+- Sync conflict: present both versions with timestamps and let user choose which to keep, defaulting to most recent.
+- Session interrupted (app crash / background kill): auto-save inspection progress locally; on relaunch, offer "Resume inspection?" prompt with last-saved state.
+
 ## Responsive Design & Accessibility
 
 ### Responsive Strategy
@@ -621,11 +823,21 @@ Target WCAG 2.1 AA as baseline compliance for all key workflows.
 Core accessibility requirements:
 - Contrast ratios meet or exceed AA targets.
 - Status is never color-only; always pair with text and icon.
-- Touch targets are field-safe and at least 44x44px.
+- Touch targets are field-safe and at least 48x48px (see spacing section for field-specific minimums).
 - Visible focus indicators for keyboard and assistive navigation.
 - Semantic structure and labels for all major controls and cards.
 - Voice and tap parity for critical action flows where feasible.
 - Motion remains minimal and non-essential.
+- Respect the `prefers-reduced-motion` system setting. When enabled: disable pulsing voice indicator (use static icon), disable waveform animation (use static "listening" label), and replace slide transitions with instant cuts.
+
+Screen reader requirements:
+- All custom components must expose appropriate ARIA roles and labels.
+- Health status cards must announce: hive name, status level (e.g., "warning"), and next action date as a single accessible description.
+- Recommendation cards must announce: action, confidence level, and rationale in reading order.
+- Voice input button must announce its state: "Voice input. Double tap to start recording" / "Recording. Double tap to stop."
+- Warning indicators must announce their content when focused, not require a tap to reveal.
+- Inspection flow steps must announce step number, total steps, and current step title.
+- Did It / Ignore buttons must include context: "Mark 'Add super to Hive 3' as done" rather than just "Did It."
 
 Field-specific accessibility emphasis:
 - High legibility in outdoor light.
