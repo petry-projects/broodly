@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bmad-method | Clickable Wireframe Prototype</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --line: #d1d5db;
+      --text: #111827;
+      --muted: #6b7280;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      z-index: 2;
+    }
+    h1 { margin: 0; font-size: 19px; }
+    p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+    }
+    .sidebar {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      height: fit-content;
+      position: sticky;
+      top: 82px;
+    }
+    .sidebar strong { display: block; margin-bottom: 8px; font-size: 13px; }
+    .navlink {
+      display: block;
+      margin-bottom: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #1f2937;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .navlink:hover { background: #f9fafb; }
+
+    .canvas {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 680px;
+    }
+
+    .phone {
+      margin: 0 auto;
+      width: 360px;
+      border: 2px solid #9ca3af;
+      border-radius: 24px;
+      overflow: hidden;
+      height: 640px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      background: #fff;
+    }
+    .status {
+      height: 28px;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      background: #fafafa;
+    }
+    .top {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #374151;
+      background: #f9fafb;
+    }
+    .content {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      overflow: auto;
+    }
+    .block {
+      border: 1px dashed #9ca3af;
+      border-radius: 10px;
+      background: #fcfcfc;
+      padding: 8px;
+      font-size: 12px;
+      color: #374151;
+    }
+    .block strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #111827;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .btn {
+      display: inline-block;
+      border: 1px solid #111827;
+      border-radius: 8px;
+      padding: 9px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      color: #111827;
+      background: #fff;
+      cursor: pointer;
+    }
+    .btn.primary { background: #111827; color: #fff; }
+    .btnrow { display: grid; gap: 7px; }
+
+    .bottomnav {
+      border-top: 1px solid var(--line);
+      background: #fafafa;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .tab {
+      font-size: 11px;
+      text-align: center;
+      color: #4b5563;
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 5px 3px;
+    }
+    .tab:hover { border-color: var(--line); background: #fff; }
+
+    .screen {
+      display: none;
+    }
+    .screen:target {
+      display: block;
+      animation: fade .12s ease;
+    }
+    #wf01 { display: block; }
+
+    .note {
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 12px;
+      color: #374151;
+      background: #fff;
+    }
+
+    @keyframes fade {
+      from { opacity: .2; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>bmad-method — Clickable Wireframe Prototype</h1>
+    <p>Low-fidelity, click-through flow: snapshot → guided inspection → summary/logging → weekly plan.</p>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <strong>Screens</strong>
+      <a class="navlink" href="#wf01">WF-01 Home / Snapshot</a>
+      <a class="navlink" href="#wf02">WF-02 Guided Inspection</a>
+      <a class="navlink" href="#wf03">WF-03 Summary & Logging</a>
+      <a class="navlink" href="#wf04">WF-04 Weekly Action Plan</a>
+      <div class="note">Prototype behavior uses anchor navigation only (no JS), ideal for lightweight handoff and quick review.</div>
+    </aside>
+
+    <main class="canvas">
+      <section id="wf01" class="screen">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>5G 89%</span></div>
+          <div class="top"><strong>Hive 12</strong><span class="chip">Confidence 89%</span></div>
+          <div class="content">
+            <div class="block"><strong>Remembered Context</strong>Last action: Added pollen patty • 6 days ago<br/>Region: Spring Phase 2 • Telemetry fresh</div>
+            <div class="block"><strong>Next Best Action</strong>Run 10-minute inspection: queen cells → stores → mite check</div>
+            <div class="row">
+              <div class="block"><strong>Colony</strong>Improving</div>
+              <div class="block"><strong>Risk</strong>Medium</div>
+              <div class="block"><strong>Time</strong>10 min</div>
+            </div>
+            <div class="btnrow">
+              <a class="btn primary" href="#wf02">Start Guided Inspection</a>
+              <a class="btn" href="#wf04">Open Weekly Action Plan</a>
+            </div>
+          </div>
+          <nav class="bottomnav">
+            <a class="tab" href="#wf01">Home</a>
+            <a class="tab" href="#wf02">Inspect</a>
+            <a class="tab" href="#wf04">Plan</a>
+            <a class="tab" href="#wf03">History</a>
+          </nav>
+        </div>
+      </section>
+
+      <section id="wf02" class="screen">
+        <div class="phone">
+          <div class="status"><span>9:52</span><span>Offline</span></div>
+          <div class="top"><strong>Step 2 of 5</strong><span class="chip">Autosave local</span></div>
+          <div class="content">
+            <div class="block"><strong>Prompt</strong>Do you observe active queen cells?</div>
+            <div class="block"><strong>Input</strong>[Yes] [No] [Unsure] + voice note + photo</div>
+            <div class="block"><strong>Why this matters</strong>Rising swarm probability due to local bloom + colony trend.</div>
+            <div class="block"><strong>Fallback</strong>If unsure, capture photo and continue conservative branch.</div>
+            <div class="btnrow">
+              <a class="btn primary" href="#wf03">Save Response & Continue</a>
+              <a class="btn" href="#wf01">Back</a>
+            </div>
+          </div>
+          <nav class="bottomnav">
+            <a class="tab" href="#wf01">Exit</a>
+            <a class="tab" href="#wf02">Progress</a>
+            <a class="tab" href="#wf02">Voice</a>
+            <a class="tab" href="#wf02">Help</a>
+          </nav>
+        </div>
+      </section>
+
+      <section id="wf03" class="screen">
+        <div class="phone">
+          <div class="status"><span>10:04</span><span>Queued sync</span></div>
+          <div class="top"><strong>Inspection Complete</strong><span class="chip">3 actions</span></div>
+          <div class="content">
+            <div class="block"><strong>Completed Now</strong>✅ Checked queen cells<br/>✅ Assessed stores<br/>✅ Captured mite note</div>
+            <div class="block"><strong>Recommended Follow-up</strong>Feed light syrup if weight trend continues down for 2 days.</div>
+            <div class="block"><strong>Next Checkpoint</strong>Re-inspect in 6 days • reminder prefilled</div>
+            <div class="btnrow">
+              <a class="btn primary" href="#wf04">Finish & Save to Timeline</a>
+              <a class="btn" href="#wf02">Edit Notes</a>
+            </div>
+          </div>
+          <nav class="bottomnav">
+            <a class="tab" href="#wf03">Summary</a>
+            <a class="tab" href="#wf03">Timeline</a>
+            <a class="tab" href="#wf03">Export</a>
+            <a class="tab" href="#wf01">Done</a>
+          </nav>
+        </div>
+      </section>
+
+      <section id="wf04" class="screen">
+        <div class="phone">
+          <div class="status"><span>7:15</span><span>Online</span></div>
+          <div class="top"><strong>This Week</strong><span class="chip">7 tasks</span></div>
+          <div class="content">
+            <div class="block"><strong>#1 Hive 4 (High)</strong>Overdue swarm check • 20 min • apiary north</div>
+            <div class="block"><strong>#2 Hive 9 (High)</strong>Likely super add needed • 15 min</div>
+            <div class="block"><strong>#3 Hive 2 (Medium)</strong>Confirm feed usage trend • 10 min</div>
+            <div class="block"><strong>Tradeoff Note</strong>Completing items 1+2 today reduces weekend risk window.</div>
+            <div class="btnrow">
+              <a class="btn primary" href="#wf02">Start Prioritized Route</a>
+              <a class="btn" href="#wf01">Back to Snapshot</a>
+            </div>
+          </div>
+          <nav class="bottomnav">
+            <a class="tab" href="#wf04">Plan</a>
+            <a class="tab" href="#wf04">Map</a>
+            <a class="tab" href="#wf01">Hives</a>
+            <a class="tab" href="#wf04">Settings</a>
+          </nav>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
