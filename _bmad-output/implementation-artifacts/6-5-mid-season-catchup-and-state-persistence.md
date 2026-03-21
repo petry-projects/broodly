@@ -128,7 +128,7 @@ so that recommendations begin immediately with reasonable context and I never ha
 - Do NOT re-request already-completed onboarding steps on resume; skip to the next incomplete step
 - Do NOT show "missed" language for past milestones; always use "not tracked"
 - Do NOT block app usage entirely for incomplete onboarding; show degraded experience with guidance banner
-- Do NOT store sensitive credentials (passwords) in the onboarding Zustand store; only store non-sensitive profile data
+- Do NOT store sensitive credentials in the onboarding Zustand store; only store non-sensitive profile data
 
 ### Project Structure Notes
 

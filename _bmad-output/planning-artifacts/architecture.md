@@ -120,7 +120,7 @@ Fast local preview, OTA workflow support, and low-friction iteration across iOS/
 **Critical Decisions (Block Implementation):**
 - Primary product is Expo React Native, publishing to iOS, Android, and web via React Native for Web (single codebase).
 - API strategy is GraphQL with schema-first design (`gqlgen` in Go), generated TypeScript client types via GraphQL Code Generator.
-- Auth uses Firebase Authentication (email/password, optional OAuth providers).
+- Auth uses Firebase Authentication (Google + Apple Sign-In only, no passwords).
 - Primary data store is Cloud SQL for PostgreSQL with application-level authorization. GCP is the sole hosting platform.
 - Backend is Go (chi + gqlgen) deployed as a containerized microservice on Google Cloud Run (free tier for MVP).
 - MVP uses cache-first reads with local media staging; full offline sync is deferred post-MVP.
@@ -156,7 +156,7 @@ Fast local preview, OTA workflow support, and low-friction iteration across iOS/
 
 ### Authentication & Security
 
-- **Authentication:** Firebase Authentication (email/password, Google OAuth, Apple Sign-In). Firebase Admin SDK validates ID tokens server-side via Go JWT validation against Google public keys (`golang-jwt/jwt` package).
+- **Authentication:** Firebase Authentication (Google Sign-In, Apple Sign-In). Social login only — no passwords. Firebase Admin SDK validates ID tokens server-side via Go JWT validation against Google public keys (`golang-jwt/jwt` package).
 - **Authorization:** RBAC enforced in Go chi middleware. Roles: owner, collaborator (read-only), support. Permission checks occur at the resolver/handler level before any data access.
 - **Token strategy:** Firebase ID tokens (short-lived, 1 hour) + Firebase refresh tokens (client-managed rotation). Server validates JWT signature, expiry, and claims on every request.
 - **API security:** rate limiting via Cloud Armor or chi middleware (`httprate`), per-user and per-device limits. Request size limits enforced. API keys for integration partners.

@@ -81,9 +81,7 @@ so that I can navigate the app's primary sections and drill into detail screens 
   ├── _layout.tsx              # Root layout (providers)
   ├── (auth)/
   │   ├── _layout.tsx          # Auth stack
-  │   ├── sign-in.tsx
-  │   ├── sign-up.tsx
-  │   └── reset-password.tsx
+  │   └── sign-in.tsx
   └── (tabs)/
       ├── _layout.tsx          # Tab navigator
       ├── index.tsx            # Home

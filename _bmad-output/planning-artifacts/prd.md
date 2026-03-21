@@ -409,9 +409,9 @@ Seasonal Usage Concentration Risks:
 
 ### User Identity, Profiles, and Access
 
-- FR1a: A user can create an account using email-and-password or supported social authentication.
-- FR1b: A user can update account settings including email, password, and display name.
-- FR1c: A user can initiate account recovery via email.
+- FR1a: A user can create an account using Google and Apple Sign-In.
+- FR1b: A user can update account settings including display name.
+- FR1c: (Removed — social login providers handle account recovery natively.)
 - FR1d: A user can delete their account and all associated data.
 - FR2: A user can set and update a beekeeper profile including experience level, goals, and operating preferences.
 - FR2a: The system shall allow users to modify all onboarding-provided profile data (experience level, region, hive count, goals) at any time from settings, with immediate effect on recommendation depth and seasonal context.

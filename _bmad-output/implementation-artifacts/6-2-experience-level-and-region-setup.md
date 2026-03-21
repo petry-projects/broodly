@@ -29,7 +29,7 @@ so that guidance is tailored to my skill level and localized to my area and curr
   - [ ] Render subheading: "This helps us tailor guidance to your experience level." (Text sm, typography-500)
   - [ ] Render three Gluestack Card components (variant="filled") with selected state (variant with primary-500 border, primary-50 bg)
   - [ ] Each card: icon + title (card-title, 15px semibold) + description (card-text, 13px typography-500)
-  - [ ] Newbie: seedling icon, Amateur: bee icon, Sideliner: graduation icon
+  - [ ] Newbie: honeybee icon, Amateur: bee icon, Sideliner: graduation icon
   - [ ] Single-select behavior via local state; tapping one deselects others
   - [ ] "Continue" Button (primary, xl) stores selection in Zustand and navigates forward
   - [ ] Validation: show error if no selection made on Continue tap

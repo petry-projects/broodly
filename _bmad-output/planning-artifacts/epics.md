@@ -74,24 +74,23 @@
 
 ## Epic 2: Authentication & User Identity
 
-**Goal:** Users can create accounts, sign in, recover passwords, and delete accounts. Server validates Firebase tokens on every request. RBAC middleware enforces roles.
-**FRs:** FR1a, FR1b, FR1c, FR1d, FR55
+**Goal:** Users can create accounts via social login (Google + Apple Sign-In), sign in, and delete accounts. Server validates Firebase tokens on every request. RBAC middleware enforces roles.
+**FRs:** FR1a, FR1b, FR1d, FR55
 
-### Story 2.1: Firebase Auth Setup — Email/Password and OAuth Providers
+### Story 2.1: Firebase Auth Setup — Google and Apple Sign-In
 
-**As a** new user, **I want** to create an account with email/password or Google/Apple sign-in, **so that** I can access the app quickly using my preferred method.
+**As a** new user, **I want** to create an account with Google or Apple Sign-In, **so that** I can access the app quickly using my preferred social login.
 **FRs:** FR1a
 **TDD Requirements:**
-- Test: Unit test Firebase Auth client wrapper — mock `createUserWithEmailAndPassword`, assert user object returned.
-- Test: Unit test sign-in flow — mock `signInWithEmailAndPassword`, assert auth state updates in Zustand store.
+- Test: Unit test Firebase Auth client wrapper — mock Google OAuth flow, assert user object returned.
+- Test: Unit test sign-in flow — mock Apple Sign-In flow, assert auth state updates in Zustand store.
 - Test: Unit test OAuth flow — mock Google provider, assert redirect and token capture.
 **Acceptance Criteria:**
-- [ ] Email/password registration and login functional
-- [ ] Google OAuth sign-in functional
-- [ ] Apple Sign-In functional (iOS)
+- [ ] Google Sign-In functional
+- [ ] Apple Sign-In functional (iOS, required by App Store)
 - [ ] Auth state persisted via `@react-native-firebase/auth` onAuthStateChanged
 - [ ] Loading and error states displayed during auth operations
-**Tech Notes:** Use `@react-native-firebase/auth`. Store auth state in Zustand. Firebase project configured with email, Google, Apple providers.
+**Tech Notes:** Use `@react-native-firebase/auth`. Store auth state in Zustand. Firebase project configured with Google and Apple providers. No email/password — social login only.
 
 ### Story 2.2: Go Server JWT Validation Middleware
 
@@ -109,36 +108,30 @@
 - [ ] Token refresh handled client-side; server only validates
 **Tech Notes:** Use `golang-jwt/jwt` with Firebase public key endpoint. Cache public keys with TTL.
 
-### Story 2.3: Account Settings — Update Email, Password, Display Name
+### Story 2.3: Account Settings — Update Display Name
 
-**As a** user, **I want** to update my email, password, and display name from settings, **so that** I can keep my account information current.
+**As a** user, **I want** to update my display name from settings, **so that** I can keep my account information current.
 **FRs:** FR1b
 **TDD Requirements:**
 - Test: Update display name mutation succeeds and returns updated profile.
-- Test: Update email triggers re-authentication flow if required.
-- Test: Update password validates minimum strength requirements.
 **Acceptance Criteria:**
-- [ ] Settings screen with editable fields for display name, email, password
-- [ ] Email change triggers Firebase email verification
-- [ ] Password change enforces minimum complexity
+- [ ] Settings screen with editable display name and read-only linked social account info
 - [ ] Success/error feedback via toast notifications
-**Tech Notes:** Firebase re-authentication required for sensitive operations (email, password change).
+**Tech Notes:** Social login only — email and authentication are managed by the social provider (Google/Apple). No password fields.
 
-### Story 2.4: Account Recovery and Deletion
+### Story 2.4: Account Deletion
 
-**As a** user, **I want** to recover my account via email and permanently delete my account and data, **so that** I have control over my account lifecycle.
-**FRs:** FR1c, FR1d
+**As a** user, **I want** to permanently delete my account and data, **so that** I have control over my account lifecycle.
+**FRs:** FR1d
 **TDD Requirements:**
-- Test: Password reset sends email via Firebase (mock and verify call).
 - Test: Account deletion mutation removes user record, marks associated data for purge.
 - Test: Account deletion triggers cascading soft-delete of apiaries, hives, inspections in database.
 - Test: Verify deletion completes within 30-day NFR14b window (unit test for purge job scheduling).
 **Acceptance Criteria:**
-- [ ] "Forgot password" flow sends Firebase reset email
 - [ ] Account deletion requires confirmation dialog (irreversible action)
 - [ ] Deletion removes Firebase account and schedules data purge
 - [ ] All user data purged within 30 days per NFR14b
-**Tech Notes:** Use Cloud Tasks for scheduled data purge job. Soft-delete with `deleted_at` timestamp, hard purge via async worker.
+**Tech Notes:** Use Cloud Tasks for scheduled data purge job. Soft-delete with `deleted_at` timestamp, hard purge via async worker. Account recovery is handled by social login providers (Google/Apple).
 
 ### Story 2.5: RBAC Middleware — Owner, Collaborator, Support Roles
 
@@ -249,7 +242,7 @@
 ## Epic 4: GraphQL Schema & Core Resolvers
 
 **Goal:** Schema-first GraphQL API exposes all MVP domain operations with generated Go resolvers and TypeScript client types. Recommendation contract (action + rationale + confidence + fallback) is a first-class type.
-**FRs:** FR1b, FR2, FR3, FR4, FR21-FR24 (contract), FR32, FR33
+**FRs:** FR2, FR3, FR4, FR21-FR24 (contract), FR32, FR33
 
 ### Story 4.1: GraphQL Schema Definition — Core Types and Recommendation Contract
 
@@ -400,23 +393,20 @@
 - [ ] Stores persist across app restarts where appropriate
 **Tech Notes:** Use `zustand/middleware` for persistence. NetInfo for connectivity detection.
 
-### Story 5.4: Auth Screens — Sign In, Sign Up, Password Reset
+### Story 5.4: Auth Screens — Social Login (Google + Apple Sign-In)
 
-**As a** user, **I want** polished sign-in, sign-up, and password reset screens, **so that** I have a smooth entry into the app.
-**FRs:** FR1a, FR1c
+**As a** user, **I want** polished sign-in screens with Google and Apple Sign-In, **so that** I have a smooth entry into the app.
+**FRs:** FR1a
 **TDD Requirements:**
-- Test: Sign-in form validates email format and non-empty password before submit.
-- Test: Sign-up form validates password strength and matching confirmation.
-- Test: Reset password form sends recovery email and shows success message.
+- Test: Google Sign-In button triggers OAuth flow and updates auth state.
+- Test: Apple Sign-In button triggers OAuth flow and updates auth state.
 - Test: Auth error messages display user-friendly text (not Firebase error codes).
 **Acceptance Criteria:**
-- [ ] Sign-in screen: email, password, social auth buttons, "forgot password" link
-- [ ] Sign-up screen: email, password, confirm password, social auth buttons
-- [ ] Password reset screen: email input, submit, success feedback
+- [ ] Sign-in screen: Google Sign-In and Apple Sign-In buttons
 - [ ] Loading states during auth operations
 - [ ] Error messages styled with `<Alert action="error">`
-- [ ] Navigation to onboarding after first sign-up
-**Tech Notes:** Use Gluestack Input, Button, Alert components. Follow CLAUDE.md button hierarchy.
+- [ ] Navigation to onboarding after first sign-in
+**Tech Notes:** Use Gluestack Button, Alert components. Follow CLAUDE.md button hierarchy. Social login only — no email/password forms.
 
 ### Story 5.5: Staleness Indicator and Connectivity UX
 
@@ -1156,8 +1146,8 @@
 | FR | Story |
 |---|---|
 | FR1a | 2.1, 5.4 |
-| FR1b | 2.3, 4.1 |
-| FR1c | 2.4, 5.4 |
+| FR1b | 2.3 |
+| FR1c | (Removed — social providers handle account recovery) |
 | FR1d | 2.4 |
 | FR2 | 6.2 |
 | FR2a | 6.2 |

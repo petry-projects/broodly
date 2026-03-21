@@ -455,7 +455,7 @@ New users must complete a lightweight onboarding flow before reaching the Happy 
 ```mermaid
 flowchart TD
   A([Install & Open]) --> B[Welcome Screen\nValue proposition: one clear sentence]
-  B --> C[Account Creation\nemail/social auth, minimal fields]
+  B --> C[Account Creation\nGoogle or Apple Sign-In, minimal fields]
   C --> D[Experience Level Selection\nNewbie / Amateur / Sideliner\nwith plain-language descriptions]
   D --> E[Region & Location Setup\nauto-detect via GPS with manual override\npermission request with trust messaging]
   E --> F[First Apiary Setup\nname, location pin, hive count]
