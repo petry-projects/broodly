@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broodly Screens — Batch 4: Planning & Records</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    :root {
+      --primary-500: #D4880F; --primary-600: #B8720A; --primary-50: #FFF8E1; --primary-100: #FFECB3; --primary-200: #FFD54F; --primary-300: #F5C33B;
+      --secondary-500: #E8B931; --secondary-300: #F5D650; --secondary-50: #FFF9E0;
+      --success-500: #2D7A3A; --success-50: #E8F5E9; --success-600: #256630;
+      --warning-500: #B8720A; --warning-50: #FFF3E0; --warning-300: #E8A84A;
+      --error-500: #A63D2F; --error-50: #FEE2E2;
+      --info-500: #4A90C4; --info-50: #E3F2FD;
+      --bg-0: #FFFFFF; --bg-50: #FDF6E8; --bg-100: #FAFAF7; --bg-muted: #F3F4F6;
+      --text-800: #2C2C2C; --text-500: #6B7280; --text-400: #9CA3AF; --text-900: #1F2937; --text-0: #FFFFFF;
+      --outline-200: #E5E7EB; --outline-300: #D1D5DB;
+      --radius: 12px; --radius-sm: 8px;
+      --shadow: 0px 2px 10px rgba(38,38,38,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-50); color: var(--text-800); }
+
+    .page-header { background: linear-gradient(135deg, var(--primary-500), var(--secondary-500)); color: white; padding: 32px 40px; text-align: center; }
+    .page-header h1 { font-size: 32px; font-weight: 800; }
+    .page-header p { font-size: 16px; opacity: 0.85; margin-top: 4px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+    .batch-label { font-size: 14px; font-weight: 600; color: var(--primary-600); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+
+    .phone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 32px; margin-bottom: 48px; }
+    .phone-wrapper { text-align: center; }
+    .phone-label { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .phone-id { font-size: 12px; color: var(--text-500); margin-bottom: 4px; font-family: monospace; }
+    .phone-sublabel { font-size: 13px; color: var(--text-500); margin-bottom: 12px; }
+    .phone {
+      margin: 0 auto; width: 375px;
+      border: 3px solid var(--text-800); border-radius: 32px;
+      overflow: hidden; background: var(--bg-0);
+      box-shadow: 0px 0px 20px rgba(38,38,38,0.15);
+    }
+    .phone-status {
+      height: 44px; background: var(--bg-0);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; font-size: 12px; font-weight: 600;
+    }
+    .phone-header {
+      background: var(--bg-0); padding: 12px 20px;
+      border-bottom: 1px solid var(--outline-200);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .phone-header h4 { font-size: 18px; font-weight: 700; }
+    .phone-content { padding: 20px; display: grid; gap: 12px; min-height: 540px; align-content: start; }
+    .phone-content-center { padding: 20px; display: grid; gap: 16px; min-height: 540px; align-content: center; justify-items: center; text-align: center; }
+
+    /* Buttons */
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; border: 2px solid transparent; cursor: pointer; font-family: inherit; border-radius: var(--radius-sm); width: 100%; }
+    .btn-xl { height: 48px; font-size: 16px; }
+    .btn-lg { height: 44px; font-size: 16px; }
+    .btn-md { height: 40px; font-size: 14px; }
+    .btn-sm { height: 36px; font-size: 14px; }
+    .btn-primary { background: var(--primary-500); color: white; }
+    .btn-outline { background: transparent; color: var(--primary-500); border-color: var(--primary-300); }
+    .btn-secondary { background: transparent; color: var(--text-500); border-color: var(--outline-300); }
+    .btn-positive { background: var(--success-500); color: white; }
+    .btn-ghost { background: transparent; color: var(--text-500); border: none; }
+
+    /* Cards */
+    .card { background: var(--bg-0); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 14px; }
+    .card-selected { border: 2px solid var(--primary-500); background: var(--primary-50); }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .card-text { font-size: 13px; color: var(--text-500); }
+
+    /* Form */
+    .input { width: 100%; height: 44px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); padding: 0 14px; font-size: 15px; color: var(--text-800); background: var(--bg-0); font-family: inherit; }
+    .input::placeholder { color: var(--text-400); }
+    .input-label { font-size: 13px; font-weight: 600; color: var(--text-800); margin-bottom: 4px; }
+
+    /* Progress Dots */
+    .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--outline-200); }
+    .dot-active { background: var(--primary-500); }
+    .dot-done { background: var(--success-500); }
+
+    /* Step indicator bar */
+    .step-bar { display: flex; gap: 4px; }
+    .step-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--outline-200); }
+    .step-seg-active { background: var(--primary-500); }
+    .step-seg-done { background: var(--success-500); }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge-primary { background: var(--primary-50); color: var(--primary-600); border: 1px solid var(--primary-200); }
+    .badge-success { background: var(--success-50); color: var(--success-600); }
+    .badge-info { background: var(--info-50); color: var(--info-500); }
+    .badge-warning { background: var(--warning-50); color: var(--warning-500); border: 1px solid var(--warning-300); }
+    .badge-error { background: var(--error-50); color: var(--error-500); }
+
+    /* Checkbox */
+    .check-row { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .check-box { width: 22px; height: 22px; border: 2px solid var(--outline-300); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+    .check-box-checked { background: var(--primary-500); border-color: var(--primary-500); color: white; font-size: 13px; }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--outline-200); margin: 4px 0; }
+
+    /* Alert */
+    .alert { padding: 12px; border-radius: var(--radius-sm); font-size: 13px; display: flex; gap: 8px; }
+    .alert-info { background: var(--info-50); color: #2C5F8A; }
+    .alert-warning { background: var(--warning-50); color: var(--warning-500); }
+    .alert-error { background: var(--error-50); color: var(--error-500); }
+
+    /* Social buttons */
+    .social-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .social-btn { height: 44px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 500; background: var(--bg-0); cursor: pointer; color: var(--text-800); font-family: inherit; }
+
+    /* Map placeholder */
+    .map-placeholder { background: var(--bg-muted); border-radius: var(--radius-sm); height: 140px; display: flex; align-items: center; justify-content: center; color: var(--text-400); font-size: 13px; border: 1px dashed var(--outline-300); }
+
+    /* Stepper */
+    .stepper { display: flex; align-items: center; gap: 16px; }
+    .stepper-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--outline-300); background: var(--bg-0); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-800); }
+    .stepper-value { font-size: 24px; font-weight: 600; min-width: 40px; text-align: center; }
+
+    /* Multi-select chip */
+    .chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .chip { padding: 12px; border: 1px solid var(--outline-200); border-radius: var(--radius-sm); text-align: center; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .chip-selected { border: 2px solid var(--primary-500); background: var(--primary-50); color: var(--primary-600); }
+
+    /* Summary row */
+    .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--outline-200); font-size: 14px; }
+    .summary-label { color: var(--text-500); }
+    .summary-value { font-weight: 600; }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      display: flex; justify-content: space-around; align-items: center;
+      height: 56px; border-top: 1px solid var(--outline-200); background: var(--bg-0);
+      font-size: 11px; font-weight: 500; color: var(--text-400);
+    }
+    .bottom-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer;
+    }
+    .bottom-nav-item span:first-child { font-size: 20px; }
+    .bottom-nav-active { color: var(--primary-500); font-weight: 700; }
+
+    /* Filter chips */
+    .filter-chips { display: flex; gap: 8px; overflow-x: auto; }
+    .filter-chip {
+      padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--outline-200); background: var(--bg-0); white-space: nowrap; cursor: pointer;
+    }
+    .filter-chip-active { background: var(--primary-500); color: white; border-color: var(--primary-500); }
+
+    /* Accordion */
+    .accordion-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; background: var(--bg-100); border: 1px solid var(--outline-200);
+      border-radius: var(--radius-sm); cursor: pointer; font-size: 15px; font-weight: 600;
+    }
+    .accordion-header-expanded {
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    }
+    .accordion-body {
+      border: 1px solid var(--outline-200); border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      padding: 12px;
+    }
+
+    /* Timeline */
+    .timeline-entry {
+      display: flex; gap: 14px; position: relative; padding-bottom: 20px;
+    }
+    .timeline-line {
+      width: 2px; background: var(--outline-200); position: absolute;
+      left: 15px; top: 28px; bottom: 0;
+    }
+    .timeline-dot {
+      width: 12px; height: 12px; border-radius: 50%; background: var(--primary-500);
+      flex-shrink: 0; margin-top: 4px; z-index: 1; position: relative;
+      border: 2px solid var(--bg-0); box-shadow: 0 0 0 2px var(--primary-500);
+    }
+    .timeline-dot-success { background: var(--success-500); box-shadow: 0 0 0 2px var(--success-500); }
+    .timeline-dot-info { background: var(--info-500); box-shadow: 0 0 0 2px var(--info-500); }
+    .timeline-dot-warning { background: var(--warning-500); box-shadow: 0 0 0 2px var(--warning-500); }
+
+    /* Photo thumbnails */
+    .photo-row { display: flex; gap: 8px; }
+    .photo-thumb {
+      width: 64px; height: 64px; border-radius: var(--radius-sm);
+      background: var(--bg-muted); border: 1px solid var(--outline-200);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: var(--text-400);
+    }
+
+    /* Audio row */
+    .audio-row {
+      display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+      background: var(--bg-100); border-radius: var(--radius-sm); font-size: 13px;
+    }
+    .audio-play {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--primary-500);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0; cursor: pointer; border: none;
+    }
+
+    /* FAB */
+    .fab {
+      width: 56px; height: 56px; border-radius: 50%; background: var(--primary-500);
+      color: white; font-size: 24px; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(212, 136, 15, 0.35);
+    }
+
+    /* Calendar grid */
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 13px; }
+    .cal-header { font-size: 11px; font-weight: 600; color: var(--text-400); padding: 4px 0; }
+    .cal-day {
+      padding: 6px 2px; border-radius: 6px; cursor: pointer; position: relative;
+      display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 32px;
+    }
+    .cal-day-today { font-weight: 700; color: var(--primary-500); }
+    .cal-day-selected { background: var(--primary-50); border: 2px solid var(--primary-500); border-radius: 6px; }
+    .cal-day-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--primary-500); }
+    .cal-day-muted { color: var(--text-400); }
+
+    /* Seasonal band */
+    .season-band {
+      padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
+      margin: 2px 0;
+    }
+
+    /* Observation field */
+    .obs-field { padding: 8px 0; border-bottom: 1px solid var(--outline-200); }
+    .obs-label { font-size: 12px; color: var(--text-500); font-weight: 500; }
+    .obs-value { font-size: 14px; font-weight: 500; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Batch 4: Planning & Records</h1>
+  <p>4 screens</p>
+</div>
+
+<div class="container">
+
+<div class="phone-grid">
+
+<!-- Screen 1: Weekly Planning View -->
+<div class="phone-wrapper">
+  <div class="phone-label">1. Weekly Planning View</div>
+  <div class="phone-id">FR13, FR14, FR16, FR16b, FR18, FR52</div>
+  <div class="phone-sublabel">Per-apiary action queue with urgency and voice</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div>
+        <h4>This Week's Plan</h4>
+        <div style="font-size:13px;color:var(--text-500);">Mar 21–27</div>
+      </div>
+    </div>
+    <div class="phone-content" style="min-height:auto;padding-bottom:0;">
+      <!-- Overdue alert -->
+      <div class="alert alert-error" style="align-items:center;">
+        <span>&#9888;</span>
+        <div style="flex:1;">
+          <strong>1 overdue</strong> action needs attention
+        </div>
+        <span style="font-size:12px;text-decoration:underline;cursor:pointer;white-space:nowrap;">Catch-up guide &rarr;</span>
+      </div>
+
+      <!-- Backyard Apiary — expanded -->
+      <div>
+        <div class="accordion-header accordion-header-expanded">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span>&#127793;</span> Backyard Apiary
+            <span class="badge badge-warning" style="font-size:10px;">1 URGENT</span>
+          </div>
+          <span>&#9660;</span>
+        </div>
+        <div class="accordion-body" style="display:grid;gap:10px;">
+          <!-- Item 1 — Urgent -->
+          <div class="card" style="border-left:4px solid var(--warning-500);padding:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+              <div class="card-title" style="flex:1;">Inspect Hive 3 for queen cells</div>
+              <span class="badge badge-warning" style="font-size:10px;">URGENT</span>
+            </div>
+            <div class="card-text" style="margin-bottom:10px;">Swarm risk. Act within 2 days.</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-sm btn-positive" style="width:auto;padding:0 16px;">&#10003; Did It</button>
+              <button class="btn btn-sm btn-ghost" style="width:auto;padding:0 16px;">Ignore</button>
+            </div>
+          </div>
+          <!-- Item 2 -->
+          <div class="card" style="padding:12px;">
+            <div class="card-title">Add super to Hive 4</div>
+            <div class="card-text" style="margin-bottom:10px;">Colony weight increasing. Prevent congestion.</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-sm btn-positive" style="width:auto;padding:0 16px;">&#10003; Did It</button>
+              <button class="btn btn-sm btn-ghost" style="width:auto;padding:0 16px;">Ignore</button>
+            </div>
+          </div>
+          <!-- Item 3 -->
+          <div class="card" style="padding:12px;">
+            <div class="card-title">Treatment follow-up: Hive 2</div>
+            <div class="card-text" style="margin-bottom:10px;">Oxalic acid follow-up due Mar 22</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-sm btn-positive" style="width:auto;padding:0 16px;">&#10003; Did It</button>
+              <button class="btn btn-sm btn-ghost" style="width:auto;padding:0 16px;">Ignore</button>
+              <button class="btn btn-sm btn-secondary" style="width:auto;padding:0 16px;">Defer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hillside Apiary — collapsed -->
+      <div class="accordion-header">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span>&#9968;</span> Hillside Apiary
+        </div>
+        <span>&#9654;</span>
+      </div>
+
+      <!-- Voice FAB area -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:8px;">
+        <button class="fab">&#127908;</button>
+        <div style="font-size:12px;color:var(--text-400);text-align:center;">Say "All hives fed" or tap actions above</div>
+      </div>
+
+      <!-- Summary footer -->
+      <div style="text-align:center;font-size:12px;color:var(--text-500);padding:8px 0;border-top:1px solid var(--outline-200);margin-top:4px;">
+        5 actions this week &middot; 1 overdue &middot; 2 completed
+      </div>
+    </div>
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span>&#127968;</span><span>Home</span></div>
+      <div class="bottom-nav-item"><span>&#128450;</span><span>Apiaries</span></div>
+      <div class="bottom-nav-item bottom-nav-active"><span>&#128203;</span><span>Plan</span></div>
+      <div class="bottom-nav-item"><span>&#128276;</span><span>Alerts</span></div>
+      <div class="bottom-nav-item"><span>&#9881;</span><span>Settings</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 2: Seasonal Planning Calendar -->
+<div class="phone-wrapper">
+  <div class="phone-label">2. Seasonal Planning Calendar</div>
+  <div class="phone-id">FR15, FR17</div>
+  <div class="phone-sublabel">Month grid with seasonal phases and risk signals</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div>
+        <h4>Seasonal Calendar</h4>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;">
+        <span style="cursor:pointer;">&larr;</span>
+        March 2026
+        <span style="cursor:pointer;">&rarr;</span>
+      </div>
+    </div>
+    <div class="phone-content" style="min-height:auto;gap:10px;padding-bottom:0;">
+      <!-- Seasonal bands -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <div class="season-band" style="background:var(--success-50);color:var(--success-600);">&#127793; Spring build-up</div>
+        <div class="season-band" style="background:var(--warning-50);color:var(--warning-500);">&#9888; Swarm season watch</div>
+        <div class="season-band" style="background:var(--info-50);color:var(--info-500);">&#127804; Nectar flow</div>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="cal-grid">
+        <div class="cal-header">Sun</div><div class="cal-header">Mon</div><div class="cal-header">Tue</div><div class="cal-header">Wed</div><div class="cal-header">Thu</div><div class="cal-header">Fri</div><div class="cal-header">Sat</div>
+        <!-- Week 1: Mar 1-7 -->
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">1</div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">2<div class="cal-day-dot"></div></div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">3</div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">4<div class="cal-day-dot"></div></div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">5</div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">6</div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">7</div>
+        <!-- Week 2: Mar 8-14 -->
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">8</div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">9</div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">10<div class="cal-day-dot"></div></div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">11</div>
+        <div class="cal-day" style="background:rgba(45,122,58,0.08);">12</div>
+        <div class="cal-day" style="background:rgba(184,114,10,0.08);">13</div>
+        <div class="cal-day" style="background:rgba(184,114,10,0.08);">14</div>
+        <!-- Week 3: Mar 15-21 -->
+        <div class="cal-day" style="background:rgba(184,114,10,0.08);">15</div>
+        <div class="cal-day" style="background:rgba(184,114,10,0.08);">16<div class="cal-day-dot"></div></div>
+        <div class="cal-day" style="background:rgba(184,114,10,0.08);">17</div>
+        <div class="cal-day" style="background:rgba(184,114,10,0.08);">18</div>
+        <div class="cal-day" style="background:rgba(184,114,10,0.08);">19</div>
+        <div class="cal-day" style="background:rgba(184,114,10,0.08);">20</div>
+        <div class="cal-day cal-day-today" style="background:rgba(184,114,10,0.08);outline:2px solid var(--primary-500);outline-offset:-2px;">21</div>
+        <!-- Week 4 (current): Mar 22-28 — highlighted -->
+        <div class="cal-day" style="background:rgba(212,136,15,0.12);outline:2px solid var(--primary-500);outline-offset:-2px;">22<div class="cal-day-dot"></div></div>
+        <div class="cal-day" style="background:rgba(212,136,15,0.12);outline:2px solid var(--primary-500);outline-offset:-2px;">23</div>
+        <div class="cal-day cal-day-selected" style="background:var(--primary-50);">24<div class="cal-day-dot"></div></div>
+        <div class="cal-day" style="background:rgba(212,136,15,0.12);outline:2px solid var(--primary-500);outline-offset:-2px;">25</div>
+        <div class="cal-day" style="background:rgba(212,136,15,0.12);outline:2px solid var(--primary-500);outline-offset:-2px;">26<div class="cal-day-dot"></div></div>
+        <div class="cal-day" style="background:rgba(212,136,15,0.12);outline:2px solid var(--primary-500);outline-offset:-2px;">27</div>
+        <div class="cal-day" style="background:rgba(74,144,196,0.08);">28</div>
+        <!-- Week 5: Mar 29-31 -->
+        <div class="cal-day" style="background:rgba(74,144,196,0.08);">29</div>
+        <div class="cal-day" style="background:rgba(74,144,196,0.08);">30<div class="cal-day-dot"></div></div>
+        <div class="cal-day" style="background:rgba(74,144,196,0.08);">31</div>
+        <div class="cal-day cal-day-muted"></div>
+        <div class="cal-day cal-day-muted"></div>
+        <div class="cal-day cal-day-muted"></div>
+        <div class="cal-day cal-day-muted"></div>
+      </div>
+
+      <!-- Selected date detail -->
+      <div class="card" style="background:var(--primary-50);border-color:var(--primary-300);">
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px;">&#128197; Mar 24</div>
+        <div style="font-size:13px;margin-bottom:4px;">&#10004; Recommended: <strong>Full inspection</strong> — Hive 1, Hive 4</div>
+        <div style="font-size:13px;">&#128138; Treatment check — Hive 2</div>
+      </div>
+
+      <!-- Seasonal phase label -->
+      <div style="text-align:center;font-size:13px;color:var(--text-500);font-weight:500;">
+        &#127793; Spring Build-up &middot; Early nectar flow
+      </div>
+
+      <!-- Risk signals -->
+      <div style="display:grid;gap:8px;">
+        <div style="font-size:14px;font-weight:600;">Risk Signals</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+          <div class="card" style="padding:10px;text-align:center;border-left:3px solid var(--warning-500);">
+            <div style="font-size:11px;color:var(--text-500);">Swarm risk</div>
+            <div style="font-size:13px;font-weight:600;color:var(--warning-500);">&#9888; Elevated</div>
+          </div>
+          <div class="card" style="padding:10px;text-align:center;border-left:3px solid var(--success-500);">
+            <div style="font-size:11px;color:var(--text-500);">Starvation</div>
+            <div style="font-size:13px;font-weight:600;color:var(--success-500);">&#10003; Low</div>
+          </div>
+          <div class="card" style="padding:10px;text-align:center;border-left:3px solid var(--warning-300);">
+            <div style="font-size:11px;color:var(--text-500);">Pest pressure</div>
+            <div style="font-size:13px;font-weight:600;color:var(--warning-300);">&#9632; Moderate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span>&#127968;</span><span>Home</span></div>
+      <div class="bottom-nav-item"><span>&#128450;</span><span>Apiaries</span></div>
+      <div class="bottom-nav-item bottom-nav-active"><span>&#128203;</span><span>Plan</span></div>
+      <div class="bottom-nav-item"><span>&#128276;</span><span>Alerts</span></div>
+      <div class="bottom-nav-item"><span>&#9881;</span><span>Settings</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 3: Hive History / Timeline -->
+<div class="phone-wrapper">
+  <div class="phone-label">3. Hive History / Timeline</div>
+  <div class="phone-id">FR31, FR51, FR53</div>
+  <div class="phone-sublabel">Chronological timeline with media and voice notes</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>&larr;</span>
+        <h4>Hive 3 – Buzz &middot; History</h4>
+      </div>
+    </div>
+    <div class="phone-content" style="gap:8px;">
+      <!-- Filter chips -->
+      <div class="filter-chips">
+        <div class="filter-chip filter-chip-active">All</div>
+        <div class="filter-chip">Inspections</div>
+        <div class="filter-chip">Treatments</div>
+        <div class="filter-chip">Alerts</div>
+      </div>
+
+      <!-- Timeline -->
+      <div style="display:grid;gap:0;">
+
+        <!-- Entry 1: Mar 18 — Guided Inspection -->
+        <div class="timeline-entry">
+          <div class="timeline-line"></div>
+          <div class="timeline-dot timeline-dot-success"></div>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:12px;color:var(--text-400);">Mar 18, 2026</span>
+              <span class="badge badge-success" style="font-size:10px;">&#10003; Guided Inspection</span>
+            </div>
+            <div style="font-size:14px;font-weight:500;margin-bottom:6px;">Checked queen cells, added frame, photographed brood</div>
+            <div class="photo-row" style="margin-bottom:6px;">
+              <div class="photo-thumb">&#128247;</div>
+              <div class="photo-thumb">&#128247;</div>
+              <div class="photo-thumb">&#128247;</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-500);margin-bottom:6px;">
+              <span>&#127908;</span> 2 voice notes
+            </div>
+            <div style="font-size:13px;color:var(--primary-500);cursor:pointer;font-weight:500;">View details &rarr;</div>
+          </div>
+        </div>
+
+        <!-- Entry 2: Mar 11 — Quick Check -->
+        <div class="timeline-entry">
+          <div class="timeline-line"></div>
+          <div class="timeline-dot timeline-dot-info"></div>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:12px;color:var(--text-400);">Mar 11, 2026</span>
+              <span class="badge badge-info" style="font-size:10px;">&#128065; Quick Check</span>
+            </div>
+            <div style="font-size:14px;font-weight:500;margin-bottom:6px;">Colony active, no concerns noted</div>
+            <div style="font-size:13px;color:var(--primary-500);cursor:pointer;font-weight:500;">View details &rarr;</div>
+          </div>
+        </div>
+
+        <!-- Entry 3: Mar 4 — Treatment Applied -->
+        <div class="timeline-entry">
+          <div class="timeline-line"></div>
+          <div class="timeline-dot timeline-dot-warning"></div>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:12px;color:var(--text-400);">Mar 4, 2026</span>
+              <span class="badge badge-warning" style="font-size:10px;">&#128138; Treatment Applied</span>
+            </div>
+            <div style="font-size:14px;font-weight:500;margin-bottom:6px;">Oxalic acid vaporization &middot; Follow-up scheduled Mar 22</div>
+            <div style="font-size:13px;color:var(--primary-500);cursor:pointer;font-weight:500;">View details &rarr;</div>
+          </div>
+        </div>
+
+        <!-- Entry 4: Feb 25 — Full Inspection -->
+        <div class="timeline-entry" style="padding-bottom:0;">
+          <div class="timeline-dot timeline-dot-success"></div>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:12px;color:var(--text-400);">Feb 25, 2026</span>
+              <span class="badge badge-success" style="font-size:10px;">&#10003; Full Inspection</span>
+            </div>
+            <div style="font-size:14px;font-weight:500;margin-bottom:6px;">Queen spotted, good brood pattern, colony moderate strength</div>
+            <div style="font-size:13px;color:var(--primary-500);cursor:pointer;font-weight:500;">View details &rarr;</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 4: Record Detail View -->
+<div class="phone-wrapper">
+  <div class="phone-label">4. Record Detail View</div>
+  <div class="phone-id">FR30, FR31, FR51, FR53</div>
+  <div class="phone-sublabel">Structured inspection record with media and context</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>&larr;</span>
+        <h4>Inspection &middot; Mar 18</h4>
+      </div>
+    </div>
+    <div class="phone-content" style="gap:10px;">
+      <!-- Badge -->
+      <div>
+        <span class="badge badge-success">&#10003; Guided Inspection</span>
+      </div>
+
+      <!-- Observations section -->
+      <div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Observations</div>
+        <div class="obs-field">
+          <div class="obs-label">Colony activity</div>
+          <div class="obs-value">Active &amp; busy</div>
+        </div>
+        <div class="obs-field">
+          <div class="obs-label">Brood pattern</div>
+          <div class="obs-value">Solid frames 3–6, spotty frame 7</div>
+        </div>
+        <div class="obs-field">
+          <div class="obs-label">Queen cells</div>
+          <div class="obs-value" style="color:var(--warning-500);">2 found on frame 5 bottom — removed</div>
+        </div>
+        <div class="obs-field" style="border-bottom:none;">
+          <div class="obs-label">Queen status</div>
+          <div class="obs-value">Not spotted (signs of laying present)</div>
+        </div>
+      </div>
+
+      <!-- Media section -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-size:15px;font-weight:700;">Media</div>
+          <span style="font-size:13px;color:var(--primary-500);cursor:pointer;">View all</span>
+        </div>
+        <div class="photo-row" style="margin-bottom:10px;">
+          <div class="photo-thumb">&#128247;</div>
+          <div class="photo-thumb">&#128247;</div>
+          <div class="photo-thumb">&#128247;</div>
+        </div>
+        <div style="display:grid;gap:6px;">
+          <div class="audio-row">
+            <button class="audio-play">&#9654;</button>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:500;">Voice note 1</div>
+              <div style="font-size:11px;color:var(--text-400);">"Checked frame 5, found two queen cells on the bottom..."</div>
+            </div>
+            <span style="font-size:12px;color:var(--text-400);white-space:nowrap;">0:24</span>
+          </div>
+          <div class="audio-row">
+            <button class="audio-play">&#9654;</button>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:500;">Voice note 2</div>
+              <div style="font-size:11px;color:var(--text-400);">"Added a new frame between 4 and 5, colony looks strong..."</div>
+            </div>
+            <span style="font-size:12px;color:var(--text-400);white-space:nowrap;">0:18</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendation at time -->
+      <div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Recommendation at time</div>
+        <div class="card" style="background:var(--primary-50);border-color:var(--primary-200);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <div class="card-title">Check for queen cells</div>
+            <span class="badge badge-primary" style="font-size:10px;">87% confidence</span>
+          </div>
+          <div class="card-text">Swarm season indicators present. Colony strength and weight gain suggest preparation for swarming.</div>
+        </div>
+      </div>
+
+      <!-- Evidence context -->
+      <div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Evidence context</div>
+        <div style="background:var(--bg-100);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text-500);display:grid;gap:4px;">
+          <div><strong>Weather:</strong> 22&deg;C sunny</div>
+          <div><strong>Telemetry:</strong> weight 28.1kg (+0.3 since last)</div>
+          <div><strong>Bloom:</strong> clover peak</div>
+          <div><strong>Region:</strong> Portland OR Zone 8b</div>
+        </div>
+      </div>
+
+      <!-- Edit button -->
+      <button class="btn btn-lg btn-outline" style="margin-top:4px;">&#9998; Edit Record</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- phone-grid -->
+</div><!-- container -->
+
+</body>
+</html>

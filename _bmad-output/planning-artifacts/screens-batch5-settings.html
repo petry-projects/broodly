@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broodly Screens — Batch 5: Settings & Profile</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    :root {
+      --primary-500: #D4880F; --primary-600: #B8720A; --primary-50: #FFF8E1; --primary-100: #FFECB3; --primary-200: #FFD54F; --primary-300: #F5C33B;
+      --secondary-500: #E8B931; --secondary-300: #F5D650; --secondary-50: #FFF9E0;
+      --success-500: #2D7A3A; --success-50: #E8F5E9; --success-600: #256630;
+      --warning-500: #B8720A; --warning-50: #FFF3E0; --warning-300: #E8A84A;
+      --error-500: #A63D2F; --error-50: #FEE2E2;
+      --info-500: #4A90C4; --info-50: #E3F2FD;
+      --bg-0: #FFFFFF; --bg-50: #FDF6E8; --bg-100: #FAFAF7; --bg-muted: #F3F4F6;
+      --text-800: #2C2C2C; --text-500: #6B7280; --text-400: #9CA3AF; --text-900: #1F2937; --text-0: #FFFFFF;
+      --outline-200: #E5E7EB; --outline-300: #D1D5DB;
+      --radius: 12px; --radius-sm: 8px;
+      --shadow: 0px 2px 10px rgba(38,38,38,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-50); color: var(--text-800); }
+
+    .page-header { background: linear-gradient(135deg, var(--primary-500), var(--secondary-500)); color: white; padding: 32px 40px; text-align: center; }
+    .page-header h1 { font-size: 32px; font-weight: 800; }
+    .page-header p { font-size: 16px; opacity: 0.85; margin-top: 4px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+    .batch-label { font-size: 14px; font-weight: 600; color: var(--primary-600); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+
+    .phone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 32px; margin-bottom: 48px; }
+    .phone-wrapper { text-align: center; }
+    .phone-label { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .phone-id { font-size: 12px; color: var(--text-500); margin-bottom: 4px; font-family: monospace; }
+    .phone-sublabel { font-size: 13px; color: var(--text-500); margin-bottom: 12px; }
+    .phone {
+      margin: 0 auto; width: 375px;
+      border: 3px solid var(--text-800); border-radius: 32px;
+      overflow: hidden; background: var(--bg-0);
+      box-shadow: 0px 0px 20px rgba(38,38,38,0.15);
+    }
+    .phone-status {
+      height: 44px; background: var(--bg-0);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; font-size: 12px; font-weight: 600;
+    }
+    .phone-header {
+      background: var(--bg-0); padding: 12px 20px;
+      border-bottom: 1px solid var(--outline-200);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .phone-header h4 { font-size: 18px; font-weight: 700; }
+    .phone-content { padding: 20px; display: grid; gap: 12px; min-height: 540px; align-content: start; }
+    .phone-content-center { padding: 20px; display: grid; gap: 16px; min-height: 540px; align-content: center; justify-items: center; text-align: center; }
+
+    /* Buttons */
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; border: 2px solid transparent; cursor: pointer; font-family: inherit; border-radius: var(--radius-sm); width: 100%; }
+    .btn-xl { height: 48px; font-size: 16px; }
+    .btn-lg { height: 44px; font-size: 16px; }
+    .btn-md { height: 40px; font-size: 14px; }
+    .btn-sm { height: 36px; font-size: 14px; }
+    .btn-primary { background: var(--primary-500); color: white; }
+    .btn-outline { background: transparent; color: var(--primary-500); border-color: var(--primary-300); }
+    .btn-secondary { background: transparent; color: var(--text-500); border-color: var(--outline-300); }
+    .btn-positive { background: var(--success-500); color: white; }
+    .btn-ghost { background: transparent; color: var(--text-500); border: none; }
+    .btn-danger-outline { background: transparent; color: var(--error-500); border-color: var(--error-500); }
+
+    /* Cards */
+    .card { background: var(--bg-0); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 14px; }
+    .card-selected { border: 2px solid var(--primary-500); background: var(--primary-50); }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .card-text { font-size: 13px; color: var(--text-500); }
+
+    /* Form */
+    .input { width: 100%; height: 44px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); padding: 0 14px; font-size: 15px; color: var(--text-800); background: var(--bg-0); font-family: inherit; }
+    .input::placeholder { color: var(--text-400); }
+    .input-label { font-size: 13px; font-weight: 600; color: var(--text-800); margin-bottom: 4px; }
+
+    /* Progress Dots */
+    .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--outline-200); }
+    .dot-active { background: var(--primary-500); }
+    .dot-done { background: var(--success-500); }
+
+    /* Step indicator bar */
+    .step-bar { display: flex; gap: 4px; }
+    .step-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--outline-200); }
+    .step-seg-active { background: var(--primary-500); }
+    .step-seg-done { background: var(--success-500); }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge-primary { background: var(--primary-50); color: var(--primary-600); border: 1px solid var(--primary-200); }
+    .badge-success { background: var(--success-50); color: var(--success-600); }
+    .badge-info { background: var(--info-50); color: var(--info-500); }
+    .badge-error { background: var(--error-50); color: var(--error-500); }
+    .badge-warning { background: var(--warning-50); color: var(--warning-500); }
+
+    /* Checkbox */
+    .check-row { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .check-box { width: 22px; height: 22px; border: 2px solid var(--outline-300); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+    .check-box-checked { background: var(--primary-500); border-color: var(--primary-500); color: white; font-size: 13px; }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--outline-200); margin: 4px 0; }
+
+    /* Alert */
+    .alert { padding: 12px; border-radius: var(--radius-sm); font-size: 13px; display: flex; gap: 8px; }
+    .alert-info { background: var(--info-50); color: #2C5F8A; }
+    .alert-warning { background: var(--warning-50); color: var(--warning-500); }
+
+    /* Social buttons */
+    .social-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .social-btn { height: 44px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 500; background: var(--bg-0); cursor: pointer; color: var(--text-800); font-family: inherit; }
+
+    /* Map placeholder */
+    .map-placeholder { background: var(--bg-muted); border-radius: var(--radius-sm); height: 140px; display: flex; align-items: center; justify-content: center; color: var(--text-400); font-size: 13px; border: 1px dashed var(--outline-300); }
+
+    /* Stepper */
+    .stepper { display: flex; align-items: center; gap: 16px; }
+    .stepper-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--outline-300); background: var(--bg-0); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-800); }
+    .stepper-value { font-size: 24px; font-weight: 600; min-width: 40px; text-align: center; }
+
+    /* Multi-select chip */
+    .chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .chip { padding: 12px; border: 1px solid var(--outline-200); border-radius: var(--radius-sm); text-align: center; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .chip-selected { border: 2px solid var(--primary-500); background: var(--primary-50); color: var(--primary-600); }
+
+    /* Summary row */
+    .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--outline-200); font-size: 14px; }
+    .summary-label { color: var(--text-500); }
+    .summary-value { font-weight: 600; }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      display: flex; justify-content: space-around; align-items: center;
+      height: 56px; border-top: 1px solid var(--outline-200); background: var(--bg-0);
+      padding: 0 8px;
+    }
+    .bottom-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; font-weight: 500; color: var(--text-400); cursor: pointer;
+    }
+    .bottom-nav-item.active { color: var(--primary-500); }
+    .bottom-nav-icon { font-size: 20px; }
+
+    /* Settings row */
+    .settings-row {
+      display: flex; align-items: center; gap: 12px; padding: 14px;
+      border: 1px solid var(--outline-200); border-radius: var(--radius-sm);
+      background: var(--bg-0); cursor: pointer;
+    }
+    .settings-row:hover { background: var(--bg-100); }
+    .settings-row-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; background: var(--primary-50);
+    }
+    .settings-row-content { flex: 1; }
+    .settings-row-title { font-size: 15px; font-weight: 600; }
+    .settings-row-desc { font-size: 12px; color: var(--text-500); }
+    .settings-row-chevron { color: var(--text-400); font-size: 16px; }
+
+    /* Toggle */
+    .toggle-track {
+      width: 48px; height: 28px; border-radius: 14px;
+      background: var(--outline-300); position: relative; cursor: pointer; flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--success-500); }
+    .toggle-thumb {
+      width: 22px; height: 22px; border-radius: 50%; background: white;
+      position: absolute; top: 3px; left: 3px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: left 0.2s;
+    }
+    .toggle-track.on .toggle-thumb { left: 23px; }
+
+    /* Slider */
+    .slider-track {
+      width: 100%; height: 6px; border-radius: 3px;
+      background: var(--outline-200); position: relative;
+    }
+    .slider-fill {
+      height: 6px; border-radius: 3px; background: var(--primary-500);
+      position: absolute; left: 0; top: 0;
+    }
+    .slider-thumb {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: white; border: 2px solid var(--primary-500);
+      position: absolute; top: -7px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .slider-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-500); margin-top: 6px; }
+
+    /* Progress bar */
+    .progress-bar {
+      width: 100%; height: 8px; border-radius: 4px;
+      background: var(--outline-200); overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: 4px; background: var(--primary-500);
+    }
+
+    /* Radio */
+    .radio-row { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; padding: 6px 0; }
+    .radio-circle {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--outline-300); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .radio-circle.selected { border-color: var(--primary-500); }
+    .radio-circle.selected::after {
+      content: ''; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--primary-500);
+    }
+
+    /* Accordion */
+    .accordion-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; border: 1px solid var(--outline-200);
+      border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; font-weight: 500;
+      background: var(--bg-0);
+    }
+    .accordion-content {
+      border: 1px solid var(--outline-200); border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      padding: 12px 14px; font-size: 13px; color: var(--text-500);
+      background: var(--bg-100);
+    }
+
+    /* Milestone row */
+    .milestone-row {
+      display: flex; gap: 10px; align-items: flex-start; font-size: 14px; padding: 6px 0;
+    }
+    .milestone-check {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+    }
+    .milestone-done { background: var(--success-500); color: white; }
+    .milestone-pending { background: var(--outline-200); color: var(--text-400); }
+
+    /* Progress ring (simplified as a horizontal bar with percentage) */
+    .progress-ring-container {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .progress-ring {
+      width: 120px; height: 120px; border-radius: 50%;
+      border: 8px solid var(--outline-200); position: relative;
+      display: flex; align-items: center; justify-content: center;
+      background: conic-gradient(var(--primary-500) 0deg 165deg, var(--outline-200) 165deg 360deg);
+    }
+    .progress-ring-inner {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: var(--bg-0); display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 700; color: var(--primary-600);
+    }
+
+    /* Link row */
+    .link-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px; border: 1px solid var(--outline-200); border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 500; cursor: pointer; background: var(--bg-0);
+    }
+    .link-row-chevron { color: var(--text-400); }
+
+    /* Danger zone */
+    .danger-zone {
+      border: 1px solid var(--error-50); border-radius: var(--radius-sm);
+      padding: 16px; background: var(--error-50);
+    }
+    .danger-zone-title { font-size: 14px; font-weight: 600; color: var(--error-500); margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Batch 5: Settings & Profile</h1>
+  <p>8 screens &middot; Settings Hub &rarr; Profile &rarr; Account &rarr; Notifications &rarr; Integrations &rarr; Collaborators &rarr; Data &rarr; Progression</p>
+</div>
+
+<div class="container">
+
+<div class="phone-grid">
+
+<!-- Screen 1: Settings Hub -->
+<div class="phone-wrapper">
+  <div class="phone-label">1. Settings Hub</div>
+  <div class="phone-id">FR1b, FR2a, FR40</div>
+  <div class="phone-sublabel">Main settings menu with section navigation</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <h4>Settings</h4>
+    </div>
+    <div class="phone-content" style="gap:8px;">
+      <div class="settings-row">
+        <div class="settings-row-icon">&#128100;</div>
+        <div class="settings-row-content">
+          <div class="settings-row-title">Profile & Preferences</div>
+          <div class="settings-row-desc">Experience level, goals, interaction style</div>
+        </div>
+        <span class="settings-row-chevron">&#8250;</span>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon">&#128274;</div>
+        <div class="settings-row-content">
+          <div class="settings-row-title">Account</div>
+          <div class="settings-row-desc">Name, email, password, recovery</div>
+        </div>
+        <span class="settings-row-chevron">&#8250;</span>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon" style="font-size:16px;">&#127855;</div>
+        <div class="settings-row-content">
+          <div class="settings-row-title">Apiaries & Hives</div>
+          <div class="settings-row-desc">Manage locations and hive configurations</div>
+        </div>
+        <span class="settings-row-chevron">&#8250;</span>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon">&#128276;</div>
+        <div class="settings-row-content">
+          <div class="settings-row-title">Notifications</div>
+          <div class="settings-row-desc">Alerts, sensitivity, quiet hours</div>
+        </div>
+        <span class="settings-row-chevron">&#8250;</span>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon">&#128268;</div>
+        <div class="settings-row-content">
+          <div class="settings-row-title">Integrations</div>
+          <div class="settings-row-desc">Sensor connections and data sources</div>
+        </div>
+        <span class="settings-row-chevron">&#8250;</span>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon">&#128101;</div>
+        <div class="settings-row-content">
+          <div class="settings-row-title">Collaborators</div>
+          <div class="settings-row-desc">Invite, manage access, share data</div>
+        </div>
+        <span class="settings-row-chevron">&#8250;</span>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon">&#128737;</div>
+        <div class="settings-row-content">
+          <div class="settings-row-title">Data & Privacy</div>
+          <div class="settings-row-desc">Export data, privacy, account deletion</div>
+        </div>
+        <span class="settings-row-chevron">&#8250;</span>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--text-400);margin-top:8px;">Broodly v1.0.0</div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127968;</span>Home</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127793;</span>Apiaries</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128197;</span>Plan</div>
+      <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#9881;</span>Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 2: Profile & Preferences -->
+<div class="phone-wrapper">
+  <div class="phone-label">2. Profile & Preferences</div>
+  <div class="phone-id">FR2, FR2a, FR2d, FR8, FR11a</div>
+  <div class="phone-sublabel">Experience level, goals, interaction, region</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Profile & Preferences</h4></div>
+    </div>
+    <div class="phone-content" style="gap:14px;">
+      <!-- Experience Level -->
+      <div>
+        <div class="input-label">Experience Level</div>
+        <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:20px;">&#127793;</span>
+            <div>
+              <div class="card-title">Newbie</div>
+              <div class="card-text">Detailed guidance with safety reminders</div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline" style="width:auto;padding:0 14px;">Change</button>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <span>&#128161;</span>
+        <span>Changing your level adjusts guidance depth.</span>
+      </div>
+      <!-- Management Goals -->
+      <div>
+        <div class="input-label">Management Goals</div>
+        <div class="chip-grid">
+          <div class="chip chip-selected">&#128154; Colony Health</div>
+          <div class="chip chip-selected">&#127855; Honey Production</div>
+          <div class="chip">&#128218; Learning</div>
+          <div class="chip">&#128200; Growth</div>
+        </div>
+      </div>
+      <!-- Interaction Style -->
+      <div>
+        <div class="input-label">Interaction Style</div>
+        <div style="display:flex;gap:8px;">
+          <div class="chip chip-selected" style="flex:1;">&#127908; Voice-first</div>
+          <div class="chip" style="flex:1;">&#128221; Tap & read</div>
+        </div>
+      </div>
+      <!-- Region -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="input-label">Region</div>
+          <span style="font-size:13px;color:var(--primary-500);cursor:pointer;">Edit</span>
+        </div>
+        <div class="card" style="display:flex;align-items:center;gap:8px;">
+          <span>&#128205;</span>
+          <span style="font-size:14px;font-weight:500;">Portland, OR &middot; Zone 8b</span>
+        </div>
+      </div>
+      <!-- Microclimate Adjustments -->
+      <div>
+        <div class="input-label">Microclimate Adjustments</div>
+        <div style="display:grid;gap:8px;">
+          <div>
+            <div style="font-size:12px;color:var(--text-500);margin-bottom:4px;">Elevation offset (ft)</div>
+            <input class="input" value="0" style="height:38px;" />
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--text-500);margin-bottom:4px;">Bloom timing</div>
+            <select class="input" style="height:38px;appearance:auto;">
+              <option>Normal</option>
+              <option>Early (+1 week)</option>
+              <option>Late (-1 week)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127968;</span>Home</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127793;</span>Apiaries</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128197;</span>Plan</div>
+      <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#9881;</span>Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 3: Account Settings -->
+<div class="phone-wrapper">
+  <div class="phone-label">3. Account Settings</div>
+  <div class="phone-id">FR1b, FR1c</div>
+  <div class="phone-sublabel">Name, email, password, recovery, deletion</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Account</h4></div>
+    </div>
+    <div class="phone-content">
+      <div>
+        <div class="input-label">Display Name</div>
+        <input class="input" value="Don" />
+      </div>
+      <div>
+        <div class="input-label">Email</div>
+        <div style="position:relative;">
+          <input class="input" value="don@example.com" style="padding-right:80px;" />
+          <span class="badge badge-success" style="position:absolute;right:8px;top:11px;">&#10003; Verified</span>
+        </div>
+      </div>
+      <div class="divider" style="margin:4px 0;"></div>
+      <div class="settings-row" style="padding:12px 14px;">
+        <span style="font-size:16px;">&#128274;</span>
+        <div class="settings-row-content">
+          <div class="settings-row-title">Change Password</div>
+        </div>
+        <span class="settings-row-chevron">&#8250;</span>
+      </div>
+      <div class="card" style="background:var(--bg-100);">
+        <div style="font-size:14px;font-weight:500;margin-bottom:4px;">Account Recovery</div>
+        <div style="font-size:13px;color:var(--text-500);margin-bottom:8px;">Set up a recovery method in case you lose access to your account.</div>
+        <span style="font-size:13px;color:var(--primary-500);cursor:pointer;font-weight:500;">Send recovery email &rarr;</span>
+      </div>
+      <div style="flex:1;"></div>
+      <div class="danger-zone" style="margin-top:16px;">
+        <div class="danger-zone-title">Danger Zone</div>
+        <div style="font-size:13px;color:var(--text-500);margin-bottom:12px;">Permanently delete your account and all associated data. This action cannot be undone.</div>
+        <button class="btn btn-md btn-danger-outline">Delete Account</button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127968;</span>Home</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127793;</span>Apiaries</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128197;</span>Plan</div>
+      <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#9881;</span>Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 4: Notification Settings -->
+<div class="phone-wrapper">
+  <div class="phone-label">4. Notification Settings</div>
+  <div class="phone-id">FR40, FR42</div>
+  <div class="phone-sublabel">Push, per-apiary sensitivity, quiet hours</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Notifications</h4></div>
+    </div>
+    <div class="phone-content" style="gap:14px;">
+      <!-- Global toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:15px;font-weight:600;">Push Notifications</div>
+          <div style="font-size:12px;color:var(--text-500);">Receive alerts on your device</div>
+        </div>
+        <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="divider"></div>
+      <!-- Per-apiary: Backyard -->
+      <div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Backyard Apiary</div>
+        <div style="font-size:12px;color:var(--text-500);margin-bottom:6px;">Alert Sensitivity</div>
+        <div class="slider-track">
+          <div class="slider-fill" style="width:50%;"></div>
+          <div class="slider-thumb" style="left:calc(50% - 10px);"></div>
+        </div>
+        <div class="slider-labels"><span>Low</span><span style="font-weight:600;color:var(--primary-600);">Normal</span><span>High</span></div>
+      </div>
+      <!-- Per-apiary: Hillside -->
+      <div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Hillside Apiary</div>
+        <div style="font-size:12px;color:var(--text-500);margin-bottom:6px;">Alert Sensitivity</div>
+        <div class="slider-track">
+          <div class="slider-fill" style="width:100%;"></div>
+          <div class="slider-thumb" style="left:calc(100% - 20px);"></div>
+        </div>
+        <div class="slider-labels"><span>Low</span><span>Normal</span><span style="font-weight:600;color:var(--primary-600);">High</span></div>
+      </div>
+      <div class="divider"></div>
+      <!-- Seasonal Escalation -->
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:15px;font-weight:600;">Seasonal Escalation</div>
+          <div style="font-size:12px;color:var(--text-500);">Auto-adjust sensitivity during critical periods</div>
+        </div>
+        <div class="toggle-track on"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="divider"></div>
+      <!-- Quiet Hours -->
+      <div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Quiet Hours</div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div style="flex:1;">
+            <div style="font-size:12px;color:var(--text-500);margin-bottom:4px;">Start</div>
+            <input class="input" type="time" value="22:00" style="height:38px;" />
+          </div>
+          <span style="color:var(--text-400);margin-top:16px;">&rarr;</span>
+          <div style="flex:1;">
+            <div style="font-size:12px;color:var(--text-500);margin-bottom:4px;">End</div>
+            <input class="input" type="time" value="07:00" style="height:38px;" />
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <!-- Notification History link -->
+      <div class="link-row">
+        <span>Notification History</span>
+        <span class="link-row-chevron">&#8250;</span>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127968;</span>Home</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127793;</span>Apiaries</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128197;</span>Plan</div>
+      <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#9881;</span>Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 5: Integrations Settings -->
+<div class="phone-wrapper">
+  <div class="phone-label">5. Integrations Settings</div>
+  <div class="phone-id">FR44, FR45, FR46, FR48a, FR49</div>
+  <div class="phone-sublabel">Connected devices, available integrations, freshness</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Integrations</h4></div>
+    </div>
+    <div class="phone-content" style="gap:14px;">
+      <!-- Connected devices -->
+      <div style="font-size:14px;font-weight:600;color:var(--text-500);text-transform:uppercase;letter-spacing:0.5px;">Connected</div>
+      <div class="card" style="border-color:var(--success-500);border-width:1px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:22px;">&#9878;</span>
+            <div style="font-size:15px;font-weight:600;">BroodMinder Hub</div>
+          </div>
+          <span class="badge badge-success">&#9679; Connected</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--text-500);">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="color:var(--success-500);font-size:10px;">&#11044;</span>
+            <span>Last sync: 2 min ago</span>
+          </div>
+          <span style="color:var(--error-500);cursor:pointer;font-weight:500;">Disconnect</span>
+        </div>
+      </div>
+      <!-- Available -->
+      <div style="font-size:14px;font-weight:600;color:var(--text-500);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;">Available</div>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:22px;">&#128225;</span>
+          <div>
+            <div style="font-size:15px;font-weight:600;">Arnia</div>
+            <div style="font-size:12px;color:var(--text-500);">Acoustic, weight, temperature monitoring</div>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-outline" style="width:auto;padding:0 14px;">Connect</button>
+      </div>
+      <!-- Freshness legend -->
+      <div class="card" style="background:var(--bg-100);">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Data Freshness Indicators</div>
+        <div style="display:grid;gap:6px;font-size:12px;color:var(--text-500);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--success-500);font-size:10px;">&#11044;</span>
+            <span>Fresh &mdash; synced less than 1 hour ago</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--warning-300);font-size:10px;">&#11044;</span>
+            <span>Stale &mdash; synced 1&ndash;24 hours ago</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--error-500);font-size:10px;">&#11044;</span>
+            <span>Very stale &mdash; synced more than 24 hours ago</span>
+          </div>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <span>&#128161;</span>
+        <span>Disconnecting preserves all historical data.</span>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127968;</span>Home</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127793;</span>Apiaries</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128197;</span>Plan</div>
+      <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#9881;</span>Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 6: Collaborators Settings -->
+<div class="phone-wrapper">
+  <div class="phone-label">6. Collaborators Settings</div>
+  <div class="phone-id">FR5, FR6, FR7</div>
+  <div class="phone-sublabel">Invite, manage access, access history</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Collaborators</h4></div>
+    </div>
+    <div class="phone-content" style="gap:14px;">
+      <!-- Invite section -->
+      <div>
+        <div class="input-label">Invite Collaborator</div>
+        <div style="display:flex;gap:8px;">
+          <input class="input" placeholder="Email address" style="flex:1;" />
+          <button class="btn btn-md btn-primary" style="width:auto;padding:0 16px;flex-shrink:0;">Send Invite</button>
+        </div>
+        <div style="text-align:center;margin-top:8px;">
+          <span style="font-size:13px;color:var(--primary-500);cursor:pointer;">&#128279; Copy invite link</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <!-- Active collaborators -->
+      <div style="font-size:14px;font-weight:600;color:var(--text-500);text-transform:uppercase;letter-spacing:0.5px;">Active Collaborators</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-size:15px;font-weight:600;">Jane Smith</div>
+          <span class="badge badge-info">Read-only</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-500);margin-bottom:6px;">jane@example.com &middot; Access since Mar 10, 2026</div>
+        <span style="font-size:13px;color:var(--error-500);cursor:pointer;font-weight:500;">Revoke Access</span>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-size:15px;font-weight:600;">Mike Johnson</div>
+          <span class="badge badge-info">Read-only</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-500);margin-bottom:6px;">mike@example.com &middot; Access since Mar 5, 2026</div>
+        <span style="font-size:13px;color:var(--error-500);cursor:pointer;font-weight:500;">Revoke Access</span>
+      </div>
+      <div class="divider"></div>
+      <!-- Access history -->
+      <div>
+        <div class="accordion-header">
+          <span>View access change history</span>
+          <span>&#9660;</span>
+        </div>
+        <div class="accordion-content">
+          <div style="display:grid;gap:8px;">
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <span style="color:var(--text-400);font-size:12px;white-space:nowrap;">Mar 10</span>
+              <span>Jane Smith granted read-only access</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <span style="color:var(--text-400);font-size:12px;white-space:nowrap;">Mar 5</span>
+              <span>Invite sent to mike@example.com</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127968;</span>Home</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127793;</span>Apiaries</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128197;</span>Plan</div>
+      <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#9881;</span>Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 7: Data & Privacy -->
+<div class="phone-wrapper">
+  <div class="phone-label">7. Data & Privacy</div>
+  <div class="phone-id">FR1d, FR32, FR33, FR55</div>
+  <div class="phone-sublabel">Export, privacy policy, account deletion</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Data & Privacy</h4></div>
+    </div>
+    <div class="phone-content" style="gap:12px;">
+      <!-- Export section -->
+      <div style="font-size:16px;font-weight:700;">Export My Data</div>
+      <div>
+        <div class="input-label">Scope</div>
+        <div style="display:grid;gap:4px;">
+          <div class="radio-row">
+            <div class="radio-circle selected"></div>
+            <span>All data</span>
+          </div>
+          <div class="radio-row">
+            <div class="radio-circle"></div>
+            <span>Specific apiary</span>
+          </div>
+          <div class="radio-row">
+            <div class="radio-circle"></div>
+            <span>Date range</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="input-label">Format</div>
+        <div style="display:flex;gap:8px;">
+          <div class="chip chip-selected" style="flex:1;">JSON</div>
+          <div class="chip" style="flex:1;">CSV</div>
+        </div>
+      </div>
+      <button class="btn btn-md btn-primary">Export</button>
+      <div>
+        <div style="font-size:12px;color:var(--text-500);margin-bottom:4px;">Export progress</div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:0%;"></div></div>
+        <div style="font-size:11px;color:var(--text-400);margin-top:2px;">0%</div>
+      </div>
+      <div class="divider" style="margin:4px 0;"></div>
+      <!-- Privacy links -->
+      <div class="link-row">
+        <span>Privacy Policy</span>
+        <span class="link-row-chevron">&#8250;</span>
+      </div>
+      <div class="link-row">
+        <span>Consent Management</span>
+        <span class="link-row-chevron">&#8250;</span>
+      </div>
+      <div class="divider" style="margin:4px 0;"></div>
+      <!-- Danger zone -->
+      <div class="danger-zone">
+        <div class="danger-zone-title">Delete Account & All Data</div>
+        <div style="font-size:13px;color:var(--text-500);margin-bottom:8px;line-height:1.5;">This will permanently delete your account, all apiaries, hive data, inspection history, and any shared collaborator access. This action cannot be undone.</div>
+        <button class="btn btn-md btn-danger-outline">Delete My Account</button>
+        <div style="font-size:11px;color:var(--error-500);margin-top:6px;">You will be asked to confirm before deletion proceeds.</div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127968;</span>Home</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127793;</span>Apiaries</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128197;</span>Plan</div>
+      <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#9881;</span>Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 8: Skill Progression -->
+<div class="phone-wrapper">
+  <div class="phone-label">8. Skill Progression</div>
+  <div class="phone-id">FR34, FR35</div>
+  <div class="phone-sublabel">Journey tracking, milestones, guidance depth</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Your Journey</h4></div>
+    </div>
+    <div class="phone-content" style="gap:14px;">
+      <!-- Skill card -->
+      <div class="card" style="text-align:center;padding:20px;background:linear-gradient(135deg,var(--primary-50),var(--secondary-50));">
+        <div style="font-size:40px;margin-bottom:4px;">&#128029;</div>
+        <div style="font-size:22px;font-weight:700;color:var(--primary-600);">Amateur</div>
+        <div style="font-size:13px;color:var(--text-500);margin-bottom:12px;">23 inspections completed</div>
+        <div class="progress-ring-container">
+          <div class="progress-ring">
+            <div class="progress-ring-inner">46%</div>
+          </div>
+        </div>
+      </div>
+      <!-- Milestones -->
+      <div style="font-size:14px;font-weight:600;">Milestones</div>
+      <div style="display:grid;gap:6px;">
+        <div class="milestone-row">
+          <div class="milestone-check milestone-done">&#10003;</div>
+          <div>
+            <div style="font-weight:500;">First inspection</div>
+            <div style="font-size:12px;color:var(--text-400);">Mar 5</div>
+          </div>
+        </div>
+        <div class="milestone-row">
+          <div class="milestone-check milestone-done">&#10003;</div>
+          <div>
+            <div style="font-weight:500;">5 guided inspections</div>
+            <div style="font-size:12px;color:var(--text-400);">Mar 12</div>
+          </div>
+        </div>
+        <div class="milestone-row">
+          <div class="milestone-check milestone-done">&#10003;</div>
+          <div>
+            <div style="font-weight:500;">First disease assessment</div>
+            <div style="font-size:12px;color:var(--text-400);">Mar 15</div>
+          </div>
+        </div>
+        <div class="milestone-row">
+          <div class="milestone-check milestone-pending">&#9679;</div>
+          <div style="flex:1;">
+            <div style="font-weight:500;">Complete 5 disease assessments</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <div class="progress-bar" style="flex:1;height:6px;">
+                <div class="progress-bar-fill" style="width:60%;background:var(--secondary-500);"></div>
+              </div>
+              <span style="font-size:12px;color:var(--text-500);white-space:nowrap;">3 / 5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <!-- Guidance depth -->
+      <div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Guidance Depth</div>
+        <div style="font-size:13px;color:var(--text-500);line-height:1.5;">Your current guidance level: <strong style="color:var(--text-800);">Concise decision support</strong>. As you progress, guidance becomes more streamlined.</div>
+      </div>
+      <div class="alert alert-info">
+        <span>&#128161;</span>
+        <span>Guidance adapts automatically based on your milestones.</span>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127968;</span>Home</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#127793;</span>Apiaries</div>
+      <div class="bottom-nav-item"><span class="bottom-nav-icon">&#128197;</span>Plan</div>
+      <div class="bottom-nav-item active"><span class="bottom-nav-icon">&#9881;</span>Settings</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- phone-grid -->
+</div><!-- container -->
+
+</body>
+</html>

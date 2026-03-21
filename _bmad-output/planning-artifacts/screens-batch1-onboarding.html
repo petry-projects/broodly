@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broodly Screens — Batch 1: Onboarding Flow</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    :root {
+      --primary-500: #D4880F; --primary-600: #B8720A; --primary-50: #FFF8E1; --primary-100: #FFECB3; --primary-200: #FFD54F; --primary-300: #F5C33B;
+      --secondary-500: #E8B931; --secondary-300: #F5D650; --secondary-50: #FFF9E0;
+      --success-500: #2D7A3A; --success-50: #E8F5E9; --success-600: #256630;
+      --warning-500: #B8720A; --warning-50: #FFF3E0; --warning-300: #E8A84A;
+      --error-500: #A63D2F; --error-50: #FEE2E2;
+      --info-500: #4A90C4; --info-50: #E3F2FD;
+      --bg-0: #FFFFFF; --bg-50: #FDF6E8; --bg-100: #FAFAF7; --bg-muted: #F3F4F6;
+      --text-800: #2C2C2C; --text-500: #6B7280; --text-400: #9CA3AF; --text-900: #1F2937; --text-0: #FFFFFF;
+      --outline-200: #E5E7EB; --outline-300: #D1D5DB;
+      --radius: 12px; --radius-sm: 8px;
+      --shadow: 0px 2px 10px rgba(38,38,38,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-50); color: var(--text-800); }
+
+    .page-header { background: linear-gradient(135deg, var(--primary-500), var(--secondary-500)); color: white; padding: 32px 40px; text-align: center; }
+    .page-header h1 { font-size: 32px; font-weight: 800; }
+    .page-header p { font-size: 16px; opacity: 0.85; margin-top: 4px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+    .batch-label { font-size: 14px; font-weight: 600; color: var(--primary-600); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+
+    .phone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 32px; margin-bottom: 48px; }
+    .phone-wrapper { text-align: center; }
+    .phone-label { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .phone-id { font-size: 12px; color: var(--text-500); margin-bottom: 4px; font-family: monospace; }
+    .phone-sublabel { font-size: 13px; color: var(--text-500); margin-bottom: 12px; }
+    .phone {
+      margin: 0 auto; width: 375px;
+      border: 3px solid var(--text-800); border-radius: 32px;
+      overflow: hidden; background: var(--bg-0);
+      box-shadow: 0px 0px 20px rgba(38,38,38,0.15);
+    }
+    .phone-status {
+      height: 44px; background: var(--bg-0);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; font-size: 12px; font-weight: 600;
+    }
+    .phone-header {
+      background: var(--bg-0); padding: 12px 20px;
+      border-bottom: 1px solid var(--outline-200);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .phone-header h4 { font-size: 18px; font-weight: 700; }
+    .phone-content { padding: 20px; display: grid; gap: 12px; min-height: 540px; align-content: start; }
+    .phone-content-center { padding: 20px; display: grid; gap: 16px; min-height: 540px; align-content: center; justify-items: center; text-align: center; }
+
+    /* Buttons */
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; border: 2px solid transparent; cursor: pointer; font-family: inherit; border-radius: var(--radius-sm); width: 100%; }
+    .btn-xl { height: 48px; font-size: 16px; }
+    .btn-lg { height: 44px; font-size: 16px; }
+    .btn-md { height: 40px; font-size: 14px; }
+    .btn-sm { height: 36px; font-size: 14px; }
+    .btn-primary { background: var(--primary-500); color: white; }
+    .btn-outline { background: transparent; color: var(--primary-500); border-color: var(--primary-300); }
+    .btn-secondary { background: transparent; color: var(--text-500); border-color: var(--outline-300); }
+    .btn-positive { background: var(--success-500); color: white; }
+    .btn-ghost { background: transparent; color: var(--text-500); border: none; }
+
+    /* Cards */
+    .card { background: var(--bg-0); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 14px; }
+    .card-selected { border: 2px solid var(--primary-500); background: var(--primary-50); }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .card-text { font-size: 13px; color: var(--text-500); }
+
+    /* Form */
+    .input { width: 100%; height: 44px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); padding: 0 14px; font-size: 15px; color: var(--text-800); background: var(--bg-0); font-family: inherit; }
+    .input::placeholder { color: var(--text-400); }
+    .input-label { font-size: 13px; font-weight: 600; color: var(--text-800); margin-bottom: 4px; }
+
+    /* Progress Dots */
+    .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--outline-200); }
+    .dot-active { background: var(--primary-500); }
+    .dot-done { background: var(--success-500); }
+
+    /* Step indicator bar */
+    .step-bar { display: flex; gap: 4px; }
+    .step-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--outline-200); }
+    .step-seg-active { background: var(--primary-500); }
+    .step-seg-done { background: var(--success-500); }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge-primary { background: var(--primary-50); color: var(--primary-600); border: 1px solid var(--primary-200); }
+    .badge-success { background: var(--success-50); color: var(--success-600); }
+    .badge-info { background: var(--info-50); color: var(--info-500); }
+
+    /* Checkbox */
+    .check-row { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .check-box { width: 22px; height: 22px; border: 2px solid var(--outline-300); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+    .check-box-checked { background: var(--primary-500); border-color: var(--primary-500); color: white; font-size: 13px; }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--outline-200); margin: 4px 0; }
+
+    /* Alert */
+    .alert { padding: 12px; border-radius: var(--radius-sm); font-size: 13px; display: flex; gap: 8px; }
+    .alert-info { background: var(--info-50); color: #2C5F8A; }
+    .alert-warning { background: var(--warning-50); color: var(--warning-500); }
+
+    /* Social buttons */
+    .social-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .social-btn { height: 44px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 500; background: var(--bg-0); cursor: pointer; color: var(--text-800); font-family: inherit; }
+
+    /* Map placeholder */
+    .map-placeholder { background: var(--bg-muted); border-radius: var(--radius-sm); height: 140px; display: flex; align-items: center; justify-content: center; color: var(--text-400); font-size: 13px; border: 1px dashed var(--outline-300); }
+
+    /* Stepper */
+    .stepper { display: flex; align-items: center; gap: 16px; }
+    .stepper-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--outline-300); background: var(--bg-0); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-800); }
+    .stepper-value { font-size: 24px; font-weight: 600; min-width: 40px; text-align: center; }
+
+    /* Multi-select chip */
+    .chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .chip { padding: 12px; border: 1px solid var(--outline-200); border-radius: var(--radius-sm); text-align: center; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .chip-selected { border: 2px solid var(--primary-500); background: var(--primary-50); color: var(--primary-600); }
+
+    /* Summary row */
+    .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--outline-200); font-size: 14px; }
+    .summary-label { color: var(--text-500); }
+    .summary-value { font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Batch 1: Onboarding Flow</h1>
+  <p>10 screens &middot; Welcome &rarr; Account &rarr; Profile &rarr; Setup &rarr; Summary</p>
+</div>
+
+<div class="container">
+
+<div class="phone-grid">
+
+<!-- Screen 1: Welcome -->
+<div class="phone-wrapper">
+  <div class="phone-label">1. Welcome Screen</div>
+  <div class="phone-id">FR2b</div>
+  <div class="phone-sublabel">Value proposition and entry point</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-content-center">
+      <div style="font-size:72px;">&#127793;</div>
+      <div style="font-size:36px;font-weight:800;color:var(--primary-500);">Broodly</div>
+      <div style="font-size:18px;color:var(--text-500);max-width:280px;">Make the right decision at the right moment with confidence.</div>
+      <div style="width:100%;margin-top:24px;display:grid;gap:10px;">
+        <button class="btn btn-xl btn-primary">Get Started</button>
+        <button class="btn btn-lg btn-outline">Sign In</button>
+      </div>
+      <div style="font-size:12px;color:var(--text-400);margin-top:12px;">Field-first beekeeping decision support</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 2: Account Creation -->
+<div class="phone-wrapper">
+  <div class="phone-label">2. Account Creation</div>
+  <div class="phone-id">FR1a, FR2b</div>
+  <div class="phone-sublabel">Email/social auth registration</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Create Account</h4></div>
+    </div>
+    <div class="phone-content">
+      <div class="progress-dots">
+        <div class="dot dot-active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div>
+        <div class="input-label">Email</div>
+        <input class="input" placeholder="you@example.com" />
+      </div>
+      <div>
+        <div class="input-label">Password</div>
+        <input class="input" type="password" placeholder="Create a password" />
+      </div>
+      <div>
+        <div class="input-label">Display Name</div>
+        <input class="input" placeholder="What should we call you?" />
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:13px;color:var(--text-500);text-align:center;">or continue with</div>
+      <div class="social-row">
+        <button class="social-btn">&#63743; Apple</button>
+        <button class="social-btn">G Google</button>
+      </div>
+      <button class="btn btn-xl btn-primary" style="margin-top:8px;">Create Account</button>
+      <div class="check-row" style="font-size:12px;color:var(--text-500);">
+        <div class="check-box check-box-checked">&#10003;</div>
+        <span>I agree to the <span style="color:var(--primary-500);">Terms of Service</span> and <span style="color:var(--primary-500);">Privacy Policy</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 3: Experience Level -->
+<div class="phone-wrapper">
+  <div class="phone-label">3. Experience Level</div>
+  <div class="phone-id">FR2, FR2b</div>
+  <div class="phone-sublabel">Newbie / Amateur / Sideliner selection</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Your Experience</h4></div>
+    </div>
+    <div class="phone-content">
+      <div class="progress-dots">
+        <div class="dot dot-done"></div><div class="dot dot-active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div style="font-size:22px;font-weight:700;">What kind of beekeeper are you?</div>
+      <div style="font-size:14px;color:var(--text-500);">This helps us tailor guidance to your experience level.</div>
+      <div class="card card-selected">
+        <div class="card-title">&#127793; Newbie</div>
+        <div class="card-text">Just getting started. Guide me through everything with detailed explanations and safety reminders.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#128029; Amateur</div>
+        <div class="card-text">1-2 seasons of experience. Help me build confidence with concise decision support.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#127891; Sideliner</div>
+        <div class="card-text">Managing many hives across locations. Keep me efficient with exception-first workflows.</div>
+      </div>
+      <button class="btn btn-xl btn-primary" style="margin-top:8px;">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 4: Region & Location -->
+<div class="phone-wrapper">
+  <div class="phone-label">4. Region & Location</div>
+  <div class="phone-id">FR2b, FR8, FR8a</div>
+  <div class="phone-sublabel">GPS auto-detect with manual override</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:42 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Your Location</h4></div>
+    </div>
+    <div class="phone-content">
+      <div class="progress-dots">
+        <div class="dot dot-done"></div><div class="dot dot-done"></div><div class="dot dot-active"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div style="font-size:22px;font-weight:700;">Where are your bees?</div>
+      <div class="alert alert-info">
+        <span>&#128205;</span>
+        <span>Your location helps us give you regionally accurate seasonal guidance, weather data, and bloom forecasts.</span>
+      </div>
+      <div class="map-placeholder">&#128506; Map &middot; Auto-detected via GPS</div>
+      <div class="card" style="background:var(--success-50);border-color:var(--success-500);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--success-500);font-size:18px;">&#10003;</span>
+          <div>
+            <div class="card-title">Portland, Oregon</div>
+            <div class="card-text">USDA Zone 8b &middot; Maritime climate</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-ghost" style="width:auto;margin:0 auto;">&#9998; Enter location manually</button>
+      <button class="btn btn-xl btn-primary">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 5: First Apiary Setup -->
+<div class="phone-wrapper">
+  <div class="phone-label">5. First Apiary Setup</div>
+  <div class="phone-id">FR2b, FR3, FR4</div>
+  <div class="phone-sublabel">Name, location pin, hive count</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:42 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>First Apiary</h4></div>
+    </div>
+    <div class="phone-content">
+      <div class="progress-dots">
+        <div class="dot dot-done"></div><div class="dot dot-done"></div><div class="dot dot-done"></div><div class="dot dot-active"></div><div class="dot"></div>
+      </div>
+      <div style="font-size:22px;font-weight:700;">Set up your first apiary</div>
+      <div style="font-size:14px;color:var(--text-500);">You can always add more apiaries later from Settings.</div>
+      <div>
+        <div class="input-label">Apiary Name</div>
+        <input class="input" value="Backyard Apiary" />
+      </div>
+      <div>
+        <div class="input-label">Location</div>
+        <div class="map-placeholder" style="height:100px;">&#128205; Same as home location &middot; Tap to adjust pin</div>
+      </div>
+      <div>
+        <div class="input-label">How many hives?</div>
+        <div class="stepper" style="justify-content:center;margin-top:4px;">
+          <button class="stepper-btn">&minus;</button>
+          <div class="stepper-value">3</div>
+          <button class="stepper-btn">+</button>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <span>&#128161;</span>
+        <span>Don't worry about naming individual hives now — you can do that from the apiary view.</span>
+      </div>
+      <button class="btn btn-xl btn-primary" style="margin-top:8px;">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 6: Goal Selection -->
+<div class="phone-wrapper">
+  <div class="phone-label">6. Goal Selection</div>
+  <div class="phone-id">FR2, FR2b</div>
+  <div class="phone-sublabel">Multi-select management goals</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:42 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Your Goals</h4></div>
+    </div>
+    <div class="phone-content">
+      <div class="progress-dots">
+        <div class="dot dot-done"></div><div class="dot dot-done"></div><div class="dot dot-done"></div><div class="dot dot-done"></div><div class="dot dot-active"></div>
+      </div>
+      <div style="font-size:22px;font-weight:700;">What matters most to you?</div>
+      <div style="font-size:14px;color:var(--text-500);">Select all that apply. This shapes which recommendations you see first.</div>
+      <div class="chip-grid">
+        <div class="chip chip-selected">&#128154; Colony Health</div>
+        <div class="chip chip-selected">&#127855; Honey Production</div>
+        <div class="chip">&#128218; Learning</div>
+        <div class="chip">&#128200; Growth</div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:14px;font-weight:600;">How do you prefer to learn?</div>
+      <div class="card card-selected">
+        <div class="card-title">&#127908; Voice-first</div>
+        <div class="card-text">Speak observations and hear guidance. Hands-free in the field.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#128221; Tap & read</div>
+        <div class="card-text">Structured forms and written guidance. Precise and reviewable.</div>
+      </div>
+      <button class="btn btn-xl btn-primary" style="margin-top:8px;">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 7: Telemetry Connection -->
+<div class="phone-wrapper">
+  <div class="phone-label">7. Telemetry Connection</div>
+  <div class="phone-id">FR2b, FR44</div>
+  <div class="phone-sublabel">Connect sensors or skip</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:43 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Telemetry</h4></div>
+    </div>
+    <div class="phone-content">
+      <div style="font-size:22px;font-weight:700;">Do you have hive sensors?</div>
+      <div style="font-size:14px;color:var(--text-500);">Connecting sensors adds weight, temperature, and humidity data to improve guidance accuracy.</div>
+      <div class="card" style="display:flex;gap:12px;align-items:center;">
+        <div style="font-size:32px;">&#9878;</div>
+        <div>
+          <div class="card-title">BroodMinder</div>
+          <div class="card-text">Weight, temperature, humidity sensors</div>
+        </div>
+        <button class="btn btn-sm btn-outline" style="width:auto;flex-shrink:0;">Connect</button>
+      </div>
+      <div class="card" style="display:flex;gap:12px;align-items:center;">
+        <div style="font-size:32px;">&#128225;</div>
+        <div>
+          <div class="card-title">Arnia</div>
+          <div class="card-text">Acoustic, weight, and temperature monitoring</div>
+        </div>
+        <button class="btn btn-sm btn-outline" style="width:auto;flex-shrink:0;">Connect</button>
+      </div>
+      <div class="card" style="display:flex;gap:12px;align-items:center;opacity:0.6;">
+        <div style="font-size:32px;">&#128268;</div>
+        <div>
+          <div class="card-title">Other / Generic</div>
+          <div class="card-text">Coming soon</div>
+        </div>
+        <span class="badge badge-info">Soon</span>
+      </div>
+      <div class="alert alert-info">
+        <span>&#128161;</span>
+        <span>No sensors? No problem. Broodly works great with manual observations alone. You can connect sensors anytime from Settings.</span>
+      </div>
+      <div style="display:grid;gap:8px;margin-top:8px;">
+        <button class="btn btn-xl btn-primary">Continue without sensors</button>
+        <button class="btn btn-lg btn-ghost">I'll set this up later</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 8: Onboarding Summary -->
+<div class="phone-wrapper">
+  <div class="phone-label">8. Onboarding Summary</div>
+  <div class="phone-id">FR2b</div>
+  <div class="phone-sublabel">Review all setup choices</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:43 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <h4>You're all set!</h4>
+    </div>
+    <div class="phone-content">
+      <div style="text-align:center;font-size:48px;">&#127793;</div>
+      <div style="text-align:center;font-size:20px;font-weight:700;color:var(--primary-500);">Welcome to Broodly</div>
+      <div style="text-align:center;font-size:14px;color:var(--text-500);">Here's your setup at a glance:</div>
+      <div style="background:var(--bg-100);border-radius:var(--radius-sm);padding:16px;">
+        <div class="summary-row"><span class="summary-label">Experience</span><span class="summary-value">&#127793; Newbie</span></div>
+        <div class="summary-row"><span class="summary-label">Location</span><span class="summary-value">Portland, OR</span></div>
+        <div class="summary-row"><span class="summary-label">Apiary</span><span class="summary-value">Backyard Apiary</span></div>
+        <div class="summary-row"><span class="summary-label">Hives</span><span class="summary-value">3</span></div>
+        <div class="summary-row"><span class="summary-label">Goals</span><span class="summary-value">Health, Honey</span></div>
+        <div class="summary-row" style="border:none;"><span class="summary-label">Sensors</span><span class="summary-value">None connected</span></div>
+      </div>
+      <div class="alert alert-info">
+        <span>&#128161;</span>
+        <span>You can change any of these anytime from Settings.</span>
+      </div>
+      <button class="btn btn-xl btn-primary" style="margin-top:8px;">Start Using Broodly &#10132;</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 9: Mid-Season Catch-up -->
+<div class="phone-wrapper">
+  <div class="phone-label">9. Mid-Season Catch-up</div>
+  <div class="phone-id">FR2b, FR12</div>
+  <div class="phone-sublabel">Establish baseline for mid-season onboarding</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:44 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Catch-up Assessment</h4></div>
+    </div>
+    <div class="phone-content">
+      <div class="alert alert-warning">
+        <span>&#128197;</span>
+        <span>You're joining mid-season. Let's capture where your colonies are now so we can give accurate guidance right away.</span>
+      </div>
+      <div style="font-size:16px;font-weight:600;">Current colony state:</div>
+      <div class="check-row">
+        <div class="check-box check-box-checked">&#10003;</div>
+        <div><div style="font-weight:500;">Queen present and laying</div><div style="font-size:12px;color:var(--text-500);">Seen or evidence of fresh eggs</div></div>
+      </div>
+      <div class="check-row">
+        <div class="check-box check-box-checked">&#10003;</div>
+        <div><div style="font-weight:500;">Colony strength: moderate or strong</div><div style="font-size:12px;color:var(--text-500);">Bees covering 5+ frames</div></div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div><div style="font-weight:500;">Treatments applied this season</div><div style="font-size:12px;color:var(--text-500);">Varroa or other treatments</div></div>
+      </div>
+      <div class="check-row">
+        <div class="check-box check-box-checked">&#10003;</div>
+        <div><div style="font-weight:500;">Honey supers on</div><div style="font-size:12px;color:var(--text-500);">Active nectar collection</div></div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div><div style="font-weight:500;">Any health concerns observed</div><div style="font-size:12px;color:var(--text-500);">Disease, pest, or behavior issues</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text-500);">Past milestones will show as "not tracked" rather than "missed."</div>
+      <button class="btn btn-xl btn-primary" style="margin-top:8px;">Save Baseline &amp; Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 10: Disclaimer -->
+<div class="phone-wrapper">
+  <div class="phone-label">10. Disclaimer Acceptance</div>
+  <div class="phone-id">FR12b, FR12c</div>
+  <div class="phone-sublabel">Advisory-only disclaimer before first recommendations</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:44 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <h4>Important Notice</h4>
+    </div>
+    <div class="phone-content">
+      <div style="text-align:center;font-size:36px;">&#9888;</div>
+      <div style="font-size:18px;font-weight:700;text-align:center;">Advisory-Only Guidance</div>
+      <div style="font-size:14px;color:var(--text-500);line-height:1.6;">
+        Broodly provides decision-support recommendations based on your observations, regional context, and best practices. These recommendations are <strong>advisory only</strong> and should not replace:
+      </div>
+      <div style="padding-left:16px;font-size:14px;line-height:1.8;">
+        &bull; Professional veterinary advice<br>
+        &bull; Local beekeeping association guidance<br>
+        &bull; Your own judgment and experience<br>
+        &bull; Compliance with local regulations
+      </div>
+      <div class="alert alert-warning">
+        <span>&#9888;</span>
+        <span>Recommendations include confidence levels. Lower confidence means more uncertainty — always consider the fallback guidance provided.</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-500);">Treatment recommendations are filtered by your region's regulatory status where data is available. In regions without regulatory data, a notice will be shown.</div>
+      <div class="check-row" style="margin-top:8px;">
+        <div class="check-box check-box-checked">&#10003;</div>
+        <span style="font-size:14px;">I understand that Broodly provides advisory guidance, not professional advice</span>
+      </div>
+      <button class="btn btn-xl btn-primary" style="margin-top:8px;">I Understand</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- phone-grid -->
+</div><!-- container -->
+
+</body>
+</html>

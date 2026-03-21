@@ -1,8 +1,9 @@
 ---
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
 lastStep: 8
-status: 'complete'
+status: 'revised'
 completedAt: '2026-03-15'
+revisedAt: '2026-03-21'
 inputDocuments:
   - /workspaces/bmad-method/_bmad-output/planning-artifacts/product-brief-bmad-method-2026-03-15.md
   - /workspaces/bmad-method/_bmad-output/planning-artifacts/prd.md
@@ -26,7 +27,7 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 The PRD defines 55 functional requirements centered on identity/profile management, localization-aware guidance, weekly planning and prioritization, guided inspection decision support, voice/media logging, skill progression, integrations, and support/audit workflows. Architecturally, this implies a modular domain model where recommendation logic, inspection workflows, notification orchestration, and telemetry ingestion are isolated but composable.
 
 **Non-Functional Requirements:**
-The NFR set drives a reliability-first, trust-first architecture: low-latency mobile interactions, offline-first capture and deferred sync, explicit confidence signaling, encryption in transit/at rest, RBAC, auditability, and observability for recommendation/sync/notification pipelines. These requirements require clear service boundaries, resilient client state handling, and robust telemetry around confidence and action outcomes.
+The NFR set drives a reliability-first, trust-first architecture: low-latency mobile interactions, cache-first reads with local media staging, explicit confidence signaling, encryption in transit/at rest, RBAC, auditability, and observability for recommendation/notification pipelines. These requirements require clear service boundaries, resilient client state handling, and robust telemetry around confidence and action outcomes.
 
 **Scale & Complexity:**
 The project is medium-high complexity due to multi-persona workflows, explainable recommendations, optional real-time integrations, and strong traceability constraints.
@@ -37,7 +38,7 @@ The project is medium-high complexity due to multi-persona workflows, explainabl
 
 ### Technical Constraints & Dependencies
 
-- Mobile-first operation with full offline workflow continuity during inspections
+- Mobile-first operation with cache-first reads and local media staging (full offline sync deferred post-MVP)
 - Region/season localization as a hard prerequisite for high-confidence recommendations
 - Telemetry/weather/flora integrations must influence ranking logic, not only UI presentation
 - Recommendation contract must always return action + rationale + confidence + fallback
@@ -57,7 +58,7 @@ The project is medium-high complexity due to multi-persona workflows, explainabl
 
 ### Primary Technology Domain
 
-Mobile-first application with cloud backend services, plus a future web/admin companion. This is based on PRD classification (`mobile_app`) and user clarification to keep mobile-first while allowing later web/admin expansion.
+Mobile-first application with cloud backend services, publishing to iOS, Android, and web via React Native for Web. Single Expo codebase targets all platforms. This is based on PRD classification (`mobile_app`) with web delivery via Expo's built-in web support.
 
 ### Starter Options Considered
 
@@ -65,15 +66,15 @@ Mobile-first application with cloud backend services, plus a future web/admin co
 - React Native CLI baseline — higher flexibility but more native configuration overhead in MVP stage.
 - Flutter starter — strong option, but lower alignment with existing React-oriented preference and lower near-term velocity for this context.
 
-### Selected Starter: Expo + TypeScript
+### Selected Starter: Expo + TypeScript (Mobile + Web)
 
 **Rationale for Selection:**
-Best fit for rapid, reliable mobile MVP delivery with offline-first flows, camera/mic/location support, and maintainable cross-platform development while preserving optional migration paths for deeper native customization later.
+Best fit for rapid, reliable cross-platform MVP delivery with camera/mic/location support, React Native for Web publishing, and maintainable development across iOS/Android/web from a single codebase.
 
 **Initialization Command:**
 
 ```bash
-npx create-expo-app@latest bmad-method-app --template
+npx create-expo-app@latest broodly --template
 ```
 
 ### Verified Current Versions
@@ -81,34 +82,34 @@ npx create-expo-app@latest bmad-method-app --template
 - `expo`: 55.0.6
 - `create-expo-app`: 3.5.3
 - `react-native`: 0.84.1
+- `react-native-web`: 0.19.x (React Native for Web)
 - `typescript`: 5.9.3
-- Rust toolchain: 1.85 (stable)
-- `axum`: 0.8.x (HTTP framework)
-- `sqlx`: 0.8.x (async PostgreSQL driver with compile-time query checking)
-- `tokio`: 1.x (async runtime)
-- `serde`: 1.x (serialization)
+- Go: 1.24 (stable)
+- `gqlgen`: 0.17.x (GraphQL server code generation)
+- `sqlc`: 1.27.x (type-safe SQL code generation)
+- `chi`: 5.x (HTTP router / middleware)
 - Google Cloud SDK: latest
 - `@react-native-firebase/app`: 21.x (client-side Firebase integration)
 
 ### Architectural Decisions Provided by Starter
 
 **Language & Runtime:**
-TypeScript-based React Native runtime on Expo managed workflow.
+TypeScript-based React Native runtime on Expo managed workflow, targeting iOS, Android, and web (via React Native for Web).
 
 **Styling Solution:**
-React Native StyleSheet primitives by default; design system layer can be added without changing core starter shape.
+React Native StyleSheet primitives by default; design system layer can be added without changing core starter shape. Platform-aware styles for web-specific layouts.
 
 **Build Tooling:**
-Expo toolchain with Metro bundling, platform targets, and managed app lifecycle.
+Expo toolchain with Metro bundling, platform targets (ios, android, web), and managed app lifecycle.
 
 **Testing Framework:**
 Jest-compatible baseline and React Native testing ecosystem compatibility.
 
 **Code Organization:**
-Feature-oriented `app/` or `src/` structure with modular services for recommendation, sync, telemetry, and notifications.
+Feature-oriented `app/` or `src/` structure with modular services for recommendation, telemetry, and notifications.
 
 **Development Experience:**
-Fast local preview, OTA workflow support, and low-friction iteration across iOS/Android.
+Fast local preview, OTA workflow support, and low-friction iteration across iOS/Android/web.
 
 **Note:** Project initialization using this command should be the first implementation story.
 
@@ -117,25 +118,25 @@ Fast local preview, OTA workflow support, and low-friction iteration across iOS/
 ### Decision Priority Analysis
 
 **Critical Decisions (Block Implementation):**
-- Primary product remains mobile-first (Expo React Native), with separate React + Vite web admin companion.
-- API strategy is REST-first with OpenAPI 3.1 typed schema contract, generated TypeScript client types.
+- Primary product is Expo React Native, publishing to iOS, Android, and web via React Native for Web (single codebase).
+- API strategy is GraphQL with schema-first design (`gqlgen` in Go), generated TypeScript client types via GraphQL Code Generator.
 - Auth uses Firebase Authentication (email/password, optional OAuth providers).
-- Primary data store is Cloud SQL for PostgreSQL with application-level authorization.
-- Backend is Rust (axum) deployed as a container on Cloud Run.
-- Mobile experience is offline-first using local SQLite + deterministic queue-based sync.
-- Recommendation contract is mandatory in API responses: action + rationale + confidence + fallback.
-- AI/ML inference uses Vertex AI endpoints for embeddings, image analysis, and recommendation scoring.
+- Primary data store is Cloud SQL for PostgreSQL with application-level authorization. GCP is the sole hosting platform.
+- Backend is Go (chi + gqlgen) deployed as a containerized microservice on Google Cloud Run (free tier for MVP).
+- MVP uses cache-first reads with local media staging; full offline sync is deferred post-MVP.
+- Recommendation contract is mandatory in GraphQL responses: action + rationale + confidence + fallback.
+- AI/ML inference uses Vertex AI Embedding 2.0 (multimodal: text, image, audio, video) and Gemini for recommendation scoring.
 
 **Important Decisions (Shape Architecture):**
-- Backend separates REST API service and async worker service (both Rust, separate Cloud Run services).
+- Backend separates GraphQL API service and async worker service (both Go, separate Cloud Run containers).
 - Media and export storage uses Google Cloud Storage.
 - Asynchronous processing uses Cloud Pub/Sub for event dispatch and Cloud Run jobs for batch work.
 - Voice processing uses Gemini STT/TTS via Vertex AI API.
 - Observability uses Cloud Logging, Cloud Trace, and Cloud Monitoring with structured audit events.
-- Admin web focuses on support, audit, integration health, and settings.
 
 **Deferred Decisions (Post-MVP):**
-- Non-critical real-time subscriptions (consider Firestore for specific live-update surfaces).
+- Full offline sync engine (bidirectional mutation queue, conflict resolution).
+- GraphQL subscriptions for real-time updates.
 - Advanced route optimization across many apiaries.
 - Multi-region Cloud Run deployment.
 - Cloud Spanner evaluation if write-heavy multi-region becomes necessary.
@@ -143,77 +144,75 @@ Fast local preview, OTA workflow support, and low-friction iteration across iOS/
 ### Data Architecture
 
 - **Primary store:** Cloud SQL for PostgreSQL (managed, HA-capable, automatic backups). PostgreSQL 16 with pgvector extension.
-- **Authorization model:** application-level RBAC enforced in Rust middleware; no RLS dependency. Authorization checks are composable middleware functions validated at the request boundary and query construction layer. All database queries include `WHERE tenant_id = $1` as a mandatory parameter, enforced by repository trait signatures.
+- **Authorization model:** application-level RBAC enforced in Go middleware; no RLS dependency. Authorization checks are composable middleware functions validated at the request boundary and query construction layer. All database queries include `WHERE tenant_id = $1` as a mandatory parameter, enforced by repository interface signatures.
 - **Domain schema:** users, apiaries, hives, inspections, recommendations, tasks, integrations, events, audit.
-- **Validation:** OpenAPI schema validation at API boundary + DB constraints + Rust type system compile-time guarantees.
-- **Migrations:** versioned SQL migrations via `sqlx migrate`, forward-only in production. Migration CI gate blocks deployment on unapplied or conflicting migrations.
-- **Caching:** persisted client SQLite cache for offline behavior; server-side read cache via Cloud Memorystore (Redis) for context assembly and recommendation input pre-computation.
+- **Validation:** GraphQL schema validation at API boundary + DB constraints + Go type system compile-time guarantees via `sqlc`.
+- **Migrations:** versioned SQL migrations via `golang-migrate`, forward-only in production. Migration CI gate blocks deployment on unapplied or conflicting migrations.
+- **Caching:** `@tanstack/react-query` persistent cache for client-side cache-first reads; server-side read cache via Cloud Memorystore (Redis) for context assembly and recommendation input pre-computation.
 - **Object storage:** Google Cloud Storage bucket for inspection media (photos, voice recordings), data exports, and backup archives. Signed URLs for secure client upload/download. Lifecycle rules: move to Nearline after 90 days, Archive after 1 year.
-- **Embedding store:** PostgreSQL with `pgvector` extension on Cloud SQL for semantic search vectors. Vertex AI Embedding 2.0 generates embeddings; stored and queried via pgvector cosine similarity.
+- **Embedding store:** PostgreSQL with `pgvector` extension on Cloud SQL for semantic search vectors. Vertex AI Embedding 2.0 (multimodal) generates unified embeddings for text, images, audio, and video; stored and queried via pgvector cosine similarity.
 - **Longitudinal data strategy:** inspection history, recommendation traces, and media records shall be partitioned by time period (e.g., by season/year). The recommendation engine shall use a rolling window of recent history (configurable, default: current season plus prior season) for real-time queries, with older history available for trend analysis via async computation. Media storage shall support tiered retention: full-resolution for current season, compressed for prior seasons, with user-controlled archival and deletion.
 - **Analytics data layer:** maintain a separate, anonymized analytical store optimized for aggregation queries across regions, seasons, and management patterns. Design schema to support cohort-level outcome analysis without exposing individual user data. This layer is the foundation for recommendation model training, regional baselines, and future research partnerships.
 
 ### Authentication & Security
 
-- **Authentication:** Firebase Authentication (email/password, Google OAuth, Apple Sign-In). Firebase Admin SDK validates ID tokens server-side via Rust JWT validation against Google public keys (`jsonwebtoken` crate).
-- **Authorization:** RBAC enforced in Rust axum middleware extractors. Roles: owner, collaborator (read-only), support. Permission checks occur at the handler level before any data access.
+- **Authentication:** Firebase Authentication (email/password, Google OAuth, Apple Sign-In). Firebase Admin SDK validates ID tokens server-side via Go JWT validation against Google public keys (`golang-jwt/jwt` package).
+- **Authorization:** RBAC enforced in Go chi middleware. Roles: owner, collaborator (read-only), support. Permission checks occur at the resolver/handler level before any data access.
 - **Token strategy:** Firebase ID tokens (short-lived, 1 hour) + Firebase refresh tokens (client-managed rotation). Server validates JWT signature, expiry, and claims on every request.
-- **API security:** rate limiting via Cloud Armor or axum middleware (`tower` rate-limit layer), per-user and per-device limits. Request size limits enforced. API keys for integration partners.
+- **API security:** rate limiting via Cloud Armor or chi middleware (`httprate`), per-user and per-device limits. Request size limits enforced. API keys for integration partners.
 - **Encryption:** TLS in transit (Cloud Run default), Cloud SQL encryption at rest (Google-managed keys, option for CMEK). Cloud Storage encryption at rest. Sensitive fields (location coordinates, media metadata) encrypted at application level with envelope encryption via Cloud KMS.
-- **Auditability:** immutable audit event log in PostgreSQL with append-only table, covering recommendation generation, user actions, access changes, and sync events. Audit records include `event_id`, `event_type`, `actor_id`, `tenant_id`, `occurred_at`, `payload_version`, `payload` (JSONB).
+- **Auditability:** immutable audit event log in PostgreSQL with append-only table, covering recommendation generation, user actions, and access changes. Audit records include `event_id`, `event_type`, `actor_id`, `tenant_id`, `occurred_at`, `payload_version`, `payload` (JSONB).
 
 ### API & Communication Patterns
 
-- **API pattern:** REST with OpenAPI 3.1 specification. `utoipa` crate generates OpenAPI docs from Rust handler annotations. TypeScript client types generated via `openapi-typescript`. Resource-oriented endpoints with consistent envelope: `{ data, meta, errors }`.
-- **Schema evolution:** additive field changes with explicit versioned deprecation headers. Breaking changes via URL version prefix (`/v2/`).
-- **Error handling:** typed domain errors with stable machine-readable `code`, human `message`, and `retryable` boolean. HTTP status codes follow REST conventions. Rust `thiserror` for domain error types.
-- **Service communication:** synchronous request/response for interactive paths. Cloud Pub/Sub for async event dispatch (telemetry recompute, notification triggers, embedding generation, media processing). Cloud Tasks for delayed/scheduled work.
-- **Integration contract:** adapters normalize weather/flora/sensor data into canonical internal events published to Pub/Sub topics. Each adapter is a separate Rust module with a shared `ExternalSignal` trait.
+- **API pattern:** GraphQL with schema-first design. `gqlgen` generates Go resolvers from `.graphql` schema files. TypeScript client types generated via `@graphql-codegen/cli`. Consistent error handling via GraphQL error extensions.
+- **Schema evolution:** additive field changes with `@deprecated` directive. Breaking changes via schema versioning strategy (new types/fields, deprecated old ones).
+- **Error handling:** typed domain errors returned via GraphQL error extensions with stable machine-readable `code`, human `message`, and `retryable` boolean. Go `errors` package with custom error types.
+- **Service communication:** synchronous request/response for interactive GraphQL queries/mutations. Cloud Pub/Sub for async event dispatch (telemetry recompute, notification triggers, embedding generation, media processing). Cloud Tasks for delayed/scheduled work.
+- **Integration contract:** adapters normalize weather/flora/sensor data into canonical internal events published to Pub/Sub topics. Each adapter is a separate Go package with a shared `ExternalSignal` interface.
 - **Voice payload:** audio uploaded to Cloud Storage via signed URL; Cloud Storage notification triggers STT processing via Pub/Sub; transcription result written back to inspection record.
 
 ### Frontend Architecture
 
-- **Mobile app (primary):** Expo + TypeScript + feature-sliced modules. `@react-native-firebase/auth` for authentication. `expo-sqlite` for local offline database. `expo-file-system` for media staging before upload.
-- **Admin web companion:** React + Vite + TypeScript. Firebase Auth web SDK.
-- **State model:** server state managed via `@tanstack/react-query` with persistent offline query cache backed by SQLite. Workflow/UI state in Zustand stores.
-- **Routing:** Expo Router (mobile), React Router (web).
-- **Performance:** route/screen code splitting, query prefetching for guided flows, bounded SQLite cache with LRU eviction, media compression (HEIC/WebP, opus audio) before upload.
-- **Offline sync engine:** custom queue-based sync in TypeScript. Mutations are enqueued in SQLite with monotonic sequence IDs. On connectivity restoration, queue replays in order. Conflict resolution policy: server-wins for shared data, client-wins for in-progress inspections, manual resolution for concurrent edits to same record. Sync status exposed via React context for UI indicators.
+- **Single codebase:** Expo + TypeScript + React Native for Web. One codebase targets iOS, Android, and web. `@react-native-firebase/auth` for authentication. `expo-file-system` for media staging before upload.
+- **State model:** server state managed via `@tanstack/react-query` with persistent query cache for cache-first reads. Workflow/UI state in Zustand stores. GraphQL client via `urql` or `@apollo/client` with TanStack Query integration.
+- **Routing:** Expo Router for all platforms (mobile + web).
+- **Performance:** route/screen code splitting, query prefetching for guided flows, media compression (HEIC/WebP, opus audio) before upload. Platform-aware responsive layouts for web.
+- **MVP connectivity model:** cache-first reads via TanStack Query persistent cache. Local media staging (photos/voice captured locally, uploaded when connected). No offline writes — inspections require connectivity to save. Clear "offline" indicator in UI. Full offline sync engine deferred to post-MVP.
 
 ### Infrastructure & Deployment
 
-- **Mobile:** Expo EAS channels for build/distribution.
-- **Web admin:** Firebase Hosting (CDN-backed static deployment).
-- **API service:** Rust binary in distroless container on Cloud Run (min 0 instances for dev, min 1 for prod). CPU always-allocated for consistent latency. 1 GiB memory, 1 vCPU baseline; autoscale to 10 instances for MVP.
-- **Async worker service:** Rust binary on Cloud Run triggered by Pub/Sub push subscriptions. Handles: media processing, STT transcription, embedding generation, notification dispatch, telemetry normalization.
+- **Hosting platform:** Google Cloud Platform (GCP) exclusively. All services, storage, AI/ML, and infrastructure on GCP.
+- **Mobile:** Expo EAS channels for build/distribution (iOS, Android).
+- **Web:** Expo web build deployed to Firebase Hosting (CDN-backed static deployment). Same codebase as mobile via React Native for Web.
+- **API service:** Go binary in distroless container on Google Cloud Run (free tier for MVP, min 0 instances for dev). CPU always-allocated for consistent latency. 512 MiB memory, 1 vCPU baseline; autoscale to 10 instances.
+- **Async worker service:** Go binary in container on Cloud Run triggered by Pub/Sub push subscriptions. Handles: media processing, STT transcription, embedding generation, notification dispatch, telemetry normalization.
 - **Database:** Cloud SQL for PostgreSQL 16 with pgvector extension. db-f1-micro for dev, db-custom-2-4096 for prod. Automated backups, point-in-time recovery enabled.
 - **Object storage:** Google Cloud Storage bucket (`broodly-media-{env}`) with lifecycle rules. Signed URL upload/download with 15-minute expiry.
 - **Cache:** Cloud Memorystore (Redis) basic tier, 1 GiB for prod. Used for recommendation context pre-assembly and session rate limiting.
-- **AI/ML:** Vertex AI endpoints for Embedding 2.0 (text + image embeddings), Gemini for STT/TTS, Gemini Vision for inspection photo analysis. All accessed via Vertex AI API from Rust backend using direct REST with service account credentials.
+- **AI/ML:** Vertex AI Embedding 2.0 multimodal (unified text, image, audio, video embeddings), Gemini for STT/TTS, Gemini Vision for inspection photo analysis. All accessed via Vertex AI API from Go backend using `google-cloud-go` SDK with service account credentials.
 - **Event infrastructure:** Cloud Pub/Sub topics: `inspection-events`, `media-uploaded`, `telemetry-ingested`, `notification-dispatch`, `embedding-requests`. Dead-letter topics with Cloud Monitoring alerts on DLQ depth. Cloud Storage Notifications on media bucket trigger `media-uploaded` topic.
-- **CI/CD:** GitHub Actions monorepo pipeline. Rust: `cargo check`, `cargo clippy`, `cargo test`, migration guard. TypeScript: lint, type-check, test. Docker build and push to Artifact Registry. Cloud Run deploy via `gcloud run deploy` or Terraform.
+- **CI/CD:** GitHub Actions monorepo pipeline. Go: `go vet`, `golangci-lint`, `go test`, migration guard. TypeScript: lint, type-check, test. Docker build and push to Artifact Registry. Cloud Run deploy via `gcloud run deploy` or Terraform.
 - **Infrastructure-as-Code:** Terraform for all GCP resources. Separate state files for dev/staging/prod.
 - **Environments:** dev/staging/prod with strict IAM separation, separate GCP projects per environment, Secret Manager for credentials and API keys.
-- **Observability:** Cloud Logging (structured JSON logs from `tracing` crate), Cloud Trace (OpenTelemetry integration via `tracing-opentelemetry`), Cloud Monitoring dashboards and alerts for: API latency p50/p95/p99, error rates, Pub/Sub backlog depth, Cloud SQL connection pool utilization, recommendation generation latency.
+- **Observability:** Cloud Logging (structured JSON logs via `slog`), Cloud Trace (OpenTelemetry integration via `go.opentelemetry.io/otel`), Cloud Monitoring dashboards and alerts for: API latency p50/p95/p99, error rates, Pub/Sub backlog depth, Cloud SQL connection pool utilization, recommendation generation latency.
 
 ### Decision Impact Analysis
 
 **Implementation Sequence:**
-1. Initialize monorepo structure; scaffold Expo app and Rust API crate with axum hello-world.
+1. Initialize monorepo structure; scaffold Expo app (with web target) and Go API module with chi + gqlgen hello-world.
 2. Provision GCP project with Terraform: Cloud SQL, Cloud Run, GCS bucket, Firebase Auth project.
-3. Implement Firebase Auth integration (Expo client + Rust JWT validation).
-4. Implement PostgreSQL schema with sqlx migrations; core domain tables.
-5. Build REST API handlers for core domain: hives, apiaries, inspections.
-6. Implement offline sync engine (SQLite client + push/pull endpoints).
-7. Integrate Vertex AI: embedding pipeline, recommendation scoring, vision analysis.
+3. Implement Firebase Auth integration (Expo client + Go JWT validation).
+4. Implement PostgreSQL schema with golang-migrate migrations; core domain tables.
+5. Build GraphQL schema and resolvers for core domain: hives, apiaries, inspections.
+6. Implement cache-first reads (TanStack Query persistent cache) and local media staging.
+7. Integrate Vertex AI Embedding 2.0 (multimodal): embedding pipeline, recommendation scoring, vision analysis.
 8. Implement Gemini STT for voice logging; Pub/Sub media processing pipeline.
-9. Deliver mobile inspection and recommendation workflows end-to-end.
-10. Implement admin web operational surfaces.
+9. Deliver mobile + web inspection and recommendation workflows end-to-end.
 
 **Cross-Component Dependencies:**
-- Recommendation quality depends on sync freshness, normalized integrations, and embedding index completeness.
+- Recommendation quality depends on API freshness, normalized integrations, and embedding index completeness.
 - Support/audit UX depends on complete event and action history in audit tables.
-- Offline reliability depends on sync queue semantics and conflict resolution shared by client and API.
 - Vision AI and STT depend on GCS upload pipeline and Pub/Sub event flow.
 
 ## Implementation Patterns & Consistency Rules
@@ -222,14 +221,14 @@ Fast local preview, OTA workflow support, and low-friction iteration across iOS/
 
 **Database:** snake_case table/column names; UUID `id`; foreign keys as `<entity>_id`; indexes as `idx_<table>_<columns>`.
 
-**API:** REST resource types in PascalCase; fields in camelCase; endpoint paths in kebab-case; event names as `domain.entity.action.v1`.
+**API:** GraphQL types in PascalCase; fields in camelCase; event names as `domain.entity.action.v1`.
 
 **Code:** components/classes in PascalCase; functions/variables/hooks in camelCase; files in kebab-case (framework exceptions allowed).
 
 ### Structure Patterns
 
 - Monorepo with `apps/` and `packages/`.
-- Runtime separation: `apps/mobile`, `apps/admin-web`, `apps/api`.
+- Runtime separation: `apps/mobile` (iOS, Android, web via React Native for Web), `apps/api`.
 - Shared schema/types/config in `packages/*`.
 - Unit tests co-located, integration/e2e in top-level `tests/`.
 
@@ -237,22 +236,21 @@ Fast local preview, OTA workflow support, and low-friction iteration across iOS/
 
 - API timestamps are ISO-8601 UTC strings.
 - API IDs are opaque UUID strings.
-- API boundary JSON fields use camelCase.
-- DB remains snake_case; mapping occurs in data access layer.
+- GraphQL fields use camelCase.
+- DB remains snake_case; mapping occurs in data access layer (Go struct tags).
 
 ### Communication Patterns
 
 - Required event envelope: `eventId`, `eventType`, `occurredAt`, `tenantId`, `payloadVersion`, `payload`.
 - Event consumers are idempotent by `eventId`.
-- Offline queue replay order is deterministic; conflicts resolve via policy order: hard constraint > server truth > merge > manual resolution.
-- Conflict notification requirement: when sync conflict resolution modifies or discards user-submitted data, the system must generate a user-visible notification identifying: (a) which record was affected, (b) what the user submitted versus what was resolved, and (c) an option to review and amend the resolved record.
-- Collaborator collision handling: when two users modify the same hive record within the same sync window, the system must preserve both submissions as separate audit entries and present the conflict to the account owner for resolution rather than silently merging.
+- MVP: all mutations require connectivity. Cache-first reads provide fast UI with stale-while-revalidate semantics.
+- Post-MVP: offline queue replay order will be deterministic; conflicts will resolve via policy order: hard constraint > server truth > merge > manual resolution.
 
 ### Process Patterns
 
 - All domain errors expose stable code and retryability metadata.
-- Async views use unified states: `idle|loading|success|error|syncing`.
-- Recommendation/sync/notification failures are always logged and auditable.
+- Async views use unified states: `idle|loading|success|error`.
+- Recommendation/notification failures are always logged and auditable.
 
 ### Enforcement Guidelines
 
@@ -267,36 +265,39 @@ Fast local preview, OTA workflow support, and low-friction iteration across iOS/
 ```text
 broodly/
 ├── apps/
-│   ├── mobile/
-│   │   ├── app/                    # Expo Router screens
+│   ├── mobile/                     # Expo app (iOS, Android, Web via React Native for Web)
+│   │   ├── app/                    # Expo Router screens (all platforms)
 │   │   ├── src/features/           # Feature modules (inspection, recommendations, planning)
-│   │   ├── src/services/           # API client, sync engine, media upload
-│   │   ├── src/store/              # Zustand stores, SQLite offline cache
+│   │   ├── src/services/           # GraphQL client, media upload
+│   │   ├── src/store/              # Zustand stores, TanStack Query cache
+│   │   ├── src/platform/           # Platform-aware components (web vs native)
 │   │   └── package.json
-│   ├── admin-web/
-│   │   ├── src/pages/
-│   │   ├── src/components/
-│   │   ├── src/services/
-│   │   └── package.json
-│   └── api/
-│       ├── src/
-│       │   ├── main.rs             # Entrypoint, axum router setup
-│       │   ├── handlers/           # HTTP handlers by domain
+│   └── api/                        # Go GraphQL API service
+│       ├── cmd/
+│       │   ├── server/main.go      # API server entrypoint
+│       │   └── worker/main.go      # Async worker entrypoint
+│       ├── graph/
+│       │   ├── schema/             # GraphQL .graphql schema files
+│       │   ├── model/              # Generated Go types (gqlgen)
+│       │   └── resolver/           # GraphQL resolvers by domain
+│       ├── internal/
 │       │   ├── domain/             # Core domain types and business logic
-│       │   ├── services/           # Application services (recommendation engine, planning)
-│       │   ├── adapters/           # External integrations (weather, flora, telemetry)
+│       │   ├── service/            # Application services (recommendation engine, planning)
+│       │   ├── adapter/            # External integrations (weather, flora, telemetry)
 │       │   ├── ai/                 # Vertex AI client, embedding generation, vision analysis
 │       │   ├── voice/              # Gemini STT/TTS integration
-│       │   ├── events/             # Pub/Sub publishers and subscribers
-│       │   ├── persistence/        # sqlx queries, repository traits and implementations
+│       │   ├── event/              # Pub/Sub publishers and subscribers
+│       │   ├── repository/         # sqlc queries, repository interfaces and implementations
 │       │   ├── auth/               # Firebase token validation, RBAC middleware
-│       │   ├── middleware/         # Rate limiting, tracing, error handling
-│       │   └── config.rs           # Environment configuration
-│       ├── migrations/             # SQL migrations (sqlx migrate)
-│       ├── Cargo.toml
-│       └── Dockerfile
+│       │   └── middleware/         # Rate limiting, tracing, error handling
+│       ├── migrations/             # SQL migrations (golang-migrate)
+│       ├── sqlc.yaml               # sqlc configuration
+│       ├── gqlgen.yml              # gqlgen configuration
+│       ├── go.mod
+│       ├── Dockerfile
+│       └── Dockerfile.worker
 ├── packages/
-│   ├── api-types/                  # Generated TypeScript types from OpenAPI
+│   ├── graphql-types/              # Generated TypeScript types from GraphQL schema
 │   ├── domain-types/               # Shared domain constants and enums
 │   ├── config/                     # Shared configuration schemas
 │   ├── ui/                         # Shared UI component library
@@ -324,30 +325,30 @@ broodly/
 └── docs/
     ├── architecture/
     ├── adr/
-    ├── api/                        # Generated OpenAPI HTML docs
+    ├── api/                        # Generated GraphQL schema docs
     └── runbooks/
 ```
 
 ### Architectural Boundaries
 
-- `apps/api` is the only client-facing API surface.
-- Mobile and admin clients never access DB directly.
+- `apps/api` is the only client-facing GraphQL API surface.
+- Mobile and web clients never access DB directly.
 - Domain modules communicate via explicit interfaces/events only.
 - Recommendation, inspection, planning, and notification ownership remains separate.
 
 ### Requirements to Structure Mapping
 
-- Guided inspections/logging -> `apps/mobile/src/features/inspection`, `apps/api/src/handlers/inspections`, `apps/api/src/domain/inspection`.
-- Explainable recommendations -> `apps/mobile/src/features/recommendations`, `apps/api/src/services/recommendation`, `apps/api/src/ai/`.
-- Weekly planning/prioritization -> `apps/mobile/src/features/weekly-plan`, `apps/api/src/services/planning`.
-- Voice processing -> `apps/mobile/src/services/voice`, `apps/api/src/voice/`.
-- Vision AI -> `apps/mobile/src/features/inspection` (capture), `apps/api/src/ai/` (analysis).
-- Integrations -> `apps/api/src/adapters/*`, `apps/api/src/events/`.
-- Admin/support/audit -> `apps/admin-web/src/pages/*`, `apps/api/src/handlers/support`.
+- Guided inspections/logging -> `apps/mobile/src/features/inspection`, `apps/api/graph/resolver/inspection`, `apps/api/internal/domain/inspection`.
+- Explainable recommendations -> `apps/mobile/src/features/recommendations`, `apps/api/internal/service/recommendation`, `apps/api/internal/ai/`.
+- Weekly planning/prioritization -> `apps/mobile/src/features/weekly-plan`, `apps/api/internal/service/planning`.
+- Voice processing -> `apps/mobile/src/services/voice`, `apps/api/internal/voice/`.
+- Vision AI -> `apps/mobile/src/features/inspection` (capture), `apps/api/internal/ai/` (analysis).
+- Integrations -> `apps/api/internal/adapter/*`, `apps/api/internal/event/`.
+- Admin/support/audit -> `apps/mobile/src/features/admin` (web-optimized views), `apps/api/graph/resolver/support`.
 
 ### Integration Points
 
-- Client -> REST API (Cloud Run).
+- Client -> GraphQL API (Cloud Run).
 - API service -> Cloud Pub/Sub -> Worker service for async tasks.
 - External adapters -> canonical event normalization via Pub/Sub before persistence.
 - Media upload -> GCS signed URL -> Cloud Storage Notification -> Pub/Sub -> Worker (STT/Vision AI).
@@ -359,43 +360,43 @@ broodly/
 
 **What gets embedded:**
 1. **Inspection observations** — user-entered text and STT transcriptions are embedded to enable semantic search across inspection history.
-2. **Beekeeping knowledge base** — regional best practices, seasonal guidance documents, treatment protocols are chunked and embedded at build time. Stored in pgvector.
-3. **Recommendation rationale** — embedded to enable similarity matching against past successful recommendations for similar conditions.
+2. **Inspection photos** — inspection images are embedded in the same vector space as text, enabling cross-modal similarity search (e.g., find text descriptions similar to a photo, or photos similar to a text query).
+3. **Inspection audio** — voice recordings are embedded alongside text and images for unified multimodal retrieval.
+4. **Beekeeping knowledge base** — regional best practices, seasonal guidance documents, treatment protocols are chunked and embedded at build time. Stored in pgvector.
+5. **Recommendation rationale** — embedded to enable similarity matching against past successful recommendations for similar conditions.
 
-**Embedding model:** Vertex AI `text-embedding-005` (Embedding 2.0). 768-dimensional vectors. Batch embedding via Vertex AI API for knowledge base; real-time embedding for user observations.
-
-**Image embeddings:** Vertex AI `multimodalembedding` for inspection photos. Enables visual similarity search.
+**Embedding model:** Vertex AI Embedding 2.0 (`multimodalembedding@001`) — a single multimodal model that embeds text, images, audio, and video into a shared vector space. This enables cross-modal similarity search across all content types. Batch embedding via Vertex AI API for knowledge base; real-time embedding for user observations and media.
 
 ### Recommendation Engine Architecture
 
 ```
 User Request (inspection observation, weekly plan request)
     │
-    ├── 1. Context Assembly (Rust service)
+    ├── 1. Context Assembly (Go service)
     │   ├── User profile + skill level
     │   ├── Hive history (recent inspections, treatments, observations)
     │   ├── Regional seasonal state (from localization data)
     │   ├── Weather + flora signals (from adapter cache)
     │   └── Telemetry signals (if connected)
     │
-    ├── 2. Semantic Retrieval (pgvector)
-    │   ├── Embed current observation
-    │   ├── Retrieve similar past inspection outcomes (user's + regional baseline)
+    ├── 2. Multimodal Semantic Retrieval (pgvector)
+    │   ├── Embed current observation (text, photos, audio via Embedding 2.0)
+    │   ├── Cross-modal retrieval: find similar past inspections across text + image + audio
     │   └── Retrieve relevant knowledge base chunks
     │
     ├── 3. Recommendation Scoring (Vertex AI Gemini)
     │   ├── Structured prompt with assembled context + retrieved knowledge
     │   ├── Request: action, rationale, confidence (0-1), fallback action
-    │   ├── Response parsed into typed Rust struct
+    │   ├── Response parsed into typed Go struct
     │   └── Confidence calibration: if model confidence < threshold, downgrade to safe fallback
     │
-    └── 4. Response (typed recommendation contract)
-        ├── action: string
-        ├── rationale: string
-        ├── confidence: f64
-        ├── fallback_action: string
-        ├── evidence_sources: Vec<EvidenceSource>
-        └── skill_adapted_explanation: string
+    └── 4. Response (typed recommendation contract via GraphQL)
+        ├── action: String
+        ├── rationale: String
+        ├── confidence: Float
+        ├── fallbackAction: String
+        ├── evidenceSources: [EvidenceSource]
+        └── skillAdaptedExplanation: String
 ```
 
 ### Vision AI for Inspection Photos
@@ -405,10 +406,10 @@ Photo captured on device
     → Compressed (HEIC/WebP, max 2048px)
     → Uploaded to GCS via signed URL
     → GCS notification → Pub/Sub `media-uploaded` topic
-    → Worker service:
+    → Worker service (Go):
         1. Call Vertex AI Gemini Vision with inspection-specific prompt
-        2. Generate image embedding via multimodalembedding
-        3. Store findings + embedding in PostgreSQL
+        2. Generate image embedding via Embedding 2.0 multimodal (shared vector space with text/audio)
+        3. Store findings + embedding in PostgreSQL (pgvector)
         4. If inspection is active, push findings to recommendation context
     → Client polls or receives push notification when analysis complete
 ```
@@ -421,12 +422,13 @@ Photo captured on device
 Audio recorded on device (expo-av, opus format)
     → Uploaded to GCS via signed URL
     → GCS notification → Pub/Sub `media-uploaded`
-    → Worker: Gemini STT (via Vertex AI)
+    → Worker (Go): Gemini STT (via Vertex AI)
       - Model: gemini-2.0-flash (low latency)
       - Config: language_code="en-US", field/outdoor audio profile
+    → Generate audio embedding via Embedding 2.0 multimodal (shared vector space)
     → Transcription stored in inspection record
     → Structured extraction: parse into observation fields
-    → Update inspection record with structured data
+    → Update inspection record with structured data + embedding
 ```
 
 ### TTS for Guidance Playback
@@ -454,20 +456,17 @@ Gemini TTS generates spoken recommendation audio for hands-busy scenarios. Pre-g
 
 Cloud Tasks for scheduled/delayed work: notification delivery with suppression windows, sync retry, daily seasonal context refresh.
 
-## Offline Sync Architecture
+## MVP Connectivity & Caching Strategy
 
 ```
-Mobile Device                          Cloud
+Mobile/Web Client                      Cloud
 ┌─────────────────┐                   ┌──────────────┐
-│ expo-sqlite      │                   │ Cloud Run API│
-│ ┌──────────────┐ │    ──sync──>     │              │
-│ │ Local DB     │ │                   │ Cloud SQL    │
-│ │ (full schema)│ │    <──pull──     │ (PostgreSQL) │
-│ ├──────────────┤ │                   └──────────────┘
-│ │ Mutation     │ │
-│ │ Queue        │ │
-│ │ (outbox tbl) │ │
-│ └──────────────┘ │
+│ TanStack Query   │                   │ Cloud Run API│
+│ ┌──────────────┐ │    ──query──>    │ (GraphQL)    │
+│ │ Persistent   │ │                   │              │
+│ │ Query Cache  │ │    <──data──     │ Cloud SQL    │
+│ │ (cache-first)│ │                   │ (PostgreSQL) │
+│ └──────────────┘ │                   └──────────────┘
 │ ┌──────────────┐ │
 │ │ Media Staging│ │   ──upload──>    GCS bucket
 │ │ (file system)│ │
@@ -475,20 +474,22 @@ Mobile Device                          Cloud
 └─────────────────┘
 ```
 
-**Sync protocol:**
-1. Client stores all mutations in an outbox table with monotonic `sequence_id` and `created_at`.
-2. On connectivity, client sends mutations in order to `POST /sync/push` endpoint.
-3. Server applies mutations transactionally, returns `server_sequence_id` and any conflicts.
-4. Client pulls server changes since last known `server_sequence_id` via `GET /sync/pull?since={seq}`.
-5. Conflict resolution rules:
-   - Active inspection edits: client-wins (preserve in-field work)
-   - Completed inspections modified by another user: server-wins with conflict notification
-   - Concurrent recommendation feedback: merge (both inputs preserved)
-   - Profile/settings: last-write-wins
+**MVP caching strategy:**
+1. Cache-first reads via TanStack Query persistent cache with stale-while-revalidate.
+2. All mutations (creating/editing inspections, submitting feedback) require connectivity.
+3. Media (photos, voice) captured locally via `expo-file-system`, uploaded to GCS when connected.
+4. Clear "offline" indicator when connectivity is lost. Read-only cached data remains accessible.
+5. No bidirectional sync, no conflict resolution, no mutation queue in MVP.
 
-**What's available offline:** full inspection workflow, cached recommendations (degraded confidence), hive/apiary browsing, voice and photo capture, weekly plan viewing.
+**What's available without connectivity:** cached data browsing (hives, apiaries, past inspections, recommendations), photo/voice capture (staged locally).
 
-**What requires connectivity:** fresh recommendation generation, STT/TTS, Vision AI, telemetry/weather refresh, push notifications.
+**What requires connectivity:** all writes (new inspections, edits, feedback), fresh recommendation generation, STT/TTS, Vision AI, telemetry/weather refresh, push notifications.
+
+**Post-MVP: Full Offline Sync** (deferred)
+- Bidirectional sync engine with mutation outbox queue
+- Conflict resolution policies (client-wins for active inspections, server-wins for completed, merge for feedback)
+- Conflict notification and collaborator collision handling
+- Full offline inspection workflow
 
 ## Cost and Scaling Analysis
 
@@ -496,27 +497,28 @@ Mobile Device                          Cloud
 
 | Service | Configuration | Estimated Monthly Cost |
 |---------|--------------|----------------------|
-| Cloud Run (API) | 1 instance, 1 vCPU, 1 GiB, always-on | $30-50 |
+| Cloud Run (API) | Go container, 1 vCPU, 512 MiB, free tier for MVP | $0-15 |
 | Cloud Run (Worker) | 0 min instances, scales on demand | $5-15 |
 | Cloud SQL | db-custom-1-3840 (prod) | $30-50 |
 | Cloud Memorystore | Basic 1 GiB | $35 |
 | Cloud Storage | <10 GiB media | $1-2 |
 | Pub/Sub | <1M messages/month | $0-1 |
 | Vertex AI (Gemini) | ~1000 recommendation calls/month | $5-15 |
-| Vertex AI (Embeddings) | ~5000 embeddings/month | $1-2 |
+| Vertex AI (Embedding 2.0 multimodal) | ~5000 embeddings/month (text+image+audio) | $1-3 |
 | Vertex AI (Vision) | ~500 photo analyses/month | $3-5 |
 | Vertex AI (STT) | ~100 hours audio/month | $10-20 |
 | Firebase Auth | Free tier (50k MAU) | $0 |
-| **Total** | | **$120-195/month** |
+| **Total** | | **$85-165/month** |
 
 ### Scaling Leverage Points
 
-1. **Cloud Run autoscaling** — services scale to zero in dev, scale horizontally in prod. Rust binary's low memory footprint (50-100 MiB) means high density per instance.
-2. **Rust performance** — a single Cloud Run instance handles 5-10x the throughput of equivalent Node.js, delaying horizontal scaling needs.
+1. **Cloud Run autoscaling** — services scale to zero in dev, scale horizontally in prod. Go binary's low memory footprint (50-100 MiB) means high density per instance.
+2. **Go performance** — a single Cloud Run instance handles 3-5x the throughput of equivalent Node.js, delaying horizontal scaling needs. Fast cold starts (~100ms).
 3. **Pub/Sub decoupling** — media processing, embedding generation, and notification delivery scale independently of API latency.
 4. **pgvector over dedicated vector DB** — avoids separate Pinecone/Weaviate cost. Migrate to Vertex AI Vector Search only if vector count exceeds millions.
 5. **Cloud SQL read replicas** — add when read load exceeds single-instance capacity. No application changes needed.
 6. **Gemini model tiering** — `gemini-2.0-flash` for STT and quick analyses; `gemini-2.0-pro` for complex recommendation scoring.
+7. **Unified multimodal embedding** — single Embedding 2.0 model handles all content types, simplifying the pipeline and reducing API call overhead vs separate models.
 
 ### Cost Risks
 
@@ -524,56 +526,62 @@ Mobile Device                          Cloud
 - Vision AI costs scale with photo count. Limit to 5 analyzed photos per inspection in MVP.
 - Cloud SQL is the largest fixed cost. Use db-f1-micro for dev/staging.
 
-## Key Rust Crate Recommendations
+## Key Go Package Recommendations
 
-| Purpose | Crate | Rationale |
-|---------|-------|-----------|
-| HTTP framework | `axum` 0.8 | Best ergonomics, tower middleware ecosystem |
-| Async runtime | `tokio` 1.x | Industry standard, required by axum |
-| Database | `sqlx` 0.8 | Compile-time checked queries, native PostgreSQL |
-| Serialization | `serde` + `serde_json` | Standard, zero-cost deserialization |
-| OpenAPI | `utoipa` + `utoipa-swagger-ui` | Generates OpenAPI from handler annotations |
-| HTTP client | `reqwest` | For Vertex AI API calls, external integrations |
-| JWT validation | `jsonwebtoken` | Firebase ID token verification |
-| Tracing | `tracing` + `tracing-subscriber` + `tracing-opentelemetry` | Structured logging, Cloud Trace |
-| Error handling | `thiserror` + `anyhow` | Domain errors + internal errors |
-| Configuration | `config` | Environment-based config with defaults |
-| GCP auth | `google-cloud-auth` | Service account credential management |
-| pgvector | `pgvector` (sqlx feature) | Vector similarity queries |
-| Testing | `cargo-nextest` + `testcontainers` | Fast tests + PostgreSQL integration tests |
-| UUID | `uuid` v7 | Time-ordered ID generation |
+| Purpose | Package | Rationale |
+|---------|---------|-----------|
+| HTTP router | `go-chi/chi` v5 | Lightweight, composable middleware, stdlib-compatible |
+| GraphQL server | `99designs/gqlgen` | Schema-first code generation, type-safe resolvers |
+| Database queries | `sqlc-dev/sqlc` | Compile-time type-safe SQL, generates Go code from queries |
+| Database driver | `jackc/pgx` v5 | High-performance PostgreSQL driver, pgvector support |
+| Migrations | `golang-migrate/migrate` | Versioned SQL migrations, CLI + library |
+| JWT validation | `golang-jwt/jwt` v5 | Firebase ID token verification |
+| HTTP client | `net/http` (stdlib) | For Vertex AI API calls, external integrations |
+| GCP SDK | `cloud.google.com/go` | Native GCP service clients (Pub/Sub, Storage, Vertex AI) |
+| Logging | `log/slog` (stdlib) | Structured JSON logging, Cloud Logging compatible |
+| Tracing | `go.opentelemetry.io/otel` | OpenTelemetry integration, Cloud Trace |
+| Configuration | `caarlos0/env` | Environment-based config with struct tags |
+| pgvector | `pgvector/pgvector-go` | Vector similarity queries with pgx |
+| Testing | `stretchr/testify` + `testcontainers/testcontainers-go` | Assertions + PostgreSQL integration tests |
+| UUID | `google/uuid` | UUID v7 time-ordered ID generation |
 
 ## Architecture Validation Results
 
 ### Coherence Validation ✅
 
-- Decisions are compatible: mobile-first Expo + GraphQL + Supabase Auth/Postgres + domain-module API.
+- Decisions are compatible: mobile-first Expo (iOS/Android/Web via React Native for Web) + GraphQL (gqlgen) + Firebase Auth + Cloud SQL PostgreSQL + Go API on Cloud Run.
 - Patterns align across naming, data formats, events, and error handling.
 - Structure enforces boundaries and reduces cross-layer coupling.
+- Unified Vertex AI Embedding 2.0 multimodal model simplifies embedding pipeline across text, image, audio.
 
 ### Requirements Coverage Validation ✅
 
 - Core PRD capabilities map to explicit modules/features.
-- Offline, trust/explainability, RBAC, auditability, and observability are covered architecturally.
+- Trust/explainability, RBAC, auditability, and observability are covered architecturally.
+- Offline sync descoped for MVP; cache-first reads + local media staging cover core field usability.
+- Web delivery via React Native for Web covers admin/support surfaces without a separate app.
 
 ### Implementation Readiness Validation ✅
 
 - Critical choices and sequence are explicit enough for consistent AI-agent implementation.
 - Project structure and conventions are concrete and enforceable through CI.
+- GCP as sole hosting platform eliminates multi-vendor ambiguity.
 
 ### Gap Analysis Results
 
 - **Critical gaps:** none identified.
-- **Important gaps:** finalize concrete external providers and final API hosting target during infra bootstrap.
+- **Important gaps:** validate React Native for Web compatibility for admin-specific views during early implementation.
+- **Post-MVP planning:** full offline sync engine design should begin after MVP validation with field users.
 - **Nice-to-have:** expand ADR index and runbooks after first implementation stories.
 
 ### Architecture Readiness Assessment
 
-**Overall Status:** READY FOR IMPLEMENTATION  
+**Overall Status:** READY FOR IMPLEMENTATION
 **Confidence Level:** High
 
 ### Implementation Handoff
 
 - Follow this document as source of truth for implementation decisions.
-- Extend shared schema/types first when introducing new features.
+- Extend GraphQL schema and shared types first when introducing new features.
 - Preserve service boundaries and event contracts.
+- All hosting on GCP. Cloud Run (free tier) for MVP API and worker services.

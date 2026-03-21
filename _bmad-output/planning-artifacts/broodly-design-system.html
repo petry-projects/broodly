@@ -1,0 +1,1261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broodly Design System — Gluestack UI v3</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    /* ============================================================
+       BROODLY DESIGN TOKENS — Gluestack UI v3 Config Format
+       Maps to config.ts vars() and tailwind.config.js
+       ============================================================ */
+    :root {
+      /* --- Primary (Honey Amber) --- */
+      --color-primary-0:   #FFFFFF;
+      --color-primary-50:  #FFF8E1;
+      --color-primary-100: #FFECB3;
+      --color-primary-200: #FFD54F;
+      --color-primary-300: #F5C33B;
+      --color-primary-400: #E8A820;
+      --color-primary-500: #D4880F;
+      --color-primary-600: #B8720A;
+      --color-primary-700: #8C5600;
+      --color-primary-800: #5C3800;
+      --color-primary-900: #3A2200;
+      --color-primary-950: #1F1200;
+
+      /* --- Secondary (Pollen Gold) --- */
+      --color-secondary-0:   #FFFDF5;
+      --color-secondary-50:  #FFF9E0;
+      --color-secondary-100: #FFF3C4;
+      --color-secondary-200: #FFE88A;
+      --color-secondary-300: #F5D650;
+      --color-secondary-400: #E8C831;
+      --color-secondary-500: #E8B931;
+      --color-secondary-600: #C49B1A;
+      --color-secondary-700: #9A7A10;
+      --color-secondary-800: #6B5500;
+      --color-secondary-900: #3D3000;
+      --color-secondary-950: #1F1800;
+
+      /* --- Error (Deep Rust Red) --- */
+      --color-error-0:   #FFF5F5;
+      --color-error-50:  #FEE2E2;
+      --color-error-100: #FECACA;
+      --color-error-200: #FCA5A5;
+      --color-error-300: #E07A6E;
+      --color-error-400: #C4554A;
+      --color-error-500: #A63D2F;
+      --color-error-600: #8B3225;
+      --color-error-700: #70271C;
+      --color-error-800: #4A1A12;
+      --color-error-900: #2D100A;
+      --color-error-950: #1A0A06;
+
+      /* --- Success (Leaf Green) --- */
+      --color-success-0:   #F0FFF4;
+      --color-success-50:  #E8F5E9;
+      --color-success-100: #C8E6C9;
+      --color-success-200: #81C784;
+      --color-success-300: #4CAF50;
+      --color-success-400: #389E3D;
+      --color-success-500: #2D7A3A;
+      --color-success-600: #256630;
+      --color-success-700: #1B4D24;
+      --color-success-800: #123318;
+      --color-success-900: #0A1F0E;
+      --color-success-950: #051006;
+
+      /* --- Warning (Dark Amber) --- */
+      --color-warning-0:   #FFFBF0;
+      --color-warning-50:  #FFF3E0;
+      --color-warning-100: #FFE0B2;
+      --color-warning-200: #FFCC80;
+      --color-warning-300: #E8A84A;
+      --color-warning-400: #D09030;
+      --color-warning-500: #B8720A;
+      --color-warning-600: #9A5F00;
+      --color-warning-700: #744700;
+      --color-warning-800: #4E2F00;
+      --color-warning-900: #2D1B00;
+      --color-warning-950: #180E00;
+
+      /* --- Info (Sky Blue) --- */
+      --color-info-0:    #F0F7FF;
+      --color-info-50:   #E3F2FD;
+      --color-info-100:  #BBDEFB;
+      --color-info-200:  #90CAF9;
+      --color-info-300:  #64B5F6;
+      --color-info-400:  #5AA0D8;
+      --color-info-500:  #4A90C4;
+      --color-info-600:  #3B78A8;
+      --color-info-700:  #2C5F8A;
+      --color-info-800:  #1E4060;
+      --color-info-900:  #102438;
+      --color-info-950:  #08131E;
+
+      /* --- Typography --- */
+      --color-typography-0:   #FFFFFF;
+      --color-typography-50:  #F9FAFB;
+      --color-typography-100: #F3F4F6;
+      --color-typography-200: #E5E7EB;
+      --color-typography-300: #D1D5DB;
+      --color-typography-400: #9CA3AF;
+      --color-typography-500: #6B7280;
+      --color-typography-600: #4B5563;
+      --color-typography-700: #374151;
+      --color-typography-800: #2C2C2C;
+      --color-typography-900: #1F2937;
+      --color-typography-950: #111827;
+
+      /* --- Background --- */
+      --color-background-0:    #FFFFFF;
+      --color-background-50:   #FDF6E8;
+      --color-background-100:  #FAFAF7;
+      --color-background-200:  #F5F0E3;
+      --color-background-300:  #EDE5D3;
+      --color-background-400:  #D6CDB8;
+      --color-background-500:  #B5AC98;
+      --color-background-600:  #8A8274;
+      --color-background-700:  #605A4E;
+      --color-background-800:  #3D3930;
+      --color-background-900:  #201E18;
+      --color-background-950:  #100F0C;
+      --color-background-error:   #FEE2E2;
+      --color-background-warning: #FFF3E0;
+      --color-background-success: #E8F5E9;
+      --color-background-muted:   #F3F4F6;
+      --color-background-info:    #E3F2FD;
+
+      /* --- Outline --- */
+      --color-outline-0:   #FFFFFF;
+      --color-outline-50:  #F9FAFB;
+      --color-outline-100: #F3F4F6;
+      --color-outline-200: #E5E7EB;
+      --color-outline-300: #D1D5DB;
+      --color-outline-400: #9CA3AF;
+      --color-outline-500: #6B7280;
+
+      /* --- Spacing --- */
+      --space-base: 4px;
+
+      /* Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-2xl: 24px;
+      --radius-full: 9999px;
+
+      /* Shadows (Gluestack conventions) */
+      --shadow-hard-5: 0px 2px 10px 0px rgba(38, 38, 38, 0.10);
+      --shadow-soft-1: 0px 0px 10px rgba(38, 38, 38, 0.1);
+      --shadow-soft-2: 0px 0px 20px rgba(38, 38, 38, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-background-50);
+      color: var(--color-typography-800);
+      line-height: 1.5;
+    }
+
+    /* Page Header */
+    .page-header {
+      background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+      color: var(--color-typography-0);
+      padding: 48px 40px;
+      text-align: center;
+    }
+    .page-header h1 { font-size: 42px; font-weight: 800; margin-bottom: 8px; }
+    .page-header p { font-size: 18px; opacity: 0.9; max-width: 700px; margin: 0 auto; }
+    .page-header .subtitle { font-size: 14px; opacity: 0.7; margin-top: 8px; }
+
+    .container { max-width: 1320px; margin: 0 auto; padding: 32px 24px; }
+    .section { margin-bottom: 56px; }
+    .section-title {
+      font-size: 28px; font-weight: 700; margin-bottom: 8px;
+      padding-bottom: 12px; border-bottom: 3px solid var(--color-primary-500);
+      display: inline-block;
+    }
+    .section-desc { color: var(--color-typography-500); font-size: 16px; margin-bottom: 24px; max-width: 780px; }
+    .subsection { margin-top: 32px; }
+    .subsection-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+
+    /* Color Palette */
+    .token-category { margin-bottom: 24px; }
+    .token-category-name { font-size: 16px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .shade-row { display: flex; gap: 2px; border-radius: 8px; overflow: hidden; }
+    .shade {
+      flex: 1; height: 56px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;
+      font-size: 10px; font-weight: 600;
+    }
+    .shade.light-text { color: white; }
+    .shade.dark-text { color: rgba(0,0,0,0.7); }
+    .shade-label { margin-top: 4px; display: flex; justify-content: space-between; font-size: 10px; color: var(--color-typography-500); padding: 0 4px; }
+
+    /* Token Config Block */
+    .config-block {
+      background: var(--color-typography-900);
+      color: #E5E7EB;
+      border-radius: 12px;
+      padding: 20px;
+      font-family: 'SF Mono', 'Roboto Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+    .config-block .comment { color: #6B7280; }
+    .config-block .key { color: #93C5FD; }
+    .config-block .value { color: #FCD34D; }
+    .config-block .string { color: #86EFAC; }
+
+    /* Typography Scale */
+    .type-grid { display: grid; gap: 12px; }
+    .type-row {
+      background: var(--color-background-0);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 180px 1fr 200px;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid var(--color-outline-200);
+    }
+    .type-meta { font-size: 13px; color: var(--color-typography-500); }
+    .type-meta .token-name { font-weight: 700; color: var(--color-typography-800); font-size: 14px; display: block; margin-bottom: 2px; }
+    .type-meta .gs-class { font-family: monospace; font-size: 11px; color: var(--color-primary-500); background: var(--color-primary-50); padding: 1px 6px; border-radius: 4px; }
+
+    /* Gluestack Component Cards */
+    .gs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+    .gs-card {
+      background: var(--color-background-0);
+      border-radius: 12px;
+      box-shadow: var(--shadow-soft-1);
+      overflow: hidden;
+      border: 1px solid var(--color-outline-200);
+    }
+    .gs-card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--color-outline-200);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--color-background-100);
+    }
+    .gs-card-header h3 { font-size: 16px; font-weight: 700; }
+    .gs-card-header .gs-tag {
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+      background: var(--color-primary-50); color: var(--color-primary-600);
+      border: 1px solid var(--color-primary-200);
+    }
+    .gs-card-body { padding: 20px; }
+
+    /* Buttons — Gluestack tva() variants */
+    .gs-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-weight: 600; cursor: pointer; border: 2px solid transparent;
+      font-family: inherit;
+    }
+    /* Size variants */
+    .gs-btn-xs { padding: 0 14px; height: 32px; font-size: 12px; border-radius: 4px; }
+    .gs-btn-sm { padding: 0 16px; height: 36px; font-size: 14px; border-radius: 6px; }
+    .gs-btn-md { padding: 0 20px; height: 40px; font-size: 14px; border-radius: 8px; }
+    .gs-btn-lg { padding: 0 24px; height: 44px; font-size: 16px; border-radius: 8px; }
+    .gs-btn-xl { padding: 0 28px; height: 48px; font-size: 16px; border-radius: 8px; }
+    /* Action + Variant combos */
+    .gs-btn-primary-solid { background: var(--color-primary-500); color: white; }
+    .gs-btn-primary-outline { background: transparent; color: var(--color-primary-500); border-color: var(--color-primary-300); }
+    .gs-btn-primary-link { background: transparent; color: var(--color-primary-500); border: none; }
+    .gs-btn-secondary-solid { background: var(--color-typography-500); color: white; }
+    .gs-btn-secondary-outline { background: transparent; color: var(--color-typography-600); border-color: var(--color-outline-300); }
+    .gs-btn-positive-solid { background: var(--color-success-500); color: white; }
+    .gs-btn-positive-outline { background: transparent; color: var(--color-success-500); border-color: var(--color-success-300); }
+    .gs-btn-negative-solid { background: var(--color-error-500); color: white; }
+    .gs-btn-negative-outline { background: transparent; color: var(--color-error-500); border-color: var(--color-error-300); }
+    .gs-btn-warning-solid { background: var(--color-warning-500); color: white; }
+
+    /* Badge — Gluestack variants */
+    .gs-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+    }
+    .gs-badge-solid-success { background: var(--color-success-500); color: white; }
+    .gs-badge-solid-error { background: var(--color-error-500); color: white; }
+    .gs-badge-solid-warning { background: var(--color-warning-500); color: white; }
+    .gs-badge-solid-info { background: var(--color-info-500); color: white; }
+    .gs-badge-solid-muted { background: var(--color-typography-400); color: white; }
+    .gs-badge-outline-success { background: transparent; color: var(--color-success-600); border: 1px solid var(--color-success-300); }
+    .gs-badge-outline-error { background: transparent; color: var(--color-error-600); border: 1px solid var(--color-error-300); }
+    .gs-badge-outline-warning { background: transparent; color: var(--color-warning-600); border: 1px solid var(--color-warning-300); }
+    .gs-badge-outline-info { background: transparent; color: var(--color-info-600); border: 1px solid var(--color-info-300); }
+
+    /* Alert — Gluestack */
+    .gs-alert {
+      display: flex; gap: 12px; padding: 14px 16px; border-radius: 8px; font-size: 14px; align-items: flex-start;
+    }
+    .gs-alert-success { background: var(--color-background-success); color: var(--color-success-700); border-left: 4px solid var(--color-success-500); }
+    .gs-alert-warning { background: var(--color-background-warning); color: var(--color-warning-700); border-left: 4px solid var(--color-warning-500); }
+    .gs-alert-error { background: var(--color-background-error); color: var(--color-error-700); border-left: 4px solid var(--color-error-500); }
+    .gs-alert-info { background: var(--color-background-info); color: var(--color-info-700); border-left: 4px solid var(--color-info-500); }
+
+    /* Card — Gluestack variants */
+    .gs-card-elevated { box-shadow: var(--shadow-hard-5); border: none; }
+    .gs-card-outline { box-shadow: none; border: 1px solid var(--color-outline-200); }
+    .gs-card-filled { box-shadow: none; border: none; background: var(--color-background-50); }
+
+    /* Input — Gluestack */
+    .gs-input {
+      display: flex; align-items: center;
+      height: 40px; padding: 0 12px;
+      border: 1px solid var(--color-outline-300);
+      border-radius: 8px;
+      background: var(--color-background-0);
+      font-size: 14px;
+      color: var(--color-typography-800);
+      width: 100%;
+    }
+    .gs-input-outline { border: 1px solid var(--color-outline-300); border-radius: 8px; }
+    .gs-input-underlined { border: none; border-bottom: 1px solid var(--color-outline-300); border-radius: 0; }
+    .gs-input-rounded { border: 1px solid var(--color-outline-300); border-radius: 999px; padding: 0 16px; }
+    .gs-input::placeholder { color: var(--color-typography-400); }
+
+    /* Progress — Gluestack */
+    .gs-progress { height: 8px; background: var(--color-background-300); border-radius: 999px; overflow: hidden; }
+    .gs-progress-fill { height: 100%; border-radius: 999px; }
+
+    /* Toast — Gluestack */
+    .gs-toast {
+      padding: 14px 16px; border-radius: 8px; font-size: 14px;
+      box-shadow: var(--shadow-soft-2);
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .gs-toast-success { background: var(--color-background-0); border-left: 4px solid var(--color-success-500); }
+
+    /* Accordion — Gluestack */
+    .gs-accordion { border: 1px solid var(--color-outline-200); border-radius: 8px; overflow: hidden; background: var(--color-background-0); }
+    .gs-accordion-trigger {
+      width: 100%; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+      font-weight: 600; font-size: 15px; background: none; border: none; cursor: pointer;
+      color: var(--color-typography-800); font-family: inherit;
+    }
+    .gs-accordion-content { padding: 0 16px 14px; font-size: 14px; color: var(--color-typography-500); border-top: 1px solid var(--color-outline-100); padding-top: 12px; }
+
+    /* Actionsheet — Gluestack */
+    .gs-actionsheet {
+      background: var(--color-background-0);
+      border-radius: 16px 16px 0 0;
+      padding: 8px 0;
+      box-shadow: var(--shadow-soft-2);
+      border: 1px solid var(--color-outline-200);
+    }
+    .gs-actionsheet-drag { width: 40px; height: 4px; background: var(--color-outline-300); border-radius: 2px; margin: 8px auto; }
+    .gs-actionsheet-item {
+      padding: 14px 20px; font-size: 16px; display: flex; align-items: center; gap: 12px;
+      color: var(--color-typography-800);
+    }
+    .gs-actionsheet-item:hover { background: var(--color-background-50); }
+
+    /* Switch — Gluestack */
+    .gs-switch {
+      width: 48px; height: 28px; border-radius: 14px; position: relative; cursor: pointer;
+    }
+    .gs-switch-off { background: var(--color-outline-300); }
+    .gs-switch-on { background: var(--color-primary-500); }
+    .gs-switch-thumb {
+      width: 24px; height: 24px; border-radius: 12px; background: white;
+      position: absolute; top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+      transition: left 0.15s;
+    }
+    .gs-switch-off .gs-switch-thumb { left: 2px; }
+    .gs-switch-on .gs-switch-thumb { left: 22px; }
+
+    /* Avatar — Gluestack */
+    .gs-avatar {
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 999px; font-weight: 600; color: white;
+      background: var(--color-primary-300);
+    }
+    .gs-avatar-sm { width: 32px; height: 32px; font-size: 12px; }
+    .gs-avatar-md { width: 40px; height: 40px; font-size: 14px; }
+    .gs-avatar-lg { width: 48px; height: 48px; font-size: 16px; }
+    .gs-avatar-xl { width: 64px; height: 64px; font-size: 20px; }
+
+    /* Fab — Gluestack */
+    .gs-fab {
+      width: 56px; height: 56px; border-radius: 16px;
+      background: var(--color-primary-500); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; border: none; cursor: pointer;
+      box-shadow: var(--shadow-hard-5);
+    }
+
+    /* Skeleton — Gluestack */
+    .gs-skeleton {
+      background: linear-gradient(90deg, var(--color-outline-100) 25%, var(--color-outline-200) 50%, var(--color-outline-100) 75%);
+      border-radius: 8px;
+    }
+
+    /* Phone Mockup */
+    .phone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(390px, 1fr)); gap: 24px; }
+    .phone-wrapper { text-align: center; }
+    .phone-wrapper .phone-label { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .phone-wrapper .phone-sublabel { font-size: 13px; color: var(--color-typography-500); margin-bottom: 12px; }
+    .phone {
+      margin: 0 auto;
+      width: 375px;
+      border: 3px solid var(--color-typography-800);
+      border-radius: 32px;
+      overflow: hidden;
+      background: var(--color-background-50);
+      box-shadow: var(--shadow-soft-2);
+    }
+    .phone-status {
+      height: 44px; background: var(--color-background-0);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; font-size: 12px; font-weight: 600;
+    }
+    .phone-header {
+      background: var(--color-background-0);
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--color-outline-200);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .phone-header h4 { font-size: 18px; font-weight: 700; }
+    .phone-content { padding: 16px; display: grid; gap: 12px; min-height: 520px; align-content: start; }
+    .phone-nav {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      background: var(--color-background-0);
+      border-top: 1px solid var(--color-outline-200);
+      padding: 8px 0;
+    }
+    .phone-nav-item { text-align: center; font-size: 10px; color: var(--color-typography-500); padding: 4px; }
+    .phone-nav-item.active { color: var(--color-primary-500); font-weight: 600; }
+    .phone-nav-item .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+
+    /* Mini Cards in phone */
+    .mini-card {
+      background: var(--color-background-0);
+      border: 1px solid var(--color-outline-200);
+      border-radius: 8px; padding: 12px;
+    }
+    .mini-card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .mini-card-text { font-size: 13px; color: var(--color-typography-500); }
+    .mini-card-row { display: flex; justify-content: space-between; align-items: center; }
+
+    .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .kpi {
+      background: var(--color-background-0);
+      border: 1px solid var(--color-outline-200);
+      border-radius: 8px; padding: 10px; text-align: center;
+    }
+    .kpi-value { font-size: 20px; font-weight: 500; font-family: 'SF Mono', 'Roboto Mono', monospace; }
+    .kpi-label { font-size: 11px; color: var(--color-typography-500); margin-top: 2px; }
+
+    /* Confidence Card (custom domain) */
+    .confidence-card {
+      background: var(--color-background-0);
+      border: 2px solid var(--color-primary-500);
+      border-radius: 12px; padding: 16px;
+    }
+
+    /* Hex Chip (brand motif) */
+    .hex-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--color-primary-50);
+      border: 1px solid var(--color-primary-300);
+      padding: 4px 12px; border-radius: 6px;
+      font-size: 12px; font-weight: 600; color: var(--color-primary-600);
+    }
+    .hex-chip::before { content: "&#x2B21;"; font-size: 14px; color: var(--color-secondary-500); }
+
+    /* Step indicator */
+    .step-indicator { display: flex; gap: 4px; }
+    .step-dot { width: 32px; height: 4px; border-radius: 2px; background: var(--color-outline-200); }
+    .step-dot.active { background: var(--color-primary-500); }
+    .step-dot.done { background: var(--color-success-500); }
+
+    /* Spec Table */
+    .spec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .spec-table th { text-align: left; padding: 10px 12px; background: var(--color-background-100); border-bottom: 2px solid var(--color-outline-200); font-weight: 600; font-size: 12px; }
+    .spec-table td { padding: 10px 12px; border-bottom: 1px solid var(--color-outline-100); }
+    .spec-table code { font-size: 12px; background: var(--color-background-muted); padding: 1px 6px; border-radius: 4px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .shade-row { flex-wrap: wrap; }
+      .type-row { grid-template-columns: 1fr; }
+      .gs-grid { grid-template-columns: 1fr; }
+      .phone-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="page-header">
+  <h1>Broodly Design System</h1>
+  <p>Field-first beekeeping decision support built on Gluestack UI v3 + NativeWind</p>
+  <div class="subtitle">Expo + React Native + TypeScript &middot; tva() variant system &middot; CSS variable tokens</div>
+</div>
+
+<div class="container">
+
+<!-- ===== 1. TOKEN SYSTEM — COLOR SCALES ===== -->
+<div class="section">
+  <h2 class="section-title">Color Token Scales</h2>
+  <p class="section-desc">Gluestack v3 convention: <code>--color-{category}-{shade}</code> with shades 0–950. Stored as RGB triplets in <code>config.ts</code>, mapped via <code>tailwind.config.js</code>. Usage: <code>bg-primary-500</code>, <code>text-error-600</code>.</p>
+
+  <div class="token-category">
+    <div class="token-category-name">Primary — Honey Amber</div>
+    <div class="shade-row">
+      <div class="shade dark-text" style="background:#FFFFFF;">0</div>
+      <div class="shade dark-text" style="background:#FFF8E1;">50</div>
+      <div class="shade dark-text" style="background:#FFECB3;">100</div>
+      <div class="shade dark-text" style="background:#FFD54F;">200</div>
+      <div class="shade dark-text" style="background:#F5C33B;">300</div>
+      <div class="shade dark-text" style="background:#E8A820;">400</div>
+      <div class="shade light-text" style="background:#D4880F;">500</div>
+      <div class="shade light-text" style="background:#B8720A;">600</div>
+      <div class="shade light-text" style="background:#8C5600;">700</div>
+      <div class="shade light-text" style="background:#5C3800;">800</div>
+      <div class="shade light-text" style="background:#3A2200;">900</div>
+      <div class="shade light-text" style="background:#1F1200;">950</div>
+    </div>
+  </div>
+
+  <div class="token-category">
+    <div class="token-category-name">Secondary — Pollen Gold</div>
+    <div class="shade-row">
+      <div class="shade dark-text" style="background:#FFFDF5;">0</div>
+      <div class="shade dark-text" style="background:#FFF9E0;">50</div>
+      <div class="shade dark-text" style="background:#FFF3C4;">100</div>
+      <div class="shade dark-text" style="background:#FFE88A;">200</div>
+      <div class="shade dark-text" style="background:#F5D650;">300</div>
+      <div class="shade dark-text" style="background:#E8C831;">400</div>
+      <div class="shade dark-text" style="background:#E8B931;">500</div>
+      <div class="shade light-text" style="background:#C49B1A;">600</div>
+      <div class="shade light-text" style="background:#9A7A10;">700</div>
+      <div class="shade light-text" style="background:#6B5500;">800</div>
+      <div class="shade light-text" style="background:#3D3000;">900</div>
+      <div class="shade light-text" style="background:#1F1800;">950</div>
+    </div>
+  </div>
+
+  <div class="token-category">
+    <div class="token-category-name">Success — Leaf Green</div>
+    <div class="shade-row">
+      <div class="shade dark-text" style="background:#F0FFF4;">0</div>
+      <div class="shade dark-text" style="background:#E8F5E9;">50</div>
+      <div class="shade dark-text" style="background:#C8E6C9;">100</div>
+      <div class="shade dark-text" style="background:#81C784;">200</div>
+      <div class="shade dark-text" style="background:#4CAF50;">300</div>
+      <div class="shade light-text" style="background:#389E3D;">400</div>
+      <div class="shade light-text" style="background:#2D7A3A;">500</div>
+      <div class="shade light-text" style="background:#256630;">600</div>
+      <div class="shade light-text" style="background:#1B4D24;">700</div>
+      <div class="shade light-text" style="background:#123318;">800</div>
+      <div class="shade light-text" style="background:#0A1F0E;">900</div>
+      <div class="shade light-text" style="background:#051006;">950</div>
+    </div>
+  </div>
+
+  <div class="token-category">
+    <div class="token-category-name">Error — Deep Rust Red</div>
+    <div class="shade-row">
+      <div class="shade dark-text" style="background:#FFF5F5;">0</div>
+      <div class="shade dark-text" style="background:#FEE2E2;">50</div>
+      <div class="shade dark-text" style="background:#FECACA;">100</div>
+      <div class="shade dark-text" style="background:#FCA5A5;">200</div>
+      <div class="shade dark-text" style="background:#E07A6E;">300</div>
+      <div class="shade light-text" style="background:#C4554A;">400</div>
+      <div class="shade light-text" style="background:#A63D2F;">500</div>
+      <div class="shade light-text" style="background:#8B3225;">600</div>
+      <div class="shade light-text" style="background:#70271C;">700</div>
+      <div class="shade light-text" style="background:#4A1A12;">800</div>
+      <div class="shade light-text" style="background:#2D100A;">900</div>
+      <div class="shade light-text" style="background:#1A0A06;">950</div>
+    </div>
+  </div>
+
+  <div class="token-category">
+    <div class="token-category-name">Warning — Dark Amber</div>
+    <div class="shade-row">
+      <div class="shade dark-text" style="background:#FFFBF0;">0</div>
+      <div class="shade dark-text" style="background:#FFF3E0;">50</div>
+      <div class="shade dark-text" style="background:#FFE0B2;">100</div>
+      <div class="shade dark-text" style="background:#FFCC80;">200</div>
+      <div class="shade dark-text" style="background:#E8A84A;">300</div>
+      <div class="shade dark-text" style="background:#D09030;">400</div>
+      <div class="shade light-text" style="background:#B8720A;">500</div>
+      <div class="shade light-text" style="background:#9A5F00;">600</div>
+      <div class="shade light-text" style="background:#744700;">700</div>
+      <div class="shade light-text" style="background:#4E2F00;">800</div>
+      <div class="shade light-text" style="background:#2D1B00;">900</div>
+      <div class="shade light-text" style="background:#180E00;">950</div>
+    </div>
+  </div>
+
+  <div class="token-category">
+    <div class="token-category-name">Info — Sky Blue</div>
+    <div class="shade-row">
+      <div class="shade dark-text" style="background:#F0F7FF;">0</div>
+      <div class="shade dark-text" style="background:#E3F2FD;">50</div>
+      <div class="shade dark-text" style="background:#BBDEFB;">100</div>
+      <div class="shade dark-text" style="background:#90CAF9;">200</div>
+      <div class="shade dark-text" style="background:#64B5F6;">300</div>
+      <div class="shade light-text" style="background:#5AA0D8;">400</div>
+      <div class="shade light-text" style="background:#4A90C4;">500</div>
+      <div class="shade light-text" style="background:#3B78A8;">600</div>
+      <div class="shade light-text" style="background:#2C5F8A;">700</div>
+      <div class="shade light-text" style="background:#1E4060;">800</div>
+      <div class="shade light-text" style="background:#102438;">900</div>
+      <div class="shade light-text" style="background:#08131E;">950</div>
+    </div>
+  </div>
+
+  <div class="token-category">
+    <div class="token-category-name">Typography</div>
+    <div class="shade-row">
+      <div class="shade dark-text" style="background:#FFFFFF;">0</div>
+      <div class="shade dark-text" style="background:#F9FAFB;">50</div>
+      <div class="shade dark-text" style="background:#F3F4F6;">100</div>
+      <div class="shade dark-text" style="background:#E5E7EB;">200</div>
+      <div class="shade dark-text" style="background:#D1D5DB;">300</div>
+      <div class="shade dark-text" style="background:#9CA3AF;">400</div>
+      <div class="shade light-text" style="background:#6B7280;">500</div>
+      <div class="shade light-text" style="background:#4B5563;">600</div>
+      <div class="shade light-text" style="background:#374151;">700</div>
+      <div class="shade light-text" style="background:#2C2C2C;">800</div>
+      <div class="shade light-text" style="background:#1F2937;">900</div>
+      <div class="shade light-text" style="background:#111827;">950</div>
+    </div>
+  </div>
+
+  <div class="token-category">
+    <div class="token-category-name">Background — Warm Wax</div>
+    <div class="shade-row">
+      <div class="shade dark-text" style="background:#FFFFFF;">0</div>
+      <div class="shade dark-text" style="background:#FDF6E8;">50</div>
+      <div class="shade dark-text" style="background:#FAFAF7;">100</div>
+      <div class="shade dark-text" style="background:#F5F0E3;">200</div>
+      <div class="shade dark-text" style="background:#EDE5D3;">300</div>
+      <div class="shade dark-text" style="background:#D6CDB8;">400</div>
+      <div class="shade light-text" style="background:#B5AC98;">500</div>
+      <div class="shade light-text" style="background:#8A8274;">600</div>
+      <div class="shade light-text" style="background:#605A4E;">700</div>
+      <div class="shade light-text" style="background:#3D3930;">800</div>
+      <div class="shade light-text" style="background:#201E18;">900</div>
+      <div class="shade light-text" style="background:#100F0C;">950</div>
+    </div>
+  </div>
+
+  <div class="token-category">
+    <div class="token-category-name">Background Semantic</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div style="padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;background:var(--color-background-error);color:var(--color-error-600);">background-error</div>
+      <div style="padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;background:var(--color-background-warning);color:var(--color-warning-600);">background-warning</div>
+      <div style="padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;background:var(--color-background-success);color:var(--color-success-600);">background-success</div>
+      <div style="padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;background:var(--color-background-info);color:var(--color-info-600);">background-info</div>
+      <div style="padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;background:var(--color-background-muted);color:var(--color-typography-600);">background-muted</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 2. TYPOGRAPHY — Gluestack Heading/Text ===== -->
+<div class="section">
+  <h2 class="section-title">Typography — Heading &amp; Text</h2>
+  <p class="section-desc">Gluestack <code>&lt;Heading&gt;</code> and <code>&lt;Text&gt;</code> components with <code>size</code> prop. System fonts. Min 12px in UI, field screens default 16px+.</p>
+
+  <div class="type-grid">
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Heading 5xl</span><span class="gs-class">&lt;Heading size="5xl"&gt;</span></div>
+      <div style="font-size:48px;font-weight:800;line-height:1.2;">Broodly</div>
+      <div class="type-meta">48px / 800 / h1<br>Hero, splash</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Heading 3xl</span><span class="gs-class">&lt;Heading size="3xl"&gt;</span></div>
+      <div style="font-size:30px;font-weight:700;line-height:1.2;">Screen Titles</div>
+      <div class="type-meta">30px / 700 / h1<br>Page titles</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Heading 2xl</span><span class="gs-class">&lt;Heading size="2xl"&gt;</span></div>
+      <div style="font-size:24px;font-weight:700;line-height:1.3;">Section Headers</div>
+      <div class="type-meta">24px / 700 / h2<br>Sections</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Heading xl</span><span class="gs-class">&lt;Heading size="xl"&gt;</span></div>
+      <div style="font-size:20px;font-weight:600;line-height:1.4;">Card Titles</div>
+      <div class="type-meta">20px / 600 / h3<br>Card titles, list groups</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Heading lg</span><span class="gs-class">&lt;Heading size="lg"&gt;</span></div>
+      <div style="font-size:18px;font-weight:600;line-height:1.4;">Subsection</div>
+      <div class="type-meta">18px / 600 / h4<br>Subsections, modal titles</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Text md</span><span class="gs-class">&lt;Text size="md"&gt;</span></div>
+      <div style="font-size:16px;font-weight:400;line-height:1.5;">Body copy and guidance text for field use</div>
+      <div class="type-meta">16px / 400<br>Primary body (field default)</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Text sm</span><span class="gs-class">&lt;Text size="sm"&gt;</span></div>
+      <div style="font-size:14px;font-weight:400;line-height:1.4;">Secondary descriptions and supporting text</div>
+      <div class="type-meta">14px / 400<br>Secondary, descriptions</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Text xs</span><span class="gs-class">&lt;Text size="xs"&gt;</span></div>
+      <div style="font-size:12px;font-weight:500;line-height:1.3;">Metadata, timestamps, captions</div>
+      <div class="type-meta">12px / 500<br>Metadata (minimum size)</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><span class="token-name">Data Display</span><span class="gs-class">font-mono text-xl</span></div>
+      <div style="font-size:20px;font-weight:500;line-height:1.4;font-family:'SF Mono','Roboto Mono',monospace;">32.4 kg &middot; 35.2&deg;C</div>
+      <div class="type-meta">20px / 500 mono<br>Telemetry, KPIs</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3. BUTTON VARIANTS — tva() system ===== -->
+<div class="section">
+  <h2 class="section-title">Button — tva() Variants</h2>
+  <p class="section-desc">Gluestack <code>&lt;Button&gt;&lt;ButtonText&gt;&lt;ButtonIcon&gt;</code>. Variants: <code>action</code> (primary|secondary|positive|negative) &times; <code>variant</code> (solid|outline|link) &times; <code>size</code> (xs|sm|md|lg|xl).</p>
+
+  <div class="subsection">
+    <div class="subsection-title">Action: Primary (Honey Amber)</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+      <button class="gs-btn gs-btn-xl gs-btn-primary-solid">&#127793; Start Inspection</button>
+      <button class="gs-btn gs-btn-lg gs-btn-primary-solid">Start Today's Plan</button>
+      <button class="gs-btn gs-btn-md gs-btn-primary-outline">View My Apiaries</button>
+      <button class="gs-btn gs-btn-sm gs-btn-primary-outline">Show Details</button>
+      <button class="gs-btn gs-btn-md gs-btn-primary-link">Learn more</button>
+    </div>
+  </div>
+  <div class="subsection">
+    <div class="subsection-title">Action: Positive / Negative / Secondary</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+      <button class="gs-btn gs-btn-md gs-btn-positive-solid">&#10003; Did It</button>
+      <button class="gs-btn gs-btn-md gs-btn-positive-outline">Confirm</button>
+      <button class="gs-btn gs-btn-md gs-btn-negative-solid">&#9888; Report Issue</button>
+      <button class="gs-btn gs-btn-md gs-btn-negative-outline">Cancel</button>
+      <button class="gs-btn gs-btn-md gs-btn-secondary-outline">Ignore</button>
+      <button class="gs-btn gs-btn-sm gs-btn-secondary-outline">Not now</button>
+    </div>
+  </div>
+  <div class="subsection">
+    <div class="subsection-title">All Sizes</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+      <button class="gs-btn gs-btn-xs gs-btn-primary-solid">xs (32px)</button>
+      <button class="gs-btn gs-btn-sm gs-btn-primary-solid">sm (36px)</button>
+      <button class="gs-btn gs-btn-md gs-btn-primary-solid">md (40px)</button>
+      <button class="gs-btn gs-btn-lg gs-btn-primary-solid">lg (44px)</button>
+      <button class="gs-btn gs-btn-xl gs-btn-primary-solid">xl (48px)</button>
+    </div>
+    <div style="font-size:13px;color:var(--color-typography-500);">Field use: xl (48px) for primary actions. Voice mic button: 56px Fab.</div>
+  </div>
+  <div class="subsection">
+    <div class="subsection-title">Fab — Voice Capture</div>
+    <div style="display:flex;gap:16px;align-items:center;">
+      <button class="gs-fab">&#127908;</button>
+      <button class="gs-fab" style="border-radius:28px;width:auto;padding:0 24px;gap:8px;font-size:16px;"><span style="font-size:24px;">&#127908;</span> <span style="font-size:14px;font-weight:600;">Record</span></button>
+      <div style="font-size:13px;color:var(--color-typography-500);">56px min. Gluestack <code>&lt;Fab&gt;&lt;FabIcon&gt;&lt;FabLabel&gt;</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 4. BADGE & ALERT ===== -->
+<div class="section">
+  <h2 class="section-title">Badge &amp; Alert</h2>
+  <p class="section-desc">Gluestack <code>&lt;Badge&gt;&lt;BadgeText&gt;&lt;BadgeIcon&gt;</code>. Actions: success|error|warning|info|muted. Variants: solid|outline.</p>
+
+  <div class="subsection">
+    <div class="subsection-title">Badge — Solid</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <span class="gs-badge gs-badge-solid-success">&#10003; Healthy</span>
+      <span class="gs-badge gs-badge-solid-warning">&#9888; Warning</span>
+      <span class="gs-badge gs-badge-solid-error">&#9888; Critical</span>
+      <span class="gs-badge gs-badge-solid-info">&#9432; Info</span>
+      <span class="gs-badge gs-badge-solid-muted">Archived</span>
+    </div>
+    <div class="subsection-title">Badge — Outline</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <span class="gs-badge gs-badge-outline-success">&#10003; Healthy</span>
+      <span class="gs-badge gs-badge-outline-warning">&#9888; Attention</span>
+      <span class="gs-badge gs-badge-outline-error">&#9888; Critical</span>
+      <span class="gs-badge gs-badge-outline-info">&#9432; Offline</span>
+      <span class="hex-chip">87% Confidence</span>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Alert — All Actions</div>
+    <div style="display:grid;gap:10px;">
+      <div class="gs-alert gs-alert-success"><span>&#10003;</span><div><strong>Colony improving.</strong> Strength up 12% since last month.</div></div>
+      <div class="gs-alert gs-alert-warning"><span>&#9888;</span><div><strong>Swarm risk: Hive 3.</strong> Weight plateau + warm forecast. Check for queen cells.</div></div>
+      <div class="gs-alert gs-alert-error"><span>&#9888;</span><div><strong>Critical: Hive 7 unresponsive.</strong> No telemetry for 48 hours. Inspect immediately.</div></div>
+      <div class="gs-alert gs-alert-info"><span>&#9432;</span><div><strong>You're offline.</strong> Your work is saved locally and will sync when you reconnect.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 5. FORM CONTROLS ===== -->
+<div class="section">
+  <h2 class="section-title">Form Controls</h2>
+  <p class="section-desc">Gluestack <code>&lt;Input&gt;&lt;InputField&gt;&lt;InputSlot&gt;</code>, <code>&lt;Select&gt;</code>, <code>&lt;Switch&gt;</code>, <code>&lt;Checkbox&gt;</code>, <code>&lt;FormControl&gt;</code>.</p>
+
+  <div class="gs-grid">
+    <div class="gs-card gs-card-outline">
+      <div class="gs-card-header"><h3>Input Variants</h3><span class="gs-tag">FormControl</span></div>
+      <div class="gs-card-body" style="display:grid;gap:16px;">
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Outline (default)</div>
+          <div class="gs-input gs-input-outline"><span style="color:var(--color-typography-400);">Apiary name</span></div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Rounded</div>
+          <div class="gs-input gs-input-rounded"><span style="color:var(--color-typography-400);">Search hives...</span></div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Underlined</div>
+          <div class="gs-input gs-input-underlined"><span style="color:var(--color-typography-400);">Add a note</span></div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;color:var(--color-error-500);">Error State</div>
+          <div class="gs-input" style="border-color:var(--color-error-500);">Invalid entry</div>
+          <div style="font-size:12px;color:var(--color-error-500);margin-top:4px;display:flex;align-items:center;gap:4px;">&#9888; Apiary name is required</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gs-card gs-card-outline">
+      <div class="gs-card-header"><h3>Switch &amp; Controls</h3><span class="gs-tag">Interactive</span></div>
+      <div class="gs-card-body" style="display:grid;gap:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:14px;">Push notifications</span>
+          <div class="gs-switch gs-switch-on"><div class="gs-switch-thumb"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:14px;">Wake phrase ("Hey Broodly")</span>
+          <div class="gs-switch gs-switch-off"><div class="gs-switch-thumb"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:14px;">Auto-confirm voice input</span>
+          <div class="gs-switch gs-switch-on"><div class="gs-switch-thumb"></div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div style="width:20px;height:20px;border:2px solid var(--color-primary-500);border-radius:4px;display:flex;align-items:center;justify-content:center;background:var(--color-primary-500);color:white;font-size:12px;">&#10003;</div>
+          <span style="font-size:14px;">I acknowledge the safety checklist</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 6. CARD VARIANTS + DOMAIN COMPONENTS ===== -->
+<div class="section">
+  <h2 class="section-title">Card Variants &amp; Domain Components</h2>
+  <p class="section-desc">Gluestack <code>&lt;Card&gt;</code> variants: elevated|outline|ghost|filled. Custom domain components built on Card + tva().</p>
+
+  <div class="gs-grid">
+    <!-- Card: Elevated -->
+    <div class="gs-card gs-card-elevated">
+      <div class="gs-card-header"><h3>Card variant="elevated"</h3><span class="gs-tag">Elevated</span></div>
+      <div class="gs-card-body">
+        <div style="font-size:14px;color:var(--color-typography-500);">Default shadow. Used for primary content cards, recommendation cards, health status cards.</div>
+      </div>
+    </div>
+    <!-- Card: Outline -->
+    <div class="gs-card gs-card-outline">
+      <div class="gs-card-header"><h3>Card variant="outline"</h3><span class="gs-tag">Outline</span></div>
+      <div class="gs-card-body">
+        <div style="font-size:14px;color:var(--color-typography-500);">Border only. Used for list items, hive cards in apiary view, secondary content.</div>
+      </div>
+    </div>
+    <!-- Card: Filled -->
+    <div class="gs-card gs-card-filled">
+      <div class="gs-card-header" style="background:var(--color-background-200);"><h3>Card variant="filled"</h3><span class="gs-tag">Filled</span></div>
+      <div class="gs-card-body">
+        <div style="font-size:14px;color:var(--color-typography-500);">Background-filled. Used for context cards, homepage weather/bloom cards.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection" style="margin-top:24px;">
+    <div class="subsection-title">Domain: RecommendationCard (Custom on Card elevated)</div>
+    <div class="gs-grid">
+      <div class="gs-card gs-card-elevated">
+        <div class="gs-card-header">
+          <h3 style="color:var(--color-typography-900);">Add honey super to Hive 4</h3>
+          <span class="hex-chip">91%</span>
+        </div>
+        <div class="gs-card-body">
+          <div style="font-size:14px;color:var(--color-typography-500);margin-bottom:12px;">Nectar flow is strong. Colony weight +2.1kg this week. Adding a super prevents congestion and swarm impulse.</div>
+          <div style="margin-bottom:8px;">
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Confidence</div>
+            <div class="gs-progress"><div class="gs-progress-fill" style="width:91%;background:var(--color-success-500);"></div></div>
+          </div>
+          <div class="gs-alert gs-alert-warning" style="margin-bottom:16px;padding:10px 12px;font-size:13px;">
+            <span>&#9888;</span><div><strong>Fallback:</strong> If colony appears congested but weight flat, inspect for swarm cells first.</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="gs-btn gs-btn-md gs-btn-positive-solid">&#10003; Did It</button>
+            <button class="gs-btn gs-btn-md gs-btn-secondary-outline">Ignore</button>
+            <button class="gs-fab" style="width:40px;height:40px;border-radius:12px;font-size:18px;">&#127908;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="gs-card gs-card-elevated">
+        <div class="gs-card-header">
+          <h3>HiveHealthCard (on Card elevated)</h3>
+          <span class="gs-badge gs-badge-outline-success">&#10003; Healthy</span>
+        </div>
+        <div class="gs-card-body">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div>
+              <div style="font-size:18px;font-weight:700;">Hive 4 - "Sunny"</div>
+              <div style="font-size:13px;color:var(--color-typography-500);">Backyard Apiary</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;color:var(--color-typography-400);">Next inspection</div>
+              <div style="font-size:14px;font-weight:600;">Mar 24</div>
+            </div>
+          </div>
+          <div class="kpi-row" style="margin-bottom:12px;">
+            <div class="kpi"><div class="kpi-value" style="color:var(--color-success-500);">Strong</div><div class="kpi-label">Colony</div></div>
+            <div class="kpi"><div class="kpi-value">32.4</div><div class="kpi-label">Weight (kg)</div></div>
+            <div class="kpi"><div class="kpi-value">35.2&deg;</div><div class="kpi-label">Brood Temp</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--color-typography-500);margin-bottom:4px;">ColonyImprovementSignal</div>
+          <div class="gs-progress"><div class="gs-progress-fill" style="width:72%;background:var(--color-success-500);"></div></div>
+          <div style="font-size:12px;color:var(--color-success-600);margin-top:4px;">+12% colony strength this month</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 7. ACCORDION & ACTIONSHEET ===== -->
+<div class="section">
+  <h2 class="section-title">Accordion &amp; Actionsheet</h2>
+  <p class="section-desc">Gluestack <code>&lt;Accordion&gt;&lt;AccordionItem&gt;&lt;AccordionTrigger&gt;&lt;AccordionContent&gt;</code> for planning views. <code>&lt;Actionsheet&gt;</code> for scope confirmation.</p>
+
+  <div class="gs-grid">
+    <div>
+      <div class="subsection-title">Accordion — Weekly Planning</div>
+      <div class="gs-accordion" style="margin-bottom:12px;">
+        <div class="gs-accordion-trigger">
+          <span>&#128450; Backyard Apiary <span class="gs-badge gs-badge-solid-warning" style="margin-left:6px;font-size:10px;">1 urgent</span></span>
+          <span>&#9660;</span>
+        </div>
+        <div class="gs-accordion-content">
+          <div class="mini-card" style="margin-bottom:8px;border-left:3px solid var(--color-warning-500);">
+            <div style="font-size:11px;color:var(--color-warning-500);font-weight:700;">#1 URGENT</div>
+            <div class="mini-card-title">Inspect Hive 3 for queen cells</div>
+            <div class="mini-card-text">Swarm risk. Act within 2 days.</div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="gs-btn gs-btn-sm gs-btn-positive-solid">&#10003; Did It</button>
+              <button class="gs-btn gs-btn-sm gs-btn-secondary-outline">Ignore</button>
+            </div>
+          </div>
+          <div class="mini-card">
+            <div style="font-size:11px;color:var(--color-typography-400);font-weight:700;">#2</div>
+            <div class="mini-card-title">Add super to Hive 4</div>
+            <div class="mini-card-text">Colony weight increasing.</div>
+          </div>
+        </div>
+      </div>
+      <div class="gs-accordion">
+        <div class="gs-accordion-trigger">
+          <span>&#128450; Hillside Apiary</span>
+          <span>&#9654;</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="subsection-title">Actionsheet — Scope Confirmation</div>
+      <div class="gs-actionsheet">
+        <div class="gs-actionsheet-drag"></div>
+        <div style="padding:12px 20px;font-size:16px;font-weight:700;">Confirm batch action</div>
+        <div style="padding:0 20px 12px;font-size:14px;color:var(--color-typography-500);">"All hives fed 1:1 syrup"</div>
+        <div style="padding:0 20px 8px;font-size:13px;"><strong>Scope:</strong> Backyard Apiary &middot; 4 hives</div>
+        <div style="padding:8px 20px 16px;display:flex;gap:8px;">
+          <button class="gs-btn gs-btn-md gs-btn-primary-solid" style="flex:1;">&#10003; Confirm</button>
+          <button class="gs-btn gs-btn-md gs-btn-secondary-outline" style="flex:1;">Edit scope</button>
+        </div>
+        <div style="padding:0 20px 12px;font-size:12px;color:var(--color-typography-400);">30-second undo window after confirmation</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 8. PROGRESS, SKELETON, AVATAR ===== -->
+<div class="section">
+  <h2 class="section-title">Progress, Skeleton, Avatar</h2>
+  <p class="section-desc">Additional Gluestack primitives used across Broodly screens.</p>
+
+  <div class="gs-grid">
+    <div class="gs-card gs-card-outline">
+      <div class="gs-card-header"><h3>Progress</h3><span class="gs-tag">Sizes: xs–2xl</span></div>
+      <div class="gs-card-body" style="display:grid;gap:12px;">
+        <div><div style="font-size:12px;margin-bottom:4px;">size="xs" — Colony improvement</div><div class="gs-progress" style="height:4px;"><div class="gs-progress-fill" style="width:72%;background:var(--color-success-500);"></div></div></div>
+        <div><div style="font-size:12px;margin-bottom:4px;">size="sm" — Skill progression</div><div class="gs-progress" style="height:6px;"><div class="gs-progress-fill" style="width:60%;background:var(--color-secondary-500);"></div></div></div>
+        <div><div style="font-size:12px;margin-bottom:4px;">size="md" — Inspection step (3/5)</div><div class="gs-progress"><div class="gs-progress-fill" style="width:60%;background:var(--color-primary-500);"></div></div></div>
+        <div><div style="font-size:12px;margin-bottom:4px;">size="lg" — Confidence bar</div><div class="gs-progress" style="height:12px;"><div class="gs-progress-fill" style="width:91%;background:var(--color-success-500);"></div></div></div>
+      </div>
+    </div>
+
+    <div class="gs-card gs-card-outline">
+      <div class="gs-card-header"><h3>Skeleton &amp; Avatar</h3><span class="gs-tag">Loading + Identity</span></div>
+      <div class="gs-card-body" style="display:grid;gap:16px;">
+        <div>
+          <div style="font-size:12px;margin-bottom:8px;font-weight:600;">Skeleton — Loading state</div>
+          <div style="display:grid;gap:8px;">
+            <div class="gs-skeleton" style="height:20px;width:60%;"></div>
+            <div class="gs-skeleton" style="height:14px;width:100%;"></div>
+            <div class="gs-skeleton" style="height:14px;width:80%;"></div>
+            <div class="gs-skeleton" style="height:48px;width:100%;border-radius:12px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;margin-bottom:8px;font-weight:600;">Avatar — Sizes</div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div class="gs-avatar gs-avatar-sm">DP</div>
+            <div class="gs-avatar gs-avatar-md">DP</div>
+            <div class="gs-avatar gs-avatar-lg">DP</div>
+            <div class="gs-avatar gs-avatar-xl">DP</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 9. STATUS SEMANTICS MAPPING ===== -->
+<div class="section">
+  <h2 class="section-title">Status Semantics &rarr; Gluestack Mapping</h2>
+  <p class="section-desc">How Broodly's 4 hive status levels map to Gluestack action tokens. Always icon + text + color.</p>
+
+  <table class="spec-table">
+    <thead>
+      <tr><th>Broodly Status</th><th>Gluestack Action</th><th>Color Token</th><th>Background</th><th>Badge</th><th>Alert</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Healthy</strong></td>
+        <td><code>success</code></td>
+        <td><code>success-500</code></td>
+        <td><code>background-success</code></td>
+        <td><span class="gs-badge gs-badge-outline-success">&#10003; Healthy</span></td>
+        <td style="font-size:12px;color:var(--color-success-600);">Colony doing well</td>
+      </tr>
+      <tr>
+        <td><strong>Attention</strong></td>
+        <td><code>warning</code> (light)</td>
+        <td><code>warning-300</code></td>
+        <td><code>background-warning</code></td>
+        <td><span class="gs-badge gs-badge-outline-warning">&#9432; Attention</span></td>
+        <td style="font-size:12px;color:var(--color-warning-600);">Needs review soon</td>
+      </tr>
+      <tr>
+        <td><strong>Warning</strong></td>
+        <td><code>warning</code></td>
+        <td><code>warning-500</code></td>
+        <td><code>background-warning</code></td>
+        <td><span class="gs-badge gs-badge-solid-warning">&#9888; Warning</span></td>
+        <td style="font-size:12px;color:var(--color-warning-700);">Emerging risk</td>
+      </tr>
+      <tr>
+        <td><strong>Critical</strong></td>
+        <td><code>error</code></td>
+        <td><code>error-500</code></td>
+        <td><code>background-error</code></td>
+        <td><span class="gs-badge gs-badge-solid-error">&#9888; Critical</span></td>
+        <td style="font-size:12px;color:var(--color-error-700);">Immediate action</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== 10. SCREEN LAYOUTS ===== -->
+<div class="section">
+  <h2 class="section-title">Key Screens — Gluestack Components</h2>
+  <p class="section-desc">High-fidelity mobile layouts built entirely from Gluestack v3 components + Broodly custom domain components.</p>
+
+  <div class="phone-grid">
+
+    <!-- Happy Context Homepage -->
+    <div class="phone-wrapper">
+      <div class="phone-label">Happy Context Homepage</div>
+      <div class="phone-sublabel">Card filled + VStack + HStack + Heading + Text</div>
+      <div class="phone">
+        <div class="phone-status"><span>9:41 AM</span><span>&#128267; &#128246;</span></div>
+        <div class="phone-header">
+          <h4 style="color:var(--color-primary-500);">&#127793; Broodly</h4>
+          <span style="font-size:20px;position:relative;">&#128276;<span style="position:absolute;top:-4px;right:-6px;background:var(--color-error-500);color:white;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;">3</span></span>
+        </div>
+        <div class="phone-content">
+          <div style="font-size:16px;font-weight:600;">Good morning, Don &#9728;</div>
+          <div class="mini-card" style="background:var(--color-background-warning);">
+            <div class="mini-card-title">&#127780; Last week: Warm &amp; dry</div>
+            <div class="mini-card-text">Avg 22&deg;C. Foraging conditions excellent.</div>
+          </div>
+          <div class="mini-card" style="background:var(--color-background-info);">
+            <div class="mini-card-title">&#127326; Next week: Rain Wed-Thu</div>
+            <div class="mini-card-text">Plan inspections Mon-Tue before front.</div>
+          </div>
+          <div class="mini-card" style="background:var(--color-background-success);">
+            <div class="mini-card-title">&#127804; Bloom: Clover peak</div>
+            <div class="mini-card-text">Main nectar flow active.</div>
+          </div>
+          <div class="mini-card" style="background:var(--color-primary-50);border-color:var(--color-primary-200);">
+            <div class="mini-card-title">&#128029; Building stores</div>
+            <div class="mini-card-text">Bees focused on nectar collection. Watch for congestion.</div>
+          </div>
+          <div style="display:grid;gap:8px;">
+            <button class="gs-btn gs-btn-xl gs-btn-primary-solid" style="width:100%;justify-content:center;">Start Today's Plan</button>
+            <button class="gs-btn gs-btn-lg gs-btn-primary-outline" style="width:100%;justify-content:center;">View My Apiaries</button>
+          </div>
+        </div>
+        <div class="phone-nav">
+          <div class="phone-nav-item active"><span class="nav-icon">&#127968;</span>Home</div>
+          <div class="phone-nav-item"><span class="nav-icon">&#128450;</span>Apiaries</div>
+          <div class="phone-nav-item"><span class="nav-icon">&#128197;</span>Plan</div>
+          <div class="phone-nav-item"><span class="nav-icon">&#9881;</span>Settings</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guided Inspection -->
+    <div class="phone-wrapper">
+      <div class="phone-label">Guided Inspection Step</div>
+      <div class="phone-sublabel">Progress + Heading + Button + Alert + Fab</div>
+      <div class="phone">
+        <div class="phone-status"><span>9:45 AM</span><span>&#128267; &#128246;</span></div>
+        <div class="phone-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:16px;">&larr;</span>
+            <h4>Inspection: Buzz</h4>
+          </div>
+          <span style="font-size:13px;color:var(--color-typography-500);">2 of 5</span>
+        </div>
+        <div class="phone-content">
+          <div class="step-indicator">
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+          </div>
+          <div style="font-size:20px;font-weight:700;">Do you see queen cells?</div>
+          <div style="font-size:14px;color:var(--color-typography-500);">Look on bottom edges of frames 4-6.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+            <button class="gs-btn gs-btn-lg gs-btn-positive-solid" style="justify-content:center;">Yes</button>
+            <button class="gs-btn gs-btn-lg gs-btn-primary-outline" style="justify-content:center;">No</button>
+            <button class="gs-btn gs-btn-lg gs-btn-warning-solid" style="justify-content:center;">Unsure</button>
+          </div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button class="gs-fab" style="width:48px;height:48px;border-radius:14px;font-size:20px;">&#127908;</button>
+            <button class="gs-fab" style="width:48px;height:48px;border-radius:14px;font-size:20px;background:var(--color-typography-500);">&#128247;</button>
+          </div>
+          <div class="gs-alert gs-alert-info" style="font-size:13px;">
+            <span>&#128161;</span><div><strong>Why this matters:</strong> Queen cells indicate swarm preparation. Early detection lets you manage the split.</div>
+          </div>
+          <div class="gs-alert gs-alert-warning" style="font-size:13px;">
+            <span>&#9888;</span><div><strong>If unsure:</strong> Take a photo. Look for peanut-shaped cells.</div>
+          </div>
+        </div>
+        <div class="phone-nav">
+          <div class="phone-nav-item"><span class="nav-icon">&#127968;</span>Home</div>
+          <div class="phone-nav-item active"><span class="nav-icon">&#128450;</span>Apiaries</div>
+          <div class="phone-nav-item"><span class="nav-icon">&#128197;</span>Plan</div>
+          <div class="phone-nav-item"><span class="nav-icon">&#9881;</span>Settings</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inspection Summary -->
+    <div class="phone-wrapper">
+      <div class="phone-label">Inspection Summary</div>
+      <div class="phone-sublabel">Toast + Card + Progress + Badge + Button</div>
+      <div class="phone">
+        <div class="phone-status"><span>10:02 AM</span><span>&#128267; &#128246;</span></div>
+        <div class="phone-header">
+          <h4>Inspection Complete &#10003;</h4>
+          <span style="font-size:13px;color:var(--color-typography-500);">17 min</span>
+        </div>
+        <div class="phone-content">
+          <div style="text-align:center;padding:8px 0;">
+            <div style="font-size:36px;">&#127793;</div>
+            <div style="font-size:18px;font-weight:700;color:var(--color-success-500);">Nice work!</div>
+            <div style="font-size:14px;color:var(--color-typography-500);">Hive 3 - "Buzz"</div>
+          </div>
+          <div class="mini-card" style="background:var(--color-background-0);"><span style="color:var(--color-success-500);">&#10003;</span> Checked queen cells — removed 2</div>
+          <div class="mini-card" style="background:var(--color-background-0);"><span style="color:var(--color-success-500);">&#10003;</span> Added foundation frame</div>
+          <div class="mini-card" style="background:var(--color-background-0);"><span style="color:var(--color-success-500);">&#10003;</span> Photographed brood (3 images)</div>
+          <div class="gs-alert gs-alert-success" style="font-size:13px;">
+            <span>&#128200;</span><div><strong>Colony improving.</strong> Strength trending up. Swarm risk reduced by your action today.</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-card-title">Recommended follow-up</div>
+            <div class="mini-card-text">Re-inspect Mar 28 for new queen cells.</div>
+            <button class="gs-btn gs-btn-sm gs-btn-primary-solid" style="margin-top:8px;">Schedule Mar 28</button>
+          </div>
+          <button class="gs-btn gs-btn-xl gs-btn-primary-solid" style="width:100%;justify-content:center;">Save &amp; Close</button>
+        </div>
+        <div class="phone-nav">
+          <div class="phone-nav-item"><span class="nav-icon">&#127968;</span>Home</div>
+          <div class="phone-nav-item active"><span class="nav-icon">&#128450;</span>Apiaries</div>
+          <div class="phone-nav-item"><span class="nav-icon">&#128197;</span>Plan</div>
+          <div class="phone-nav-item"><span class="nav-icon">&#9881;</span>Settings</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== 11. COMPONENT → GLUESTACK MAPPING TABLE ===== -->
+<div class="section">
+  <h2 class="section-title">Component &rarr; Gluestack Mapping</h2>
+  <p class="section-desc">How every Broodly domain component maps to Gluestack v3 primitives and tva() variants.</p>
+
+  <table class="spec-table">
+    <thead>
+      <tr><th>Broodly Component</th><th>Gluestack Base</th><th>tva() Variants</th><th>Sub-components Used</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>RecommendationCard</strong></td><td>Card (elevated)</td><td>confidence: high|medium|low</td><td>Heading, Text, Progress, Button, Badge, Alert</td></tr>
+      <tr><td><strong>HiveHealthCard</strong></td><td>Card (elevated)</td><td>status: healthy|attention|warning|critical</td><td>Heading, Text, Badge, Progress, HStack, VStack</td></tr>
+      <tr><td><strong>ApiaryHealthCard</strong></td><td>Card (elevated)</td><td>status: healthy|attention|warning|critical</td><td>Heading, Text, Badge, HStack</td></tr>
+      <tr><td><strong>HomepageContextCard</strong></td><td>Card (filled)</td><td>type: weather|bloom|seasonal</td><td>Heading, Text, Icon</td></tr>
+      <tr><td><strong>VoiceLogCapture</strong></td><td>Box + Fab</td><td>state: idle|listening|processing|confirm</td><td>Fab, Text, Button, Input</td></tr>
+      <tr><td><strong>InspectionImageCapture</strong></td><td>Box + Pressable</td><td>—</td><td>Image, Spinner, Text</td></tr>
+      <tr><td><strong>ImageAnalysisResultCard</strong></td><td>Card (elevated)</td><td>confidence: high|medium|low</td><td>Heading, Text, Badge, Progress, Alert</td></tr>
+      <tr><td><strong>SkillProgressionCard</strong></td><td>Card (outline)</td><td>level: newbie|amateur|sideliner</td><td>Heading, Text, Progress, Badge, Toast</td></tr>
+      <tr><td><strong>ActionableNotificationCard</strong></td><td>Card (outline)</td><td>action: success|warning|error|info</td><td>Heading, Text, Badge, Button, HStack</td></tr>
+      <tr><td><strong>ApiaryAccordionQueue</strong></td><td>Accordion</td><td>—</td><td>AccordionItem, AccordionTrigger, AccordionContent, Badge</td></tr>
+      <tr><td><strong>ScopeConfirmationSheet</strong></td><td>Actionsheet</td><td>—</td><td>ActionsheetContent, Heading, Text, Button</td></tr>
+      <tr><td><strong>WeeklyActionQueue</strong></td><td>VStack + Card</td><td>—</td><td>Accordion, Badge, Button, Text</td></tr>
+      <tr><td><strong>HiveWarningIndicator</strong></td><td>Alert (outline)</td><td>action: warning|error</td><td>AlertIcon, AlertText</td></tr>
+      <tr><td><strong>SeasonalPlanningCalendar</strong></td><td>Box + Grid</td><td>—</td><td>Pressable, Text, Badge</td></tr>
+      <tr><td><strong>OnDemandActionPlanPanel</strong></td><td>Accordion (single)</td><td>—</td><td>AccordionTrigger, AccordionContent, Card</td></tr>
+      <tr><td><strong>NotificationCenter</strong></td><td>Drawer</td><td>—</td><td>DrawerContent, VStack, Heading, Divider</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div style="text-align:center;padding:40px 20px;color:var(--color-typography-500);font-size:14px;border-top:1px solid var(--color-outline-200);margin-top:32px;">
+  <div style="font-size:24px;margin-bottom:8px;">&#127793;</div>
+  <strong>Broodly Design System</strong> &middot; Gluestack UI v3 + NativeWind<br>
+  Honey Clarity visual style &middot; Field Calm content voice<br>
+  Token format: <code>--color-{category}-{shade}</code> &middot; Variant system: <code>tva()</code><br>
+  <div style="margin-top:8px;color:var(--color-typography-400);">Generated from UX Design Specification + PRD &middot; March 2026</div>
+</div>
+
+</div>
+</body>
+</html>

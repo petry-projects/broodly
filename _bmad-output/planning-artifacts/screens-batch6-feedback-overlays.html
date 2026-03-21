@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broodly Screens — Batch 6: Feedback, Overlays & Support</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    :root {
+      --primary-500: #D4880F; --primary-600: #B8720A; --primary-50: #FFF8E1; --primary-100: #FFECB3; --primary-200: #FFD54F; --primary-300: #F5C33B;
+      --secondary-500: #E8B931; --secondary-300: #F5D650; --secondary-50: #FFF9E0;
+      --success-500: #2D7A3A; --success-50: #E8F5E9; --success-600: #256630;
+      --warning-500: #B8720A; --warning-50: #FFF3E0; --warning-300: #E8A84A;
+      --error-500: #A63D2F; --error-50: #FEE2E2;
+      --info-500: #4A90C4; --info-50: #E3F2FD;
+      --bg-0: #FFFFFF; --bg-50: #FDF6E8; --bg-100: #FAFAF7; --bg-muted: #F3F4F6;
+      --text-800: #2C2C2C; --text-500: #6B7280; --text-400: #9CA3AF; --text-900: #1F2937; --text-0: #FFFFFF;
+      --outline-200: #E5E7EB; --outline-300: #D1D5DB;
+      --radius: 12px; --radius-sm: 8px;
+      --shadow: 0px 2px 10px rgba(38,38,38,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-50); color: var(--text-800); }
+
+    .page-header { background: linear-gradient(135deg, var(--primary-500), var(--secondary-500)); color: white; padding: 32px 40px; text-align: center; }
+    .page-header h1 { font-size: 32px; font-weight: 800; }
+    .page-header p { font-size: 16px; opacity: 0.85; margin-top: 4px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+    .batch-label { font-size: 14px; font-weight: 600; color: var(--primary-600); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+
+    .phone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 32px; margin-bottom: 48px; }
+    .phone-wrapper { text-align: center; }
+    .phone-label { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .phone-id { font-size: 12px; color: var(--text-500); margin-bottom: 4px; font-family: monospace; }
+    .phone-sublabel { font-size: 13px; color: var(--text-500); margin-bottom: 12px; }
+    .phone {
+      margin: 0 auto; width: 375px;
+      border: 3px solid var(--text-800); border-radius: 32px;
+      overflow: hidden; background: var(--bg-0);
+      box-shadow: 0px 0px 20px rgba(38,38,38,0.15);
+    }
+    .phone-status {
+      height: 44px; background: var(--bg-0);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; font-size: 12px; font-weight: 600;
+    }
+    .phone-header {
+      background: var(--bg-0); padding: 12px 20px;
+      border-bottom: 1px solid var(--outline-200);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .phone-header h4 { font-size: 18px; font-weight: 700; }
+    .phone-content { padding: 20px; display: grid; gap: 12px; min-height: 540px; align-content: start; }
+    .phone-content-center { padding: 20px; display: grid; gap: 16px; min-height: 540px; align-content: center; justify-items: center; text-align: center; }
+
+    /* Buttons */
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; border: 2px solid transparent; cursor: pointer; font-family: inherit; border-radius: var(--radius-sm); width: 100%; }
+    .btn-xl { height: 48px; font-size: 16px; }
+    .btn-lg { height: 44px; font-size: 16px; }
+    .btn-md { height: 40px; font-size: 14px; }
+    .btn-sm { height: 36px; font-size: 14px; }
+    .btn-primary { background: var(--primary-500); color: white; }
+    .btn-outline { background: transparent; color: var(--primary-500); border-color: var(--primary-300); }
+    .btn-secondary { background: transparent; color: var(--text-500); border-color: var(--outline-300); }
+    .btn-positive { background: var(--success-500); color: white; }
+    .btn-ghost { background: transparent; color: var(--text-500); border: none; }
+    .btn-error { background: var(--error-500); color: white; }
+
+    /* Cards */
+    .card { background: var(--bg-0); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 14px; }
+    .card-selected { border: 2px solid var(--primary-500); background: var(--primary-50); }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .card-text { font-size: 13px; color: var(--text-500); }
+
+    /* Form */
+    .input { width: 100%; height: 44px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); padding: 0 14px; font-size: 15px; color: var(--text-800); background: var(--bg-0); font-family: inherit; }
+    .input::placeholder { color: var(--text-400); }
+    .input-label { font-size: 13px; font-weight: 600; color: var(--text-800); margin-bottom: 4px; }
+    .textarea { width: 100%; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 14px; color: var(--text-800); background: var(--bg-0); font-family: inherit; resize: none; }
+    .textarea::placeholder { color: var(--text-400); }
+
+    /* Progress Dots */
+    .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--outline-200); }
+    .dot-active { background: var(--primary-500); }
+    .dot-done { background: var(--success-500); }
+
+    /* Step indicator bar */
+    .step-bar { display: flex; gap: 4px; }
+    .step-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--outline-200); }
+    .step-seg-active { background: var(--primary-500); }
+    .step-seg-done { background: var(--success-500); }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge-primary { background: var(--primary-50); color: var(--primary-600); border: 1px solid var(--primary-200); }
+    .badge-success { background: var(--success-50); color: var(--success-600); }
+    .badge-info { background: var(--info-50); color: var(--info-500); }
+    .badge-warning { background: var(--warning-50); color: var(--warning-500); border: 1px solid var(--warning-300); }
+    .badge-error { background: var(--error-50); color: var(--error-500); }
+
+    /* Checkbox */
+    .check-row { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .check-box { width: 22px; height: 22px; border: 2px solid var(--outline-300); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+    .check-box-checked { background: var(--primary-500); border-color: var(--primary-500); color: white; font-size: 13px; }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--outline-200); margin: 4px 0; }
+
+    /* Alert */
+    .alert { padding: 12px; border-radius: var(--radius-sm); font-size: 13px; display: flex; gap: 8px; }
+    .alert-info { background: var(--info-50); color: #2C5F8A; }
+    .alert-warning { background: var(--warning-50); color: var(--warning-500); }
+    .alert-error { background: var(--error-50); color: var(--error-500); }
+    .alert-success { background: var(--success-50); color: var(--success-600); }
+
+    /* Social buttons */
+    .social-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .social-btn { height: 44px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 500; background: var(--bg-0); cursor: pointer; color: var(--text-800); font-family: inherit; }
+
+    /* Map placeholder */
+    .map-placeholder { background: var(--bg-muted); border-radius: var(--radius-sm); height: 140px; display: flex; align-items: center; justify-content: center; color: var(--text-400); font-size: 13px; border: 1px dashed var(--outline-300); }
+
+    /* Stepper */
+    .stepper { display: flex; align-items: center; gap: 16px; }
+    .stepper-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--outline-300); background: var(--bg-0); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-800); }
+    .stepper-value { font-size: 24px; font-weight: 600; min-width: 40px; text-align: center; }
+
+    /* Multi-select chip */
+    .chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .chip { padding: 12px; border: 1px solid var(--outline-200); border-radius: var(--radius-sm); text-align: center; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .chip-selected { border: 2px solid var(--primary-500); background: var(--primary-50); color: var(--primary-600); }
+
+    /* Summary row */
+    .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--outline-200); font-size: 14px; }
+    .summary-label { color: var(--text-500); }
+    .summary-value { font-weight: 600; }
+
+    /* Bottom sheet styles */
+    .bottom-sheet-backdrop {
+      background: rgba(0,0,0,0.3);
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .bottom-sheet {
+      background: var(--bg-0);
+      border-radius: 16px 16px 0 0;
+      padding: 12px 20px 20px;
+      display: grid;
+      gap: 12px;
+    }
+    .drag-indicator {
+      width: 40px; height: 4px;
+      background: var(--outline-300);
+      border-radius: 2px;
+      margin: 0 auto 4px;
+    }
+
+    /* Modal overlay */
+    .modal-backdrop {
+      background: rgba(0,0,0,0.4);
+      min-height: 540px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card {
+      background: var(--bg-0);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      width: 100%;
+      display: grid;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    /* Progress bar */
+    .progress-bar { width: 100%; height: 8px; background: var(--outline-200); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 4px; }
+
+    /* Confidence hex chip */
+    .confidence-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 6px;
+      font-size: 14px; font-weight: 700;
+      background: var(--success-50); color: var(--success-600);
+    }
+
+    /* Evidence item */
+    .evidence-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 13px; padding: 6px 0;
+      border-bottom: 1px solid var(--outline-200);
+    }
+    .evidence-icon { flex-shrink: 0; width: 20px; text-align: center; }
+
+    /* Likert scale */
+    .likert-scale {
+      display: flex; justify-content: space-between; gap: 4px;
+    }
+    .likert-option {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 4px; padding: 10px 4px;
+      border: 1px solid var(--outline-200); border-radius: var(--radius-sm);
+      cursor: pointer; font-size: 11px; color: var(--text-500); text-align: center;
+    }
+    .likert-option-selected {
+      border: 2px solid var(--primary-500); background: var(--primary-50); color: var(--primary-600);
+    }
+    .likert-emoji { font-size: 24px; }
+
+    /* Sync item */
+    .sync-item {
+      display: flex; gap: 10px; align-items: center;
+      font-size: 13px; padding: 8px 0;
+      border-bottom: 1px solid var(--outline-200);
+    }
+    .sync-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* Freshness row */
+    .freshness-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; padding: 6px 0;
+    }
+    .freshness-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+
+    /* Command section */
+    .cmd-section { margin-bottom: 4px; }
+    .cmd-section-title { font-size: 13px; font-weight: 700; color: var(--primary-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .cmd-example { font-size: 13px; padding: 4px 0; color: var(--text-800); font-family: 'SF Mono', 'Menlo', monospace; }
+
+    /* Timeline */
+    .timeline-item {
+      display: flex; gap: 12px; padding: 10px 0;
+      border-left: 2px solid var(--outline-200);
+      margin-left: 8px; padding-left: 16px;
+      position: relative;
+    }
+    .timeline-item::before {
+      content: '';
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--outline-300);
+      position: absolute;
+      left: -6px; top: 14px;
+    }
+    .timeline-item.tl-system::before { background: var(--info-500); }
+    .timeline-item.tl-user::before { background: var(--primary-500); }
+    .timeline-item.tl-alert::before { background: var(--error-500); }
+
+    /* Admin header */
+    .admin-phone {
+      margin: 0 auto; width: 375px;
+      border: 3px solid #6B7280; border-radius: 32px;
+      overflow: hidden; background: #F0F0F0;
+      box-shadow: 0px 0px 20px rgba(38,38,38,0.15);
+    }
+    .admin-header {
+      background: #374151; padding: 12px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      color: white;
+    }
+    .admin-header h4 { font-size: 16px; font-weight: 700; color: white; }
+    .admin-content { padding: 16px; display: grid; gap: 10px; min-height: 540px; align-content: start; background: #F3F4F6; }
+    .admin-badge { display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #374151; color: white; }
+
+    /* Outcome option cards */
+    .outcome-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px; border: 1px solid var(--outline-200);
+      border-radius: var(--radius-sm); cursor: pointer;
+    }
+    .outcome-option:hover { background: var(--bg-100); }
+    .outcome-icon { font-size: 18px; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    /* Recovery card */
+    .recovery-card {
+      background: var(--bg-0); border-radius: var(--radius-sm);
+      border-left: 4px solid; padding: 14px; display: grid; gap: 8px;
+    }
+    .recovery-critical { border-color: var(--error-500); }
+    .recovery-warning { border-color: var(--warning-500); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Batch 6: Feedback, Overlays &amp; Support</h1>
+  <p>11 screens &middot; Feedback &middot; Trust &middot; Overlays &middot; Support</p>
+</div>
+
+<div class="container">
+
+<div class="phone-grid">
+
+<!-- ============================================ -->
+<!-- Screen 1: Recommendation Detail View -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">1. Recommendation Detail View</div>
+  <div class="phone-id">FR21-24, FR54, FR54a, FR54c, FR12b</div>
+  <div class="phone-sublabel">Full expanded recommendation with evidence and fallback</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Recommendation Detail</h4></div>
+    </div>
+    <div class="phone-content" style="gap:10px;">
+      <!-- Action heading -->
+      <div style="font-size:20px;font-weight:700;line-height:1.3;">Check for queen cells now</div>
+
+      <!-- Confidence -->
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="confidence-chip">&#11042; 87%</div>
+        <span style="font-size:13px;color:var(--text-500);">High confidence</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:87%;background:var(--success-500);"></div></div>
+
+      <!-- Rationale -->
+      <div style="font-size:14px;font-weight:600;margin-top:4px;">Rationale</div>
+      <ul style="font-size:13px;color:var(--text-500);padding-left:18px;line-height:1.7;">
+        <li>Colony weight has plateaued, suggesting reduced foraging or pre-swarm buildup</li>
+        <li>Warm weather forecast increases swarm probability in your region</li>
+        <li>Time of year aligns with peak swarm season for Portland, OR</li>
+      </ul>
+
+      <!-- Evidence Sources -->
+      <div style="font-size:14px;font-weight:600;">Evidence sources</div>
+      <div class="evidence-item"><div class="evidence-icon">&#128269;</div><div>Prior inspection: 2 queen cells on frame 5</div></div>
+      <div class="evidence-item"><div class="evidence-icon">&#9878;</div><div>Telemetry: weight plateau 3 days</div></div>
+      <div class="evidence-item"><div class="evidence-icon">&#9925;</div><div>Weather: warm forecast next 5 days</div></div>
+      <div class="evidence-item"><div class="evidence-icon">&#127757;</div><div>Regional: peak swarm season</div></div>
+
+      <!-- Fallback -->
+      <div class="alert alert-warning" style="margin-top:2px;">
+        <span>&#9888;</span>
+        <div><strong>Fallback:</strong> If no cells found, add space by removing 2 honey frames.</div>
+      </div>
+
+      <!-- Regulatory -->
+      <div style="font-size:12px;color:var(--text-500);display:flex;gap:6px;align-items:flex-start;">
+        <span>&#9878;</span>
+        <span>Treatment info complies with Oregon regulations.</span>
+      </div>
+
+      <!-- Limited experience flag -->
+      <div class="badge badge-warning" style="width:fit-content;">&#9888; Limited experience data</div>
+
+      <!-- Disclaimer -->
+      <div style="font-size:11px;color:var(--text-400);text-align:center;margin-top:2px;">
+        <a href="#" style="color:var(--info-500);text-decoration:underline;">View advisory disclaimer</a>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+        <button class="btn btn-lg btn-positive">&#10003; Did It</button>
+        <button class="btn btn-lg btn-secondary">Ignore</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 2: Outcome Feedback Prompt -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">2. Outcome Feedback Prompt</div>
+  <div class="phone-id">FR54b</div>
+  <div class="phone-sublabel">Bottom sheet — post-action outcome feedback</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="bottom-sheet-backdrop">
+      <div class="bottom-sheet">
+        <div class="drag-indicator"></div>
+        <div style="font-size:18px;font-weight:700;">How did this go?</div>
+
+        <!-- Compact recommendation card -->
+        <div class="card" style="background:var(--bg-100);padding:10px 12px;">
+          <div style="font-size:12px;color:var(--text-500);">Recommendation</div>
+          <div style="font-size:14px;font-weight:600;">Check for queen cells now</div>
+          <div style="font-size:12px;color:var(--text-500);">Confidence: 87% &middot; Mar 18</div>
+        </div>
+
+        <!-- Outcome options -->
+        <div style="display:grid;gap:8px;">
+          <div class="outcome-option" style="border-color:var(--success-500);background:var(--success-50);">
+            <div class="outcome-icon" style="background:var(--success-500);color:white;">&#10003;</div>
+            <div><div style="font-weight:600;font-size:14px;">Worked well</div><div style="font-size:12px;color:var(--text-500);">The recommendation was accurate and helpful</div></div>
+          </div>
+          <div class="outcome-option">
+            <div class="outcome-icon" style="background:var(--primary-50);color:var(--primary-600);">&#9679;</div>
+            <div><div style="font-weight:600;font-size:14px;">Partially helpful</div><div style="font-size:12px;color:var(--text-500);">Some parts were useful, others not</div></div>
+          </div>
+          <div class="outcome-option">
+            <div class="outcome-icon" style="background:var(--warning-50);color:var(--warning-500);">&#9888;</div>
+            <div><div style="font-weight:600;font-size:14px;">Didn't help</div><div style="font-size:12px;color:var(--text-500);">The situation was different than expected</div></div>
+          </div>
+          <div class="outcome-option">
+            <div class="outcome-icon" style="background:var(--error-50);color:var(--error-500);">&#10007;</div>
+            <div><div style="font-weight:600;font-size:14px;">Made things worse</div><div style="font-size:12px;color:var(--text-500);">Following this caused problems</div></div>
+          </div>
+        </div>
+
+        <!-- Optional text -->
+        <div>
+          <div class="input-label">Tell us more (optional)</div>
+          <textarea class="textarea" rows="2" placeholder="Any additional details..."></textarea>
+        </div>
+
+        <button class="btn btn-lg btn-primary">Submit Feedback</button>
+        <div style="font-size:11px;color:var(--text-400);text-align:center;">Your feedback helps improve future recommendations for everyone.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 3: In-App Confidence Survey -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">3. In-App Confidence Survey</div>
+  <div class="phone-id">FR55b</div>
+  <div class="phone-sublabel">Bottom sheet — Likert scale confidence check-in</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:41 AM</span><span>&#128267;</span></div>
+    <div class="bottom-sheet-backdrop">
+      <div class="bottom-sheet">
+        <div class="drag-indicator"></div>
+        <div style="font-size:18px;font-weight:700;">Quick check-in</div>
+        <div style="font-size:14px;color:var(--text-500);">How confident did you feel making decisions today?</div>
+
+        <!-- Likert scale -->
+        <div class="likert-scale">
+          <div class="likert-option">
+            <div class="likert-emoji">&#128543;</div>
+            <div>Very unsure</div>
+          </div>
+          <div class="likert-option">
+            <div class="likert-emoji">&#128533;</div>
+            <div>Unsure</div>
+          </div>
+          <div class="likert-option">
+            <div class="likert-emoji">&#128528;</div>
+            <div>Neutral</div>
+          </div>
+          <div class="likert-option likert-option-selected">
+            <div class="likert-emoji">&#128578;</div>
+            <div>Confident</div>
+          </div>
+          <div class="likert-option">
+            <div class="likert-emoji">&#128513;</div>
+            <div>Very confident</div>
+          </div>
+        </div>
+
+        <!-- Optional comment -->
+        <div>
+          <div class="input-label">Comments (optional)</div>
+          <textarea class="textarea" rows="2" placeholder="What would help you feel more confident?"></textarea>
+        </div>
+
+        <button class="btn btn-lg btn-primary">Submit</button>
+        <button class="btn btn-md btn-ghost">Skip</button>
+        <div style="font-size:11px;color:var(--text-400);text-align:center;">This helps us improve guidance quality.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 4: Scope Confirmation Sheet -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">4. Scope Confirmation Sheet</div>
+  <div class="phone-id">FR27, FR29</div>
+  <div class="phone-sublabel">Bottom sheet — batch action confirmation with TTS readback</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:42 AM</span><span>&#128267;</span></div>
+    <div class="bottom-sheet-backdrop">
+      <div class="bottom-sheet">
+        <div class="drag-indicator"></div>
+        <div style="font-size:18px;font-weight:700;">Confirm batch action</div>
+
+        <!-- Interpreted scope -->
+        <div style="font-size:16px;font-weight:600;color:var(--primary-600);">All hives fed 1:1 syrup</div>
+
+        <!-- Scope detail -->
+        <div class="card" style="background:var(--bg-100);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:14px;font-weight:600;">Backyard Apiary &middot; 4 hives</div>
+            </div>
+            <div style="font-size:20px;cursor:pointer;" title="Listen to TTS readback">&#128264;</div>
+          </div>
+          <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
+            <span class="badge badge-primary">Hive 1</span>
+            <span class="badge badge-primary">Hive 2</span>
+            <span class="badge badge-primary">Hive 3</span>
+            <span class="badge badge-primary">Hive 4</span>
+          </div>
+        </div>
+
+        <!-- Warning for scope conflict -->
+        <div class="alert alert-warning">
+          <span>&#9888;</span>
+          <div><strong>Conflict:</strong> Hive 2 was already fed 1:1 syrup on Mar 19. Applying again may cause issues.</div>
+        </div>
+
+        <!-- Buttons -->
+        <button class="btn btn-lg btn-primary">Confirm</button>
+        <button class="btn btn-md btn-outline">Edit scope</button>
+
+        <div style="font-size:11px;color:var(--text-400);text-align:center;">30-second undo window after confirmation</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 5: Sync Detail Sheet -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">5. Sync Detail Sheet</div>
+  <div class="phone-id">FR48, FR48a</div>
+  <div class="phone-sublabel">Bottom sheet — sync status, pending items, data freshness</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:42 AM</span><span>&#128267;</span></div>
+    <div class="bottom-sheet-backdrop">
+      <div class="bottom-sheet">
+        <div class="drag-indicator"></div>
+        <div style="font-size:18px;font-weight:700;">Sync Status</div>
+
+        <!-- Last sync -->
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--success-500);"></div>
+          <span>Last sync: <strong>2 minutes ago</strong></span>
+        </div>
+
+        <!-- Pending items -->
+        <div style="font-size:14px;font-weight:600;">3 items waiting to sync</div>
+        <div style="display:grid;gap:0;">
+          <div class="sync-item"><div class="sync-icon">&#127908;</div><div><div style="font-weight:500;">Voice note — Hive 3</div><div style="font-size:12px;color:var(--text-500);">0:24</div></div></div>
+          <div class="sync-item"><div class="sync-icon">&#128247;</div><div><div style="font-weight:500;">Photo — Hive 3</div><div style="font-size:12px;color:var(--text-500);">2.1 MB</div></div></div>
+          <div class="sync-item"><div class="sync-icon">&#128203;</div><div><div style="font-weight:500;">Inspection record — Hive 3</div><div style="font-size:12px;color:var(--text-500);">Text data</div></div></div>
+        </div>
+
+        <!-- Upload progress -->
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-500);margin-bottom:4px;">
+            <span>Uploading...</span><span>42%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--primary-500);"></div></div>
+        </div>
+
+        <!-- Retry button -->
+        <button class="btn btn-sm btn-outline" style="width:auto;justify-self:start;">&#8635; Retry failed items</button>
+
+        <!-- Data freshness -->
+        <div style="font-size:14px;font-weight:600;margin-top:2px;">Data freshness</div>
+        <div class="freshness-row"><span><span class="freshness-dot" style="background:var(--success-500);"></span>Weather</span><span style="color:var(--success-600);">2h ago</span></div>
+        <div class="freshness-row"><span><span class="freshness-dot" style="background:var(--warning-500);"></span>Bloom data</span><span style="color:var(--warning-500);">12h ago</span></div>
+        <div class="freshness-row"><span><span class="freshness-dot" style="background:var(--success-500);"></span>Telemetry</span><span style="color:var(--success-600);">3 min ago</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 6: Voice Command Help Overlay -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">6. Voice Command Help Overlay</div>
+  <div class="phone-id">FR27</div>
+  <div class="phone-sublabel">Modal overlay — voice command reference</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:43 AM</span><span>&#128267;</span></div>
+    <div class="modal-backdrop">
+      <div class="modal-card" style="gap:10px;max-height:480px;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:18px;font-weight:700;">Voice Commands</div>
+          <div style="font-size:20px;cursor:pointer;color:var(--text-500);">&#10005;</div>
+        </div>
+
+        <div class="cmd-section">
+          <div class="cmd-section-title">During Inspection</div>
+          <div class="cmd-example">"Yes" / "No" / "Unsure"</div>
+          <div class="cmd-example">"Skip this step"</div>
+          <div class="cmd-example">"Go back"</div>
+          <div class="cmd-example">"Take a photo"</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="cmd-section">
+          <div class="cmd-section-title">Logging</div>
+          <div class="cmd-example">"Fed [hive name]"</div>
+          <div class="cmd-example">"Added super to [hive name]"</div>
+          <div class="cmd-example">"Spotted queen in [hive name]"</div>
+          <div class="cmd-example">"Brood pattern looks [description]"</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="cmd-section">
+          <div class="cmd-section-title">Batch Actions</div>
+          <div class="cmd-example">"All hives fed"</div>
+          <div class="cmd-example">"All hives treated with [treatment]"</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="cmd-section">
+          <div class="cmd-section-title">Navigation</div>
+          <div class="cmd-example">"Open weekly plan"</div>
+          <div class="cmd-example">"Show hive 3"</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="alert alert-info">
+          <span>&#128161;</span>
+          <div>
+            <strong>Tips:</strong><br>
+            &bull; Speak naturally — you don't need exact phrasing<br>
+            &bull; Wait for the transcript preview before confirming
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 7: Skill-Level Mismatch Suggestion -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">7. Skill-Level Mismatch Suggestion</div>
+  <div class="phone-id">FR2d</div>
+  <div class="phone-sublabel">Inline card/modal — skill level upgrade suggestion</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:43 AM</span><span>&#128267;</span></div>
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <div style="text-align:center;font-size:32px;">&#128161;</div>
+        <div style="font-size:18px;font-weight:700;text-align:center;">We noticed something</div>
+        <div style="font-size:14px;color:var(--text-500);line-height:1.6;">
+          Based on your recent activity, you might be ready for more concise guidance.
+        </div>
+        <div class="card" style="background:var(--bg-100);">
+          <div style="font-size:13px;color:var(--text-500);line-height:1.6;">
+            You've completed <strong style="color:var(--text-800);">15 inspections</strong> and consistently skip detailed explanations. Switching to <strong style="color:var(--primary-600);">Amateur</strong> level would streamline your experience.
+          </div>
+        </div>
+        <button class="btn btn-lg btn-primary">Switch to Amateur</button>
+        <button class="btn btn-md btn-outline">Keep current level</button>
+        <div style="font-size:11px;color:var(--text-400);text-align:center;">You can always change this in Settings.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 8: Location Divergence Prompt -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">8. Location Divergence Prompt</div>
+  <div class="phone-id">FR8a</div>
+  <div class="phone-sublabel">Modal alert — location mismatch detection</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:44 AM</span><span>&#128267;</span></div>
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <div style="text-align:center;font-size:36px;">&#9888;&#65039;</div>
+        <div style="font-size:18px;font-weight:700;text-align:center;">Location mismatch detected</div>
+        <div style="font-size:14px;color:var(--text-500);line-height:1.6;text-align:center;">
+          Your current location (<strong style="color:var(--text-800);">Seattle, WA</strong>) is 280km from your registered apiaries (<strong style="color:var(--text-800);">Portland, OR</strong>).
+        </div>
+
+        <!-- Options as cards -->
+        <div class="card" style="cursor:pointer;border-color:var(--primary-300);background:var(--primary-50);">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span style="font-size:18px;">&#128205;</span>
+            <div>
+              <div style="font-weight:600;font-size:14px;">I'm visiting — keep Portland guidance</div>
+              <div style="font-size:12px;color:var(--text-500);">Continue using your home region's data</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span style="font-size:18px;">&#127968;</span>
+            <div>
+              <div style="font-weight:600;font-size:14px;">I moved — update my region</div>
+              <div style="font-size:12px;color:var(--text-500);">Switch to Seattle, WA data</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span style="font-size:18px;">&#128581;</span>
+            <div>
+              <div style="font-weight:600;font-size:14px;">Dismiss for now</div>
+              <div style="font-size:12px;color:var(--text-500);">Don't change anything</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:11px;color:var(--text-400);text-align:center;">Accurate location ensures seasonal guidance matches your climate.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 9: Microclimate Adjustment Suggestion -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">9. Microclimate Adjustment Suggestion</div>
+  <div class="phone-id">FR11b</div>
+  <div class="phone-sublabel">Inline suggestion card — microclimate tuning</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:44 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Hive 3 Detail</h4></div>
+    </div>
+    <div class="phone-content">
+      <!-- Inline suggestion card -->
+      <div class="card" style="border-color:var(--primary-300);border-width:2px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:20px;">&#128161;</span>
+          <div style="font-size:16px;font-weight:700;">Suggested adjustment</div>
+        </div>
+
+        <div style="font-size:14px;color:var(--text-500);line-height:1.6;margin-bottom:10px;">
+          You've overridden <strong style="color:var(--text-800);">4 of the last 6</strong> bloom-related recommendations. Your local bloom timing may be different from the regional average.
+        </div>
+
+        <div class="card" style="background:var(--success-50);border-color:var(--success-500);padding:10px 12px;margin-bottom:8px;">
+          <div style="font-size:13px;color:var(--text-500);">Suggested</div>
+          <div style="font-size:15px;font-weight:600;color:var(--success-600);">Bloom timing: 1 week early</div>
+        </div>
+
+        <div style="display:grid;gap:8px;">
+          <button class="btn btn-md btn-primary">Accept adjustment</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button class="btn btn-sm btn-outline">Modify</button>
+            <button class="btn btn-sm btn-ghost">Dismiss</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <span>&#128161;</span>
+        <div style="font-size:12px;line-height:1.5;">
+          <strong>How this works:</strong> Microclimate adjustments shift bloom and seasonal timing to better match your specific location. This improves the accuracy of future recommendations by learning from your overrides.
+        </div>
+      </div>
+
+      <!-- Placeholder content below the card -->
+      <div class="card" style="opacity:0.4;">
+        <div class="card-title">Hive 3 — Healthy</div>
+        <div class="card-text">Last inspected 2 days ago. No issues detected.</div>
+      </div>
+      <div class="card" style="opacity:0.4;">
+        <div class="card-title">Latest Recommendation</div>
+        <div class="card-text">Check honey stores before next cold snap</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 10: Support Case Timeline -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">10. Support Case Timeline</div>
+  <div class="phone-id">FR50, FR51, FR53</div>
+  <div class="phone-sublabel">Admin/internal view — support case with full context</div>
+  <div class="admin-phone">
+    <div class="phone-status" style="background:#F0F0F0;"><span>9:45 AM</span><span style="display:flex;gap:4px;align-items:center;"><span class="admin-badge">ADMIN</span> &#128267;</span></div>
+    <div class="admin-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Support: Case #1247 &middot; Don P</h4></div>
+    </div>
+    <div class="admin-content" style="gap:8px;">
+      <!-- User context bar -->
+      <div style="background:white;border-radius:var(--radius-sm);padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px;font-size:12px;">
+        <span class="badge badge-primary">Newbie</span>
+        <span class="badge badge-info">Portland OR</span>
+        <span class="badge" style="background:var(--bg-muted);color:var(--text-500);">3 hives</span>
+        <span class="badge" style="background:var(--bg-muted);color:var(--text-500);">Since Mar 2026</span>
+      </div>
+
+      <!-- Timeline -->
+      <div style="font-size:13px;font-weight:600;color:var(--text-800);">Event Timeline</div>
+      <div style="background:white;border-radius:var(--radius-sm);padding:12px;">
+        <div class="timeline-item tl-system">
+          <div>
+            <div style="font-size:11px;color:var(--text-400);">Mar 18 &middot; System</div>
+            <div style="font-size:13px;font-weight:500;">Recommendation shown: "Check for queen cells"</div>
+            <div style="font-size:12px;color:var(--text-500);">Confidence: 87%</div>
+          </div>
+        </div>
+        <div class="timeline-item tl-user">
+          <div>
+            <div style="font-size:11px;color:var(--text-400);">Mar 18 &middot; User action</div>
+            <div style="font-size:13px;font-weight:500;">Completed inspection, removed 2 cells</div>
+          </div>
+        </div>
+        <div class="timeline-item tl-system">
+          <div>
+            <div style="font-size:11px;color:var(--text-400);">Mar 19 &middot; System</div>
+            <div style="font-size:13px;font-weight:500;">Confidence recalculated to 91% post-action</div>
+          </div>
+        </div>
+        <div class="timeline-item tl-alert">
+          <div>
+            <div style="font-size:11px;color:var(--text-400);">Mar 20 &middot; User report</div>
+            <div style="font-size:13px;font-weight:500;color:var(--error-500);">Reported: Colony still showing swarm behavior</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evidence panel -->
+      <div style="font-size:13px;font-weight:600;color:var(--text-800);">Evidence at Time</div>
+      <div style="background:white;border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;display:grid;gap:4px;">
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-500);">Hive weight</span><span style="font-weight:600;">32.4 kg (plateau 3d)</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-500);">Temperature</span><span style="font-weight:600;">35.2&deg;C internal</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-500);">Weather</span><span style="font-weight:600;">22&deg;C, sunny, forecast warm</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-500);">Regional</span><span style="font-weight:600;">Peak swarm season</span></div>
+      </div>
+
+      <!-- Add note -->
+      <div>
+        <div class="input-label" style="color:var(--text-800);">Add support note</div>
+        <textarea class="textarea" rows="2" placeholder="Internal note..." style="font-size:13px;"></textarea>
+      </div>
+      <button class="btn btn-sm btn-primary" style="width:auto;justify-self:start;">Add Note</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Screen 11: Recovery Guidance Flow -->
+<!-- ============================================ -->
+<div class="phone-wrapper">
+  <div class="phone-label">11. Recovery Guidance Flow</div>
+  <div class="phone-id">FR52</div>
+  <div class="phone-sublabel">Catch-up plan — overdue actions ranked by urgency</div>
+  <div class="phone">
+    <div class="phone-status"><span>9:45 AM</span><span>&#128267;</span></div>
+    <div class="phone-header">
+      <div style="display:flex;align-items:center;gap:8px;"><span>&larr;</span><h4>Catch-up Plan</h4></div>
+    </div>
+    <div class="phone-content" style="gap:14px;">
+      <!-- Alert -->
+      <div class="alert alert-warning">
+        <span>&#9888;</span>
+        <div>You have <strong>2 overdue actions</strong> that may affect colony health. Let's get back on track.</div>
+      </div>
+
+      <!-- Recovery card 1: Critical -->
+      <div class="recovery-card recovery-critical">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge badge-error">&#9679; Critical</span>
+          <span style="font-size:12px;color:var(--text-500);">5 days overdue</span>
+        </div>
+        <div style="font-size:16px;font-weight:700;">Inspect Hive 3</div>
+        <div style="font-size:13px;color:var(--text-500);line-height:1.5;">
+          <strong style="color:var(--text-800);">Original:</strong> Check for queen cells.<br>
+          <strong style="color:var(--text-800);">Since then:</strong> Weather has been warm, swarm risk may have increased.
+        </div>
+        <div class="card" style="background:var(--bg-100);padding:10px 12px;">
+          <div style="font-size:12px;color:var(--text-500);">Recommended recovery</div>
+          <div style="font-size:14px;font-weight:600;">Perform full inspection with swarm assessment</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="btn btn-sm btn-primary">Start now</button>
+          <button class="btn btn-sm btn-secondary">Acknowledge &amp; skip</button>
+        </div>
+      </div>
+
+      <!-- Recovery card 2: Warning -->
+      <div class="recovery-card recovery-warning">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge badge-warning">&#9679; Warning</span>
+          <span style="font-size:12px;color:var(--text-500);">3 days overdue</span>
+        </div>
+        <div style="font-size:16px;font-weight:700;">Treatment follow-up Hive 2</div>
+        <div style="font-size:13px;color:var(--text-500);line-height:1.5;">
+          Oxalic acid efficacy decreases with delay. Consider retreatment if mite count hasn't improved.
+        </div>
+        <div class="card" style="background:var(--bg-100);padding:10px 12px;">
+          <div style="font-size:12px;color:var(--text-500);">Recommended recovery</div>
+          <div style="font-size:14px;font-weight:600;">Re-assess mite load and consider retreatment</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="btn btn-sm btn-primary">Start now</button>
+          <button class="btn btn-sm btn-secondary">Acknowledge &amp; skip</button>
+        </div>
+      </div>
+
+      <div style="font-size:12px;color:var(--text-500);text-align:center;line-height:1.5;">
+        It's okay to fall behind — what matters is getting back on track. These suggestions are prioritized to help you focus on what's most important first.
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- phone-grid -->
+</div><!-- container -->
+
+</body>
+</html>
