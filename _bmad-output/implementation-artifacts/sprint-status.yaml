@@ -1,0 +1,117 @@
+# generated: 2026-03-21
+# last_updated: 2026-03-21
+# project: bmad-method
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# Epic: backlog → in-progress → done
+# Story: backlog → ready-for-dev → in-progress → review → done
+# Retrospective: optional ↔ done
+
+generated: 2026-03-21
+last_updated: 2026-03-21
+project: bmad-method
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: backlog
+  1-1-initialize-expo-app-and-monorepo-structure: backlog
+  1-2-configure-ci-pipeline-lint-type-check-test-gates: backlog
+  1-3-configure-gluestack-ui-v3-and-nativewind-in-expo: backlog
+  1-4-terraform-baseline-for-gcp-dev-environment: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-firebase-auth-setup-email-password-and-oauth-providers: backlog
+  2-2-go-server-jwt-validation-middleware: backlog
+  2-3-account-settings-update-email-password-display-name: backlog
+  2-4-account-recovery-and-deletion: backlog
+  2-5-rbac-middleware-owner-collaborator-support-roles: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-core-domain-schema-users-apiaries-hives: backlog
+  3-2-inspection-observation-and-media-schema: backlog
+  3-3-recommendations-tasks-and-audit-schema: backlog
+  3-4-integrations-telemetry-and-external-context-schema: backlog
+  3-5-skill-progression-and-notification-preferences-schema: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-graphql-schema-definition-core-types-and-recommendation-contract: backlog
+  4-2-apiary-and-hive-crud-resolvers: backlog
+  4-3-inspection-and-observation-resolvers: backlog
+  4-4-task-and-planning-resolvers: backlog
+  4-5-data-export-resolvers-json-csv: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-expo-router-setup-with-bottom-tab-navigation: backlog
+  5-2-graphql-client-and-tanstack-query-integration: backlog
+  5-3-zustand-state-stores-auth-ui-and-connectivity: backlog
+  5-4-auth-screens-sign-in-sign-up-password-reset: backlog
+  5-5-staleness-indicator-and-connectivity-ux: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-onboarding-flow-region-and-seasonal-context: backlog
+  6-2-onboarding-flow-experience-level-and-goals: backlog
+  6-3-onboarding-flow-first-apiary-and-hive-setup: backlog
+  6-4-onboarding-flow-disclaimer-acceptance-and-safety-checklist: backlog
+  6-5-onboarding-state-persistence-and-resume: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-apiary-list-screen-with-health-summary: backlog
+  7-2-apiary-detail-and-hive-list: backlog
+  7-3-create-and-edit-apiary-with-microclimate-adjustments: backlog
+  7-4-create-and-edit-hive: backlog
+  7-5-delete-apiary-hive-with-confirmation: backlog
+  7-6-collaborator-management-grant-and-revoke-access: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-start-inspection-scope-confirmation-and-initial-guidance: backlog
+  8-2-observation-capture-structured-prompts-and-adaptive-flow: backlog
+  8-3-voice-capture-during-inspection: backlog
+  8-4-photo-and-image-capture-with-vision-ai-analysis: backlog
+  8-5-in-inspection-recommendation-display: backlog
+  8-6-pause-resume-and-complete-inspection: backlog
+  8-7-hive-audio-capture-and-acoustic-analysis: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-recommendation-service-core-context-assembly: backlog
+  9-2-recommendation-scoring-via-gemini: backlog
+  9-3-confidence-calibration-and-evidence-tracing: backlog
+  9-4-degraded-mode-and-conservative-defaults: backlog
+  9-5-skill-level-mismatch-detection: backlog
+  epic-9-retrospective: optional
+
+  epic-10: backlog
+  10-1-happy-context-homepage: backlog
+  10-2-weekly-action-queue-by-apiary: backlog
+  10-3-task-actions-complete-defer-dismiss: backlog
+  10-4-seasonal-planning-calendar: backlog
+  10-5-dynamic-priority-updates: backlog
+  epic-10-retrospective: optional
+
+  epic-11: backlog
+  11-1-cloud-storage-upload-with-signed-urls: backlog
+  11-2-speech-to-text-worker-gemini-stt: backlog
+  11-3-vision-ai-analysis-worker: backlog
+  11-4-acoustic-analysis-worker: backlog
+  11-5-embedding-generation-worker-pgvector: backlog
+  epic-11-retrospective: optional
+
+  epic-12: backlog
+  12-1-notification-dispatch-worker: backlog
+  12-2-notification-center-ui: backlog
+  12-3-configurable-notification-sensitivity-and-suppression: backlog
+  12-4-escalation-for-unresolved-high-priority-alerts: backlog
+  12-5-in-app-feedback-prompts: backlog
+  epic-12-retrospective: optional
