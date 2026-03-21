@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bmad-method | UX Wireframes (Low-Fidelity)</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --line: #cfcfcf;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #111827;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    h1 { margin: 0; font-size: 20px; }
+    p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+    .container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 14px;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fafafa;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .panel-sub {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .phone {
+      margin: 12px;
+      border: 2px solid #9ca3af;
+      border-radius: 24px;
+      height: 620px;
+      overflow: hidden;
+      background: #fff;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .status {
+      height: 28px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 11px;
+      color: var(--muted);
+      background: #fafafa;
+    }
+    .top {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .content {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      overflow: auto;
+    }
+    .block {
+      border: 1px dashed #9ca3af;
+      border-radius: 10px;
+      padding: 8px;
+      background: #fcfcfc;
+      font-size: 12px;
+      color: #374151;
+    }
+    .block strong { display: block; margin-bottom: 4px; color: #111827; }
+    .row {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #374151;
+      background: #f9fafb;
+      display: inline-block;
+      width: fit-content;
+    }
+    .btn {
+      border: 1px solid #111827;
+      border-radius: 8px;
+      padding: 9px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      background: #fff;
+    }
+    .btn.primary { background: #111827; color: #fff; }
+    .nav {
+      border-top: 1px solid var(--line);
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #fafafa;
+      font-size: 11px;
+      text-align: center;
+      color: #4b5563;
+    }
+
+    .desktop {
+      margin: 12px;
+      border: 2px solid #9ca3af;
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 620px;
+      background: #fff;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    .desktop-head {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      background: #fafafa;
+    }
+    .desktop-body {
+      display: grid;
+      grid-template-columns: 250px 1fr 290px;
+      gap: 0;
+      min-height: 540px;
+    }
+    .col {
+      border-right: 1px solid var(--line);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .col:last-child {
+      border-right: none;
+    }
+
+    .legend {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 12px;
+      font-size: 13px;
+      color: #374151;
+    }
+    .legend ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>bmad-method — Low-Fidelity Wireframes</h1>
+    <p>MVP-focused wireframes aligned to core flow: context snapshot → recommendation → guided inspection → logged actions → weekly planning.</p>
+  </header>
+
+  <div class="container">
+    <section>
+      <div class="section-title">Mobile Core Screens</div>
+      <div class="grid">
+
+        <article class="panel">
+          <div class="panel-head">WF-01 Home / Hive Snapshot<div class="panel-sub">Entry point with remembered context and clear next action</div></div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><span>5G 89%</span></div>
+            <div class="top"><strong>Hive 12</strong><span class="chip">Confidence 89%</span></div>
+            <div class="content">
+              <div class="block"><strong>Remembered Context</strong>Last action: Added pollen patty • 6 days ago<br/>Region: Spring Phase 2 • Telemetry fresh</div>
+              <div class="block"><strong>Next Best Action</strong>Run 10-minute inspection: queen cells → stores → mite check</div>
+              <div class="row">
+                <div class="block"><strong>Colony</strong>Improving</div>
+                <div class="block"><strong>Risk</strong>Medium</div>
+                <div class="block"><strong>Time</strong>10 min</div>
+              </div>
+              <div class="btn primary">Start Guided Inspection</div>
+              <div class="btn">Open Weekly Action Plan</div>
+            </div>
+            <div class="nav"><div>Home</div><div>Inspections</div><div>Plan</div><div>History</div></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">WF-02 Guided Inspection Step<div class="panel-sub">One decision at a time with rationale + fallback</div></div>
+          <div class="phone">
+            <div class="status"><span>9:52</span><span>Offline</span></div>
+            <div class="top"><strong>Step 2 of 5</strong><span class="chip">Autosave local</span></div>
+            <div class="content">
+              <div class="block"><strong>Prompt</strong>Do you observe active queen cells?</div>
+              <div class="block"><strong>Input Options</strong>[Yes] [No] [Unsure] + voice note + photo</div>
+              <div class="block"><strong>Why this matters</strong>Rising swarm probability this week due to local bloom + colony trend.</div>
+              <div class="block"><strong>If unsure</strong>Conservative branch: capture photo and continue to stores check.</div>
+              <div class="btn primary">Save Response & Continue</div>
+              <div class="btn">Back</div>
+            </div>
+            <div class="nav"><div>Exit</div><div>Progress</div><div>Voice</div><div>Help</div></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">WF-03 Action Summary & Logging<div class="panel-sub">Complete inspection quickly with follow-up schedule</div></div>
+          <div class="phone">
+            <div class="status"><span>10:04</span><span>Queued sync</span></div>
+            <div class="top"><strong>Inspection Complete</strong><span class="chip">3 actions</span></div>
+            <div class="content">
+              <div class="block"><strong>Completed Now</strong>✅ Checked queen cells<br/>✅ Assessed stores<br/>✅ Captured mite note</div>
+              <div class="block"><strong>Recommended Follow-up</strong>Feed light syrup if weight trend continues down for 2 days.</div>
+              <div class="block"><strong>Next Checkpoint</strong>Re-inspect in 6 days • reminder prefilled</div>
+              <div class="btn primary">Finish & Save to Timeline</div>
+              <div class="btn">Edit Notes</div>
+            </div>
+            <div class="nav"><div>Summary</div><div>Timeline</div><div>Export</div><div>Done</div></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">WF-04 Weekly Action Plan<div class="panel-sub">Prioritized queue across hives/apiaries</div></div>
+          <div class="phone">
+            <div class="status"><span>7:15</span><span>Online</span></div>
+            <div class="top"><strong>This Week</strong><span class="chip">7 tasks</span></div>
+            <div class="content">
+              <div class="block"><strong>#1 Hive 4 (High)</strong>Overdue swarm check • 20 min • apiary north</div>
+              <div class="block"><strong>#2 Hive 9 (High)</strong>Likely super add needed • 15 min</div>
+              <div class="block"><strong>#3 Hive 2 (Medium)</strong>Confirm feed usage trend • 10 min</div>
+              <div class="block"><strong>Tradeoff Note</strong>Completing items 1+2 today reduces weekend risk window.</div>
+              <div class="btn primary">Start Prioritized Route</div>
+              <div class="btn">Adjust Constraints (time/travel)</div>
+            </div>
+            <div class="nav"><div>Plan</div><div>Map</div><div>Hives</div><div>Settings</div></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Web Companion (Planning/Admin)</div>
+      <div class="grid" style="grid-template-columns: 1fr;">
+        <article class="panel">
+          <div class="panel-head">WF-05 Desktop Planning View<div class="panel-sub">Secondary web surface for planning, history, and governance</div></div>
+          <div class="desktop">
+            <div class="desktop-head"><strong>Operation Dashboard</strong><span>Owner: Humans • 3 apiaries • 24 hives</span></div>
+            <div class="desktop-body">
+              <div class="col">
+                <div class="block"><strong>Navigation</strong>Overview<br/>Weekly Plan<br/>Hive Timeline<br/>Integrations<br/>Team Access</div>
+                <div class="block"><strong>Filters</strong>Apiary • Risk • Time Window</div>
+              </div>
+              <div class="col">
+                <div class="block"><strong>Priority Queue</strong>Ranked tasks with rationale and expected impact.</div>
+                <div class="block"><strong>Trend Panels</strong>Colony strength trend, inspection completion, unresolved risks.</div>
+                <div class="block"><strong>Recommendation Trace</strong>Action + confidence + evidence source + fallback.</div>
+              </div>
+              <div class="col">
+                <div class="block"><strong>Today Plan</strong>Drag to reorder route.</div>
+                <div class="block"><strong>Alerts</strong>Critical only + escalation controls.</div>
+                <div class="block"><strong>Export</strong>CSV / JSON records.</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="legend">
+      <strong>Flow Map (MVP)</strong>
+      <ul>
+        <li>WF-01 → WF-02: User accepts recommendation and starts guided loop.</li>
+        <li>WF-02 → WF-03: Steps branch by observations, then summarize actions.</li>
+        <li>WF-03 → WF-04: Follow-up tasks feed the weekly prioritized queue.</li>
+        <li>WF-05 consumes logged history for planning, governance, and export.</li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>
