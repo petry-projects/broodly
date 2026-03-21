@@ -20,98 +20,98 @@ story_location: "{project-root}/_bmad-output/implementation-artifacts"
 development_status:
   epic-1: in-progress
   1-1-initialize-expo-app-and-monorepo-structure: ready-for-dev
-  1-2-configure-ci-pipeline-lint-type-check-test-gates: ready-for-dev
-  1-3-configure-gluestack-ui-v3-and-nativewind-in-expo: ready-for-dev
+  1-2-configure-ci-pipeline: ready-for-dev
+  1-3-configure-gluestack-ui-v3-and-nativewind: ready-for-dev
   1-4-terraform-baseline-for-gcp-dev-environment: ready-for-dev
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-firebase-auth-setup-email-password-and-oauth-providers: backlog
-  2-2-go-server-jwt-validation-middleware: backlog
-  2-3-account-settings-update-email-password-display-name: backlog
-  2-4-account-recovery-and-deletion: backlog
-  2-5-rbac-middleware-owner-collaborator-support-roles: backlog
+  epic-2: in-progress
+  2-1-firebase-auth-setup: ready-for-dev
+  2-2-go-server-jwt-validation-middleware: ready-for-dev
+  2-3-rbac-middleware-and-role-enforcement: ready-for-dev
+  2-4-account-management-settings: ready-for-dev
+  2-5-account-deletion-and-data-purge: ready-for-dev
   epic-2-retrospective: optional
 
-  epic-3: backlog
-  3-1-core-domain-schema-users-apiaries-hives: backlog
-  3-2-inspection-observation-and-media-schema: backlog
-  3-3-recommendations-tasks-and-audit-schema: backlog
-  3-4-integrations-telemetry-and-external-context-schema: backlog
-  3-5-skill-progression-and-notification-preferences-schema: backlog
+  epic-3: in-progress
+  3-1-core-domain-tables: ready-for-dev
+  3-2-inspection-and-observation-tables: ready-for-dev
+  3-3-recommendation-and-task-tables: ready-for-dev
+  3-4-integration-and-telemetry-tables: ready-for-dev
+  3-5-audit-event-log-and-pgvector: ready-for-dev
   epic-3-retrospective: optional
 
-  epic-4: backlog
-  4-1-graphql-schema-definition-core-types-and-recommendation-contract: backlog
-  4-2-apiary-and-hive-crud-resolvers: backlog
-  4-3-inspection-and-observation-resolvers: backlog
-  4-4-task-and-planning-resolvers: backlog
-  4-5-data-export-resolvers-json-csv: backlog
+  epic-4: in-progress
+  4-1-graphql-schema-foundation: ready-for-dev
+  4-2-recommendation-contract-type: ready-for-dev
+  4-3-apiary-hive-resolvers: ready-for-dev
+  4-4-inspection-recommendation-resolvers: ready-for-dev
+  4-5-data-export-resolvers: ready-for-dev
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-expo-router-setup-with-bottom-tab-navigation: backlog
-  5-2-graphql-client-and-tanstack-query-integration: backlog
-  5-3-zustand-state-stores-auth-ui-and-connectivity: backlog
-  5-4-auth-screens-sign-in-sign-up-password-reset: backlog
-  5-5-staleness-indicator-and-connectivity-ux: backlog
+  epic-5: in-progress
+  5-1-expo-router-navigation-shell: ready-for-dev
+  5-2-apollo-client-and-graphql-codegen: ready-for-dev
+  5-3-zustand-stores-and-tanstack-query: ready-for-dev
+  5-4-auth-screens-and-protected-routes: ready-for-dev
+  5-5-offline-indicator-and-staleness-ux: ready-for-dev
   epic-5-retrospective: optional
 
-  epic-6: backlog
-  6-1-onboarding-flow-region-and-seasonal-context: backlog
-  6-2-onboarding-flow-experience-level-and-goals: backlog
-  6-3-onboarding-flow-first-apiary-and-hive-setup: backlog
-  6-4-onboarding-flow-disclaimer-acceptance-and-safety-checklist: backlog
-  6-5-onboarding-state-persistence-and-resume: backlog
+  epic-6: in-progress
+  6-1-welcome-and-account-creation-screens: ready-for-dev
+  6-2-experience-level-and-region-setup: ready-for-dev
+  6-3-apiary-setup-and-goal-selection: ready-for-dev
+  6-4-disclaimer-and-onboarding-completion: ready-for-dev
+  6-5-mid-season-catchup-and-state-persistence: ready-for-dev
   epic-6-retrospective: optional
 
-  epic-7: backlog
-  7-1-apiary-list-screen-with-health-summary: backlog
-  7-2-apiary-detail-and-hive-list: backlog
-  7-3-create-and-edit-apiary-with-microclimate-adjustments: backlog
-  7-4-create-and-edit-hive: backlog
-  7-5-delete-apiary-hive-with-confirmation: backlog
-  7-6-collaborator-management-grant-and-revoke-access: backlog
+  epic-7: in-progress
+  7-1-apiary-crud-screens: ready-for-dev
+  7-2-hive-crud-screens: ready-for-dev
+  7-3-health-status-cards: ready-for-dev
+  7-4-microclimate-adjustments: ready-for-dev
+  7-5-collaborator-management: ready-for-dev
+  7-6-operation-dashboard-sideliner: ready-for-dev
   epic-7-retrospective: optional
 
-  epic-8: backlog
-  8-1-start-inspection-scope-confirmation-and-initial-guidance: backlog
-  8-2-observation-capture-structured-prompts-and-adaptive-flow: backlog
-  8-3-voice-capture-during-inspection: backlog
-  8-4-photo-and-image-capture-with-vision-ai-analysis: backlog
-  8-5-in-inspection-recommendation-display: backlog
-  8-6-pause-resume-and-complete-inspection: backlog
-  8-7-hive-audio-capture-and-acoustic-analysis: backlog
+  epic-8: in-progress
+  8-1-safety-gate-and-inspection-entry: ready-for-dev
+  8-2-guided-inspection-step-engine: ready-for-dev
+  8-3-voice-observation-capture: ready-for-dev
+  8-4-photo-capture-and-attachment: ready-for-dev
+  8-5-vision-ai-analysis-integration: ready-for-dev
+  8-6-acoustic-analysis-capture: ready-for-dev
+  8-7-inspection-summary-and-follow-up: ready-for-dev
   epic-8-retrospective: optional
 
-  epic-9: backlog
-  9-1-recommendation-service-core-context-assembly: backlog
-  9-2-recommendation-scoring-via-gemini: backlog
-  9-3-confidence-calibration-and-evidence-tracing: backlog
-  9-4-degraded-mode-and-conservative-defaults: backlog
-  9-5-skill-level-mismatch-detection: backlog
+  epic-9: in-progress
+  9-1-context-assembly-service: ready-for-dev
+  9-2-gemini-recommendation-scoring: ready-for-dev
+  9-3-confidence-calibration: ready-for-dev
+  9-4-degraded-mode-and-staleness: ready-for-dev
+  9-5-skill-mismatch-detection: ready-for-dev
   epic-9-retrospective: optional
 
-  epic-10: backlog
-  10-1-happy-context-homepage: backlog
-  10-2-weekly-action-queue-by-apiary: backlog
-  10-3-task-actions-complete-defer-dismiss: backlog
-  10-4-seasonal-planning-calendar: backlog
-  10-5-dynamic-priority-updates: backlog
+  epic-10: in-progress
+  10-1-happy-context-homepage: ready-for-dev
+  10-2-weekly-action-queue: ready-for-dev
+  10-3-task-resolution-actions: ready-for-dev
+  10-4-seasonal-planning-calendar: ready-for-dev
+  10-5-dynamic-priority-updates: ready-for-dev
   epic-10-retrospective: optional
 
-  epic-11: backlog
-  11-1-cloud-storage-upload-with-signed-urls: backlog
-  11-2-speech-to-text-worker-gemini-stt: backlog
-  11-3-vision-ai-analysis-worker: backlog
-  11-4-acoustic-analysis-worker: backlog
-  11-5-embedding-generation-worker-pgvector: backlog
+  epic-11: in-progress
+  11-1-signed-url-media-upload: ready-for-dev
+  11-2-stt-transcription-worker: ready-for-dev
+  11-3-vision-ai-analysis-worker: ready-for-dev
+  11-4-acoustic-analysis-worker: ready-for-dev
+  11-5-embedding-generation-pipeline: ready-for-dev
   epic-11-retrospective: optional
 
-  epic-12: backlog
-  12-1-notification-dispatch-worker: backlog
-  12-2-notification-center-ui: backlog
-  12-3-configurable-notification-sensitivity-and-suppression: backlog
-  12-4-escalation-for-unresolved-high-priority-alerts: backlog
-  12-5-in-app-feedback-prompts: backlog
+  epic-12: in-progress
+  12-1-notification-dispatch-service: ready-for-dev
+  12-2-notification-center-ui: ready-for-dev
+  12-3-notification-sensitivity-config: ready-for-dev
+  12-4-alert-escalation-engine: ready-for-dev
+  12-5-feedback-prompts: ready-for-dev
   epic-12-retrospective: optional
