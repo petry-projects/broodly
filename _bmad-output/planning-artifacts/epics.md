@@ -428,8 +428,8 @@
 
 ## Epic 6: Onboarding Flow
 
-**Goal:** New users complete a guided onboarding capturing region, experience level, hive configuration, goals, and disclaimer acceptance — the minimum context for personalized guidance.
-**FRs:** FR2, FR2a, FR2b, FR2c, FR2d, FR8, FR19a
+**Goal:** New users complete a guided onboarding capturing region, experience level, hive configuration, goals, interaction preference, and disclaimer acceptance — the minimum context for personalized guidance. Profile data model supports progressive enrichment for future versions.
+**FRs:** FR2, FR2a, FR2b, FR2c, FR2d, FR2e, FR8, FR19a
 
 ### Story 6.1: Onboarding Flow — Region and Seasonal Context
 
@@ -463,21 +463,28 @@
 - [ ] Visual feedback on selection
 **Tech Notes:** Experience level maps to skill_progression.current_level. Goals stored as JSONB on user profile.
 
-### Story 6.3: Onboarding Flow — First Apiary and Hive Setup
+### Story 6.3: Onboarding Flow — Apiary Setup, Goal Selection, and Interaction Preference
 
-**As a** new user, **I want** to register my first apiary and hives during onboarding, **so that** I get relevant recommendations immediately.
-**FRs:** FR2b, FR3, FR4
+**As a** new user, **I want** to register my first apiary and hives, set my management goals, and choose my interaction preference during onboarding, **so that** I get relevant, personalized recommendations immediately.
+**FRs:** FR2b, FR2e, FR3, FR4
 **TDD Requirements:**
-- Test: Apiary creation during onboarding links to user account.
+- Test: Apiary creation during onboarding links to user account and captures apiary name.
+- Test: Hive count is captured and persisted to user profile.
 - Test: At least one hive must be added before proceeding.
 - Test: Hive creation with name and type fields validates inputs.
+- Test: Management goals (multi-select) are captured and persisted.
+- Test: Interaction preference (voice-first vs tap) is captured and persisted.
 - Test: Skip path generates degraded guidance warning (FR2c).
 **Acceptance Criteria:**
-- [ ] Apiary name and optional location input
+- [ ] Apiary name input (required) and optional location input
+- [ ] Hive count captured during apiary setup
 - [ ] Add one or more hives with name and type (Langstroth, Top Bar, Warre, etc.)
+- [ ] Management goals multi-select (colony health, honey production, learning, expansion)
+- [ ] Interaction preference selector: voice-first or tap-first (defaults to voice-first)
 - [ ] Skip option available with warning about degraded guidance quality
 - [ ] Data persisted via GraphQL mutations
-**Tech Notes:** Hive types from domain research. Minimum one hive encouraged but not enforced to avoid blocking.
+- [ ] Profile data model supports progressive enrichment (FR2e) — extensible schema for future fields (hive types, queen marking preferences, treatment history, mentor relationship) without re-onboarding
+**Tech Notes:** Hive types from domain research. Minimum one hive encouraged but not enforced to avoid blocking. Interaction preference stored on user profile and used to configure default inspection flow mode. Profile schema uses JSONB for extensible fields per FR2e.
 
 ### Story 6.4: Onboarding Flow — Disclaimer Acceptance and Safety Checklist
 
@@ -606,28 +613,29 @@
 
 ### Story 7.6: Collaborator Management — Grant and Revoke Access
 
-**As an** account owner, **I want** to invite collaborators with read-only access and revoke their access, **so that** I can share visibility without giving edit control.
-**FRs:** FR5, FR6, FR7
+**As an** account owner, **I want** to invite collaborators with read-only access, revoke their access, and view a history of all permission changes, **so that** I can share visibility without giving edit control and maintain governance.
+**FRs:** FR5, FR5a, FR6, FR7
 **TDD Requirements:**
 - Test: Invite collaborator by email creates pending invitation.
 - Test: Accepting invitation grants read-only access to all apiaries.
 - Test: Revoking access removes collaborator permissions immediately.
 - Test: Access change creates audit event (FR7).
 - Test: Collaborator cannot mutate data (integration test).
+- Test: Access history log displays all permission changes with timestamps (FR5a).
 **Acceptance Criteria:**
 - [ ] Collaborator management screen in settings
 - [ ] Invite by email with pending/accepted status
 - [ ] Revoke access button with confirmation
-- [ ] Audit log of access changes visible to owner
+- [ ] Auditable access history log showing all collaborator permission changes with timestamps (FR5a)
 - [ ] Collaborator sees read-only view of shared apiaries
-**Tech Notes:** Collaborator role set as Firebase custom claim. Audit events written to audit_events table.
+**Tech Notes:** Collaborator role set as Firebase custom claim. Audit events written to audit_events table. Access history log reads from audit_events filtered by collaborator permission change events.
 
 ---
 
 ## Epic 8: Guided Inspection Flow
 
 **Goal:** Users can run full or quick guided inspections with voice/media capture, adaptive prompts, pause/resume, and structured record output. This is the core field-use workflow.
-**FRs:** FR19, FR19a, FR20, FR21, FR22, FR23, FR24, FR25, FR25b, FR26, FR27, FR28, FR29, FR30, FR30a, FR30b, FR36, FR37, FR38, FR54, FR54a, FR56, FR57, FR58
+**FRs:** FR19, FR19a, FR19b, FR20, FR21, FR22, FR23, FR24, FR25, FR25b, FR25c, FR26, FR27, FR28, FR29, FR30, FR30a, FR30b, FR36, FR37, FR38, FR54, FR54a, FR56, FR57, FR58
 
 ### Story 8.1: Start Inspection — Scope Confirmation and Initial Guidance
 
@@ -647,43 +655,66 @@
 - [ ] Inspection record created with status `in_progress`
 **Tech Notes:** Use `<Actionsheet>` for scope confirmation. Safety checklist stored as acknowledged in user profile.
 
-### Story 8.2: Observation Capture — Structured Prompts and Adaptive Flow
+### Story 8.2: Guided Inspection Step Engine — Voice-First Conversational Flow
 
-**As a** beekeeper during inspection, **I want** step-by-step observation prompts that adapt to my answers, **so that** I am guided through what to look for without being overwhelmed.
-**FRs:** FR20, FR26, FR35
+**As a** beekeeper during inspection, **I want** voice-first conversational prompts that guide me through each inspection step and adapt to my spoken observations, **so that** I am guided through what to look for without needing to interact with the screen.
+**FRs:** FR19, FR19b, FR20, FR25c, FR26, FR35
 **TDD Requirements:**
-- Test: Observation prompts render one at a time (one decision at a time principle).
-- Test: Selecting "queen cells observed" adapts next prompts to swarm-risk path.
-- Test: Skill-level affects prompt detail: newbie gets explanations, sideliner gets compact prompts.
+- Test: Each inspection step begins with the system immediately entering "listening" state (not "recording") for voice input.
+- Test: Steps are presented as conversational voice exchanges — the system speaks the prompt and listens for the user's spoken response.
+- Test: Natural language processing extracts structured observations from voice input in real-time.
+- Test: User can advance to next step via voice commands ("done", "next", "skip") without touching the screen.
+- Test: UI card-based option selection is available as a tap fallback but is NOT the primary interaction mode.
+- Test: Saying "queen cells observed" adapts next prompts to swarm-risk path via NLP extraction.
+- Test: Skill-level affects prompt conversational depth: newbie gets detailed explanations, sideliner gets compact prompts.
 - Test: Normal/cautionary/urgent observations render with correct status semantics (FR26).
 - Test: Each observation persists incrementally to local storage (NFR9d).
+- Test: Minimum 5 required steps are present: entrance assessment, brood inspection, queen cell check, overall colony assessment, action planning (FR25c).
+- Test: Live transcript displays as user speaks, with real-time conversational acknowledgment from the system.
 **Acceptance Criteria:**
+- [ ] Voice listening begins automatically upon entering each inspection step — no tap required to activate
+- [ ] System presents each step prompt as a conversational voice message (text-to-speech)
+- [ ] User's voice response displayed as live transcript in real-time
+- [ ] System provides conversational acknowledgment of each response (e.g., "Got it — brood pattern looks healthy")
+- [ ] NLP extracts structured observations from natural language descriptions
+- [ ] User advances via voice ("done", "next", "skip") — primary advancement mode
+- [ ] Tap-based card selection available as fallback, not default
 - [ ] One observation prompt per screen with clear progress indicator
-- [ ] Adaptive branching: observations influence subsequent prompts
-- [ ] Skill-adaptive depth: newbie (detailed), amateur (standard), sideliner (exception-first)
+- [ ] Adaptive branching: voice-captured observations influence subsequent prompts
+- [ ] Skill-adaptive conversational depth: newbie (detailed), amateur (standard), sideliner (exception-first)
 - [ ] Status classification: normal (success), cautionary (warning), urgent (error) with icons
 - [ ] Incremental local persistence of each observation
-**Tech Notes:** Prompt tree defined as configurable JSON. Adaptive logic in a TypeScript service. Persist each observation immediately (NFR9d).
+- [ ] Minimum 5 steps in full inspection: entrance assessment, brood inspection, queen cell check, overall colony assessment, action planning
+**Tech Notes:** Prompt tree defined as configurable JSON. Adaptive logic in a TypeScript service. Persist each observation immediately (NFR9d). Voice-first paradigm: the "listening" state is the default state for each step. NLP extraction uses Gemini for real-time structured observation parsing. UI cards are rendered as fallback controls below the voice interaction area. Term "listening" must be used throughout — never "recording".
 
-### Story 8.3: Voice Capture During Inspection
+### Story 8.3: Voice Observation Capture — Default Interaction Mode
 
-**As a** beekeeper with gloved hands, **I want** to record observations by voice, **so that** I can log findings without putting down my tools.
-**FRs:** FR27, FR29, FR30a, FR30b
+**As a** beekeeper with gloved hands, **I want** voice to be the DEFAULT way I capture observations during inspection, with listening beginning automatically at each step, **so that** I never need to put down my tools to interact with the app.
+**FRs:** FR19, FR19b, FR27, FR29, FR30a, FR30b
 **TDD Requirements:**
-- Test: Voice button starts recording and shows listening state.
-- Test: Recording uploads audio to Cloud Storage via signed URL.
-- Test: Transcription result populates observation text field.
+- Test: Voice listening begins automatically when each inspection step loads — no button tap required to start.
+- Test: The UI displays "Listening..." state (not "Recording...") when voice capture is active.
+- Test: Audio uploads to Cloud Storage via signed URL.
+- Test: Transcription result populates observation text field as a live transcript during speech.
+- Test: System provides conversational acknowledgment after processing each voice input.
 - Test: Low-confidence transcriptions are flagged for review (FR30b).
 - Test: Original audio retained alongside transcription (FR30a).
 - Test: Microphone permission requested with purpose messaging on first use.
+- Test: Tap-based input is available as a fallback but voice is the default active state.
+- Test: The term "recording" does NOT appear anywhere in the UI — only "listening".
 **Acceptance Criteria:**
-- [ ] VoiceLogCapture component: idle > listening > processing > confirm states
-- [ ] 56x56px Fab mic button (per CLAUDE.md)
+- [ ] Voice listening is the DEFAULT mode — begins automatically at each inspection step
+- [ ] VoiceLogCapture component states: listening (default on step entry) > processing > confirm > idle (fallback)
+- [ ] UI terminology: "Listening..." not "Recording..." throughout all states and labels
+- [ ] 56x56px Fab mic button available for manual re-activation (per CLAUDE.md) but auto-activation is primary
+- [ ] Live transcript displayed as user speaks
+- [ ] Conversational acknowledgment from system after voice input processed
 - [ ] Audio uploaded to Cloud Storage, triggers STT via Pub/Sub
 - [ ] Transcription displayed for confirmation/editing
 - [ ] Low-confidence flag with "Review suggested" badge (FR30b)
 - [ ] Original audio file preserved (FR30a)
-**Tech Notes:** Audio format: opus. Upload via signed URL from API. Cloud Storage notification triggers `media-uploaded` Pub/Sub topic. STT via Gemini.
+- [ ] Tap-based quick-select available as fallback below voice interaction area
+**Tech Notes:** Audio format: opus. Upload via signed URL from API. Cloud Storage notification triggers `media-uploaded` Pub/Sub topic. STT via Gemini. Voice is now the DEFAULT mode, not an option — the mic button serves as a re-activate control if the user pauses listening, not as the primary activation mechanism. All UI copy must use "listening" terminology per FR27.
 
 ### Story 8.4: Photo and Image Capture with Vision AI Analysis
 
@@ -1049,8 +1080,8 @@
 
 ## Epic 12: Notifications & Operational Alerts
 
-**Goal:** Users receive actionable, risk-aware notifications with configurable sensitivity and escalation. Notification fatigue is managed through suppression and bundling.
-**FRs:** FR39, FR40, FR41, FR42, FR43, FR47b, FR55b
+**Goal:** Users receive actionable, risk-aware notifications with configurable sensitivity and escalation. Notification fatigue is managed through suppression and bundling. Per-apiary sensitivity and quiet hours provide fine-grained control.
+**FRs:** FR39, FR40, FR40a, FR40b, FR41, FR42, FR43, FR47b, FR55b
 
 ### Story 12.1: Notification Dispatch Worker
 
@@ -1090,19 +1121,21 @@
 ### Story 12.3: Configurable Notification Sensitivity and Suppression
 
 **As a** user, **I want** to configure notification sensitivity per apiary and set suppression windows, **so that** I am not overwhelmed by low-value alerts.
-**FRs:** FR40, FR42
+**FRs:** FR40, FR40a, FR40b, FR42
 **TDD Requirements:**
-- Test: Sensitivity setting (high/medium/low) filters notification generation.
-- Test: Suppression window blocks notifications during configured hours.
+- Test: Sensitivity setting (Low/Normal/High) filters notification generation per apiary (FR40a).
+- Test: Seasonal escalation auto-adjustment increases sensitivity during high-risk windows (FR40a).
+- Test: Quiet hours with configurable start/end times block notifications during configured hours (FR40b).
 - Test: Per-apiary override works independently of global setting.
 - Test: Low-value notifications bundled instead of sent individually.
 **Acceptance Criteria:**
-- [ ] Settings screen: global notification sensitivity (high/medium/low)
+- [ ] Settings screen: per-apiary notification sensitivity controls (Low/Normal/High) (FR40a)
+- [ ] Seasonal escalation auto-adjustment toggle per apiary (FR40a)
+- [ ] Quiet hours: configurable start time and end time (FR40b)
 - [ ] Per-apiary override option
-- [ ] Suppression window: start time, end time
 - [ ] Bundling for non-urgent notifications
 - [ ] Changes take effect immediately
-**Tech Notes:** Notification preferences stored in notification_preferences table. Worker checks preferences before dispatch.
+**Tech Notes:** Notification preferences stored in notification_preferences table. Worker checks preferences before dispatch. Seasonal escalation uses current seasonal phase to auto-adjust sensitivity thresholds.
 
 ### Story 12.4: Escalation for Unresolved High-Priority Alerts
 
@@ -1154,9 +1187,11 @@
 | FR2b | 6.1, 6.2, 6.3, 6.5 |
 | FR2c | 6.5, 9.4 |
 | FR2d | 9.5 |
+| FR2e | 6.3 |
 | FR3 | 3.1, 4.2, 7.1, 7.2, 7.3, 7.5 |
 | FR4 | 3.1, 4.2, 7.2, 7.4, 7.5 |
 | FR5 | 2.5, 7.6 |
+| FR5a | 7.6 |
 | FR6 | 2.5, 7.6 |
 | FR7 | 2.5, 7.6 |
 | FR8 | 6.1 |
@@ -1178,8 +1213,9 @@
 | FR16b | 4.4, 10.3 |
 | FR17 | 10.1, 10.4 |
 | FR18 | 10.5 |
-| FR19 | 8.1 |
+| FR19 | 8.1, 8.2, 8.3 |
 | FR19a | 6.4, 8.1 |
+| FR19b | 8.2, 8.3 |
 | FR20 | 8.2, 9.1 |
 | FR21 | 4.1, 8.5, 9.2 |
 | FR22 | 4.1, 8.5, 9.2 |
@@ -1187,6 +1223,7 @@
 | FR24 | 4.1, 8.5, 9.2 |
 | FR25 | 8.1 |
 | FR25b | 4.3, 8.6 |
+| FR25c | 8.2 |
 | FR26 | 8.2 |
 | FR27 | 3.2, 4.3, 8.3, 11.1 |
 | FR28 | 3.2, 4.3, 8.4, 11.1 |
@@ -1204,10 +1241,13 @@
 | FR38 | 8.4, 11.3 |
 | FR39 | 12.1, 12.2 |
 | FR40 | 3.5, 12.3 |
+| FR40a | 12.3 |
+| FR40b | 12.3 |
 | FR41 | 12.4 |
 | FR42 | 3.5, 12.3 |
 | FR43 | 12.1, 12.2 |
 | FR44 | 3.4 |
+| FR44a | 3.4 |
 | FR45 | 3.4 |
 | FR46 | 3.4 |
 | FR47 | 9.2 |

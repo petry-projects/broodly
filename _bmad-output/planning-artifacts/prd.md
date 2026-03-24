@@ -414,13 +414,15 @@ Seasonal Usage Concentration Risks:
 - FR1c: (Removed — social login providers handle account recovery natively.)
 - FR1d: A user can delete their account and all associated data.
 - FR2: A user can set and update a beekeeper profile including experience level, goals, and operating preferences.
-- FR2a: The system shall allow users to modify all onboarding-provided profile data (experience level, region, hive count, goals) at any time from settings, with immediate effect on recommendation depth and seasonal context.
-- FR2b: A new user must complete a guided onboarding flow that captures region, hive configuration, experience level, and management goals before the system generates personalized guidance.
+- FR2a: The system shall allow users to modify all onboarding-provided profile data (experience level, region, apiary name, hive count, goals, interaction preference) at any time from the Settings screen, with immediate effect on recommendation depth, seasonal context, and interaction mode.
+- FR2b: A new user must complete a guided onboarding flow that captures region, apiary name, hive count, hive configuration, experience level, management goals, and interaction preference (voice-first vs tap) before the system generates personalized guidance.
 - FR2c: The system shall block or visibly degrade guidance quality if required onboarding context (region, experience level) is incomplete.
+- FR2e: The system shall support progressive profile enrichment, allowing future versions to collect additional personalization details (e.g., hive types, queen marking preferences, treatment history, mentor relationship) without requiring re-onboarding. The profile data model shall be extensible so that new fields can be added and populated incrementally from settings or contextual prompts.
 - FR2d: The system shall monitor user behavior for signals of skill-level mismatch (e.g., an "Experienced" user frequently viewing educational explanations, or a "Newbie" user consistently dismissing guided steps) and suggest profile adjustment.
-- FR3: A user can register and manage multiple apiary locations.
+- FR3: A user can register, edit, and manage multiple apiary locations.
 - FR4: A user can register and manage multiple hives within each location.
 - FR5: An account owner can grant read-only access to designated collaborators.
+- FR5a: The system shall display an auditable access history log showing all collaborator permission changes with timestamps.
 - FR6: An account owner can revoke collaborator access.
 - FR7: The system can maintain an auditable history of collaborator access changes.
 
@@ -451,20 +453,22 @@ Seasonal Usage Concentration Risks:
 
 ### Guided Inspection and Decision Support
 
-- FR19: A user can start a guided inspection workflow for a selected hive.
+- FR19: A user can start a VOICE-FIRST guided inspection workflow for a selected hive. Upon entering each inspection step, the system shall immediately begin listening for voice input. The system shall prompt the user conversationally through each step, process voice responses, and advance to the next step when the user indicates completion (e.g., says "done", "next", or "skip"). Manual UI interaction shall not be required for any inspection step.
 - FR19a: The system shall present a safety awareness checklist before a user's first guided inspection, covering protective equipment, sting allergy risk, and emergency preparedness. The checklist must be acknowledged before the inspection workflow begins.
-- FR20: The system can adapt inspection guidance based on observations captured during the session.
+- FR19b: Each guided inspection step shall present the prompt as a conversational voice message from the system, display the user's voice response as a live transcript, provide real-time acknowledgment, and offer a clear way to advance (voice command "done"/"next"/"skip" or tap fallback). No card-based option selection shall be required.
+- FR20: The system can adapt inspection guidance based on voice observations captured during the session. The system shall process natural language descriptions and extract structured observations in real-time, providing conversational acknowledgment and follow-up questions.
 - FR21: The system can provide a recommended next action during inspection.
 - FR22: The system can provide rationale for each recommendation.
 - FR23: The system can provide a confidence level for each recommendation.
 - FR24: The system can provide a safe fallback action when recommendation confidence is limited.
 - FR25: A user can complete a shortened inspection path for time-constrained sessions.
 - FR25b: A user can pause and resume an in-progress inspection workflow, with the system preserving captured observations and adapting remaining guidance to the resumed context.
+- FR25c: The inspection flow shall include all required steps (minimum 5: entrance assessment, brood inspection, queen cell check, overall colony assessment, action planning) with each step being voice-driven and conversationally guided.
 - FR26: The system can distinguish and communicate normal versus cautionary versus urgent observations.
 
 ### Logging, Records, and Data Portability
 
-- FR27: A user can create inspection records using voice input.
+- FR27: A user can create inspection records using voice input as the PRIMARY interaction mode. Voice listening shall begin automatically at each inspection step. The system shall NOT use the term "recording" — instead use "listening" to describe the active voice capture state. Tap-based input shall be available as a fallback but shall not be the default interaction.
 - FR28: A user can add media-based observations to hive records.
 - FR29: The system can convert captured inputs into structured, action-typed records.
 - FR30: A user can review and correct structured records after capture.
@@ -486,6 +490,8 @@ Seasonal Usage Concentration Risks:
 
 - FR39: The system can send actionable notifications tied to seasonal and operational risk.
 - FR40: A user can configure notification sensitivity and escalation behavior.
+- FR40a: The system shall provide per-apiary notification sensitivity controls (Low/Normal/High) with seasonal escalation auto-adjustment.
+- FR40b: The system shall support notification quiet hours with configurable start/end times.
 - FR41: The system can escalate unresolved high-priority alerts.
 - FR42: The system can suppress or reduce low-value notifications based on user settings.
 - FR43: Notifications can include contextual reason and recommended next step.
@@ -493,6 +499,7 @@ Seasonal Usage Concentration Risks:
 ### Integrations and External Data
 
 - FR44: A user can connect supported telemetry providers.
+- FR44a: The system shall display connected integration status with freshness indicators and allow disconnect while preserving historical data.
 - FR45: The system can ingest telemetry linked to specific hives and locations.
 - FR46: The system can indicate telemetry freshness and sync status.
 - FR47: The system can adjust recommendation priority based on connected telemetry.

@@ -519,6 +519,7 @@ Settings is accessible from the bottom navigation bar and organized into the fol
 - Add, edit, archive apiaries and hives
 - Hive naming, ordering, and metadata
 - Apiary and hive creation is also accessible from Apiary Summary Screen via a "+" button
+- Apiary editing is also accessible from the Apiary Detail screen via an edit button, allowing in-context modification of apiary name, location, microclimate adjustments, and notes without navigating to Settings
 
 #### Notifications
 - Global notification toggle
