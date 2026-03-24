@@ -635,7 +635,7 @@
 ## Epic 8: Guided Inspection Flow
 
 **Goal:** Users can run full or quick guided inspections with voice/media capture, adaptive prompts, pause/resume, and structured record output. This is the core field-use workflow.
-**FRs:** FR19, FR19a, FR19b, FR20, FR21, FR22, FR23, FR24, FR25, FR25b, FR25c, FR26, FR27, FR28, FR29, FR30, FR30a, FR30b, FR36, FR37, FR38, FR54, FR54a, FR56, FR57, FR58
+**FRs:** FR19, FR19a, FR19b, FR19c, FR19d, FR20, FR21, FR22, FR23, FR24, FR25, FR25b, FR25c, FR26, FR27, FR28, FR29, FR30, FR30a, FR30b, FR30c, FR36, FR37, FR38, FR54, FR54a, FR56, FR57, FR58
 
 ### Story 8.1: Start Inspection — Scope Confirmation and Initial Guidance
 
@@ -789,6 +789,44 @@
 - [ ] Results displayed as additional observation evidence
 - [ ] Indicators included in recommendation generation
 **Tech Notes:** Acoustic analysis via Vertex AI. Audio format: opus. Results stored as observation with type `acoustic_analysis`.
+
+### Story 8.8: Continuous Multi-Hive Voice Session
+
+**As a** beekeeper in the field, **I want** to flow through all my hives in one continuous voice session without touching my phone, **so that** I can keep my hands free, stay focused on the bees, and complete my yard visit efficiently.
+**FRs:** FR19c, FR19d
+**TDD Requirements:**
+- Test: Voice command "next hive" saves current hive observations and loads next hive context
+- Test: Voice command "move to Hive 4" navigates to specific hive
+- Test: Voice command "which hive am I on?" announces current hive name and status
+- Test: Voice command "how many hives left?" announces remaining count
+- Test: Voice command "end session" triggers session summary
+- Test: Per-hive context is preserved when navigating between hives
+- Test: System announces next hive context (last inspection, status, recommended type) on transition
+**Acceptance Criteria:**
+- [ ] User can complete full multi-hive inspection without touching the phone
+- [ ] Per-hive observations are saved automatically on hive transition
+- [ ] Next hive context is announced via TTS on transition
+- [ ] Voice navigation commands work reliably (next, specific hive, back, status)
+- [ ] Session tracks total hives visited, time per hive, and completion status
+
+### Story 8.9: Post-Session Evening Review
+
+**As a** beekeeper who just completed a yard session, **I want** to review everything I captured across all hives that evening with a tap-friendly UI, **so that** I can correct transcriptions, add forgotten details, and confirm follow-up scheduling from the comfort of my home.
+**FRs:** FR30c
+**TDD Requirements:**
+- Test: Evening review screen shows all hives from the session grouped chronologically
+- Test: Each hive section shows: observations, voice transcripts, photos, AI results, follow-ups
+- Test: User can edit any transcript or observation
+- Test: User can add notes retroactively
+- Test: User can confirm or reschedule follow-up actions
+- Test: Original audio playback is available for each voice entry
+**Acceptance Criteria:**
+- [ ] Review accessible from homepage after a completed session ("Review today's session")
+- [ ] All hives from session displayed with collapsible per-hive sections
+- [ ] Transcripts editable with original audio available
+- [ ] Follow-up actions confirmable or reschedulable
+- [ ] Low-confidence transcriptions flagged for attention
+- [ ] Review can be completed across multiple sittings (state persisted)
 
 ---
 
@@ -1213,9 +1251,11 @@
 | FR16b | 4.4, 10.3 |
 | FR17 | 10.1, 10.4 |
 | FR18 | 10.5 |
-| FR19 | 8.1, 8.2, 8.3 |
+| FR19 | 8.1, 8.2, 8.3, 8.8 |
 | FR19a | 6.4, 8.1 |
 | FR19b | 8.2, 8.3 |
+| FR19c | 8.8 |
+| FR19d | 8.8 |
 | FR20 | 8.2, 9.1 |
 | FR21 | 4.1, 8.5, 9.2 |
 | FR22 | 4.1, 8.5, 9.2 |
@@ -1231,6 +1271,7 @@
 | FR30 | 3.2, 8.6 |
 | FR30a | 8.3, 11.2 |
 | FR30b | 8.3, 11.2 |
+| FR30c | 8.9 |
 | FR31 | 3.1, 3.2 |
 | FR32 | 4.5 |
 | FR33 | 4.5 |
@@ -1285,12 +1326,12 @@
 | 5: Core Mobile Shell | 5 | 7-10 |
 | 6: Onboarding Flow | 5 | 6-9 |
 | 7: Apiary & Hive Management | 6 | 8-12 |
-| 8: Guided Inspection Flow | 7 | 14-18 |
+| 8: Guided Inspection Flow | 9 | 18-24 |
 | 9: Recommendation Engine | 5 | 10-14 |
 | 10: Planning & Weekly Queue | 5 | 8-12 |
 | 11: Voice & Media Pipeline | 5 | 8-12 |
 | 12: Notifications | 5 | 7-10 |
-| **Total** | **62** | **94-135** |
+| **Total** | **64** | **98-141** |
 
 ---
 

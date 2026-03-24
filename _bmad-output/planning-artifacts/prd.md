@@ -453,9 +453,11 @@ Seasonal Usage Concentration Risks:
 
 ### Guided Inspection and Decision Support
 
-- FR19: A user can start a VOICE-FIRST guided inspection workflow for a selected hive. Upon entering each inspection step, the system shall immediately begin listening for voice input. The system shall prompt the user conversationally through each step, process voice responses, and advance to the next step when the user indicates completion (e.g., says "done", "next", or "skip"). Manual UI interaction shall not be required for any inspection step.
+- FR19: A user can start a VOICE-FIRST guided inspection workflow for a selected hive. Upon entering each inspection step, the system shall immediately begin listening for voice input. The system shall prompt the user conversationally through each step, process voice responses, and advance to the next step when the user indicates completion (e.g., says "done", "next", or "skip"). Manual UI interaction shall not be required for any inspection step. The inspection mode shall be designed as a continuous beeyard session, not a per-hive session. The user starts once and flows through all hives that need attention.
 - FR19a: The system shall present a safety awareness checklist before a user's first guided inspection, covering protective equipment, sting allergy risk, and emergency preparedness. The checklist must be acknowledged before the inspection workflow begins.
 - FR19b: Each guided inspection step shall present the prompt as a conversational voice message from the system, display the user's voice response as a live transcript, provide real-time acknowledgment, and offer a clear way to advance (voice command "done"/"next"/"skip" or tap fallback). No card-based option selection shall be required.
+- FR19c (CRITICAL — Key Differentiator): The system shall support a continuous, hands-free beeyard session where the user can inspect multiple hives sequentially without touching the device. Once in inspection mode, the user navigates between hives via voice commands (e.g., 'next hive', 'move to Hive 4', 'done with this hive'). All observations, actions, and media triggers are voice-driven. UI tapping shall be available as a fallback but shall never be required for any beeyard workflow. This zero-tap beeyard experience is a core product differentiator.
+- FR19d: The system shall maintain per-hive context during a continuous multi-hive session. When the user moves to the next hive, the system shall: (1) save all observations for the current hive, (2) announce the next hive's context (last inspection, current status, recommended inspection type), (3) begin guided steps for the new hive. Voice command 'which hive am I on?' shall confirm current hive context.
 - FR20: The system can adapt inspection guidance based on voice observations captured during the session. The system shall process natural language descriptions and extract structured observations in real-time, providing conversational acknowledgment and follow-up questions.
 - FR21: The system can provide a recommended next action during inspection.
 - FR22: The system can provide rationale for each recommendation.
@@ -468,12 +470,13 @@ Seasonal Usage Concentration Risks:
 
 ### Logging, Records, and Data Portability
 
-- FR27: A user can create inspection records using voice input as the PRIMARY interaction mode. Voice listening shall begin automatically at each inspection step. The system shall NOT use the term "recording" — instead use "listening" to describe the active voice capture state. Tap-based input shall be available as a fallback but shall not be the default interaction.
+- FR27: A user can create inspection records using voice input as the PRIMARY interaction mode. Voice listening shall begin automatically at each inspection step. The system shall NOT use the term "recording" — instead use "listening" to describe the active voice capture state. Tap-based input shall be available as a fallback but shall not be the default interaction. Voice commands shall include hive navigation: 'next hive', 'move to [hive name]', 'go back to [hive name]', 'which hive am I on?', 'how many hives left?', 'end session'.
 - FR28: A user can add media-based observations to hive records.
 - FR29: The system can convert captured inputs into structured, action-typed records.
 - FR30: A user can review and correct structured records after capture.
 - FR30a: The system shall retain original audio recordings for voice-captured observations to support post-session correction.
 - FR30b: The system shall flag voice entries with low transcription confidence for user review during a post-inspection correction step.
+- FR30c: The system shall provide a post-session review screen ('Evening Review') available after the user leaves the beeyard. This review presents all hives inspected during the session with: captured observations, voice transcripts, photos, AI analysis results, and recommended follow-up actions. The user can correct transcriptions, add notes, confirm or adjust observations, and approve follow-up scheduling from this screen — all via tap-based UI (since they're no longer in the field).
 - FR31: The system can maintain longitudinal hive and action history.
 - FR32: A user can export their records in JSON format.
 - FR33: A user can export their records in CSV format.

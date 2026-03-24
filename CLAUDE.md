@@ -8,6 +8,20 @@ Broodly is a field-first beekeeping decision-support app. Mobile-first on iOS, A
 
 ---
 
+## Key Differentiator: Zero-Tap Beeyard
+
+IMPORTANT: Broodly's core differentiator is a zero-tap beeyard experience. Once a beekeeper starts their inspection session, they should NEVER need to tap the phone while in the field.
+
+- Entire multi-hive inspection flow is voice-driven as one continuous session
+- User navigates between hives via voice: "next hive", "move to Hive 4", "done with this hive"
+- All observations, actions, and photo triggers are voice-commanded
+- System announces next hive context via TTS on transition
+- UI tapping is available as fallback but NEVER required
+- Post-session "Evening Review" provides tap-friendly UI for corrections after leaving the field
+- This zero-tap approach is what distinguishes Broodly from every competitor
+
+---
+
 ## Figma MCP Integration Rules
 
 These rules define how to translate Figma inputs into code for this project and must be followed for every Figma-driven change.
