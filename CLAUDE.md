@@ -249,6 +249,11 @@ Each custom component is built on Gluestack v3 primitives using `tva()` for vari
 - Homepage cards are `<Card variant="filled">` with semantic background colors
 - Health cards use shared `HealthStatusCardBase` tva() with status variant
 
+IMPORTANT: Distinguish actionable cards from informational cards:
+- Actionable cards (tappable, navigate somewhere): primary-500 left border + chevron + hover state. Use Card variant='outline' with left border override.
+- Informational cards (display only): no left border, no chevron, no hover. Use Card variant='filled'.
+- This distinction is critical for field usability — users must instantly know what requires action vs what is context.
+
 ---
 
 ## Button Hierarchy (Gluestack tva)

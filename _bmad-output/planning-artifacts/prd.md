@@ -213,6 +213,7 @@ Capabilities revealed: onboarding state persistence, progressive context enrichm
 - Logging must be fast and multimodal, with voice/media-first entry and structured correction after capture.
 - Multi-hive and multi-location support is a first-class constraint across data model, notifications, planning, and navigation.
 - Voice recognition shall support a beekeeping-specific vocabulary model or custom glossary to improve accuracy for domain terms (e.g., varroa, propolis, brood, nuc, supersedure, absconding, robbing, nosema). The system shall allow users to train or correct recurring misrecognitions to improve per-user accuracy over time.
+- Cards that require user action (tappable, navigational) must be visually distinct from informational cards. Actionable cards shall include a primary-colored left border indicator and navigation chevron. Informational cards shall have no action affordance. This distinction must be consistent across all screens.
 
 ### Integration Requirements
 
@@ -415,7 +416,7 @@ Seasonal Usage Concentration Risks:
 - FR1d: A user can delete their account and all associated data.
 - FR2: A user can set and update a beekeeper profile including experience level, goals, and operating preferences.
 - FR2a: The system shall allow users to modify all onboarding-provided profile data (experience level, region, apiary name, hive count, goals, interaction preference) at any time from the Settings screen, with immediate effect on recommendation depth, seasonal context, and interaction mode.
-- FR2b: A new user must complete a guided onboarding flow that captures region, apiary name, hive count, hive configuration, experience level, management goals, and interaction preference (voice-first vs tap) before the system generates personalized guidance.
+- FR2b: A new user must complete a guided onboarding flow that captures region, apiary name, hive count, hive configuration, experience level, management focus (sliding scale between honey production and making splits as competing priorities), and interaction preference (voice-first vs tap) before the system generates personalized guidance. Colony health is always prioritized regardless of management focus setting.
 - FR2c: The system shall block or visibly degrade guidance quality if required onboarding context (region, experience level) is incomplete.
 - FR2e: The system shall support progressive profile enrichment, allowing future versions to collect additional personalization details (e.g., hive types, queen marking preferences, treatment history, mentor relationship) without requiring re-onboarding. The profile data model shall be extensible so that new fields can be added and populated incrementally from settings or contextual prompts.
 - FR2d: The system shall monitor user behavior for signals of skill-level mismatch (e.g., an "Experienced" user frequently viewing educational explanations, or a "Newbie" user consistently dismissing guided steps) and suggest profile adjustment.
@@ -433,9 +434,11 @@ Seasonal Usage Concentration Risks:
 - FR8b: When a user registers apiaries in a new region, the system shall reset seasonal context for those apiaries to the new region’s baseline and clearly inform the user that personal history from a prior region will not be used for seasonal timing recommendations in the new location until local history is established.
 - FR9: The system can prevent or clearly flag guidance when required localization context is unavailable.
 - FR10: The system can incorporate local weather context into guidance decisions.
+- FR10a: The system shall display regional hive scale weight averages on the homepage, sourced from beecounted.org or equivalent public scale network. Data shall show average daily weight change for the user's area with freshness timestamp.
 - FR11: The system can incorporate bloom/flora context into guidance decisions.
 - FR11a: The system shall allow users to apply microclimate adjustments to their apiary's seasonal context, including elevation offset and observed bloom timing relative to regional baseline.
 - FR11b: When a user consistently overrides or delays acting on regionally-timed recommendations, the system shall detect this pattern and suggest a microclimate adjustment.
+- FR11c: The system shall integrate with beecounted.org (or equivalent regional scale weight network) to provide local nectar flow indicators alongside weather and bloom data.
 - FR12: The system can combine user history and regional context when generating recommendations.
 - FR12a: The system shall maintain a jurisdiction-aware treatment registry that flags treatments by legal status (approved, restricted, prescription-required, prohibited) for each supported region.
 - FR12b: The system shall never recommend a treatment flagged as prohibited in the user's registered jurisdiction. Treatments flagged as restricted or prescription-required shall include a visible regulatory notice and a directive to consult local authorities or a veterinarian before use.
@@ -443,7 +446,8 @@ Seasonal Usage Concentration Risks:
 
 ### Planning and Prioritization
 
-- FR13: A user can view a current-week prioritized action queue across hives and locations.
+- FR13: A user can view a current-week prioritized action queue across hives and locations. The weekly planning view shall prominently feature a Live Discussion Mode entry point at the top, allowing users to begin voice-driven plan review immediately without additional taps.
+- FR13a: The weekly planning view shall display a 'Required Materials' checklist before the action queue, listing supplies and equipment needed for the week's planned activities (e.g., treatments, supers, syrup, splitting equipment). Materials shall be linked to the specific hive/action requiring them. This section is shown only when materials are needed.
 - FR14: The system can rank actions by urgency and expected outcome impact.
 - FR15: A user can view a seasonal planning calendar of recommended activities.
 - FR16: The system can identify overdue high-impact tasks and surface catch-up guidance.

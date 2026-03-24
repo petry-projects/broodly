@@ -247,6 +247,63 @@
     .chip:hover { border-color: var(--primary-300); }
     .chip.chip-selected { border-color: var(--primary-500); background: var(--primary-50); color: var(--primary-600); }
 
+    /* Actionable card — requires user tap/action. Has primary left border + chevron */
+    .card-action {
+      border-left: 3px solid var(--primary-500);
+      cursor: pointer;
+      position: relative;
+    }
+    .card-action::after {
+      content: '\203A';
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary-500);
+    }
+    .card-action:hover {
+      background: var(--primary-50);
+    }
+
+    /* Informational card — display only, no action needed */
+    .card-info {
+      border-left: none;
+      cursor: default;
+    }
+
+    /* Goal slider */
+    .goal-slider {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      border-radius: 4px;
+      outline: none;
+      background: linear-gradient(to right, var(--secondary-500), var(--success-500));
+    }
+    .goal-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-0);
+      border: 3px solid var(--primary-500);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .goal-slider::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-0);
+      border: 3px solid var(--primary-500);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
     /* Interaction style cards */
     .interact-card { display: flex; align-items: center; gap: 10px; padding: 14px; border: 2px solid var(--outline-200); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-0); transition: all 0.15s; }
     .interact-card:hover { border-color: var(--primary-300); }
@@ -536,14 +593,21 @@
             <span class="dot dot-active"></span>
             <span class="dot"></span>
           </div>
-          <h3 style="font-size: 20px; font-weight: 700;">What matters most to you?</h3>
-          <p style="font-size: 14px; color: var(--text-500);">Select all that apply</p>
+          <h3 style="font-size: 20px; font-weight: 700;">What's your primary management focus?</h3>
+          <p style="font-size: 14px; color: var(--text-500);">Honey production and making splits are competing priorities. Where do you lean?</p>
 
-          <div class="chip-grid" id="goal-chips">
-            <div class="chip chip-selected" onclick="toggleChip(this)">&#x1F49A; Colony Health</div>
-            <div class="chip chip-selected" onclick="toggleChip(this)">&#x1F36F; Honey Production</div>
-            <div class="chip" onclick="toggleChip(this)">&#x1F4DA; Learning</div>
-            <div class="chip" onclick="toggleChip(this)">&#x1F4C8; Growth</div>
+          <div style="padding: 8px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 14px; font-weight: 600;">&#x1F36F; Honey Production</span>
+              <span style="font-size: 14px; font-weight: 600;">&#x1F41D; Making Splits</span>
+            </div>
+            <input type="range" min="0" max="100" value="50" class="goal-slider" id="goal-slider" oninput="updateGoalLabel(this.value)">
+            <div id="goal-label" style="text-align: center; font-size: 14px; font-weight: 600; color: var(--primary-600); margin-top: 8px;">Balanced — honey and growth equally</div>
+          </div>
+
+          <div class="alert alert-success" style="font-size: 13px;">
+            <span>&#x1F49A;</span>
+            <span>Colony health is always our top priority regardless of your focus.</span>
           </div>
 
           <div class="divider" style="margin: 8px 0;"></div>
@@ -594,7 +658,7 @@
               <tr><td>Location</td><td>Portland, OR &middot; Zone 8b</td></tr>
               <tr><td>Apiary</td><td>Backyard Apiary</td></tr>
               <tr><td>Hives</td><td id="summary-hive-count">3</td></tr>
-              <tr><td>Goals</td><td>&#x1F49A; Health &middot; &#x1F36F; Honey</td></tr>
+              <tr><td>Focus</td><td>Balanced (honey &amp; splits)</td></tr>
               <tr><td>Interaction</td><td>&#x1F5E3; Live Discussion Mode</td></tr>
             </table>
           </div>
@@ -620,8 +684,8 @@
           <p style="font-size: 14px; color: var(--text-500);">Here's what's happening with your bees.</p>
 
           <!-- Session Review Card -->
-          <div class="card card-clickable" onclick="showScreen('evening-review')" style="border-left: 3px solid var(--secondary-500); background: var(--secondary-50);">
-            <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="card card-action" onclick="showScreen('evening-review')" style="background: var(--secondary-50);">
+            <div style="display: flex; align-items: center; gap: 10px; padding-right: 32px;">
               <span style="font-size: 20px;">&#x1F4CB;</span>
               <div>
                 <div class="card-title">Review today's session</div>
@@ -631,26 +695,41 @@
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div class="context-card">
+            <div class="context-card card-info">
               <div class="context-card-title">&#x1F324; Last Week</div>
               <div class="context-card-value">Warm &amp; dry</div>
               <div style="font-size: 12px; color: var(--text-400);">Avg 72&deg;F</div>
             </div>
-            <div class="context-card">
+            <div class="context-card card-info">
               <div class="context-card-title">&#x1F327; Next Week</div>
               <div class="context-card-value">Rain Wed-Thu</div>
               <div style="font-size: 12px; color: var(--text-400);">Plan around it</div>
             </div>
-            <div class="context-card">
+            <div class="context-card card-info">
               <div class="context-card-title">&#x1F33C; Bloom</div>
               <div class="context-card-value">Clover peak</div>
               <div style="font-size: 12px; color: var(--text-400);">Strong nectar flow</div>
             </div>
-            <div class="context-card">
+            <div class="context-card card-info">
               <div class="context-card-title">&#x1F33E; Seasonal</div>
               <div class="context-card-value">Building stores</div>
               <div style="font-size: 12px; color: var(--text-400);">Spring buildup</div>
             </div>
+          </div>
+
+          <!-- Area Scale Weights Card -->
+          <div class="card card-info" style="background: var(--bg-0); border-left: 3px solid var(--secondary-500);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 14px; font-weight: 700;">&#x2696;&#xFE0F; Area Scale Weights</div>
+                <div style="font-size: 13px; color: var(--text-500);">Portland area avg: <strong style="color: var(--success-500);">+2.3 lbs/day</strong></div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 20px; font-weight: 600; font-family: monospace; color: var(--success-500);">&uarr; 2.3</div>
+                <div style="font-size: 11px; color: var(--text-400);">lbs/day</div>
+              </div>
+            </div>
+            <div style="font-size: 12px; color: var(--text-400); margin-top: 6px;">Source: beecounted.org &middot; Updated 2h ago</div>
           </div>
 
           <button class="btn btn-xl btn-primary" onclick="showScreen('weekly-plan')">Start Today's Plan</button>
@@ -680,8 +759,8 @@
         <div class="phone-content">
           <div style="font-size: 12px; font-weight: 700; color: var(--text-500); text-transform: uppercase; letter-spacing: 1px;">Today</div>
 
-          <div class="card card-warning-border">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+          <div class="card card-action card-warning-border">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; padding-right: 32px;">
               <div class="card-title">&#x26A0;&#xFE0F; Swarm Risk Detected</div>
               <span class="badge badge-warning">Urgent</span>
             </div>
@@ -693,9 +772,9 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card card-action">
             <div class="card-title">&#x1F489; Treatment Reminder</div>
-            <div class="card-text">Hive 2 &mdash; Queen B: Follow-up treatment due today for varroa management.</div>
+            <div class="card-text" style="padding-right: 32px;">Hive 2 &mdash; Queen B: Follow-up treatment due today for varroa management.</div>
             <div style="display: flex; gap: 8px; margin-top: 10px;">
               <button class="btn btn-sm btn-positive" style="flex: 1;">Mark Done</button>
               <button class="btn btn-sm btn-secondary" style="flex: 0 0 auto; width: auto; padding: 0 12px;">Defer</button>
@@ -722,8 +801,8 @@
       </div>
       <div class="screen-scroll">
         <div class="phone-content">
-          <div class="card card-clickable" onclick="showScreen('apiary-detail')">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div class="card card-action" onclick="showScreen('apiary-detail')">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-right: 32px;">
               <div>
                 <div class="card-title">&#x1F3E1; Backyard Apiary</div>
                 <div class="card-text">4 hives &middot; Last visited Mar 20</div>
@@ -731,8 +810,8 @@
               <span class="badge badge-warning">1 &#x26A0;</span>
             </div>
           </div>
-          <div class="card card-clickable">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div class="card card-action">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-right: 32px;">
               <div>
                 <div class="card-title">&#x26F0; Hillside Apiary</div>
                 <div class="card-text">6 hives &middot; Last visited Mar 19</div>
@@ -781,8 +860,8 @@
             </div>
           </div>
 
-          <div class="card card-clickable" onclick="showScreen('hive-detail-healthy')">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card card-action" onclick="showScreen('hive-detail-healthy')">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 32px;">
               <div>
                 <div class="card-title">Hive 1 &mdash; Sunny</div>
                 <div class="card-text">Strong colony &middot; 2 supers</div>
@@ -790,8 +869,8 @@
               <span class="badge badge-success">Healthy</span>
             </div>
           </div>
-          <div class="card card-clickable">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card card-action">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 32px;">
               <div>
                 <div class="card-title">Hive 2 &mdash; Queen B</div>
                 <div class="card-text">Treatment in progress</div>
@@ -799,8 +878,8 @@
               <span class="badge badge-warning" style="border: 1px solid var(--warning-300);">Attention</span>
             </div>
           </div>
-          <div class="card card-clickable card-warning-border" onclick="showScreen('hive-detail')">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card card-action card-warning-border" onclick="showScreen('hive-detail')">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 32px;">
               <div>
                 <div class="card-title">Hive 3 &mdash; Buzz</div>
                 <div class="card-text">Swarm risk detected</div>
@@ -808,8 +887,8 @@
               <span class="badge badge-warning">&#x26A0; Warning</span>
             </div>
           </div>
-          <div class="card card-clickable">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card card-action">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 32px;">
               <div>
                 <div class="card-title">Hive 4 &mdash; Goldie</div>
                 <div class="card-text">New package &middot; Building up</div>
@@ -900,7 +979,7 @@
             <span><strong>Swarm impulse detected.</strong> Multiple indicators suggest this colony may be preparing to swarm.</span>
           </div>
 
-          <div class="card">
+          <div class="card card-info">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
               <div class="card-title">Last Inspection</div>
               <span style="font-size: 13px; color: var(--text-500);">Mar 18</span>
@@ -909,15 +988,15 @@
           </div>
 
           <div class="kpi-row">
-            <div class="kpi">
+            <div class="kpi card-info">
               <div class="kpi-value">Moderate</div>
               <div class="kpi-label">Temperament</div>
             </div>
-            <div class="kpi">
+            <div class="kpi card-info">
               <div class="kpi-value">28.1kg</div>
               <div class="kpi-label">Weight</div>
             </div>
-            <div class="kpi">
+            <div class="kpi card-info">
               <div class="kpi-value">34.8&deg;</div>
               <div class="kpi-label">Temp</div>
             </div>
@@ -966,7 +1045,7 @@
             <span>This colony is thriving. Keep up the good work!</span>
           </div>
 
-          <div class="card">
+          <div class="card card-info">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
               <div class="card-title">Last Inspection</div>
               <span style="font-size: 13px; color: var(--text-500);">Mar 20</span>
@@ -975,15 +1054,15 @@
           </div>
 
           <div class="kpi-row">
-            <div class="kpi">
+            <div class="kpi card-info">
               <div class="kpi-value">Calm</div>
               <div class="kpi-label">Temperament</div>
             </div>
-            <div class="kpi">
+            <div class="kpi card-info">
               <div class="kpi-value">32.4kg</div>
               <div class="kpi-label">Weight</div>
             </div>
-            <div class="kpi">
+            <div class="kpi card-info">
               <div class="kpi-value">35.1&deg;</div>
               <div class="kpi-label">Temp</div>
             </div>
@@ -1016,9 +1095,46 @@
       </div>
       <div class="screen-scroll">
         <div class="phone-content" style="position: relative;">
+          <!-- Voice Mode Banner -->
+          <div onclick="showScreen('inspection-step-1')" style="background: linear-gradient(135deg, var(--primary-500), var(--secondary-500)); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: white;">
+            <span style="font-size: 32px;">&#x1F5E3;&#xFE0F;</span>
+            <div>
+              <div style="font-size: 16px; font-weight: 700;">Start Live Discussion</div>
+              <div style="font-size: 13px; opacity: 0.9;">Just start talking &mdash; I'll guide you through today's plan</div>
+            </div>
+          </div>
+
           <div class="alert alert-error">
             <span>&#x1F534;</span>
             <span><strong>1 overdue task</strong> &mdash; Hive 3 inspection was due yesterday.</span>
+          </div>
+
+          <!-- Required Materials -->
+          <div class="card" style="border-left: 3px solid var(--warning-500); background: var(--warning-50);">
+            <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleAccordion('materials-acc')">
+              <div>
+                <div style="font-size: 15px; font-weight: 700; color: var(--warning-500);">&#x1F4E6; Required Materials</div>
+                <div style="font-size: 13px; color: var(--text-500);">3 items needed for this week's plan</div>
+              </div>
+              <span id="materials-acc-icon" style="font-size: 16px; color: var(--text-400);">&#x25BC;</span>
+            </div>
+            <div id="materials-acc" style="display: none; margin-top: 12px; border-top: 1px solid var(--outline-200); padding-top: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">Oxalic acid vaporizer + strips</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 2</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">1 medium super + frames</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 4</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">1:1 sugar syrup (1 gallon)</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 3</span>
+              </div>
+            </div>
           </div>
 
           <!-- Backyard Apiary Accordion (expanded) -->
@@ -1084,10 +1200,6 @@
             </div>
           </div>
 
-          <!-- Voice FAB -->
-          <div style="position: sticky; bottom: 0; display: flex; justify-content: flex-end; padding-top: 12px;">
-            <button class="voice-fab" style="position: static;">&#x1F5E3;</button>
-          </div>
         </div>
       </div>
       <div class="bottom-nav">
@@ -1108,13 +1220,13 @@
       </div>
       <div class="screen-scroll">
         <div class="phone-content">
-          <div class="settings-row" onclick="showScreen('settings-profile')"><span class="label">&#x1F464; Profile &amp; Preferences</span><span class="chevron">&#x203A;</span></div>
-          <div class="settings-row" onclick="showScreen('account-settings')"><span class="label">&#x1F512; Account</span><span class="chevron">&#x203A;</span></div>
-          <div class="settings-row"><span class="label">&#x1F3E1; Apiaries</span><span class="chevron">&#x203A;</span></div>
-          <div class="settings-row" onclick="showScreen('settings-notifications')"><span class="label">&#x1F514; Notifications</span><span class="chevron">&#x203A;</span></div>
-          <div class="settings-row" onclick="showScreen('settings-integrations')"><span class="label">&#x1F517; Integrations</span><span class="chevron">&#x203A;</span></div>
-          <div class="settings-row" onclick="showScreen('settings-collaborators')"><span class="label">&#x1F465; Collaborators</span><span class="chevron">&#x203A;</span></div>
-          <div class="settings-row" onclick="showScreen('settings-data')"><span class="label">&#x1F6E1; Data &amp; Privacy</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-profile')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F464; Profile &amp; Preferences</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('account-settings')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F512; Account</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F3E1; Apiaries</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-notifications')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F514; Notifications</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-integrations')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F517; Integrations</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-collaborators')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F465; Collaborators</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-data')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F6E1; Data &amp; Privacy</span><span class="chevron">&#x203A;</span></div>
           <div style="text-align: center; margin-top: 24px;">
             <span style="font-size: 13px; color: var(--text-400);">Broodly v1.0.0</span>
           </div>
@@ -2195,7 +2307,7 @@
 
   function toggleAccordion(id) {
     const body = document.getElementById(id);
-    const arrow = document.getElementById(id + '-arrow');
+    const arrow = document.getElementById(id + '-arrow') || document.getElementById(id + '-icon');
     if (body.style.display === 'none') {
       body.style.display = 'grid';
       if (arrow) arrow.innerHTML = '&#x25BC;';
@@ -2256,6 +2368,23 @@
     if (item.classList.contains('urgent')) {
       item.classList.remove('urgent');
       item.style.borderLeftColor = 'var(--success-500)';
+    }
+  }
+
+  // Goal slider label update
+  function updateGoalLabel(val) {
+    var label = document.getElementById('goal-label');
+    var v = parseInt(val);
+    if (v <= 20) {
+      label.textContent = 'Focused on honey \u2014 maximize harvest';
+    } else if (v <= 40) {
+      label.textContent = 'Leaning honey \u2014 with occasional splits';
+    } else if (v <= 60) {
+      label.textContent = 'Balanced \u2014 honey and growth equally';
+    } else if (v <= 80) {
+      label.textContent = 'Leaning splits \u2014 growing the operation';
+    } else {
+      label.textContent = 'Focused on splits \u2014 expand colony count';
     }
   }
 

@@ -463,28 +463,31 @@
 - [ ] Visual feedback on selection
 **Tech Notes:** Experience level maps to skill_progression.current_level. Goals stored as JSONB on user profile.
 
-### Story 6.3: Onboarding Flow — Apiary Setup, Goal Selection, and Interaction Preference
+### Story 6.3: Onboarding Flow — Apiary Setup, Management Focus, and Interaction Preference
 
-**As a** new user, **I want** to register my first apiary and hives, set my management goals, and choose my interaction preference during onboarding, **so that** I get relevant, personalized recommendations immediately.
+**As a** new user, **I want** to register my first apiary and hives, set my management focus, and choose my interaction preference during onboarding, **so that** I get relevant, personalized recommendations immediately.
 **FRs:** FR2b, FR2e, FR3, FR4
 **TDD Requirements:**
 - Test: Apiary creation during onboarding links to user account and captures apiary name.
 - Test: Hive count is captured and persisted to user profile.
 - Test: At least one hive must be added before proceeding.
 - Test: Hive creation with name and type fields validates inputs.
-- Test: Management goals (multi-select) are captured and persisted.
+- Test: Management focus slider value is captured and persisted (range: honey production ↔ making splits).
+- Test: Slider defaults to midpoint on initial load.
+- Test: Colony health priority is not affected by slider position (always prioritized).
 - Test: Interaction preference (voice-first vs tap) is captured and persisted.
 - Test: Skip path generates degraded guidance warning (FR2c).
 **Acceptance Criteria:**
 - [ ] Apiary name input (required) and optional location input
 - [ ] Hive count captured during apiary setup
 - [ ] Add one or more hives with name and type (Langstroth, Top Bar, Warre, etc.)
-- [ ] Management goals multi-select (colony health, honey production, learning, expansion)
+- [ ] Management focus slider: honey production on one end, making splits on the other, with clear labels and midpoint default
+- [ ] Explanatory text: "Colony health is always prioritized regardless of this setting"
 - [ ] Interaction preference selector: voice-first or tap-first (defaults to voice-first)
 - [ ] Skip option available with warning about degraded guidance quality
 - [ ] Data persisted via GraphQL mutations
 - [ ] Profile data model supports progressive enrichment (FR2e) — extensible schema for future fields (hive types, queen marking preferences, treatment history, mentor relationship) without re-onboarding
-**Tech Notes:** Hive types from domain research. Minimum one hive encouraged but not enforced to avoid blocking. Interaction preference stored on user profile and used to configure default inspection flow mode. Profile schema uses JSONB for extensible fields per FR2e.
+**Tech Notes:** Hive types from domain research. Minimum one hive encouraged but not enforced to avoid blocking. Management focus stored as numeric value (0.0–1.0) on user profile, used to weight recommendation prioritization between honey production and split-making goals. Colony health recommendations are always surfaced at highest priority regardless of focus setting. Interaction preference stored on user profile and used to configure default inspection flow mode. Profile schema uses JSONB for extensible fields per FR2e.
 
 ### Story 6.4: Onboarding Flow — Disclaimer Acceptance and Safety Checklist
 
@@ -933,38 +936,48 @@
 
 ### Story 10.1: Happy Context Homepage
 
-**As a** user, **I want** a home screen that shows my current context (weather, bloom, seasonal phase) and clear CTAs, **so that** I know what matters today without digging.
-**FRs:** FR10, FR11, FR13, FR17
+**As a** user, **I want** a home screen that shows my current context (weather, bloom, seasonal phase, regional scale data) and clear CTAs, **so that** I know what matters today without digging.
+**FRs:** FR10, FR10a, FR11, FR11c, FR13, FR17
 **TDD Requirements:**
 - Test: Homepage renders HomepageContextCards for weather, bloom, and seasonal signals.
+- Test: Homepage renders regional hive scale weight average card with daily weight change and freshness timestamp (FR10a).
+- Test: Regional nectar flow indicator displays alongside weather and bloom data (FR11c).
 - Test: Two primary CTAs render: "View My Apiaries" and "Start Today's Plan".
 - Test: Risk-themed seasonal signals (swarm, starvation, pest, queen) display when relevant (FR17).
 - Test: Homepage loads within 2 seconds (NFR1 — performance test).
 **Acceptance Criteria:**
 - [ ] HomepageContextCards: weather, bloom status, seasonal phase
+- [ ] Regional scale weight card: average daily weight change for user's area with freshness timestamp (FR10a)
+- [ ] Regional nectar flow indicator sourced from beecounted.org or equivalent (FR11c)
 - [ ] Primary CTAs: "View My Apiaries" (outline), "Start Today's Plan" (solid primary)
 - [ ] Seasonal risk signals with appropriate status badges
 - [ ] Skill-adaptive greeting and tone
 - [ ] Cache-first loading for instant display
-**Tech Notes:** Context cards use `<Card variant="filled">` with semantic backgrounds. CTAs per button hierarchy in CLAUDE.md.
+**Tech Notes:** Context cards use `<Card variant="filled">` with semantic backgrounds. CTAs per button hierarchy in CLAUDE.md. Regional scale data sourced from beecounted.org API with graceful degradation if unavailable.
 
 ### Story 10.2: Weekly Action Queue by Apiary
 
-**As a** user, **I want** a prioritized weekly action queue grouped by apiary, **so that** I can plan my week efficiently.
-**FRs:** FR13, FR14, FR16
+**As a** user, **I want** a prioritized weekly action queue grouped by apiary with a materials checklist, **so that** I can plan my week efficiently and ensure I have everything I need.
+**FRs:** FR13, FR13a, FR14, FR16
 **TDD Requirements:**
 - Test: Queue renders tasks grouped by apiary using ApiaryAccordionQueue.
 - Test: Tasks ordered by priority (urgency x impact) within each apiary.
 - Test: Overdue tasks flagged with warning badge (FR16).
+- Test: Required Materials checklist renders before the action queue when materials are needed (FR13a).
+- Test: Required Materials section is hidden when no materials are needed (FR13a).
+- Test: Each material item links to the specific hive/action requiring it (FR13a).
 - Test: Queue exceeding 20 items per apiary uses pagination (NFR17b).
 - Test: Progressive loading: first apiary in <2s, rest loaded in background (NFR17c).
 **Acceptance Criteria:**
+- [ ] Required Materials checklist displayed before action queue when applicable (FR13a)
+- [ ] Materials linked to specific hive/action (e.g., "Apivar strips — Hive 3 mite treatment")
+- [ ] Materials section hidden when no materials needed
 - [ ] ApiaryAccordionQueue component with expandable apiary sections
 - [ ] Tasks show: title, hive, priority badge, due date, recommended action
 - [ ] Overdue tasks at top with catch-up guidance
 - [ ] Pagination/grouping for large queues
 - [ ] Pull-to-refresh to recalculate priorities
-**Tech Notes:** Accordion per CLAUDE.md. Priority computation from recommendation engine. Background loading for large accounts.
+**Tech Notes:** Accordion per CLAUDE.md. Priority computation from recommendation engine. Background loading for large accounts. Materials derived from planned actions — each action type maps to a known set of required materials/equipment.
 
 ### Story 10.3: Task Actions — Complete, Defer, Dismiss
 
