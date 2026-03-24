@@ -355,6 +355,7 @@
   <a onclick="showScreen('apiary-detail')" id="nav-apiary-detail">Apiary Detail</a>
   <a onclick="showScreen('edit-apiary')" id="nav-edit-apiary">Edit Apiary</a>
   <a onclick="showScreen('hive-detail')" id="nav-hive-detail">Hive Detail (Warning)</a>
+  <a onclick="showScreen('hive-activity-log')" id="nav-hive-activity-log">Activity Log</a>
   <a onclick="showScreen('hive-detail-healthy')" id="nav-hive-detail-healthy">Hive Detail (Healthy)</a>
   <a onclick="showScreen('weekly-plan')" id="nav-weekly-plan">Weekly Plan</a>
 
@@ -372,6 +373,7 @@
   <a onclick="showScreen('inspection-step-1')" id="nav-inspection-step-1">Step 1 — Entrance</a>
   <a onclick="showScreen('inspection-step-2')" id="nav-inspection-step-2">Step 2 — Brood</a>
   <a onclick="showScreen('inspection-step-3')" id="nav-inspection-step-3">Step 3 — Queen Cells</a>
+  <a onclick="showScreen('inspection-next-action')" id="nav-inspection-next-action">Next Action Discussion</a>
   <a onclick="showScreen('inspection-next-hive')" id="nav-inspection-next-hive">Next Hive Transition</a>
   <a onclick="showScreen('inspection-session-end')" id="nav-inspection-session-end">Session End</a>
   <a onclick="showScreen('inspection-summary')" id="nav-inspection-summary">Inspection Summary</a>
@@ -683,6 +685,17 @@
           <h3 style="font-size: 20px; font-weight: 700;">Good morning, Don &#9728;&#65039;</h3>
           <p style="font-size: 14px; color: var(--text-500);">Here's what's happening with your bees.</p>
 
+          <!-- Live Mode Briefing -->
+          <div class="card card-action" onclick="alert('&#x1F5E3;&#xFE0F; Starting Live Briefing...\n\nGood morning Don! Here\'s your update:\n\n&#9728;&#xFE0F; Last week was warm and dry — great foraging.\n&#x1F327;&#xFE0F; Rain expected Wednesday through Thursday.\n&#x1F338; Clover is at peak bloom — main nectar flow active.\n&#x2696;&#xFE0F; Area scale weights up 2.3 lbs per day.\n\n&#x1F4CB; You have 3 actions this week. Hive 3 needs urgent attention for queen cells.\n\nReady to start your plan?')" style="background: linear-gradient(135deg, var(--primary-50), var(--secondary-50)); border-left: 3px solid var(--primary-500); padding-right: 32px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 28px;">&#x1F5E3;&#xFE0F;</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 700;">Live Mode Briefing</div>
+                <div style="font-size: 13px; color: var(--text-500);">Hear your morning update — hands-free</div>
+              </div>
+            </div>
+          </div>
+
           <!-- Session Review Card -->
           <div class="card card-action" onclick="showScreen('evening-review')" style="background: var(--secondary-50);">
             <div style="display: flex; align-items: center; gap: 10px; padding-right: 32px;">
@@ -730,6 +743,24 @@
               </div>
             </div>
             <div style="font-size: 12px; color: var(--text-400); margin-top: 6px;">Source: beecounted.org &middot; Updated 2h ago</div>
+          </div>
+
+          <!-- Your Hives Weight Trends -->
+          <div class="card card-info" style="background: var(--success-50);">
+            <div style="font-size: 14px; font-weight: 700;">&#x2696;&#xFE0F; Your Hives — Weight Trends</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+              <div style="background: var(--bg-0); border-radius: 8px; padding: 8px; text-align: center;">
+                <div style="font-size: 12px; color: var(--text-500);">Hive 3 &middot; Buzz</div>
+                <div style="font-size: 18px; font-weight: 600; font-family: monospace; color: var(--warning-500);">&rarr; 0.0</div>
+                <div style="font-size: 11px; color: var(--text-400);">lbs/day (plateau)</div>
+              </div>
+              <div style="background: var(--bg-0); border-radius: 8px; padding: 8px; text-align: center;">
+                <div style="font-size: 12px; color: var(--text-500);">Hive 4 &middot; Goldie</div>
+                <div style="font-size: 18px; font-weight: 600; font-family: monospace; color: var(--success-500);">&uarr; 3.1</div>
+                <div style="font-size: 11px; color: var(--text-400);">lbs/day</div>
+              </div>
+            </div>
+            <div style="font-size: 12px; color: var(--text-400); margin-top: 6px;">From BroodMinder &middot; Updated 15 min ago</div>
           </div>
 
           <button class="btn btn-xl btn-primary" onclick="showScreen('weekly-plan')">Start Today's Plan</button>
@@ -1017,6 +1048,104 @@
 
           <button class="btn btn-xl btn-primary" onclick="showScreen('safety-gate')">&#x1F41D; Start Inspection</button>
           <button class="btn btn-lg btn-outline">Show Full Action Plan</button>
+
+          <!-- Activity Log -->
+          <div class="card card-action" onclick="showScreen('hive-activity-log')" style="padding-right: 32px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">&#x1F4CB;</span>
+              <div>
+                <div style="font-size: 14px; font-weight: 600;">Activity Log</div>
+                <div style="font-size: 13px; color: var(--text-500);">View all actions &middot; 12 entries</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab active" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Hive Activity Log -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-hive-activity-log">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('hive-detail')">&#8592;</span>
+          <h4>Activity Log &middot; Buzz</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <!-- Timeline -->
+          <div style="position: relative; padding-left: 24px;">
+            <!-- Timeline line -->
+            <div style="position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--outline-200);"></div>
+
+            <!-- Entry 1: Mar 18 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--success-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Mar 18</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Guided Inspection</span>
+                <span class="badge badge-success" style="font-size: 10px;">Success</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">Checked queen cells, added frame</div>
+              <div style="display: flex; gap: 4px; margin-top: 4px;">
+                <div class="photo-thumb" style="width: 28px; height: 28px; font-size: 12px;">&#x1F4F7;</div>
+                <div class="photo-thumb" style="width: 28px; height: 28px; font-size: 12px;">&#x1F4F7;</div>
+                <div class="photo-thumb" style="width: 28px; height: 28px; font-size: 12px;">&#x1F4F7;</div>
+              </div>
+            </div>
+
+            <!-- Entry 2: Mar 15 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--info-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Mar 15</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Weight Reading</span>
+                <span class="badge badge-info" style="font-size: 10px;">Info</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">28.1 kg (+0.3)</div>
+            </div>
+
+            <!-- Entry 3: Mar 11 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--info-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Mar 11</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Quick Check</span>
+                <span class="badge badge-info" style="font-size: 10px;">Info</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">Colony active, no concerns</div>
+            </div>
+
+            <!-- Entry 4: Mar 4 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--warning-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Mar 4</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Treatment Applied</span>
+                <span class="badge badge-warning" style="font-size: 10px;">Treatment</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">Oxalic acid vaporization</div>
+            </div>
+
+            <!-- Entry 5: Feb 25 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--success-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Feb 25</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Full Inspection</span>
+                <span class="badge badge-success" style="font-size: 10px;">Success</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">Queen spotted, good brood pattern</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="bottom-nav">
@@ -1102,11 +1231,6 @@
               <div style="font-size: 16px; font-weight: 700;">Start Live Discussion</div>
               <div style="font-size: 13px; opacity: 0.9;">Just start talking &mdash; I'll guide you through today's plan</div>
             </div>
-          </div>
-
-          <div class="alert alert-error">
-            <span>&#x1F534;</span>
-            <span><strong>1 overdue task</strong> &mdash; Hive 3 inspection was due yesterday.</span>
           </div>
 
           <!-- Required Materials -->
@@ -1345,13 +1469,15 @@
 
           <div class="divider"></div>
 
-          <div style="font-size: 14px; font-weight: 700;">Management Goals</div>
-          <div class="chip-grid" id="settings-goal-chips">
-            <div class="chip chip-selected" onclick="toggleChip(this)">&#x1F49A; Colony Health</div>
-            <div class="chip chip-selected" onclick="toggleChip(this)">&#x1F36F; Honey Production</div>
-            <div class="chip" onclick="toggleChip(this)">&#x1F4DA; Learning</div>
-            <div class="chip" onclick="toggleChip(this)">&#x1F4C8; Growth</div>
+          <div style="font-size: 15px; font-weight: 700; margin-top: 4px;">Management Focus</div>
+          <div style="font-size: 13px; color: var(--text-500); margin-bottom: 8px;">Honey production &#x2194; Making splits</div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px;">
+            <span>&#x1F36F; Honey</span>
+            <span>&#x1F41D; Splits</span>
           </div>
+          <input type="range" min="0" max="100" value="50" oninput="document.getElementById('profile-focus-label').textContent = this.value <= 20 ? 'Focused on honey' : this.value <= 40 ? 'Leaning honey' : this.value <= 60 ? 'Balanced' : this.value <= 80 ? 'Leaning splits' : 'Focused on splits'" style="width: 100%; accent-color: var(--primary-500); height: 8px;">
+          <div id="profile-focus-label" style="font-size: 13px; color: var(--primary-500); font-weight: 600; text-align: center; margin-top: 4px;">Balanced</div>
+          <div style="font-size: 12px; color: var(--text-400); margin-top: 4px;">&#x1F49A; Colony health is always our top priority</div>
 
           <div class="divider"></div>
 
@@ -1415,22 +1541,6 @@
               <div style="font-size: 12px; color: var(--text-500);">Receive alerts on your device</div>
             </div>
             <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
-          </div>
-
-          <div class="divider"></div>
-          <div style="font-size: 14px; font-weight: 700;">Per-Apiary Sensitivity</div>
-
-          <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="font-size: 14px; font-weight: 600;">&#x1F3E1; Backyard Apiary</div>
-            </div>
-            <span class="badge badge-info">Normal</span>
-          </div>
-          <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="font-size: 14px; font-weight: 600;">&#x26F0; Hillside Apiary</div>
-            </div>
-            <span class="badge badge-warning">High</span>
           </div>
 
           <div class="divider"></div>
@@ -1670,6 +1780,7 @@
           <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-step-1')" style="margin-top: 8px;">Begin Inspection</button>
 
           <p style="font-size: 12px; color: var(--text-400); text-align: center;">This safety check appears for your first 3 inspections.</p>
+          <div style="font-size: 12px; color: var(--text-400); font-style: italic; text-align: center;">Shown for Newbie beekeepers only. Amateur and Sideliner skip to inspection.</div>
         </div>
       </div>
     </div>
@@ -1870,10 +1981,65 @@
           <!-- Fallback controls -->
           <div style="display: flex; align-items: center; justify-content: center; gap: 16px; padding-top: 8px;">
             <button class="camera-btn">&#x1F4F7;</button>
-            <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;" onclick="showScreen('inspection-next-hive')">Type instead</span>
+            <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;" onclick="showScreen('inspection-next-action')">Type instead</span>
           </div>
 
-          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-next-hive')" style="margin-top: 8px;">Next Step</button>
+          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-next-action')" style="margin-top: 8px;">Next Step</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Inspection Next Action Discussion -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen voice-screen" id="screen-inspection-next-action">
+      <div class="phone-header" style="background: var(--voice-bg); border-bottom-color: #E8DFD0;">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('inspection-step-3')">&#8592;</span>
+          <h4>Next Actions: Buzz</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">Follow-up</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <!-- Mic + Listening -->
+          <div style="text-align: center; padding: 12px 0;">
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
+            <div class="voice-status" style="margin-top: 8px;">Listening...</div>
+          </div>
+
+          <!-- App bubble: recommendation -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Based on what we found — 2 queen cells removed, spotty pattern on frame 4 — I'd recommend a follow-up inspection in 7 days. Does March 28 work for you?</div>
+          </div>
+
+          <!-- User response -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">Yes, that works</div>
+          </div>
+
+          <!-- App confirmation -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">&#x2705; Scheduled: Re-inspect Buzz on March 28 — focus on queen cell check and frame 4 brood pattern. Anything else for this hive?</div>
+          </div>
+
+          <!-- User response -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">No, that's everything</div>
+          </div>
+
+          <!-- App moving on -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Got it. Moving on...</div>
+          </div>
+
+          <!-- Hint text -->
+          <div style="text-align: center; font-size: 12px; color: var(--text-400); padding: 8px 0;">Say a date to reschedule, "skip" to decline, or "add note" for extra context</div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-next-hive')" style="margin-top: 8px;">Continue to Next Hive</button>
         </div>
       </div>
     </div>
@@ -1884,7 +2050,7 @@
     <div class="screen voice-screen" id="screen-inspection-next-hive">
       <div class="phone-header" style="background: var(--voice-bg); border-bottom-color: #E8DFD0;">
         <div class="header-left">
-          <span class="back" onclick="showScreen('inspection-step-3')">&#8592;</span>
+          <span class="back" onclick="showScreen('inspection-next-action')">&#8592;</span>
           <h4>Inspection Session</h4>
         </div>
         <span style="font-size: 13px; color: var(--text-500);">Hive 1 of 4</span>
@@ -2058,14 +2224,10 @@
               </div>
 
               <div style="font-size: 13px; font-weight: 700; color: var(--text-500); margin-top: 8px;">Follow-up</div>
-              <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+              <div class="card" style="display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--success-500);">
                 <div>
-                  <div style="font-size: 14px; font-weight: 600;">Re-inspect Mar 28</div>
-                  <div style="font-size: 12px; color: var(--text-500);">Monitor swarm indicators</div>
-                </div>
-                <div style="display: flex; gap: 6px;">
-                  <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px;">Confirm</button>
-                  <button class="btn btn-sm btn-secondary" style="width: auto; padding: 0 12px;">Reschedule</button>
+                  <div style="font-size: 14px; font-weight: 600; color: var(--success-500);">Re-inspect Mar 28 — &#x2705; Scheduled</div>
+                  <div style="font-size: 12px; color: var(--text-500);">Queen cell check &amp; frame 4 brood pattern</div>
                 </div>
               </div>
             </div>
@@ -2180,17 +2342,14 @@
             <span>Your full <strong>Evening Review</strong> will be ready at home. You can correct observations, review transcripts, and schedule follow-ups.</span>
           </div>
 
-          <div class="card">
-            <div class="card-title">&#x1F4C5; Follow-up Recommended</div>
-            <div class="card-text">Re-inspect Hive 3 on Mar 28 to monitor swarm indicators. Remove queen cells or prepare a nuc split.</div>
-            <button class="btn btn-sm btn-outline" style="margin-top: 8px;">Schedule</button>
+          <div class="card" style="border-left: 3px solid var(--success-500);">
+            <div class="card-title">&#x1F4C5; Follow-up Scheduled</div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--success-500); margin-top: 4px;">Re-inspect Buzz on Mar 28 — &#x2705; Scheduled</div>
+            <div class="card-text" style="margin-top: 4px;">Focus: queen cell check and frame 4 brood pattern</div>
           </div>
 
           <button class="btn btn-xl btn-primary" onclick="showScreen('homepage')">Save &amp; Close</button>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn btn-sm btn-ghost" style="flex: 1;" onclick="showScreen('evening-review')">Evening Review</button>
-            <button class="btn btn-sm btn-ghost" style="flex: 1;">View Full Record</button>
-          </div>
+          <button class="btn btn-lg btn-outline" onclick="showScreen('evening-review')">View Evening Review</button>
         </div>
       </div>
     </div>
@@ -2213,6 +2372,7 @@
     'apiary-detail': 'Apiary Detail — Backyard',
     'edit-apiary': 'Edit Apiary',
     'hive-detail': 'Hive Detail — Buzz (Warning)',
+    'hive-activity-log': 'Activity Log — Buzz',
     'hive-detail-healthy': 'Hive Detail — Sunny (Healthy)',
     'weekly-plan': 'This Week\'s Plan',
     'settings-hub': 'Settings',

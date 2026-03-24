@@ -229,7 +229,7 @@
 **FRs:** FR34, FR35, FR40, FR42
 **TDD Requirements:**
 - Test: Skill progression record tracks level, milestones completed, and last_assessed_at.
-- Test: Notification preference record stores per-apiary sensitivity settings.
+- Test: Notification preference record stores global sensitivity settings (per-apiary sensitivity removed per FR40 update).
 - Test: Default notification preferences created on user registration.
 **Acceptance Criteria:**
 - [ ] `skill_progression` table: id, user_id, current_level (newbie/amateur/sideliner), milestones_completed (JSONB), total_inspections, last_assessed_at, created_at, updated_at
@@ -488,6 +488,7 @@
 - [ ] Data persisted via GraphQL mutations
 - [ ] Profile data model supports progressive enrichment (FR2e) — extensible schema for future fields (hive types, queen marking preferences, treatment history, mentor relationship) without re-onboarding
 **Tech Notes:** Hive types from domain research. Minimum one hive encouraged but not enforced to avoid blocking. Management focus stored as numeric value (0.0–1.0) on user profile, used to weight recommendation prioritization between honey production and split-making goals. Colony health recommendations are always surfaced at highest priority regardless of focus setting. Interaction preference stored on user profile and used to configure default inspection flow mode. Profile schema uses JSONB for extensible fields per FR2e.
+**Note (FR2a alignment):** Profile & Preferences in Settings must mirror the onboarding Honey-to-Splits slider (numeric 0.0-1.0), NOT the old goal chips pattern. The Settings screen shall present the same slider control so users can adjust their management focus at any time with immediate effect on recommendations.
 
 ### Story 6.4: Onboarding Flow — Disclaimer Acceptance and Safety Checklist
 
@@ -496,13 +497,15 @@
 **TDD Requirements:**
 - Test: Disclaimer screen blocks progress until accepted.
 - Test: Disclaimer acceptance timestamp stored in user profile.
-- Test: Safety checklist for first inspection is acknowledgeable.
+- Test: Safety checklist for first inspection is shown ONLY for Newbie persona (FR19a).
+- Test: Amateur and Sideliner personas skip safety checklist entirely (FR19a).
+- Test: Safety checklist appears for Newbie's first 3 inspections, then becomes optional (FR19a).
 - Test: Disclaimer accessible from recommendation detail views after onboarding.
 **Acceptance Criteria:**
 - [ ] Disclaimer text: recommendations are decision-support, not professional advice
 - [ ] Treatment disclaimer: verify suitability for specific conditions
 - [ ] Must accept before first recommendation shown
-- [ ] Safety awareness checklist: protective equipment, sting allergy, emergency preparedness (FR19a)
+- [ ] Safety awareness checklist: protective equipment, sting allergy, emergency preparedness — NEWBIE PERSONA ONLY, first 3 inspections then optional (FR19a). Amateur and Sideliner skip directly to inspection flow.
 - [ ] Acceptance timestamp persisted
 **Tech Notes:** UX review suggests soften disclaimer visual (info icon vs warning icon). Use `<Alert action="info">`.
 
@@ -563,6 +566,7 @@
 - [ ] Edit apiary button (outline variant)
 - [ ] Add hive FAB or button
 **Tech Notes:** Breadcrumb: use `<Text size="sm">` with chevron separators. Apiary > Hive navigation per CLAUDE.md.
+**Note (FR31a):** The hive detail screen (navigated to from this hive list) shall include an 'Activity Log' view showing a reverse chronological list of all actions logged for the hive, including inspections, treatments, observations, and system events. Each entry shows date, action type, summary, and any associated media. This may be implemented as a sub-story or tab within the hive detail view.
 
 ### Story 7.3: Create and Edit Apiary with Microclimate Adjustments
 
@@ -773,7 +777,10 @@
 - [ ] Completion summary screen: observations, media, recommendations, actions taken
 - [ ] Post-inspection review/correction step for voice transcriptions
 - [ ] Inspection record status transitions: in_progress > paused > completed
-**Tech Notes:** Local persistence via MMKV for in-progress state. Resume prompt via Zustand store check on app launch.
+- [ ] Voice-driven next-action discussion after observation steps: system proposes follow-up date and type based on observations; user agrees, modifies, or declines via voice (FR21a)
+- [ ] Agreed follow-up actions auto-scheduled without requiring UI taps (FR29a)
+- [ ] Inspection summary displays scheduled follow-ups as confirmations (e.g., 'Re-inspect Mar 28 — scheduled') rather than as actions requiring user input (FR29a)
+**Tech Notes:** Local persistence via MMKV for in-progress state. Resume prompt via Zustand store check on app launch. Post-observation voice discussion (FR21a): after the final observation step, the system initiates a conversational exchange proposing a follow-up. The agreed follow-up is persisted as a scheduled task immediately (FR29a) and displayed as a confirmation in the summary.
 
 ### Story 8.7: Hive Audio Capture and Acoustic Analysis
 
@@ -954,6 +961,8 @@
 - [ ] Skill-adaptive greeting and tone
 - [ ] Cache-first loading for instant display
 **Tech Notes:** Context cards use `<Card variant="filled">` with semantic backgrounds. CTAs per button hierarchy in CLAUDE.md. Regional scale data sourced from beecounted.org API with graceful degradation if unavailable.
+**Note (FR12b2):** The homepage shall include a 'Live Mode Briefing' option that verbally summarizes all current context via TTS (weather, bloom, scale weight trends, pending actions, alerts) for a hands-free morning briefing. This is a voice-driven entry point, not a card — consider a "Brief me" button or voice command.
+**Note (FR46a):** When the user has configured weight telemetry access, the homepage shall display a 'Your Hives' scale weight card showing per-hive weight trends from the user's own connected sensors, in addition to the regional average card.
 
 ### Story 10.2: Weekly Action Queue by Apiary
 
@@ -962,7 +971,7 @@
 **TDD Requirements:**
 - Test: Queue renders tasks grouped by apiary using ApiaryAccordionQueue.
 - Test: Tasks ordered by priority (urgency x impact) within each apiary.
-- Test: Overdue tasks flagged with warning badge (FR16).
+- Test: Overdue tasks highlighted inline within their apiary/hive context with URGENT badge and warning styling, not as a separate card (FR16).
 - Test: Required Materials checklist renders before the action queue when materials are needed (FR13a).
 - Test: Required Materials section is hidden when no materials are needed (FR13a).
 - Test: Each material item links to the specific hive/action requiring it (FR13a).
@@ -974,7 +983,7 @@
 - [ ] Materials section hidden when no materials needed
 - [ ] ApiaryAccordionQueue component with expandable apiary sections
 - [ ] Tasks show: title, hive, priority badge, due date, recommended action
-- [ ] Overdue tasks at top with catch-up guidance
+- [ ] Overdue tasks highlighted inline within their apiary/hive context with URGENT badge and warning styling (not as a separate negative card at the top). Catch-up guidance shown inline with the overdue item. Weekly plan maintains a constructive tone (FR16).
 - [ ] Pagination/grouping for large queues
 - [ ] Pull-to-refresh to recalculate priorities
 **Tech Notes:** Accordion per CLAUDE.md. Priority computation from recommendation engine. Background loading for large accounts. Materials derived from planned actions — each action type maps to a known set of required materials/equipment.
@@ -1169,24 +1178,23 @@
 - [ ] Unread count badge
 **Tech Notes:** Use `<Drawer>` component per CLAUDE.md mapping.
 
-### Story 12.3: Configurable Notification Sensitivity and Suppression
+### Story 12.3: Configurable Notification Controls and Suppression
 
-**As a** user, **I want** to configure notification sensitivity per apiary and set suppression windows, **so that** I am not overwhelmed by low-value alerts.
-**FRs:** FR40, FR40a, FR40b, FR42
+**As a** user, **I want** global notification controls with quiet hours and seasonal auto-adjustment, **so that** I am not overwhelmed by low-value alerts.
+**FRs:** FR40, FR40b, FR42
 **TDD Requirements:**
-- Test: Sensitivity setting (Low/Normal/High) filters notification generation per apiary (FR40a).
-- Test: Seasonal escalation auto-adjustment increases sensitivity during high-risk windows (FR40a).
+- Test: Global on/off toggle enables or disables all non-critical notifications (FR40).
+- Test: Seasonal escalation auto-adjustment increases sensitivity during high-risk windows (FR40).
 - Test: Quiet hours with configurable start/end times block notifications during configured hours (FR40b).
-- Test: Per-apiary override works independently of global setting.
 - Test: Low-value notifications bundled instead of sent individually.
 **Acceptance Criteria:**
-- [ ] Settings screen: per-apiary notification sensitivity controls (Low/Normal/High) (FR40a)
-- [ ] Seasonal escalation auto-adjustment toggle per apiary (FR40a)
+- [ ] Settings screen: global notification on/off toggle (FR40)
+- [ ] Seasonal escalation auto-adjustment toggle (global) (FR40)
 - [ ] Quiet hours: configurable start time and end time (FR40b)
-- [ ] Per-apiary override option
 - [ ] Bundling for non-urgent notifications
 - [ ] Changes take effect immediately
-**Tech Notes:** Notification preferences stored in notification_preferences table. Worker checks preferences before dispatch. Seasonal escalation uses current seasonal phase to auto-adjust sensitivity thresholds.
+- [ ] Per-apiary sensitivity controls are NOT required for MVP (FR40 — removed FR40a)
+**Tech Notes:** Notification preferences stored in notification_preferences table. Worker checks preferences before dispatch. Seasonal escalation uses current seasonal phase to auto-adjust sensitivity thresholds. Per-apiary sensitivity was descoped as over-engineered for MVP.
 
 ### Story 12.4: Escalation for Unresolved High-Priority Alerts
 

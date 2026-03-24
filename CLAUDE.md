@@ -350,7 +350,7 @@ IMPORTANT: Distinguish actionable cards from informational cards:
 
 Comprehensive planning documents are in `_bmad-output/planning-artifacts/`:
 
-- `prd.md` — Product Requirements Document (55 FRs, 27 NFRs)
+- `prd.md` — Product Requirements Document (60 FRs, 27 NFRs) — Updated 2026-03-24: added FR12b2, FR21a, FR29a, FR31a, FR46a; updated FR16, FR19a, FR40; removed FR40a
 - `ux-design-specification.md` — Full UX spec with design system, user flows, accessibility
 - `architecture.md` — Technical architecture with all decisions
 - `product-brief-bmad-method-2026-03-15.md` — Vision and target users
