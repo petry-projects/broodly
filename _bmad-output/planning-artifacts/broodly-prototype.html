@@ -182,8 +182,8 @@
     .camera-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-muted); border: 1px solid var(--outline-300); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
     /* Mic pulsing — voice-first inspection */
-    .mic-btn { width: 64px; height: 64px; border-radius: 50%; background: var(--primary-500); color: white; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; animation: mic-pulse 1.5s ease-in-out infinite; }
-    @keyframes mic-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,136,15,0.4); } 50% { transform: scale(1.1); box-shadow: 0 0 0 14px rgba(212,136,15,0); } }
+    .coach-btn { width: 64px; height: 64px; border-radius: 50%; background: var(--primary-500); color: white; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; animation: coach-pulse 1.5s ease-in-out infinite; }
+    @keyframes coach-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,136,15,0.4); } 50% { transform: scale(1.1); box-shadow: 0 0 0 14px rgba(212,136,15,0); } }
 
     /* Hex chip */
     .hex-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: 6px; padding: 4px 10px; font-size: 13px; font-weight: 700; color: var(--primary-600); }
@@ -231,7 +231,7 @@
     .option-card.selected .option-radio { border-color: var(--primary-500); background: var(--primary-500); }
     .option-card.selected .option-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
 
-    /* ── Voice-first inspection patterns ── */
+    /* ── Live Discussion Mode inspection patterns ── */
     .voice-screen .screen-scroll { background: var(--voice-bg); }
     .voice-bubble { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; margin-bottom: 4px; }
     .voice-bubble-app { background: var(--bg-0); color: var(--text-800); align-self: flex-start; border-bottom-left-radius: 4px; }
@@ -548,9 +548,9 @@
           <h3 style="font-size: 18px; font-weight: 700;">How do you prefer to interact?</h3>
           <div style="display: grid; gap: 8px;" id="interact-cards">
             <div class="interact-card interact-selected" onclick="selectInteract(this)">
-              <span style="font-size: 24px;">&#x1F3A4;</span>
+              <span style="font-size: 24px;">&#x1F5E3;</span>
               <div>
-                <div style="font-size: 15px; font-weight: 600;">Voice-first</div>
+                <div style="font-size: 15px; font-weight: 600;">Live Discussion Mode</div>
                 <div style="font-size: 13px; color: var(--text-500);">Talk to Broodly while inspecting</div>
               </div>
             </div>
@@ -592,7 +592,7 @@
               <tr><td>Apiary</td><td>Backyard Apiary</td></tr>
               <tr><td>Hives</td><td id="summary-hive-count">3</td></tr>
               <tr><td>Goals</td><td>&#x1F49A; Health &middot; &#x1F36F; Honey</td></tr>
-              <tr><td>Interaction</td><td>&#x1F3A4; Voice-first</td></tr>
+              <tr><td>Interaction</td><td>&#x1F5E3; Live Discussion Mode</td></tr>
             </table>
           </div>
           <button class="btn btn-xl btn-primary" onclick="showScreen('homepage')" style="margin-top: 16px;">Start Using Broodly &#8594;</button>
@@ -1025,7 +1025,7 @@
                   </div>
                   <div class="plan-item-meta">Hive 3 &mdash; Buzz &middot; Overdue</div>
                   <div class="plan-item-actions">
-                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;">Did It</button>
+                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;" onclick="markDone(this)">Did It</button>
                     <button class="btn btn-sm btn-ghost" style="width: auto; padding: 0 12px; flex: 0;">Ignore</button>
                   </div>
                 </div>
@@ -1035,7 +1035,7 @@
                   <div class="plan-item-title">Add super to Hive 4</div>
                   <div class="plan-item-meta">Hive 4 &mdash; Goldie &middot; Due Mar 24</div>
                   <div class="plan-item-actions">
-                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;">Did It</button>
+                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;" onclick="markDone(this)">Did It</button>
                   </div>
                 </div>
               </div>
@@ -1044,7 +1044,7 @@
                   <div class="plan-item-title">Treatment follow-up Hive 2</div>
                   <div class="plan-item-meta">Hive 2 &mdash; Queen B &middot; Due Mar 25</div>
                   <div class="plan-item-actions">
-                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;">Did It</button>
+                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;" onclick="markDone(this)">Did It</button>
                     <button class="btn btn-sm btn-ghost" style="width: auto; padding: 0 12px; flex: 0;">Defer</button>
                   </div>
                 </div>
@@ -1072,7 +1072,7 @@
 
           <!-- Voice FAB -->
           <div style="position: sticky; bottom: 0; display: flex; justify-content: flex-end; padding-top: 12px;">
-            <button class="voice-fab" style="position: static;">&#x1F3A4;</button>
+            <button class="voice-fab" style="position: static;">&#x1F5E3;</button>
           </div>
         </div>
       </div>
@@ -1168,6 +1168,20 @@
           </div>
 
           <div class="divider" style="margin-top: 12px;"></div>
+          <div style="font-size: 15px; font-weight: 700; margin-top: 4px;">Units</div>
+          <div style="font-size: 13px; color: var(--text-500); margin-bottom: 8px;">Temperature and weight display units</div>
+          <div style="display: flex; gap: 8px;">
+            <div class="chip chip-selected" data-group="units" onclick="toggleFormatChip(this, 'units')" style="flex: 1; text-align: center; padding: 12px;">
+              <div style="font-size: 14px; font-weight: 600;">US Imperial</div>
+              <div style="font-size: 12px; color: var(--text-500);">&deg;F &middot; lbs</div>
+            </div>
+            <div class="chip" data-group="units" onclick="toggleFormatChip(this, 'units')" style="flex: 1; text-align: center; padding: 12px;">
+              <div style="font-size: 14px; font-weight: 600;">Metric</div>
+              <div style="font-size: 12px; color: var(--text-500);">&deg;C &middot; kg</div>
+            </div>
+          </div>
+
+          <div class="divider" style="margin-top: 12px;"></div>
           <div style="font-size: 14px; font-weight: 700; color: var(--error-500); margin-top: 4px;">Danger Zone</div>
           <button class="btn btn-md btn-danger">Delete Account</button>
         </div>
@@ -1218,8 +1232,8 @@
           <div style="font-size: 14px; font-weight: 700;">Interaction Style</div>
           <div style="display: grid; gap: 8px;" id="settings-interact">
             <div class="interact-card interact-selected" onclick="selectInteractIn(this, 'settings-interact')">
-              <span style="font-size: 20px;">&#x1F3A4;</span>
-              <span style="font-size: 14px; font-weight: 600;">Voice-first</span>
+              <span style="font-size: 20px;">&#x1F5E3;</span>
+              <span style="font-size: 14px; font-weight: 600;">Live Discussion Mode</span>
             </div>
             <div class="interact-card" onclick="selectInteractIn(this, 'settings-interact')">
               <span style="font-size: 20px;">&#x1F4DD;</span>
@@ -1557,7 +1571,7 @@
 
           <!-- Mic + Listening -->
           <div style="text-align: center; padding: 12px 0;">
-            <button class="mic-btn" style="margin: 0 auto;">&#x1F3A4;</button>
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
             <div class="voice-status" style="margin-top: 8px;">Listening...</div>
           </div>
 
@@ -1614,7 +1628,7 @@
 
           <!-- Mic + Listening -->
           <div style="text-align: center; padding: 12px 0;">
-            <button class="mic-btn" style="margin: 0 auto;">&#x1F3A4;</button>
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
             <div class="voice-status" style="margin-top: 8px;">Listening...</div>
           </div>
 
@@ -1680,7 +1694,7 @@
 
           <!-- Mic + Listening -->
           <div style="text-align: center; padding: 12px 0;">
-            <button class="mic-btn" style="margin: 0 auto;">&#x1F3A4;</button>
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
             <div class="voice-status" style="margin-top: 8px;">Listening...</div>
           </div>
 
@@ -1957,6 +1971,21 @@
   function toggleFormatChip(el, group) {
     document.querySelectorAll('[data-group="' + group + '"]').forEach(c => c.classList.remove('chip-selected'));
     el.classList.add('chip-selected');
+  }
+
+  function markDone(btn) {
+    var item = btn.closest('.plan-item');
+    if (item.classList.contains('done')) return;
+    item.classList.add('done');
+    item.style.opacity = '0.5';
+    var title = item.querySelector('.plan-item-title');
+    if (title) title.style.textDecoration = 'line-through';
+    var actions = item.querySelector('.plan-item-actions');
+    if (actions) actions.innerHTML = '<span style="color: var(--success-500); font-size: 14px; font-weight: 600;">&#10003; Done</span>';
+    if (item.classList.contains('urgent')) {
+      item.classList.remove('urgent');
+      item.style.borderLeftColor = 'var(--success-500)';
+    }
   }
 
   // Init: highlight welcome in sidebar

@@ -214,7 +214,7 @@ Each custom component is built on Gluestack v3 primitives using `tva()` for vari
 | **HiveHealthCard** | `Card` (elevated) | status: healthy\|attention\|warning\|critical | Heading, Text, Badge, Progress, HStack |
 | **ApiaryHealthCard** | `Card` (elevated) | status: healthy\|attention\|warning\|critical | Heading, Text, Badge, HStack |
 | **HomepageContextCard** | `Card` (filled) | type: weather\|bloom\|seasonal | Heading, Text, Icon |
-| **VoiceLogCapture** | `Box` + `Fab` | state: idle\|listening\|processing\|confirm | Fab, Text, Button, Input |
+| **LiveCoachingCapture** | `Box` + `Fab` | state: idle\|listening\|processing\|confirm | Fab (🗣️ icon), Text, Button, Input |
 | **InspectionImageCapture** | `Box` + `Pressable` | — | Image, Spinner, Text |
 | **ImageAnalysisResultCard** | `Card` (elevated) | confidence: high\|medium\|low | Heading, Text, Badge, Progress, Alert |
 | **SkillProgressionCard** | `Card` (outline) | level: newbie\|amateur\|sideliner | Heading, Text, Progress, Badge |
