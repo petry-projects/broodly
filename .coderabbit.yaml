@@ -7,17 +7,16 @@ reviews:
     drafts: false
     base_branches:
       - main
+  path_filters:
+    - "!_bmad/**"
+    - "!_bmad-output/**"
+    - "!.claude/**"
   path_instructions:
     - path: "**/*.md"
       instructions: >
         Focus on documentation quality: clear structure, correct Markdown
         syntax, consistent formatting, accurate cross-references, and
         proper heading hierarchy. Flag broken links or ambiguous instructions.
-    - path: "**/*.yaml"
-      instructions: >
-        Focus on YAML best practices: correct indentation, valid syntax,
-        consistent quoting style, and proper schema adherence. Flag any
-        duplicate keys or potential parsing issues.
     - path: "**/*.yml"
       instructions: >
         Focus on YAML best practices: correct indentation, valid syntax,
