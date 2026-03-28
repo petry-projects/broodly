@@ -126,9 +126,15 @@ IMPORTANT: Broodly's core differentiator is a zero-tap beeyard experience. Once 
 - Post-session "Evening Review" provides tap-friendly UI for corrections after leaving the field
 - This zero-tap approach is what distinguishes Broodly from every competitor
 
----
+## Key Rules
 
-## Figma MCP Integration Rules
+1. **Figma MCP flow** — always run `get_design_context` + `get_screenshot` before implementing any design
+2. **Gluestack UI v3** — use as component foundation, never build custom when a primitive exists
+3. **Compound components** — always use full Gluestack patterns (e.g., `<Button><ButtonText>...</ButtonText></Button>`)
+4. **Color tokens only** — never hardcode hex colors, use `bg-primary-500`, `text-error-600`, etc.
+5. **WCAG 2.1 AA** — all pairings must meet contrast ratios, status is never color-only
+6. **48px minimum touch targets** — for all interactive elements (gloved field use)
+7. **Shared UI in `packages/ui/`** — feature components in `apps/mobile/src/features/`
 
 1. **Figma MCP flow** — always run `get_design_context` + `get_screenshot` before implementing any design
 2. **Gluestack UI v3** — use as component foundation, never build custom when a primitive exists
