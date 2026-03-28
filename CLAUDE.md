@@ -8,6 +8,50 @@ Broodly is a field-first beekeeping decision-support app. Mobile-first on iOS, A
 
 ---
 
+## Coding Standards
+
+### Organization Standards (Required)
+
+All code in this repository MUST comply with the [petry-projects organization coding standards](https://github.com/petry-projects/.github/blob/main/AGENTS.md). That document defines mandatory practices for:
+
+- **TDD** — tests before implementation, no `.skip()`, no coverage-ignore comments
+- **Pre-commit quality checks** — format, lint, type-check, and test before every commit
+- **SOLID, CLEAN, DRY, DDD, KISS, YAGNI** — software engineering principles
+- **Defensive coding** — validate at system boundaries, trust internal code, fail fast
+- **Separation of concerns** — layered architecture, inward dependencies, no framework bleed
+- **CI quality gates** — CodeQL, SonarCloud, CodeRabbit, Copilot review, all required to pass
+- **Multi-agent isolation** — git worktrees for concurrent agent work, one workspace per story
+- **Security** — never commit secrets, use environment variables or secret managers
+- **BMAD Method** — spec-driven development with planning artifacts before implementation
+
+If a rule in this file conflicts with the org standards, this file takes precedence (as stated in the org AGENTS.md).
+
+### Broodly-Specific Coding Guidelines
+
+#### TypeScript (Expo + React Native)
+
+- **Strict TypeScript** — `strict: true` in all tsconfig files. No `any` types unless interfacing with untyped third-party libraries, and even then prefer `unknown` with type guards.
+- **GraphQL types** — Always use generated types from `packages/graphql-types/`. Never hand-write GraphQL response types.
+- **Zustand stores** — One store per domain concern (e.g., `useInspectionStore`, `useAuthStore`). Use `immer` middleware for nested state updates. Keep stores thin — server state belongs in TanStack Query, not Zustand.
+- **TanStack Query** — All server data fetching goes through TanStack Query with persistent cache. Use query key factories for consistency. Mutations must invalidate relevant queries on success.
+- **Platform code** — Platform-specific logic goes in `src/platform/`. Use `.ios.ts`, `.android.ts`, `.web.ts` extensions only when platform behavior genuinely diverges. Prefer cross-platform solutions.
+- **Imports** — Use path aliases (`@broodly/ui`, `@/features`, `@/services`) instead of deep relative paths. No barrel files except the explicit `packages/ui/src/index.ts` export.
+
+#### Go (API Server)
+
+- **Domain-first structure** — Business logic lives in `internal/domain/` with zero infrastructure imports. Services in `internal/service/` orchestrate domain logic. Repositories in `internal/repository/` implement persistence via sqlc.
+- **sqlc for all queries** — No hand-written SQL in Go code. All queries defined in `.sql` files and generated via sqlc. Use transactions through the repository layer.
+- **Error handling** — Return typed domain errors from services. Map to GraphQL errors in resolvers. Never expose internal error details to clients.
+- **gqlgen resolvers** — Keep resolvers thin. Delegate to services immediately. Resolvers handle auth context extraction and response mapping only.
+- **Context propagation** — Pass `context.Context` through all layers. Use it for request-scoped values (auth claims, trace IDs) and cancellation. Never store mutable state in context.
+
+#### Monorepo
+
+- **Package boundaries are hard boundaries.** `packages/ui` must not import from `apps/mobile`. `apps/mobile` must not import from `apps/api`. Shared types go in `packages/domain-types` or `packages/graphql-types`.
+- **Dependency management** — Use workspace protocol (`workspace:*`) for internal package references. Keep root `package.json` for tooling only — app dependencies belong in their respective `apps/` or `packages/` package.json.
+
+---
+
 ## Key Differentiator: Zero-Tap Beeyard
 
 IMPORTANT: Broodly's core differentiator is a zero-tap beeyard experience. Once a beekeeper starts their inspection session, they should NEVER need to tap the phone while in the field.
@@ -228,7 +272,7 @@ Each custom component is built on Gluestack v3 primitives using `tva()` for vari
 | **HiveHealthCard** | `Card` (elevated) | status: healthy\|attention\|warning\|critical | Heading, Text, Badge, Progress, HStack |
 | **ApiaryHealthCard** | `Card` (elevated) | status: healthy\|attention\|warning\|critical | Heading, Text, Badge, HStack |
 | **HomepageContextCard** | `Card` (filled) | type: weather\|bloom\|seasonal | Heading, Text, Icon |
-| **LiveCoachingCapture** | `Box` + `Fab` | state: idle\|listening\|processing\|confirm | Fab (🗣️ icon), Text, Button, Input |
+| **LiveCoachingCapture** | `Box` + `Fab` | state: idle\|listening\|processing\|confirm | Fab (EQ Gradient icon), Text, Button, Input |
 | **InspectionImageCapture** | `Box` + `Pressable` | — | Image, Spinner, Text |
 | **ImageAnalysisResultCard** | `Card` (elevated) | confidence: high\|medium\|low | Heading, Text, Badge, Progress, Alert |
 | **SkillProgressionCard** | `Card` (outline) | level: newbie\|amateur\|sideliner | Heading, Text, Progress, Badge |
@@ -268,11 +312,19 @@ IMPORTANT: Distinguish actionable cards from informational cards:
 
 ---
 
+## Icon Conventions
+
+- **Edit actions:** ALWAYS use a pencil icon instead of the word "Edit". Apply consistently across all edit triggers (inline edits, edit buttons, record editing, transcript correction). Pair with accessible label "Edit [item name]" for screen readers.
+- **Live Mode:** Use an EQ Gradient icon (5 vertical equalizer bars in amber gradient — Pollen Gold edges, Primary Amber center, Deep Amber outer) for all Live Mode entry points. Bars animate when active; static when idle. Respects `prefers-reduced-motion`.
+
+---
+
 ## Navigation Patterns
 
 - All sessions start on the **Happy Context Homepage**
 - Two primary CTAs: "View My Apiaries" and "Start Today's Plan"
 - Navigation hierarchy: Organization → Apiary → Hive with persistent context labeling
+- **App header (right side):** sync status indicator (when applicable), Live Mode EQ icon, notification bell icon with badge — visible on every authenticated screen
 - Bottom navigation bar for top-level destinations (including Settings)
 - Bottom sheets for quick confirmations; full modals only for irreversible operations
 - Planning uses per-apiary accordion patterns

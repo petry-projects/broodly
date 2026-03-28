@@ -442,7 +442,7 @@ Seasonal Usage Concentration Risks:
 - FR12: The system can combine user history and regional context when generating recommendations.
 - FR12a: The system shall maintain a jurisdiction-aware treatment registry that flags treatments by legal status (approved, restricted, prescription-required, prohibited) for each supported region.
 - FR12b: The system shall never recommend a treatment flagged as prohibited in the user's registered jurisdiction. Treatments flagged as restricted or prescription-required shall include a visible regulatory notice and a directive to consult local authorities or a veterinarian before use.
-- FR12b2: The homepage shall offer a 'Live Mode Briefing' option that, when activated, verbally summarizes all current context to the user via TTS: weather changes, bloom status, scale weight trends, pending actions, and any alerts. This enables a hands-free morning briefing before heading to the beeyard.
+- FR12b2: The app shall offer a 'Live Mode' option, accessible from a persistent Live Mode EQ icon (amber gradient equalizer bars) in the top app bar (next to the Notifications bell icon) on every authenticated screen. When activated, Live Mode verbally summarizes all current context to the user via TTS: weather changes, bloom status, scale weight trends, pending actions, and any alerts. This enables a hands-free briefing from any screen without navigating back to the homepage. The homepage may additionally feature a Live Mode entry card for discoverability.
 - FR12c: When the jurisdiction registry does not have data for a user's region, treatment recommendations shall include a disclaimer: "Treatment regulations vary by location — verify legality with your local agricultural authority before use."
 
 ### Planning and Prioritization
@@ -483,7 +483,7 @@ Seasonal Usage Concentration Risks:
 - FR30: A user can review and correct structured records after capture.
 - FR30a: The system shall retain original audio recordings for voice-captured observations to support post-session correction.
 - FR30b: The system shall flag voice entries with low transcription confidence for user review during a post-inspection correction step.
-- FR30c: The system shall provide a post-session review screen ('Evening Review') available after the user leaves the beeyard. This review presents all hives inspected during the session with: captured observations, voice transcripts, photos, AI analysis results, and recommended follow-up actions. The user can correct transcriptions, add notes, confirm or adjust observations, and approve follow-up scheduling from this screen — all via tap-based UI (since they're no longer in the field).
+- FR30c: The system shall provide a post-session review screen ('Evening Review') available after the user leaves the beeyard. This review presents all hives inspected during the session with: captured observations, voice transcripts, photos/videos, AI analysis results, and recommended follow-up actions. The user can correct transcriptions, add notes, confirm or adjust observations, add additional photos/videos via a "+" action, and approve follow-up scheduling from this screen — all via tap-based UI (since they're no longer in the field).
 - FR31: The system can maintain longitudinal hive and action history.
 - FR31a: The hive detail screen shall include an 'Activity Log' view showing a reverse chronological list of all actions logged for the hive, including inspections, treatments, observations, and system events. Each entry shall show date, action type, summary, and any associated media.
 - FR32: A user can export their records in JSON format.
@@ -500,7 +500,8 @@ Seasonal Usage Concentration Risks:
 ### Notifications and Operational Alerts
 
 - FR39: The system can send actionable notifications tied to seasonal and operational risk.
-- FR40: The system shall provide global notification controls including on/off toggle, quiet hours, and seasonal escalation auto-adjustment. Per-apiary sensitivity controls are NOT required for MVP.
+- FR40: The system shall provide global notification controls including on/off toggle, quiet hours, and seasonal escalation auto-adjustment. Per-apiary sensitivity controls are NOT required for MVP. Additionally, the system shall provide per-category notification toggles allowing users to independently enable or disable each notification type: Seasonal Risk Alerts, Telemetry Alerts, Inspection Reminders, Task & Follow-Up Reminders, Skill Milestone Notifications, and Feedback Prompts.
+- FR40a2: The system shall provide a 'Notification Types' informational screen accessible from notification settings that displays each notification category with a description, example notification, and the toggle to control it. Categories: Seasonal Risk Alerts (swarm, starvation, pest, queen), Telemetry Alerts (weight anomalies, temperature events), Inspection Reminders (overdue or upcoming inspections), Task & Follow-Up Reminders (pending actions, escalations), Skill Milestones (progression achievements), and Feedback Prompts (periodic decision-confidence surveys).
 - FR40b: The system shall support notification quiet hours with configurable start/end times.
 - FR41: The system can escalate unresolved high-priority alerts.
 - FR42: The system can suppress or reduce low-value notifications based on user settings.

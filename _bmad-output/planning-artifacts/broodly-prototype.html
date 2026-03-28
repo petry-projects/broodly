@@ -169,6 +169,14 @@
     .bell-wrapper { position: relative; cursor: pointer; font-size: 22px; }
     .bell-badge { position: absolute; top: -4px; right: -6px; background: var(--error-500); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
+    /* Header icons row — Live Mode + Bell */
+    .header-icons { display: flex; align-items: center; gap: 14px; }
+    .live-mode-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: background 0.15s; position: relative; }
+    .live-mode-btn:hover { background: var(--primary-50); }
+    .live-mode-btn svg { width: 26px; height: 26px; }
+    @keyframes live-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    @keyframes eq-pulse { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.4); } }
+
     /* Context card */
     .context-card { background: var(--bg-50); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 12px; }
     .context-card-title { font-size: 13px; font-weight: 600; color: var(--text-500); margin-bottom: 4px; }
@@ -364,6 +372,7 @@
   <a onclick="showScreen('account-settings')" id="nav-account-settings">Account Settings</a>
   <a onclick="showScreen('settings-profile')" id="nav-settings-profile">Profile &amp; Preferences</a>
   <a onclick="showScreen('settings-notifications')" id="nav-settings-notifications">Notifications</a>
+  <a onclick="showScreen('notification-types')" id="nav-notification-types">Notification Types</a>
   <a onclick="showScreen('settings-integrations')" id="nav-settings-integrations">Integrations</a>
   <a onclick="showScreen('settings-collaborators')" id="nav-settings-collaborators">Collaborators</a>
   <a onclick="showScreen('settings-data')" id="nav-settings-data">Data &amp; Privacy</a>
@@ -675,9 +684,14 @@
     <div class="screen" id="screen-homepage">
       <div class="phone-header">
         <h4>&#x1F41D; Broodly</h4>
-        <div class="bell-wrapper" onclick="showScreen('notifications')">
-          &#x1F514;
-          <span class="bell-badge">3</span>
+        <div class="header-icons">
+          <div class="live-mode-btn" onclick="alert('&#x1F41D; Starting Live Mode...\n\nGood morning Don! Here\'s your update:\n\n&#9728;&#xFE0F; Last week was warm and dry — great foraging.\n&#x1F327;&#xFE0F; Rain expected Wednesday through Thursday.\n&#x1F338; Clover is at peak bloom — main nectar flow active.\n&#x2696;&#xFE0F; Area scale weights up 2.3 lbs per day.\n\n&#x1F4CB; You have 3 actions this week. Hive 3 needs urgent attention for queen cells.\n\nReady to start your plan?')" title="Live Mode — tap for hands-free briefing">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="26" height="26"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg>
+          </div>
+          <div class="bell-wrapper" onclick="showScreen('notifications')">
+            &#x1F514;
+            <span class="bell-badge">3</span>
+          </div>
         </div>
       </div>
       <div class="screen-scroll">
@@ -686,9 +700,9 @@
           <p style="font-size: 14px; color: var(--text-500);">Here's what's happening with your bees.</p>
 
           <!-- Live Mode Briefing -->
-          <div class="card card-action" onclick="alert('&#x1F5E3;&#xFE0F; Starting Live Briefing...\n\nGood morning Don! Here\'s your update:\n\n&#9728;&#xFE0F; Last week was warm and dry — great foraging.\n&#x1F327;&#xFE0F; Rain expected Wednesday through Thursday.\n&#x1F338; Clover is at peak bloom — main nectar flow active.\n&#x2696;&#xFE0F; Area scale weights up 2.3 lbs per day.\n\n&#x1F4CB; You have 3 actions this week. Hive 3 needs urgent attention for queen cells.\n\nReady to start your plan?')" style="background: linear-gradient(135deg, var(--primary-50), var(--secondary-50)); border-left: 3px solid var(--primary-500); padding-right: 32px;">
+          <div class="card card-action" onclick="alert('&#x1F41D; Starting Live Mode...\n\nGood morning Don! Here\'s your update:\n\n&#9728;&#xFE0F; Last week was warm and dry — great foraging.\n&#x1F327;&#xFE0F; Rain expected Wednesday through Thursday.\n&#x1F338; Clover is at peak bloom — main nectar flow active.\n&#x2696;&#xFE0F; Area scale weights up 2.3 lbs per day.\n\n&#x1F4CB; You have 3 actions this week. Hive 3 needs urgent attention for queen cells.\n\nReady to start your plan?')" style="background: linear-gradient(135deg, var(--primary-50), var(--secondary-50)); border-left: 3px solid var(--primary-500); padding-right: 32px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 28px;">&#x1F5E3;&#xFE0F;</span>
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg>
               <div>
                 <div style="font-size: 15px; font-weight: 700;">Live Mode Briefing</div>
                 <div style="font-size: 13px; color: var(--text-500);">Hear your morning update — hands-free</div>
@@ -1535,32 +1549,95 @@
       </div>
       <div class="screen-scroll">
         <div class="phone-content">
+          <!-- Global toggle -->
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
             <div>
               <div style="font-size: 15px; font-weight: 600;">Push Notifications</div>
-              <div style="font-size: 12px; color: var(--text-500);">Receive alerts on your device</div>
+              <div style="font-size: 12px; color: var(--text-500);">Master on/off — receive alerts on your device</div>
             </div>
             <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
           </div>
 
           <div class="divider"></div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+          <!-- Per-category toggles -->
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-500); text-transform: uppercase; letter-spacing: 1px; padding: 8px 0 4px;">Notification Types</div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
             <div>
-              <div style="font-size: 15px; font-weight: 600;">Seasonal Escalation</div>
-              <div style="font-size: 12px; color: var(--text-500);">Increase frequency during critical periods</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x26A0;&#xFE0F; Seasonal Risk Alerts</div>
+              <div style="font-size: 12px; color: var(--text-500);">Swarm, starvation, pest, queen risk</div>
             </div>
             <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
           </div>
 
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x2696;&#xFE0F; Telemetry Alerts</div>
+              <div style="font-size: 12px; color: var(--text-500);">Weight anomalies, temperature events</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F50D; Inspection Reminders</div>
+              <div style="font-size: 12px; color: var(--text-500);">Overdue or upcoming inspections</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F4CB; Task &amp; Follow-Up</div>
+              <div style="font-size: 12px; color: var(--text-500);">Pending actions, escalations</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F31F; Skill Milestones</div>
+              <div style="font-size: 12px; color: var(--text-500);">Progression achievements</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F4AC; Feedback Prompts</div>
+              <div style="font-size: 12px; color: var(--text-500);">Periodic decision-confidence surveys</div>
+            </div>
+            <div class="toggle-track" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
           <div class="divider"></div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+          <!-- Learn about notification types -->
+          <div class="settings-row" onclick="showScreen('notification-types')">
+            <span class="label">&#x2139;&#xFE0F; Learn about notification types</span>
+            <span class="chevron">&#x203A;</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Global controls -->
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-500); text-transform: uppercase; letter-spacing: 1px; padding: 8px 0 4px;">Global Controls</div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
             <div>
-              <div style="font-size: 15px; font-weight: 600;">Quiet Hours</div>
+              <div style="font-size: 14px; font-weight: 600;">Seasonal Escalation</div>
+              <div style="font-size: 12px; color: var(--text-500);">Auto-increase during critical periods</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">Quiet Hours</div>
               <div style="font-size: 12px; color: var(--text-500);">10:00 PM &mdash; 7:00 AM</div>
             </div>
-            <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;">Edit</span>
+            <span style="font-size: 16px; color: var(--primary-500); cursor: pointer;">&#x270F;&#xFE0F;</span>
           </div>
 
           <div class="divider"></div>
@@ -1568,6 +1645,119 @@
           <div class="settings-row">
             <span class="label">&#x1F4CB; Notification History</span>
             <span class="chevron">&#x203A;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Notification Types -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-notification-types">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('settings-notifications')">&#8592;</span>
+          <h4>Notification Types</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <p style="font-size: 14px; color: var(--text-500);">Learn what each notification type looks like and control which ones you receive.</p>
+
+          <!-- Seasonal Risk Alerts -->
+          <div class="card" style="border-left: 3px solid var(--warning-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x26A0;&#xFE0F; Seasonal Risk Alerts</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Triggered when seasonal conditions create swarm risk, starvation risk, pest pressure, or queen issues.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--warning-50); border: 1px solid var(--warning-300); border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x26A0; Swarm risk elevated — Hive 3</div>
+              <div style="font-size: 12px; color: var(--text-500);">Warm temps + strong nectar flow. Consider inspecting for queen cells this week.</div>
+            </div>
+          </div>
+
+          <!-- Telemetry Alerts -->
+          <div class="card" style="border-left: 3px solid var(--error-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x2696;&#xFE0F; Telemetry Alerts</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Triggered by sudden weight changes, temperature anomalies, or sustained trends from connected sensors.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--error-50); border: 1px solid #E8A0A0; border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F6A8; Sudden weight drop — Hive 4</div>
+              <div style="font-size: 12px; color: var(--text-500);">Lost 4.2 lbs in 2 hours. Possible swarm event. Check immediately.</div>
+            </div>
+          </div>
+
+          <!-- Inspection Reminders -->
+          <div class="card" style="border-left: 3px solid var(--info-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x1F50D; Inspection Reminders</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Reminds you when inspections are overdue or upcoming based on your schedule and seasonal timing.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--info-50); border: 1px solid #A0C4E8; border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F4C5; Inspection due — Backyard Apiary</div>
+              <div style="font-size: 12px; color: var(--text-500);">Last inspected 10 days ago. Spring buildup phase recommends 7-day intervals.</div>
+            </div>
+          </div>
+
+          <!-- Task & Follow-Up -->
+          <div class="card" style="border-left: 3px solid var(--primary-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x1F4CB; Task &amp; Follow-Up Reminders</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Notifies you about pending actions, unresolved tasks, and escalation of high-priority items after 48 hours.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x23F0; Follow-up overdue — Hive 3 queen cell check</div>
+              <div style="font-size: 12px; color: var(--text-500);">Scheduled for Mar 28. Re-inspect to verify queen cell removal was successful.</div>
+            </div>
+          </div>
+
+          <!-- Skill Milestones -->
+          <div class="card" style="border-left: 3px solid var(--secondary-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x1F31F; Skill Milestones</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Celebrates your progress as you complete inspections and build beekeeping skills.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--secondary-50); border: 1px solid var(--secondary-300); border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F389; 10 inspections complete!</div>
+              <div style="font-size: 12px; color: var(--text-500);">Your guidance will now include more concise options. Nice work!</div>
+            </div>
+          </div>
+
+          <!-- Feedback Prompts -->
+          <div class="card" style="border-left: 3px solid var(--outline-300);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x1F4AC; Feedback Prompts</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Periodic quick surveys (max 1 every 2 weeks) to measure how confident you feel about your decisions.</div>
+              </div>
+              <div class="toggle-track" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--bg-muted); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F4CA; How confident did you feel?</div>
+              <div style="font-size: 12px; color: var(--text-500);">Rate your confidence in today's inspection decisions (1-5). Optional free-text feedback.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -2184,15 +2374,15 @@
               <div style="display: grid; gap: 6px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
                   <span>Entrance: active &amp; busy</span>
-                  <span style="font-size: 12px; color: var(--primary-500); cursor: pointer; font-weight: 600;">Edit</span>
+                  <span style="font-size: 16px; color: var(--primary-500); cursor: pointer;" title="Edit observation">&#x270F;&#xFE0F;</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
                   <span>Brood: solid frames 3-6, spotty frame 4</span>
-                  <span style="font-size: 12px; color: var(--primary-500); cursor: pointer; font-weight: 600;">Edit</span>
+                  <span style="font-size: 16px; color: var(--primary-500); cursor: pointer;" title="Edit observation">&#x270F;&#xFE0F;</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
                   <span>Queen cells: 2 found on frame 5 &mdash; removed</span>
-                  <span style="font-size: 12px; color: var(--primary-500); cursor: pointer; font-weight: 600;">Edit</span>
+                  <span style="font-size: 16px; color: var(--primary-500); cursor: pointer;" title="Edit observation">&#x270F;&#xFE0F;</span>
                 </div>
               </div>
 
@@ -2211,11 +2401,12 @@
                 </div>
               </div>
 
-              <div style="font-size: 13px; font-weight: 700; color: var(--text-500); margin-top: 4px;">Photos</div>
-              <div style="display: flex; gap: 8px;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-500); margin-top: 4px;">Photos / Videos</div>
+              <div style="display: flex; gap: 8px; align-items: center;">
                 <div class="photo-thumb" style="width: 56px; height: 56px;">&#x1F4F7;</div>
                 <div class="photo-thumb" style="width: 56px; height: 56px;">&#x1F4F7;</div>
                 <div class="photo-thumb" style="width: 56px; height: 56px;">&#x1F4F7;</div>
+                <div class="photo-thumb" style="width: 56px; height: 56px; border: 2px dashed var(--primary-300); color: var(--primary-500); font-size: 24px; font-weight: 700; cursor: pointer;" title="Add more photos or videos">+</div>
               </div>
 
               <div style="font-size: 13px; font-weight: 700; color: var(--text-500); margin-top: 4px;">AI Analysis</div>
@@ -2379,6 +2570,7 @@
     'account-settings': 'Account Settings',
     'settings-profile': 'Profile & Preferences',
     'settings-notifications': 'Notifications Settings',
+    'notification-types': 'Notification Types',
     'settings-integrations': 'Integrations',
     'settings-collaborators': 'Collaborators',
     'settings-data': 'Data & Privacy',
@@ -2412,6 +2604,7 @@
     'account-settings': 'Settings',
     'settings-profile': 'Settings',
     'settings-notifications': 'Settings',
+    'notification-types': 'Settings — Notification Types',
     'settings-integrations': 'Settings',
     'settings-collaborators': 'Settings',
     'settings-data': 'Settings',
