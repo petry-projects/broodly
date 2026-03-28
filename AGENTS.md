@@ -1,84 +1,18 @@
-@https://github.com/petry-projects/.github/blob/main/AGENTS.md
-@AGENTS.md
+# Broodly — Project Context & Design System Rules
 
-# Broodly — Claude Code Project Context
+## Project Overview
 
-For comprehensive project guidelines (design system, components, Figma integration, architecture), see [AGENTS.md](./AGENTS.md).
+Broodly is a field-first beekeeping decision-support app. Mobile-first on iOS, Android, and web via a single Expo + React Native codebase. Backend is Go (chi + gqlgen) on GCP.
 
-## Quick Reference
+> **Organization standards:** This repo inherits shared standards from [petry-projects/.github/AGENTS.md](https://github.com/petry-projects/.github/blob/main/AGENTS.md). The sections below are project-specific.
 
-- **Figma Design File:** https://www.figma.com/design/pL2D8Cvu6XdrI9NBREr3nE/Broodly
-- **Stack:** Expo + React Native + TypeScript + Gluestack UI v3 + NativeWind
-- **Backend:** Go (chi + gqlgen) on GCP
-- **Planning artifacts:** `_bmad-output/planning-artifacts/`
-
-## Coding Standards
-
-### Organization Standards (Required)
-
-All code in this repository MUST comply with the [petry-projects organization coding standards](https://github.com/petry-projects/.github/blob/main/AGENTS.md). That document defines mandatory practices for:
-
-- **TDD** — tests before implementation, no `.skip()`, no coverage-ignore comments
-- **Pre-commit quality checks** — format, lint, type-check, and test before every commit
-- **SOLID, CLEAN, DRY, DDD, KISS, YAGNI** — software engineering principles
-- **Defensive coding** — validate at system boundaries, trust internal code, fail fast
-- **Separation of concerns** — layered architecture, inward dependencies, no framework bleed
-- **CI quality gates** — CodeQL, SonarCloud, CodeRabbit, Copilot review, all required to pass
-- **Multi-agent isolation** — git worktrees for concurrent agent work, one workspace per story
-- **Security** — never commit secrets, use environment variables or secret managers
-- **BMAD Method** — spec-driven development with planning artifacts before implementation
-
-If a rule in this file conflicts with the org standards, this file takes precedence (as stated in the org AGENTS.md).
-
-### Broodly-Specific Coding Guidelines
-
-#### TypeScript (Expo + React Native)
-
-- **Strict TypeScript** — `strict: true` in all tsconfig files. No `any` types unless interfacing with untyped third-party libraries, and even then prefer `unknown` with type guards.
-- **GraphQL types** — Always use generated types from `packages/graphql-types/`. Never hand-write GraphQL response types.
-- **Zustand stores** — One store per domain concern (e.g., `useInspectionStore`, `useAuthStore`). Use `immer` middleware for nested state updates. Keep stores thin — server state belongs in TanStack Query, not Zustand.
-- **TanStack Query** — All server data fetching goes through TanStack Query with persistent cache. Use query key factories for consistency. Mutations must invalidate relevant queries on success.
-- **Platform code** — Platform-specific logic goes in `src/platform/`. Use `.ios.ts`, `.android.ts`, `.web.ts` extensions only when platform behavior genuinely diverges. Prefer cross-platform solutions.
-- **Imports** — Use path aliases (`@broodly/ui`, `@/features`, `@/services`) instead of deep relative paths. No barrel files except the explicit `packages/ui/src/index.ts` export.
-
-#### Go (API Server)
-
-- **Domain-first structure** — Business logic lives in `internal/domain/` with zero infrastructure imports. Services in `internal/service/` orchestrate domain logic. Repositories in `internal/repository/` implement persistence via sqlc.
-- **sqlc for all queries** — No hand-written SQL in Go code. All queries defined in `.sql` files and generated via sqlc. Use transactions through the repository layer.
-- **Error handling** — Return typed domain errors from services. Map to GraphQL errors in resolvers. Never expose internal error details to clients.
-- **gqlgen resolvers** — Keep resolvers thin. Delegate to services immediately. Resolvers handle auth context extraction and response mapping only.
-- **Context propagation** — Pass `context.Context` through all layers. Use it for request-scoped values (auth claims, trace IDs) and cancellation. Never store mutable state in context.
-
-#### Monorepo
-
-- **Package boundaries are hard boundaries.** `packages/ui` must not import from `apps/mobile`. `apps/mobile` must not import from `apps/api`. Shared types go in `packages/domain-types` or `packages/graphql-types`.
-- **Dependency management** — Use workspace protocol (`workspace:*`) for internal package references. Keep root `package.json` for tooling only — app dependencies belong in their respective `apps/` or `packages/` package.json.
-
----
-
-## Key Differentiator: Zero-Tap Beeyard
-
-IMPORTANT: Broodly's core differentiator is a zero-tap beeyard experience. Once a beekeeper starts their inspection session, they should NEVER need to tap the phone while in the field.
-
-- Entire multi-hive inspection flow is voice-driven as one continuous session
-- User navigates between hives via voice: "next hive", "move to Hive 4", "done with this hive"
-- All observations, actions, and photo triggers are voice-commanded
-- System announces next hive context via TTS on transition
-- UI tapping is available as fallback but NEVER required
-- Post-session "Evening Review" provides tap-friendly UI for corrections after leaving the field
-- This zero-tap approach is what distinguishes Broodly from every competitor
+**Figma Design File:** https://www.figma.com/design/pL2D8Cvu6XdrI9NBREr3nE/Broodly
 
 ---
 
 ## Figma MCP Integration Rules
 
-1. **Figma MCP flow** — always run `get_design_context` + `get_screenshot` before implementing any design
-2. **Gluestack UI v3** — use as component foundation, never build custom when a primitive exists
-3. **Compound components** — always use full Gluestack patterns (e.g., `<Button><ButtonText>...</ButtonText></Button>`)
-4. **Color tokens only** — never hardcode hex colors, use `bg-primary-500`, `text-error-600`, etc.
-5. **WCAG 2.1 AA** — all pairings must meet contrast ratios, status is never color-only
-6. **48px minimum touch targets** — for all interactive elements (gloved field use)
-7. **Shared UI in `packages/ui/`** — feature components in `apps/mobile/src/features/`
+These rules define how to translate Figma inputs into code for this project and must be followed for every Figma-driven change.
 
 ### Required Flow (do not skip)
 
@@ -282,7 +216,7 @@ Each custom component is built on Gluestack v3 primitives using `tva()` for vari
 | **HiveHealthCard** | `Card` (elevated) | status: healthy\|attention\|warning\|critical | Heading, Text, Badge, Progress, HStack |
 | **ApiaryHealthCard** | `Card` (elevated) | status: healthy\|attention\|warning\|critical | Heading, Text, Badge, HStack |
 | **HomepageContextCard** | `Card` (filled) | type: weather\|bloom\|seasonal | Heading, Text, Icon |
-| **LiveCoachingCapture** | `Box` + `Fab` | state: idle\|listening\|processing\|confirm | Fab (EQ Gradient icon), Text, Button, Input |
+| **VoiceLogCapture** | `Box` + `Fab` | state: idle\|listening\|processing\|confirm | Fab, Text, Button, Input |
 | **InspectionImageCapture** | `Box` + `Pressable` | — | Image, Spinner, Text |
 | **ImageAnalysisResultCard** | `Card` (elevated) | confidence: high\|medium\|low | Heading, Text, Badge, Progress, Alert |
 | **SkillProgressionCard** | `Card` (outline) | level: newbie\|amateur\|sideliner | Heading, Text, Progress, Badge |
@@ -303,11 +237,6 @@ Each custom component is built on Gluestack v3 primitives using `tva()` for vari
 - Homepage cards are `<Card variant="filled">` with semantic background colors
 - Health cards use shared `HealthStatusCardBase` tva() with status variant
 
-IMPORTANT: Distinguish actionable cards from informational cards:
-- Actionable cards (tappable, navigate somewhere): primary-500 left border + chevron + hover state. Use Card variant='outline' with left border override.
-- Informational cards (display only): no left border, no chevron, no hover. Use Card variant='filled'.
-- This distinction is critical for field usability — users must instantly know what requires action vs what is context.
-
 ---
 
 ## Button Hierarchy (Gluestack tva)
@@ -322,19 +251,11 @@ IMPORTANT: Distinguish actionable cards from informational cards:
 
 ---
 
-## Icon Conventions
-
-- **Edit actions:** ALWAYS use a pencil icon instead of the word "Edit". Apply consistently across all edit triggers (inline edits, edit buttons, record editing, transcript correction). Pair with accessible label "Edit [item name]" for screen readers.
-- **Live Mode:** Use an EQ Gradient icon (5 vertical equalizer bars in amber gradient — Pollen Gold edges, Primary Amber center, Deep Amber outer) for all Live Mode entry points. Bars animate when active; static when idle. Respects `prefers-reduced-motion`.
-
----
-
 ## Navigation Patterns
 
 - All sessions start on the **Happy Context Homepage**
 - Two primary CTAs: "View My Apiaries" and "Start Today's Plan"
 - Navigation hierarchy: Organization → Apiary → Hive with persistent context labeling
-- **App header (right side):** sync status indicator (when applicable), Live Mode EQ icon, notification bell icon with badge — visible on every authenticated screen
 - Bottom navigation bar for top-level destinations (including Settings)
 - Bottom sheets for quick confirmations; full modals only for irreversible operations
 - Planning uses per-apiary accordion patterns
@@ -401,7 +322,7 @@ IMPORTANT: Distinguish actionable cards from informational cards:
 | GraphQL Client | urql or Apollo Client |
 | Backend | Go (chi + gqlgen) |
 | Database | PostgreSQL 16 + pgvector |
-| Auth | Firebase Authentication (Google + Apple Sign-In only, no passwords) |
+| Auth | Firebase Authentication |
 | AI/ML | Vertex AI (Embedding 2.0, Gemini) |
 | Hosting | Google Cloud Platform (Cloud Run) |
 | IaC | Terraform |
@@ -412,7 +333,7 @@ IMPORTANT: Distinguish actionable cards from informational cards:
 
 Comprehensive planning documents are in `_bmad-output/planning-artifacts/`:
 
-- `prd.md` — Product Requirements Document (60 FRs, 27 NFRs) — Updated 2026-03-24: added FR12b2, FR21a, FR29a, FR31a, FR46a; updated FR16, FR19a, FR40; removed FR40a
+- `prd.md` — Product Requirements Document (55 FRs, 27 NFRs)
 - `ux-design-specification.md` — Full UX spec with design system, user flows, accessibility
 - `architecture.md` — Technical architecture with all decisions
 - `product-brief-bmad-method-2026-03-15.md` — Vision and target users
