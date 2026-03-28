@@ -1,3 +1,5 @@
+@https://github.com/petry-projects/.github/blob/main/AGENTS.md
+
 # Broodly - Claude Code Design System Rules
 
 ## Project Overview
