@@ -9,7 +9,7 @@ on:
   pull_request_review_comment:
     types: [created]
 
-permissions: read-all
+permissions: {}
 
 jobs:
   claude:

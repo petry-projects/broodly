@@ -5,14 +5,14 @@ on:
     branches:
       - main
 
-permissions: read-all
+permissions: {}
 
 jobs:
   dependabot:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - name: Dependabot metadata
