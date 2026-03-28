@@ -1,4 +1,4 @@
-@https://raw.githubusercontent.com/petry-projects/.github/main/AGENTS.md
+@https://github.com/petry-projects/.github/blob/main/AGENTS.md
 @AGENTS.md
 
 # Broodly — Claude Code Project Context
