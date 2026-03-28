@@ -1,0 +1,1223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broodly — Live Mode Icon Candidates</title>
+  <style>
+    :root {
+      --primary-500: #D4880F; --primary-600: #B8720A; --primary-50: #FFF8E1; --primary-100: #FFECB3; --primary-200: #FFD54F; --primary-300: #F5C33B;
+      --secondary-500: #E8B931; --secondary-300: #F5D650; --secondary-50: #FFF9E0;
+      --success-500: #2D7A3A; --success-50: #E8F5E9;
+      --warning-500: #B8720A; --warning-50: #FFF3E0;
+      --error-500: #A63D2F;
+      --info-500: #4A90C4;
+      --bg-0: #FFFFFF; --bg-50: #FDF6E8; --bg-100: #FAFAF7; --bg-muted: #F3F4F6;
+      --text-800: #2C2C2C; --text-500: #6B7280; --text-400: #9CA3AF;
+      --outline-200: #E5E7EB; --outline-300: #D1D5DB;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e; color: var(--text-800);
+      padding: 32px;
+    }
+    h1 { color: var(--primary-500); font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .subtitle { color: #aaa; font-size: 14px; margin-bottom: 32px; }
+    .section-title { color: #fff; font-size: 18px; font-weight: 700; margin: 32px 0 16px; border-bottom: 2px solid var(--primary-500); padding-bottom: 8px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+    }
+    .icon-card {
+      background: var(--bg-0);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    .icon-card:hover { border-color: var(--primary-300); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212,136,15,0.3); }
+    .icon-card.selected { border-color: var(--primary-500); background: var(--primary-50); }
+    .icon-card .preview { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+    .icon-card .preview svg { width: 48px; height: 48px; }
+    .icon-card .small-preview { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+    .icon-card .small-preview .sp { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: var(--bg-50); border-radius: 50%; }
+    .icon-card .small-preview .sp svg { width: 22px; height: 22px; }
+    .icon-card .small-preview .sp-dark { background: var(--text-800); border-radius: 50%; }
+    .icon-card .small-preview .sp-dark svg { width: 22px; height: 22px; }
+    .icon-card .number { font-size: 11px; font-weight: 700; color: var(--text-400); }
+    .icon-card .label { font-size: 11px; color: var(--text-500); text-align: center; line-height: 1.3; }
+
+    /* Top 20 highlight */
+    .top20 .icon-card { border: 2px solid var(--primary-200); background: var(--primary-50); }
+    .top20 .icon-card:hover { border-color: var(--primary-500); }
+
+    /* Selection counter */
+    .selection-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #16162a; padding: 16px 32px;
+      display: flex; justify-content: space-between; align-items: center; z-index: 100;
+      border-top: 2px solid var(--primary-500);
+    }
+    .selection-bar .count { color: var(--primary-500); font-size: 16px; font-weight: 700; }
+    .selection-bar .hint { color: #888; font-size: 13px; }
+
+    /* Header preview bar */
+    .header-preview {
+      background: var(--bg-0); border-radius: 12px; padding: 12px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; max-width: 375px;
+    }
+    .header-preview h4 { font-size: 18px; font-weight: 700; }
+    .header-preview .icons { display: flex; align-items: center; gap: 14px; }
+    .header-preview .live-slot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .header-preview .live-slot:hover { background: var(--primary-50); }
+    .header-preview .live-slot svg { width: 26px; height: 26px; }
+    .header-preview .bell { font-size: 22px; position: relative; }
+    .header-preview .bell-badge { position: absolute; top: -4px; right: -6px; background: var(--error-500); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    .preview-label { color: #888; font-size: 12px; margin-bottom: 8px; }
+
+    /* Spacer for fixed bottom bar */
+    .spacer { height: 80px; }
+  </style>
+</head>
+<body>
+
+<h1>&#x1F41D; Live Mode Icon Candidates</h1>
+<div class="subtitle">100+ icon concepts for Broodly's Live Mode feature. Click to select favorites. Designs use the Broodly design system: Honey Amber (#D4880F), Pollen Gold (#F5C33B), warm hex motifs.</div>
+
+<div class="preview-label">&#x2191; Header preview — selected icon appears here</div>
+<div class="header-preview">
+  <h4>&#x1F41D; Broodly</h4>
+  <div class="icons">
+    <div class="live-slot" id="preview-slot">
+      <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="12" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/><text x="20" y="25" text-anchor="middle" font-size="16">?</text></svg>
+    </div>
+    <div class="bell" style="font-size: 22px;">&#x1F514;<span class="bell-badge">3</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY A: Bee with Sound Waves (Classic approach) -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-title">A. Bee with Sound Waves</div>
+<div class="grid">
+
+  <!-- A1: Side-profile bee, 3 arc waves -->
+  <div class="icon-card" onclick="selectIcon(this, 'a1')">
+    <div class="number">#A1</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="24" r="11" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="18" cy="22" rx="6" ry="7" fill="#F5C33B"/>
+        <ellipse cx="18" cy="22" rx="3.5" ry="4.5" fill="#D4880F"/>
+        <circle cx="16" cy="20" r="1.2" fill="#2C2C2C"/>
+        <circle cx="20" cy="20" r="1.2" fill="#2C2C2C"/>
+        <path d="M13 16 L9 11" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M23 16 L27 11" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M32 20 Q36 18 38 20" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M32 24 Q38 20 42 24" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M32 28 Q40 22 46 28" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Classic bee + 3 arcs</div>
+  </div>
+
+  <!-- A2: Front-facing bee, concentric sound rings -->
+  <div class="icon-card" onclick="selectIcon(this, 'a2')">
+    <div class="number">#A2</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="20" cy="24" r="10" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="20" cy="22" rx="5" ry="6" fill="#F5C33B"/>
+        <rect x="15" y="24" width="10" height="3" rx="1" fill="#2C2C2C" opacity="0.3"/>
+        <circle cx="18" cy="20" r="1" fill="#2C2C2C"/>
+        <circle cx="22" cy="20" r="1" fill="#2C2C2C"/>
+        <path d="M33 19 Q36 17 37 20" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M33 24 Q38 20 40 24" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M33 29 Q40 23 43 28" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Front bee + side arcs</div>
+  </div>
+
+  <!-- A3: Minimal bee silhouette + 2 waves -->
+  <div class="icon-card" onclick="selectIcon(this, 'a3')">
+    <div class="number">#A3</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <ellipse cx="19" cy="24" rx="9" ry="10" fill="#D4880F"/>
+        <ellipse cx="19" cy="21" rx="5" ry="3" fill="#F5C33B"/>
+        <ellipse cx="19" cy="27" rx="5" ry="3" fill="#F5C33B"/>
+        <circle cx="17" cy="18" r="1" fill="white"/>
+        <circle cx="21" cy="18" r="1" fill="white"/>
+        <path d="M14 14 L11 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M24 14 L27 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M31 21 Q35 19 37 22" stroke="#F5C33B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M31 27 Q37 23 41 27" stroke="#F5C33B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Solid bee + gold waves</div>
+  </div>
+
+  <!-- A4: Tiny bee, big waves -->
+  <div class="icon-card" onclick="selectIcon(this, 'a4')">
+    <div class="number">#A4</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="14" cy="24" r="7" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <ellipse cx="14" cy="23" rx="3" ry="3.5" fill="#D4880F"/>
+        <circle cx="13" cy="22" r="0.8" fill="white"/>
+        <circle cx="15" cy="22" r="0.8" fill="white"/>
+        <path d="M12 19 L10 16" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <path d="M16 19 L18 16" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <path d="M24 18 Q28 15 31 18" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M24 24 Q30 19 35 24" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M24 30 Q32 23 39 30" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Small bee, bold arcs</div>
+  </div>
+
+  <!-- A5: Bee with speech bubble hint -->
+  <div class="icon-card" onclick="selectIcon(this, 'a5')">
+    <div class="number">#A5</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="18" cy="26" r="10" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="18" cy="24" rx="5" ry="6" fill="#F5C33B"/>
+        <ellipse cx="18" cy="24" rx="3" ry="4" fill="#D4880F"/>
+        <circle cx="16" cy="22" r="1" fill="#2C2C2C"/>
+        <circle cx="20" cy="22" r="1" fill="#2C2C2C"/>
+        <path d="M14 20 L11 16" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M22 20 L25 16" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="30" y="12" width="14" height="10" rx="5" fill="#D4880F"/>
+        <path d="M33 22 L30 25 L36 22" fill="#D4880F"/>
+        <circle cx="34" cy="17" r="1" fill="white"/>
+        <circle cx="37" cy="17" r="1" fill="white"/>
+        <circle cx="40" cy="17" r="1" fill="white"/>
+      </svg>
+    </div>
+    <div class="label">Bee + speech bubble</div>
+  </div>
+
+  <!-- A6: Hex-body bee with waves -->
+  <div class="icon-card" onclick="selectIcon(this, 'a6')">
+    <div class="number">#A6</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <polygon points="18,14 25,18 25,26 18,30 11,26 11,18" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <rect x="13" y="20" width="10" height="2" fill="#D4880F" rx="1"/>
+        <rect x="13" y="24" width="10" height="2" fill="#D4880F" rx="1"/>
+        <circle cx="16" cy="18" r="1" fill="#2C2C2C"/>
+        <circle cx="20" cy="18" r="1" fill="#2C2C2C"/>
+        <path d="M15 13 L13 9" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M21 13 L23 9" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M29 19 Q33 17 35 20" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M29 24 Q35 20 39 24" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M29 29 Q37 23 43 28" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Hex-body bee + waves</div>
+  </div>
+
+  <!-- A7: Round bee, dotted waves -->
+  <div class="icon-card" onclick="selectIcon(this, 'a7')">
+    <div class="number">#A7</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="18" cy="24" r="10" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <path d="M10 21 h16" stroke="#2C2C2C" stroke-width="1.5" opacity="0.2"/>
+        <path d="M10 24 h16" stroke="#2C2C2C" stroke-width="1.5" opacity="0.2"/>
+        <path d="M10 27 h16" stroke="#2C2C2C" stroke-width="1.5" opacity="0.2"/>
+        <circle cx="16" cy="20" r="1.2" fill="#2C2C2C"/>
+        <circle cx="20" cy="20" r="1.2" fill="#2C2C2C"/>
+        <circle cx="32" cy="19" r="1.5" fill="#D4880F"/>
+        <circle cx="35" cy="17" r="1.5" fill="#D4880F"/>
+        <circle cx="38" cy="19" r="1.5" fill="#D4880F"/>
+        <circle cx="33" cy="24" r="1.5" fill="#D4880F"/>
+        <circle cx="37" cy="22" r="1.5" fill="#D4880F"/>
+        <circle cx="41" cy="24" r="1.5" fill="#D4880F"/>
+        <circle cx="34" cy="29" r="1.5" fill="#D4880F"/>
+        <circle cx="39" cy="27" r="1.5" fill="#D4880F"/>
+        <circle cx="44" cy="29" r="1.5" fill="#D4880F"/>
+      </svg>
+    </div>
+    <div class="label">Striped bee + dot waves</div>
+  </div>
+
+  <!-- A8: Flying bee with trailing waves -->
+  <div class="icon-card" onclick="selectIcon(this, 'a8')">
+    <div class="number">#A8</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <ellipse cx="24" cy="22" rx="8" ry="7" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="24" cy="21" rx="4" ry="3.5" fill="#D4880F"/>
+        <circle cx="22" cy="19" r="1" fill="white"/>
+        <circle cx="26" cy="19" r="1" fill="white"/>
+        <path d="M20 15 L18 11" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M28 15 L30 11" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Wings -->
+        <ellipse cx="17" cy="17" rx="5" ry="3" fill="#FFF8E1" stroke="#D4880F" stroke-width="1" transform="rotate(-20 17 17)" opacity="0.7"/>
+        <ellipse cx="31" cy="17" rx="5" ry="3" fill="#FFF8E1" stroke="#D4880F" stroke-width="1" transform="rotate(20 31 17)" opacity="0.7"/>
+        <!-- Sound from bottom = buzz -->
+        <path d="M18 32 Q14 35 10 32" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M24 34 Q18 38 12 34" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M30 36 Q22 41 14 36" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Flying bee + buzz waves below</div>
+  </div>
+
+  <!-- A9: Outlined bee, thick arcs -->
+  <div class="icon-card" onclick="selectIcon(this, 'a9')">
+    <div class="number">#A9</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="17" cy="24" r="9" fill="none" stroke="#D4880F" stroke-width="2.5"/>
+        <path d="M11 22 h12" stroke="#D4880F" stroke-width="1.5"/>
+        <path d="M11 26 h12" stroke="#D4880F" stroke-width="1.5"/>
+        <circle cx="15" cy="20" r="1" fill="#D4880F"/>
+        <circle cx="19" cy="20" r="1" fill="#D4880F"/>
+        <path d="M14 17 L12 13" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M20 17 L22 13" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M30 20 Q34 17 37 20" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M30 24 Q36 20 40 24" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M30 28 Q38 23 43 28" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Outline bee + thick arcs</div>
+  </div>
+
+  <!-- A10: Tiny bee with mega sound -->
+  <div class="icon-card" onclick="selectIcon(this, 'a10')">
+    <div class="number">#A10</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="12" cy="24" r="6" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <rect x="8" y="22" width="8" height="1.5" fill="#D4880F" rx="0.5"/>
+        <rect x="8" y="25" width="8" height="1.5" fill="#D4880F" rx="0.5"/>
+        <circle cx="11" cy="22" r="0.7" fill="#2C2C2C"/>
+        <circle cx="13" cy="22" r="0.7" fill="#2C2C2C"/>
+        <path d="M21 16 Q27 12 33 16" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.4"/>
+        <path d="M21 21 Q29 15 37 21" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+        <path d="M21 26 Q31 18 41 26" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8"/>
+        <path d="M21 31 Q33 21 45 31" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Tiny bee + expanding waves</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY B: Bee with Microphone / Audio -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-title">B. Bee with Microphone / Audio Elements</div>
+<div class="grid">
+
+  <!-- B1: Bee holding microphone -->
+  <div class="icon-card" onclick="selectIcon(this, 'b1')">
+    <div class="number">#B1</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="20" cy="20" r="10" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="20" cy="18" rx="5" ry="6" fill="#F5C33B"/>
+        <ellipse cx="20" cy="18" rx="3" ry="4" fill="#D4880F"/>
+        <circle cx="18" cy="16" r="1" fill="#2C2C2C"/>
+        <circle cx="22" cy="16" r="1" fill="#2C2C2C"/>
+        <path d="M16 12 L13 8" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M24 12 L27 8" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Microphone -->
+        <rect x="32" y="22" width="6" height="12" rx="3" fill="#D4880F"/>
+        <rect x="33.5" y="23" width="3" height="6" rx="1.5" fill="#F5C33B"/>
+        <path d="M30 30 Q30 38 35 38" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M40 30 Q40 38 35 38" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <line x1="35" y1="38" x2="35" y2="42" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <line x1="32" y1="42" x2="38" y2="42" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="label">Bee + microphone</div>
+  </div>
+
+  <!-- B2: Bee face inside microphone shape -->
+  <div class="icon-card" onclick="selectIcon(this, 'b2')">
+    <div class="number">#B2</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <rect x="14" y="6" width="20" height="28" rx="10" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <rect x="18" y="14" width="12" height="3" fill="#D4880F" rx="1" opacity="0.5"/>
+        <rect x="18" y="20" width="12" height="3" fill="#D4880F" rx="1" opacity="0.5"/>
+        <circle cx="21" cy="12" r="1.5" fill="#2C2C2C"/>
+        <circle cx="27" cy="12" r="1.5" fill="#2C2C2C"/>
+        <path d="M19 8 L16 4" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M29 8 L32 4" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M10 30 Q10 40 24 40" stroke="#D4880F" stroke-width="2" fill="none"/>
+        <path d="M38 30 Q38 40 24 40" stroke="#D4880F" stroke-width="2" fill="none"/>
+        <line x1="24" y1="40" x2="24" y2="45" stroke="#D4880F" stroke-width="2"/>
+        <line x1="20" y1="45" x2="28" y2="45" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="label">Bee face in mic shape</div>
+  </div>
+
+  <!-- B3: Bee with waveform -->
+  <div class="icon-card" onclick="selectIcon(this, 'b3')">
+    <div class="number">#B3</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="14" cy="24" r="8" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="14" cy="23" rx="4" ry="4.5" fill="#D4880F"/>
+        <circle cx="12.5" cy="21" r="0.8" fill="white"/>
+        <circle cx="15.5" cy="21" r="0.8" fill="white"/>
+        <path d="M11 18 L9 15" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M17 18 L19 15" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Audio waveform bars -->
+        <rect x="25" y="22" width="2" height="4" rx="1" fill="#D4880F"/>
+        <rect x="29" y="18" width="2" height="12" rx="1" fill="#D4880F"/>
+        <rect x="33" y="14" width="2" height="20" rx="1" fill="#D4880F"/>
+        <rect x="37" y="18" width="2" height="12" rx="1" fill="#D4880F"/>
+        <rect x="41" y="22" width="2" height="4" rx="1" fill="#D4880F"/>
+      </svg>
+    </div>
+    <div class="label">Bee + audio waveform</div>
+  </div>
+
+  <!-- B4: Bee with equalizer bars -->
+  <div class="icon-card" onclick="selectIcon(this, 'b4')">
+    <div class="number">#B4</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="15" cy="24" r="9" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="15" cy="22" rx="5" ry="6" fill="#F5C33B"/>
+        <rect x="11" y="24" width="8" height="2" rx="1" fill="#D4880F"/>
+        <circle cx="13" cy="20" r="1" fill="#2C2C2C"/>
+        <circle cx="17" cy="20" r="1" fill="#2C2C2C"/>
+        <!-- EQ bars -->
+        <rect x="28" y="20" width="2.5" height="8" rx="1" fill="#F5C33B"/>
+        <rect x="32" y="16" width="2.5" height="16" rx="1" fill="#D4880F"/>
+        <rect x="36" y="12" width="2.5" height="24" rx="1" fill="#B8720A"/>
+        <rect x="40" y="16" width="2.5" height="16" rx="1" fill="#D4880F"/>
+        <rect x="44" y="20" width="2.5" height="8" rx="1" fill="#F5C33B"/>
+      </svg>
+    </div>
+    <div class="label">Bee + EQ bars gradient</div>
+  </div>
+
+  <!-- B5: Bee on top of microphone -->
+  <div class="icon-card" onclick="selectIcon(this, 'b5')">
+    <div class="number">#B5</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Mic body -->
+        <rect x="18" y="18" width="12" height="18" rx="6" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <path d="M14 32 Q14 42 24 42" stroke="#D4880F" stroke-width="2" fill="none"/>
+        <path d="M34 32 Q34 42 24 42" stroke="#D4880F" stroke-width="2" fill="none"/>
+        <line x1="24" y1="42" x2="24" y2="46" stroke="#D4880F" stroke-width="2"/>
+        <!-- Bee sitting on mic -->
+        <circle cx="24" cy="12" r="7" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <ellipse cx="24" cy="11" rx="3.5" ry="4" fill="#D4880F"/>
+        <circle cx="22.5" cy="10" r="0.8" fill="white"/>
+        <circle cx="25.5" cy="10" r="0.8" fill="white"/>
+        <path d="M21 7 L19 4" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <path d="M27 7 L29 4" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="label">Bee perched on mic</div>
+  </div>
+
+  <!-- B6-B10 more mic variants -->
+  <div class="icon-card" onclick="selectIcon(this, 'b6')">
+    <div class="number">#B6</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="18" fill="none" stroke="#D4880F" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <circle cx="18" cy="22" r="7" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <ellipse cx="18" cy="21" rx="3.5" ry="4" fill="#D4880F"/>
+        <circle cx="17" cy="20" r="0.7" fill="white"/>
+        <circle cx="19" cy="20" r="0.7" fill="white"/>
+        <rect x="28" y="18" width="2" height="3" rx="1" fill="#D4880F"/>
+        <rect x="32" y="15" width="2" height="9" rx="1" fill="#D4880F"/>
+        <rect x="36" y="18" width="2" height="3" rx="1" fill="#D4880F"/>
+        <path d="M28 28 Q32 26 36 28" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M26 32 Q32 28 38 32" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Bee in circle + waves/bars</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'b7')">
+    <div class="number">#B7</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="16" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="19" cy="22" r="6" fill="#F5C33B"/>
+        <ellipse cx="19" cy="21" rx="3" ry="3.5" fill="#D4880F"/>
+        <circle cx="18" cy="20" r="0.7" fill="white"/>
+        <circle cx="20" cy="20" r="0.7" fill="white"/>
+        <path d="M17 17 L15 14" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <path d="M21 17 L23 14" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <path d="M28 20 Q31 18 33 21" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M28 24 Q33 21 36 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M28 28 Q35 24 39 29" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Bee in warm circle + arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'b8')">
+    <div class="number">#B8</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Hexagon container -->
+        <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="19" cy="24" r="7" fill="#F5C33B"/>
+        <ellipse cx="19" cy="23" rx="3.5" ry="4" fill="#D4880F"/>
+        <circle cx="18" cy="22" r="0.7" fill="white"/>
+        <circle cx="20" cy="22" r="0.7" fill="white"/>
+        <path d="M29 20 Q32 18 34 21" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M29 24 Q34 21 37 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M29 28 Q36 24 40 29" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Hex frame bee + arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'b9')">
+    <div class="number">#B9</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="16" cy="24" r="9" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="16" cy="22" rx="5" ry="6" fill="#D4880F" opacity="0.8"/>
+        <circle cx="14" cy="20" r="1" fill="white"/>
+        <circle cx="18" cy="20" r="1" fill="white"/>
+        <path d="M13 17 L11 13" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M19 17 L21 13" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Musical notes -->
+        <circle cx="32" cy="16" r="2.5" fill="#D4880F"/>
+        <line x1="34.5" y1="16" x2="34.5" y2="8" stroke="#D4880F" stroke-width="2"/>
+        <path d="M34.5 8 Q38 6 38 10" stroke="#D4880F" stroke-width="2" fill="none"/>
+        <circle cx="38" cy="22" r="2.5" fill="#D4880F"/>
+        <line x1="40.5" y1="22" x2="40.5" y2="14" stroke="#D4880F" stroke-width="2"/>
+        <path d="M40.5 14 Q44 12 44 16" stroke="#D4880F" stroke-width="2" fill="none"/>
+        <path d="M30 30 Q34 28 38 30" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M29 34 Q35 31 41 34" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Bee + music notes + waves</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'b10')">
+    <div class="number">#B10</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Headphone shape with bee -->
+        <path d="M10 28 Q10 12 24 12 Q38 12 38 28" stroke="#D4880F" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <rect x="6" y="26" width="8" height="12" rx="4" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <rect x="34" y="26" width="8" height="12" rx="4" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <!-- Tiny bee between headphones -->
+        <circle cx="24" cy="30" r="5" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <ellipse cx="24" cy="29" rx="2.5" ry="3" fill="#D4880F"/>
+        <circle cx="23" cy="28" r="0.5" fill="white"/>
+        <circle cx="25" cy="28" r="0.5" fill="white"/>
+        <path d="M22 26 L21 24" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <path d="M26 26 L27 24" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="label">Bee with headphones</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY C: Abstract / Symbolic -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-title">C. Abstract & Symbolic</div>
+<div class="grid">
+
+  <!-- C1: Hexagon with sound waves emanating -->
+  <div class="icon-card" onclick="selectIcon(this, 'c1')">
+    <div class="number">#C1</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <polygon points="18,8 30,8 36,20 30,32 18,32 12,20" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <text x="24" y="23" text-anchor="middle" font-size="14" fill="#D4880F" font-weight="bold">&#x1F41D;</text>
+        <path d="M36 14 Q40 12 42 15" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M36 20 Q42 17 45 20" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M36 26 Q42 22 46 26" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Hex + bee emoji + arcs</div>
+  </div>
+
+  <!-- C2: Bee wing as sound wave -->
+  <div class="icon-card" onclick="selectIcon(this, 'c2')">
+    <div class="number">#C2</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <ellipse cx="20" cy="26" rx="9" ry="10" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="20" cy="24" rx="5" ry="3" fill="#D4880F"/>
+        <ellipse cx="20" cy="28" rx="5" ry="3" fill="#D4880F"/>
+        <circle cx="18" cy="20" r="1.2" fill="#2C2C2C"/>
+        <circle cx="22" cy="20" r="1.2" fill="#2C2C2C"/>
+        <!-- Wings that ARE sound waves -->
+        <path d="M28 14 Q34 10 38 14" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M28 8 Q38 2 44 8" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M12 14 Q6 10 2 14" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M12 8 Q2 2 -4 8" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Wings = sound waves</div>
+  </div>
+
+  <!-- C3: Circular bee with radiating sound -->
+  <div class="icon-card" onclick="selectIcon(this, 'c3')">
+    <div class="number">#C3</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="8" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="22" cy="22" r="1" fill="#2C2C2C"/>
+        <circle cx="26" cy="22" r="1" fill="#2C2C2C"/>
+        <rect x="20" y="25" width="8" height="2" rx="1" fill="#D4880F"/>
+        <path d="M21 17 L19 13" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M27 17 L29 13" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Radiating arcs all around -->
+        <path d="M36 18 Q39 16 40 19" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M38 24 Q42 22 42 26" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M36 30 Q39 32 40 29" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M12 18 Q9 16 8 19" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M10 24 Q6 22 6 26" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M12 30 Q9 32 8 29" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Bee radiating in all directions</div>
+  </div>
+
+  <!-- C4: Bee with concentric hex rings -->
+  <div class="icon-card" onclick="selectIcon(this, 'c4')">
+    <div class="number">#C4</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="6" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <circle cx="23" cy="23" r="0.8" fill="#2C2C2C"/>
+        <circle cx="25" cy="23" r="0.8" fill="#2C2C2C"/>
+        <polygon points="24,10 34,14 34,28 24,32 14,28 14,14" fill="none" stroke="#D4880F" stroke-width="1.5" opacity="0.6"/>
+        <polygon points="24,4 40,10 40,32 24,38 8,32 8,10" fill="none" stroke="#D4880F" stroke-width="1.5" opacity="0.3"/>
+      </svg>
+    </div>
+    <div class="label">Bee + hex sound rings</div>
+  </div>
+
+  <!-- C5: Play button with bee -->
+  <div class="icon-card" onclick="selectIcon(this, 'c5')">
+    <div class="number">#C5</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="18" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <polygon points="20,14 20,34 38,24" fill="#D4880F"/>
+        <circle cx="15" cy="18" r="3" fill="#F5C33B" stroke="#D4880F" stroke-width="1"/>
+        <circle cx="14.5" cy="17.5" r="0.5" fill="#2C2C2C"/>
+        <circle cx="15.5" cy="17.5" r="0.5" fill="#2C2C2C"/>
+        <path d="M14 16 L13 14" stroke="#D4880F" stroke-width="0.8" stroke-linecap="round"/>
+        <path d="M16 16 L17 14" stroke="#D4880F" stroke-width="0.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="label">Play button + tiny bee</div>
+  </div>
+
+  <!-- C6: Bee inside speaker cone -->
+  <div class="icon-card" onclick="selectIcon(this, 'c6')">
+    <div class="number">#C6</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <rect x="4" y="18" width="10" height="12" rx="2" fill="#D4880F"/>
+        <polygon points="14,16 28,8 28,40 14,32" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <!-- Bee emerging from speaker -->
+        <circle cx="36" cy="20" r="5" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <ellipse cx="36" cy="19" rx="2.5" ry="3" fill="#D4880F"/>
+        <circle cx="35" cy="18" r="0.6" fill="white"/>
+        <circle cx="37" cy="18" r="0.6" fill="white"/>
+        <path d="M40 16 Q43 14 44 17" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M40 20 Q44 17 46 21" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M40 24 Q44 21 47 24" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Speaker cone + bee</div>
+  </div>
+
+  <!-- C7: Bee antenna as sound wave -->
+  <div class="icon-card" onclick="selectIcon(this, 'c7')">
+    <div class="number">#C7</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="28" r="10" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="24" cy="26" rx="5" ry="6" fill="#D4880F"/>
+        <circle cx="22" cy="24" r="1.2" fill="white"/>
+        <circle cx="26" cy="24" r="1.2" fill="white"/>
+        <rect x="19" y="30" width="10" height="2" rx="1" fill="#2C2C2C" opacity="0.3"/>
+        <!-- Antennae that broadcast like radio towers -->
+        <line x1="20" y1="19" x2="14" y2="8" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <line x1="28" y1="19" x2="34" y2="8" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="14" cy="8" r="3" fill="none" stroke="#D4880F" stroke-width="1.5" opacity="0.5"/>
+        <circle cx="14" cy="8" r="6" fill="none" stroke="#D4880F" stroke-width="1" opacity="0.3"/>
+        <circle cx="34" cy="8" r="3" fill="none" stroke="#D4880F" stroke-width="1.5" opacity="0.5"/>
+        <circle cx="34" cy="8" r="6" fill="none" stroke="#D4880F" stroke-width="1" opacity="0.3"/>
+      </svg>
+    </div>
+    <div class="label">Broadcasting antennae</div>
+  </div>
+
+  <!-- C8: Bee + voice/chat bubble -->
+  <div class="icon-card" onclick="selectIcon(this, 'c8')">
+    <div class="number">#C8</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Chat bubble -->
+        <rect x="4" y="4" width="40" height="28" rx="8" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <path d="M16 32 L12 40 L22 32" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/>
+        <line x1="16" y1="32" x2="22" y2="32" stroke="#FFF8E1" stroke-width="3"/>
+        <!-- Bee inside -->
+        <circle cx="24" cy="17" r="7" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <ellipse cx="24" cy="16" rx="3.5" ry="4" fill="#D4880F"/>
+        <circle cx="22.5" cy="14.5" r="0.8" fill="white"/>
+        <circle cx="25.5" cy="14.5" r="0.8" fill="white"/>
+        <path d="M21 11 L19 8" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <path d="M27 11 L29 8" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="label">Bee inside chat bubble</div>
+  </div>
+
+  <!-- C9: Simple bee head + 2 waves (ultra minimal) -->
+  <div class="icon-card" onclick="selectIcon(this, 'c9')">
+    <div class="number">#C9</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="18" cy="24" r="12" fill="#F5C33B" stroke="#D4880F" stroke-width="2.5"/>
+        <circle cx="15" cy="21" r="1.5" fill="#2C2C2C"/>
+        <circle cx="21" cy="21" r="1.5" fill="#2C2C2C"/>
+        <path d="M14 27 Q18 30 22 27" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M15 14 L13 8" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M21 14 L23 8" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M33 20 Q37 18 39 21" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M33 27 Q39 24 42 28" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Smiling bee head + 2 arcs</div>
+  </div>
+
+  <!-- C10: Bee + pulse line (heartbeat style) -->
+  <div class="icon-card" onclick="selectIcon(this, 'c10')">
+    <div class="number">#C10</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="12" cy="24" r="7" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/>
+        <ellipse cx="12" cy="23" rx="3.5" ry="4" fill="#D4880F"/>
+        <circle cx="11" cy="22" r="0.7" fill="white"/>
+        <circle cx="13" cy="22" r="0.7" fill="white"/>
+        <path d="M10 19 L8 16" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <path d="M14 19 L16 16" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/>
+        <!-- Pulse/heartbeat line -->
+        <polyline points="22,24 26,24 28,16 30,32 32,20 34,28 36,24 46,24" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Bee + pulse/heartbeat line</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY D: Bee Face Variations -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-title">D. Bee Face Variations with Sound</div>
+<div class="grid">
+
+  <!-- D1: Happy talking bee face -->
+  <div class="icon-card" onclick="selectIcon(this, 'd1')">
+    <div class="number">#D1</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="20" cy="24" r="12" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="17" cy="21" r="1.5" fill="#2C2C2C"/>
+        <circle cx="23" cy="21" r="1.5" fill="#2C2C2C"/>
+        <ellipse cx="20" cy="28" rx="3" ry="2" fill="#D4880F"/>
+        <path d="M17 14 L14 9" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M23 14 L26 9" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="14" cy="9" r="2" fill="#D4880F"/>
+        <circle cx="26" cy="9" r="2" fill="#D4880F"/>
+        <path d="M35 19 Q38 17 40 20" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M35 24 Q40 21 43 25" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M35 29 Q42 25 46 30" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Talking bee face + arcs</div>
+  </div>
+
+  <!-- D2: Bee with open mouth shouting -->
+  <div class="icon-card" onclick="selectIcon(this, 'd2')">
+    <div class="number">#D2</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="18" cy="24" r="11" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="15" cy="21" r="1.5" fill="#2C2C2C"/>
+        <circle cx="21" cy="21" r="1.5" fill="#2C2C2C"/>
+        <circle cx="18" cy="28" r="3" fill="#D4880F"/>
+        <circle cx="18" cy="28" r="1.5" fill="#2C2C2C"/>
+        <path d="M14 15 L12 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M22 15 L24 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M32 18 Q36 16 38 19" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M32 24 Q38 20 42 24" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M32 30 Q40 24 46 30" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">O-mouth bee broadcasting</div>
+  </div>
+
+  <!-- D3-D10: More face variations -->
+  <div class="icon-card" onclick="selectIcon(this, 'd3')">
+    <div class="number">#D3</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="20" cy="24" r="11" fill="#D4880F"/>
+        <circle cx="20" cy="24" r="9" fill="#F5C33B"/>
+        <circle cx="17" cy="22" r="1.5" fill="#2C2C2C"/>
+        <circle cx="23" cy="22" r="1.5" fill="#2C2C2C"/>
+        <path d="M17 27 Q20 29 23 27" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M15 15 L13 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M25 15 L27 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M34 20 Q37 18 38 21" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M34 28 Q39 25 41 29" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Ringed bee + smile + 2 arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd4')">
+    <div class="number">#D4</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Minimal flat bee -->
+        <circle cx="20" cy="24" r="10" fill="#F5C33B"/>
+        <rect x="12" y="22" width="16" height="2.5" rx="1" fill="#2C2C2C" opacity="0.15"/>
+        <rect x="12" y="26" width="16" height="2.5" rx="1" fill="#2C2C2C" opacity="0.15"/>
+        <circle cx="17" cy="20" r="1.2" fill="#2C2C2C"/>
+        <circle cx="23" cy="20" r="1.2" fill="#2C2C2C"/>
+        <path d="M17 16 L15 12" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M23 16 L25 12" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Thin elegant arcs -->
+        <path d="M33 20 Q36 18 38 21" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M33 24 Q38 21 41 25" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M33 28 Q40 24 44 29" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Flat minimal bee + thin arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd5')">
+    <div class="number">#D5</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Bee with bold stripe and wave -->
+        <circle cx="18" cy="24" r="11" fill="#FFF8E1" stroke="#D4880F" stroke-width="2.5"/>
+        <rect x="9" y="21" width="18" height="6" fill="#F5C33B"/>
+        <rect x="9" y="24" width="18" height="3" fill="#D4880F"/>
+        <circle cx="15" cy="20" r="1.5" fill="#2C2C2C"/>
+        <circle cx="21" cy="20" r="1.5" fill="#2C2C2C"/>
+        <path d="M14 15 L12 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M22 15 L24 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M33 18 Q36 16 38 19" stroke="#B8720A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M33 24 Q38 20 42 24" stroke="#B8720A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M33 30 Q40 24 46 30" stroke="#B8720A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Bold stripe bee + dark arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd6')">
+    <div class="number">#D6</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Winking bee -->
+        <circle cx="18" cy="24" r="11" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="14" cy="21" r="1.5" fill="#2C2C2C"/>
+        <path d="M20 21 L24 21" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M15 28 Q18 30 21 28" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M14 15 L12 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M22 15 L24 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M33 19 Q36 17 38 20" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M33 24 Q38 21 41 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M33 29 Q40 25 44 30" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Winking bee + 3 arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd7')">
+    <div class="number">#D7</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Emoji-style bee -->
+        <circle cx="24" cy="24" r="16" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="20" cy="21" r="2" fill="#2C2C2C"/>
+        <circle cx="28" cy="21" r="2" fill="#2C2C2C"/>
+        <circle cx="20.5" cy="20.5" r="0.7" fill="white"/>
+        <circle cx="28.5" cy="20.5" r="0.7" fill="white"/>
+        <path d="M20 28 Q24 32 28 28" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M20 10 L17 4" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M28 10 L31 4" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="17" cy="4" r="2" fill="#D4880F"/>
+        <circle cx="31" cy="4" r="2" fill="#D4880F"/>
+        <!-- Horizontal stripes -->
+        <rect x="12" y="27" width="24" height="2" fill="#D4880F" opacity="0.3" rx="1"/>
+        <rect x="14" y="31" width="20" height="2" fill="#D4880F" opacity="0.3" rx="1"/>
+      </svg>
+    </div>
+    <div class="label">Big emoji bee (no waves)</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd8')">
+    <div class="number">#D8</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Bee looking to the right, speaking -->
+        <ellipse cx="17" cy="24" rx="10" ry="11" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <ellipse cx="17" cy="22" rx="6" ry="4" fill="#D4880F" opacity="0.6"/>
+        <ellipse cx="17" cy="28" rx="6" ry="4" fill="#D4880F" opacity="0.6"/>
+        <circle cx="20" cy="20" r="1.5" fill="#2C2C2C"/>
+        <circle cx="14" cy="20" r="1" fill="#2C2C2C"/>
+        <path d="M14 15 L12 10" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M20 15 L22 10" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Speaking mouth -->
+        <ellipse cx="24" cy="24" rx="2" ry="1.5" fill="#D4880F"/>
+        <path d="M30 19 Q34 17 36 20" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M30 24 Q36 21 39 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M30 29 Q38 25 42 30" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Side-facing speaking bee</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd9')">
+    <div class="number">#D9</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Ultra-simple: circle + eyes + 2 waves -->
+        <circle cx="18" cy="24" r="10" fill="#D4880F"/>
+        <circle cx="15" cy="22" r="1.5" fill="white"/>
+        <circle cx="21" cy="22" r="1.5" fill="white"/>
+        <path d="M15 28 Q18 30 21 28" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M31 21 Q34 19 36 22" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M31 27 Q36 24 39 28" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Ultra-simple amber + waves</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd10')">
+    <div class="number">#D10</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Pill-shape bee body + sound -->
+        <rect x="8" y="14" width="20" height="20" rx="10" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/>
+        <rect x="10" y="22" width="16" height="3" fill="#D4880F" rx="1"/>
+        <rect x="10" y="27" width="16" height="3" fill="#D4880F" rx="1"/>
+        <circle cx="15" cy="20" r="1.2" fill="#2C2C2C"/>
+        <circle cx="21" cy="20" r="1.2" fill="#2C2C2C"/>
+        <path d="M14 14 L12 9" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M22 14 L24 9" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M32 18 Q35 16 37 19" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M32 24 Q37 21 40 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M32 30 Q39 26 43 31" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Pill-body bee + 3 arcs</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY E: Mono/Line Art (Best for small sizes) -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-title">E. Monochrome / Line Art (Optimized for 26px)</div>
+<div class="grid">
+
+  <!-- E1: Single-stroke bee + waves -->
+  <div class="icon-card" onclick="selectIcon(this, 'e1')">
+    <div class="number">#E1</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="18" cy="24" r="10" fill="none" stroke="#D4880F" stroke-width="2.5"/>
+        <path d="M10 22 h16" stroke="#D4880F" stroke-width="1.5"/>
+        <path d="M10 26 h16" stroke="#D4880F" stroke-width="1.5"/>
+        <circle cx="15" cy="20" r="1.2" fill="#D4880F"/>
+        <circle cx="21" cy="20" r="1.2" fill="#D4880F"/>
+        <path d="M15 17 L13 13" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M21 17 L23 13" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M31 20 Q35 18 37 21" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M31 24 Q37 21 40 25" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M31 28 Q39 24 43 29" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Line-art bee + arcs</div>
+  </div>
+
+  <!-- E2: Simplified mono -->
+  <div class="icon-card" onclick="selectIcon(this, 'e2')">
+    <div class="number">#E2</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="17" cy="24" r="9" fill="#D4880F" opacity="0.15"/>
+        <circle cx="17" cy="24" r="9" fill="none" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="15" cy="22" r="1" fill="#D4880F"/>
+        <circle cx="19" cy="22" r="1" fill="#D4880F"/>
+        <path d="M14 18 L12 14" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M20 18 L22 14" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M29 20 Q32 18 34 21" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M29 24 Q34 21 37 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M29 28 Q36 24 40 29" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Ghost-fill bee + arcs</div>
+  </div>
+
+  <!-- E3: Pure line art -->
+  <div class="icon-card" onclick="selectIcon(this, 'e3')">
+    <div class="number">#E3</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none" stroke="#D4880F" stroke-width="2" stroke-linecap="round">
+        <circle cx="17" cy="24" r="9"/>
+        <line x1="10" y1="22" x2="24" y2="22"/>
+        <line x1="10" y1="26" x2="24" y2="26"/>
+        <circle cx="14" cy="20" r="1" fill="#D4880F" stroke="none"/>
+        <circle cx="20" cy="20" r="1" fill="#D4880F" stroke="none"/>
+        <path d="M13 16 L11 12"/>
+        <path d="M21 16 L23 12"/>
+        <path d="M29 20 Q33 18 35 21"/>
+        <path d="M29 24 Q35 21 38 25"/>
+        <path d="M29 28 Q37 24 41 29"/>
+      </svg>
+    </div>
+    <div class="label">Pure line art (no fill)</div>
+  </div>
+
+  <!-- E4: Bold mono -->
+  <div class="icon-card" onclick="selectIcon(this, 'e4')">
+    <div class="number">#E4</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="17" cy="24" r="10" fill="#D4880F"/>
+        <rect x="9" y="22" width="16" height="2" fill="#FFF8E1" rx="1"/>
+        <rect x="9" y="26" width="16" height="2" fill="#FFF8E1" rx="1"/>
+        <circle cx="14" cy="20" r="1.5" fill="#FFF8E1"/>
+        <circle cx="20" cy="20" r="1.5" fill="#FFF8E1"/>
+        <path d="M14 15 L12 10" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M20 15 L22 10" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M30 20 Q34 18 36 21" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M30 24 Q36 21 39 25" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M30 28 Q38 24 42 29" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Bold mono inverted bee</div>
+  </div>
+
+  <!-- E5-E10: More mono variants -->
+  <div class="icon-card" onclick="selectIcon(this, 'e5')">
+    <div class="number">#E5</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="16" cy="24" r="8" fill="none" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="14" cy="22" r="0.8" fill="#D4880F"/>
+        <circle cx="18" cy="22" r="0.8" fill="#D4880F"/>
+        <path d="M13 18 L11 14" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M19 18 L21 14" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="27" y="20" width="2" height="3" rx="1" fill="#D4880F"/>
+        <rect x="31" y="17" width="2" height="9" rx="1" fill="#D4880F"/>
+        <rect x="35" y="14" width="2" height="15" rx="1" fill="#D4880F"/>
+        <rect x="39" y="17" width="2" height="9" rx="1" fill="#D4880F"/>
+        <rect x="43" y="20" width="2" height="3" rx="1" fill="#D4880F"/>
+      </svg>
+    </div>
+    <div class="label">Line bee + mono waveform</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e6')">
+    <div class="number">#E6</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Hex-framed mono bee -->
+        <polygon points="17,10 27,10 32,20 27,30 17,30 12,20" fill="none" stroke="#D4880F" stroke-width="2"/>
+        <circle cx="19" cy="19" r="1" fill="#D4880F"/>
+        <circle cx="25" cy="19" r="1" fill="#D4880F"/>
+        <line x1="14" y1="22" x2="30" y2="22" stroke="#D4880F" stroke-width="1.5"/>
+        <line x1="14" y1="26" x2="30" y2="26" stroke="#D4880F" stroke-width="1.5"/>
+        <path d="M17 10 L15 5" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M27 10 L29 5" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M35 16 Q38 14 40 17" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M35 22 Q40 18 44 22" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M35 28 Q42 22 46 28" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Hex-framed line bee + arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e7')">
+    <div class="number">#E7</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Single-color filled compact -->
+        <ellipse cx="16" cy="24" rx="8" ry="9" fill="#D4880F"/>
+        <circle cx="14" cy="21" r="1" fill="white"/>
+        <circle cx="18" cy="21" r="1" fill="white"/>
+        <path d="M13 17 L11 13" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M19 17 L21 13" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <ellipse cx="14" cy="14" rx="4" ry="2" fill="#D4880F" opacity="0.3" transform="rotate(-25 14 14)"/>
+        <ellipse cx="22" cy="14" rx="4" ry="2" fill="#D4880F" opacity="0.3" transform="rotate(25 22 14)"/>
+        <path d="M28 20 Q32 18 34 21" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M28 24 Q34 21 37 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Compact winged bee + 2 arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e8')">
+    <div class="number">#E8</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Rounded square container -->
+        <rect x="4" y="4" width="40" height="40" rx="10" fill="none" stroke="#D4880F" stroke-width="1.5" opacity="0.3"/>
+        <circle cx="18" cy="22" r="8" fill="#D4880F" opacity="0.15"/>
+        <circle cx="18" cy="22" r="8" stroke="#D4880F" stroke-width="2" fill="none"/>
+        <circle cx="16" cy="20" r="1" fill="#D4880F"/>
+        <circle cx="20" cy="20" r="1" fill="#D4880F"/>
+        <path d="M15 16 L13 12" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M21 16 L23 12" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M29 18 Q32 16 34 19" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M29 22 Q34 19 37 23" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M29 26 Q36 22 40 27" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <text x="24" y="40" text-anchor="middle" font-size="8" fill="#D4880F" font-weight="600" opacity="0.6">LIVE</text>
+      </svg>
+    </div>
+    <div class="label">Framed bee + LIVE label</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e9')">
+    <div class="number">#E9</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Super minimal: just antennae + circle + arcs -->
+        <circle cx="18" cy="26" r="8" fill="#D4880F" opacity="0.2"/>
+        <circle cx="18" cy="26" r="8" stroke="#D4880F" stroke-width="2" fill="none"/>
+        <path d="M15 20 L13 14" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M21 20 L23 14" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="13" cy="14" r="2" fill="#D4880F"/>
+        <circle cx="23" cy="14" r="2" fill="#D4880F"/>
+        <path d="M29 22 Q33 20 35 23" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M29 26 Q35 23 38 27" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M29 30 Q37 26 41 31" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Super minimal bee + arcs</div>
+  </div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e10')">
+    <div class="number">#E10</div>
+    <div class="preview">
+      <svg viewBox="0 0 48 48" fill="none">
+        <!-- Badge-style: filled circle with bee silhouette -->
+        <circle cx="24" cy="24" r="20" fill="#D4880F"/>
+        <circle cx="18" cy="22" r="7" fill="#FFF8E1"/>
+        <circle cx="16" cy="20" r="1" fill="#D4880F"/>
+        <circle cx="20" cy="20" r="1" fill="#D4880F"/>
+        <path d="M15 17 L13 13" stroke="#FFF8E1" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M21 17 L23 13" stroke="#FFF8E1" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M28 18 Q31 16 33 19" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M28 22 Q33 19 36 23" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M28 26 Q35 22 39 27" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="label">Badge: amber circle + white bee</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- TOP 20 SELECTION -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-title" style="color: var(--primary-500);">&#x2B50; TOP 20 — Refined Selection</div>
+<div class="subtitle" style="margin-bottom: 16px; margin-top: -8px;">After reviewing all 50 concepts above for clarity at 26px, brand alignment, and instant recognizability, these 20 best represent "Live Mode" for Broodly. Click any to preview in the header.</div>
+
+<div class="grid top20">
+  <div class="icon-card" onclick="selectIcon(this, 'a1')"><div class="number">A1</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="18" cy="24" r="11" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/><ellipse cx="18" cy="22" rx="6" ry="7" fill="#F5C33B"/><ellipse cx="18" cy="22" rx="3.5" ry="4.5" fill="#D4880F"/><circle cx="16" cy="20" r="1.2" fill="#2C2C2C"/><circle cx="20" cy="20" r="1.2" fill="#2C2C2C"/><path d="M13 16 L9 11" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M23 16 L27 11" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M32 20 Q36 18 38 20" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M32 24 Q38 20 42 24" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M32 28 Q40 22 46 28" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div><div class="label">Classic bee + 3 arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'a3')"><div class="number">A3</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><ellipse cx="19" cy="24" rx="9" ry="10" fill="#D4880F"/><ellipse cx="19" cy="21" rx="5" ry="3" fill="#F5C33B"/><ellipse cx="19" cy="27" rx="5" ry="3" fill="#F5C33B"/><circle cx="17" cy="18" r="1" fill="white"/><circle cx="21" cy="18" r="1" fill="white"/><path d="M14 14 L11 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/><path d="M24 14 L27 10" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/><path d="M31 21 Q35 19 37 22" stroke="#F5C33B" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M31 27 Q37 23 41 27" stroke="#F5C33B" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div><div class="label">Solid bee + gold waves</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'a4')"><div class="number">A4</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="14" cy="24" r="7" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/><ellipse cx="14" cy="23" rx="3" ry="3.5" fill="#D4880F"/><circle cx="13" cy="22" r="0.8" fill="white"/><circle cx="15" cy="22" r="0.8" fill="white"/><path d="M12 19 L10 16" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/><path d="M16 19 L18 16" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/><path d="M24 18 Q28 15 31 18" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M24 24 Q30 19 35 24" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M24 30 Q32 23 39 30" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div><div class="label">Small bee, bold arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'a6')"><div class="number">A6</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><polygon points="18,14 25,18 25,26 18,30 11,26 11,18" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/><rect x="13" y="20" width="10" height="2" fill="#D4880F" rx="1"/><rect x="13" y="24" width="10" height="2" fill="#D4880F" rx="1"/><circle cx="16" cy="18" r="1" fill="#2C2C2C"/><circle cx="20" cy="18" r="1" fill="#2C2C2C"/><path d="M15 13 L13 9" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M21 13 L23 9" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M29 19 Q33 17 35 20" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M29 24 Q35 20 39 24" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M29 29 Q37 23 43 28" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div><div class="label">Hex-body bee + waves</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'a5')"><div class="number">A5</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="18" cy="26" r="10" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/><ellipse cx="18" cy="24" rx="5" ry="6" fill="#F5C33B"/><ellipse cx="18" cy="24" rx="3" ry="4" fill="#D4880F"/><circle cx="16" cy="22" r="1" fill="#2C2C2C"/><circle cx="20" cy="22" r="1" fill="#2C2C2C"/><path d="M14 20 L11 16" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M22 20 L25 16" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><rect x="30" y="12" width="14" height="10" rx="5" fill="#D4880F"/><path d="M33 22 L30 25 L36 22" fill="#D4880F"/><circle cx="34" cy="17" r="1" fill="white"/><circle cx="37" cy="17" r="1" fill="white"/><circle cx="40" cy="17" r="1" fill="white"/></svg></div><div class="label">Bee + speech bubble</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'b3')"><div class="number">B3</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="14" cy="24" r="8" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/><ellipse cx="14" cy="23" rx="4" ry="4.5" fill="#D4880F"/><circle cx="12.5" cy="21" r="0.8" fill="white"/><circle cx="15.5" cy="21" r="0.8" fill="white"/><path d="M11 18 L9 15" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M17 18 L19 15" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><rect x="25" y="22" width="2" height="4" rx="1" fill="#D4880F"/><rect x="29" y="18" width="2" height="12" rx="1" fill="#D4880F"/><rect x="33" y="14" width="2" height="20" rx="1" fill="#D4880F"/><rect x="37" y="18" width="2" height="12" rx="1" fill="#D4880F"/><rect x="41" y="22" width="2" height="4" rx="1" fill="#D4880F"/></svg></div><div class="label">Bee + audio waveform</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'b4')"><div class="number">B4</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="15" cy="24" r="9" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/><ellipse cx="15" cy="22" rx="5" ry="6" fill="#F5C33B"/><rect x="11" y="24" width="8" height="2" rx="1" fill="#D4880F"/><circle cx="13" cy="20" r="1" fill="#2C2C2C"/><circle cx="17" cy="20" r="1" fill="#2C2C2C"/><rect x="28" y="20" width="2.5" height="8" rx="1" fill="#F5C33B"/><rect x="32" y="16" width="2.5" height="16" rx="1" fill="#D4880F"/><rect x="36" y="12" width="2.5" height="24" rx="1" fill="#B8720A"/><rect x="40" y="16" width="2.5" height="16" rx="1" fill="#D4880F"/><rect x="44" y="20" width="2.5" height="8" rx="1" fill="#F5C33B"/></svg></div><div class="label">Bee + EQ gradient</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'b7')"><div class="number">B7</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="16" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/><circle cx="19" cy="22" r="6" fill="#F5C33B"/><ellipse cx="19" cy="21" rx="3" ry="3.5" fill="#D4880F"/><circle cx="18" cy="20" r="0.7" fill="white"/><circle cx="20" cy="20" r="0.7" fill="white"/><path d="M17 17 L15 14" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/><path d="M21 17 L23 14" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/><path d="M28 20 Q31 18 33 21" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M28 24 Q33 21 36 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M28 28 Q35 24 39 29" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div><div class="label">Warm circle bee + arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'b8')"><div class="number">B8</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/><circle cx="19" cy="24" r="7" fill="#F5C33B"/><ellipse cx="19" cy="23" rx="3.5" ry="4" fill="#D4880F"/><circle cx="18" cy="22" r="0.7" fill="white"/><circle cx="20" cy="22" r="0.7" fill="white"/><path d="M29 20 Q32 18 34 21" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M29 24 Q34 21 37 25" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M29 28 Q36 24 40 29" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div><div class="label">Hex frame bee + arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'c8')"><div class="number">C8</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="28" rx="8" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/><path d="M16 32 L12 40 L22 32" fill="#FFF8E1" stroke="#D4880F" stroke-width="2"/><line x1="16" y1="32" x2="22" y2="32" stroke="#FFF8E1" stroke-width="3"/><circle cx="24" cy="17" r="7" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/><ellipse cx="24" cy="16" rx="3.5" ry="4" fill="#D4880F"/><circle cx="22.5" cy="14.5" r="0.8" fill="white"/><circle cx="25.5" cy="14.5" r="0.8" fill="white"/><path d="M21 11 L19 8" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/><path d="M27 11 L29 8" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/></svg></div><div class="label">Bee in chat bubble</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'c9')"><div class="number">C9</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="18" cy="24" r="12" fill="#F5C33B" stroke="#D4880F" stroke-width="2.5"/><circle cx="15" cy="21" r="1.5" fill="#2C2C2C"/><circle cx="21" cy="21" r="1.5" fill="#2C2C2C"/><path d="M14 27 Q18 30 22 27" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M15 14 L13 8" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/><path d="M21 14 L23 8" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/><path d="M33 20 Q37 18 39 21" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M33 27 Q39 24 42 28" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/></svg></div><div class="label">Smiling bee + 2 bold arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'c10')"><div class="number">C10</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="12" cy="24" r="7" fill="#F5C33B" stroke="#D4880F" stroke-width="1.5"/><ellipse cx="12" cy="23" rx="3.5" ry="4" fill="#D4880F"/><circle cx="11" cy="22" r="0.7" fill="white"/><circle cx="13" cy="22" r="0.7" fill="white"/><path d="M10 19 L8 16" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/><path d="M14 19 L16 16" stroke="#D4880F" stroke-width="1" stroke-linecap="round"/><polyline points="22,24 26,24 28,16 30,32 32,20 34,28 36,24 46,24" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="label">Bee + pulse line</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd1')"><div class="number">D1</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="20" cy="24" r="12" fill="#F5C33B" stroke="#D4880F" stroke-width="2"/><circle cx="17" cy="21" r="1.5" fill="#2C2C2C"/><circle cx="23" cy="21" r="1.5" fill="#2C2C2C"/><ellipse cx="20" cy="28" rx="3" ry="2" fill="#D4880F"/><path d="M17 14 L14 9" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/><path d="M23 14 L26 9" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="9" r="2" fill="#D4880F"/><circle cx="26" cy="9" r="2" fill="#D4880F"/><path d="M35 19 Q38 17 40 20" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M35 24 Q40 21 43 25" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M35 29 Q42 25 46 30" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div><div class="label">Talking bee face + arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd4')"><div class="number">D4</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="20" cy="24" r="10" fill="#F5C33B"/><rect x="12" y="22" width="16" height="2.5" rx="1" fill="#2C2C2C" opacity="0.15"/><rect x="12" y="26" width="16" height="2.5" rx="1" fill="#2C2C2C" opacity="0.15"/><circle cx="17" cy="20" r="1.2" fill="#2C2C2C"/><circle cx="23" cy="20" r="1.2" fill="#2C2C2C"/><path d="M17 16 L15 12" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M23 16 L25 12" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M33 20 Q36 18 38 21" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M33 24 Q38 21 41 25" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M33 28 Q40 24 44 29" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div><div class="label">Flat minimal + thin arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'd9')"><div class="number">D9</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="18" cy="24" r="10" fill="#D4880F"/><circle cx="15" cy="22" r="1.5" fill="white"/><circle cx="21" cy="22" r="1.5" fill="white"/><path d="M15 28 Q18 30 21 28" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M31 21 Q34 19 36 22" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M31 27 Q36 24 39 28" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/></svg></div><div class="label">Ultra-simple amber</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e1')"><div class="number">E1</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="18" cy="24" r="10" fill="none" stroke="#D4880F" stroke-width="2.5"/><path d="M10 22 h16" stroke="#D4880F" stroke-width="1.5"/><path d="M10 26 h16" stroke="#D4880F" stroke-width="1.5"/><circle cx="15" cy="20" r="1.2" fill="#D4880F"/><circle cx="21" cy="20" r="1.2" fill="#D4880F"/><path d="M15 17 L13 13" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/><path d="M21 17 L23 13" stroke="#D4880F" stroke-width="2" stroke-linecap="round"/><path d="M31 20 Q35 18 37 21" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M31 24 Q37 21 40 25" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M31 28 Q39 24 43 29" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg></div><div class="label">Line-art bee + arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e3')"><div class="number">E3</div><div class="preview"><svg viewBox="0 0 48 48" fill="none" stroke="#D4880F" stroke-width="2" stroke-linecap="round"><circle cx="17" cy="24" r="9"/><line x1="10" y1="22" x2="24" y2="22"/><line x1="10" y1="26" x2="24" y2="26"/><circle cx="14" cy="20" r="1" fill="#D4880F" stroke="none"/><circle cx="20" cy="20" r="1" fill="#D4880F" stroke="none"/><path d="M13 16 L11 12"/><path d="M21 16 L23 12"/><path d="M29 20 Q33 18 35 21"/><path d="M29 24 Q35 21 38 25"/><path d="M29 28 Q37 24 41 29"/></svg></div><div class="label">Pure line art</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e4')"><div class="number">E4</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="17" cy="24" r="10" fill="#D4880F"/><rect x="9" y="22" width="16" height="2" fill="#FFF8E1" rx="1"/><rect x="9" y="26" width="16" height="2" fill="#FFF8E1" rx="1"/><circle cx="14" cy="20" r="1.5" fill="#FFF8E1"/><circle cx="20" cy="20" r="1.5" fill="#FFF8E1"/><path d="M14 15 L12 10" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round"/><path d="M20 15 L22 10" stroke="#D4880F" stroke-width="2.5" stroke-linecap="round"/><path d="M30 20 Q34 18 36 21" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M30 24 Q36 21 39 25" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M30 28 Q38 24 42 29" stroke="#D4880F" stroke-width="3" stroke-linecap="round" fill="none"/></svg></div><div class="label">Bold mono inverted</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e6')"><div class="number">E6</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><polygon points="17,10 27,10 32,20 27,30 17,30 12,20" fill="none" stroke="#D4880F" stroke-width="2"/><circle cx="19" cy="19" r="1" fill="#D4880F"/><circle cx="25" cy="19" r="1" fill="#D4880F"/><line x1="14" y1="22" x2="30" y2="22" stroke="#D4880F" stroke-width="1.5"/><line x1="14" y1="26" x2="30" y2="26" stroke="#D4880F" stroke-width="1.5"/><path d="M17 10 L15 5" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M27 10 L29 5" stroke="#D4880F" stroke-width="1.5" stroke-linecap="round"/><path d="M35 16 Q38 14 40 17" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M35 22 Q40 18 44 22" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M35 28 Q42 22 46 28" stroke="#D4880F" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div><div class="label">Hex line bee + arcs</div></div>
+
+  <div class="icon-card" onclick="selectIcon(this, 'e10')"><div class="number">E10</div><div class="preview"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#D4880F"/><circle cx="18" cy="22" r="7" fill="#FFF8E1"/><circle cx="16" cy="20" r="1" fill="#D4880F"/><circle cx="20" cy="20" r="1" fill="#D4880F"/><path d="M15 17 L13 13" stroke="#FFF8E1" stroke-width="1.5" stroke-linecap="round"/><path d="M21 17 L23 13" stroke="#FFF8E1" stroke-width="1.5" stroke-linecap="round"/><path d="M28 18 Q31 16 33 19" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M28 22 Q33 19 36 23" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M28 26 Q35 22 39 27" stroke="#FFF8E1" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div><div class="label">Badge: amber + white</div></div>
+</div>
+
+<div class="spacer"></div>
+
+<div class="selection-bar">
+  <div class="count" id="selection-count">0 selected</div>
+  <div class="hint">Click icons to select favorites — they'll preview in the header above</div>
+</div>
+
+<script>
+  const selected = new Set();
+
+  function selectIcon(card, id) {
+    card.classList.toggle('selected');
+    if (selected.has(id)) {
+      selected.delete(id);
+    } else {
+      selected.add(id);
+    }
+    document.getElementById('selection-count').textContent = selected.size + ' selected';
+
+    // Update header preview with the last clicked icon
+    const svg = card.querySelector('.preview svg');
+    if (svg) {
+      const slot = document.getElementById('preview-slot');
+      slot.innerHTML = svg.outerHTML;
+      slot.querySelector('svg').style.width = '26px';
+      slot.querySelector('svg').style.height = '26px';
+    }
+  }
+</script>
+
+</body>
+</html>

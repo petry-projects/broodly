@@ -213,6 +213,7 @@ Capabilities revealed: onboarding state persistence, progressive context enrichm
 - Logging must be fast and multimodal, with voice/media-first entry and structured correction after capture.
 - Multi-hive and multi-location support is a first-class constraint across data model, notifications, planning, and navigation.
 - Voice recognition shall support a beekeeping-specific vocabulary model or custom glossary to improve accuracy for domain terms (e.g., varroa, propolis, brood, nuc, supersedure, absconding, robbing, nosema). The system shall allow users to train or correct recurring misrecognitions to improve per-user accuracy over time.
+- Cards that require user action (tappable, navigational) must be visually distinct from informational cards. Actionable cards shall include a primary-colored left border indicator and navigation chevron. Informational cards shall have no action affordance. This distinction must be consistent across all screens.
 
 ### Integration Requirements
 
@@ -409,18 +410,20 @@ Seasonal Usage Concentration Risks:
 
 ### User Identity, Profiles, and Access
 
-- FR1a: A user can create an account using email-and-password or supported social authentication.
-- FR1b: A user can update account settings including email, password, and display name.
-- FR1c: A user can initiate account recovery via email.
+- FR1a: A user can create an account using Google and Apple Sign-In.
+- FR1b: A user can update account settings including display name.
+- FR1c: (Removed — social login providers handle account recovery natively.)
 - FR1d: A user can delete their account and all associated data.
 - FR2: A user can set and update a beekeeper profile including experience level, goals, and operating preferences.
-- FR2a: The system shall allow users to modify all onboarding-provided profile data (experience level, region, hive count, goals) at any time from settings, with immediate effect on recommendation depth and seasonal context.
-- FR2b: A new user must complete a guided onboarding flow that captures region, hive configuration, experience level, and management goals before the system generates personalized guidance.
+- FR2a: The system shall allow users to modify all onboarding-provided profile data (experience level, region, apiary name, hive count, goals, interaction preference) at any time from the Settings screen, with immediate effect on recommendation depth, seasonal context, and interaction mode.
+- FR2b: A new user must complete a guided onboarding flow that captures region, apiary name, hive count, hive configuration, experience level, management focus (sliding scale between honey production and making splits as competing priorities), and interaction preference (voice-first vs tap) before the system generates personalized guidance. Colony health is always prioritized regardless of management focus setting.
 - FR2c: The system shall block or visibly degrade guidance quality if required onboarding context (region, experience level) is incomplete.
+- FR2e: The system shall support progressive profile enrichment, allowing future versions to collect additional personalization details (e.g., hive types, queen marking preferences, treatment history, mentor relationship) without requiring re-onboarding. The profile data model shall be extensible so that new fields can be added and populated incrementally from settings or contextual prompts.
 - FR2d: The system shall monitor user behavior for signals of skill-level mismatch (e.g., an "Experienced" user frequently viewing educational explanations, or a "Newbie" user consistently dismissing guided steps) and suggest profile adjustment.
-- FR3: A user can register and manage multiple apiary locations.
+- FR3: A user can register, edit, and manage multiple apiary locations.
 - FR4: A user can register and manage multiple hives within each location.
 - FR5: An account owner can grant read-only access to designated collaborators.
+- FR5a: The system shall display an auditable access history log showing all collaborator permission changes with timestamps.
 - FR6: An account owner can revoke collaborator access.
 - FR7: The system can maintain an auditable history of collaborator access changes.
 
@@ -431,46 +434,58 @@ Seasonal Usage Concentration Risks:
 - FR8b: When a user registers apiaries in a new region, the system shall reset seasonal context for those apiaries to the new region’s baseline and clearly inform the user that personal history from a prior region will not be used for seasonal timing recommendations in the new location until local history is established.
 - FR9: The system can prevent or clearly flag guidance when required localization context is unavailable.
 - FR10: The system can incorporate local weather context into guidance decisions.
+- FR10a: The system shall display regional hive scale weight averages on the homepage, sourced from beecounted.org or equivalent public scale network. Data shall show average daily weight change for the user's area with freshness timestamp.
 - FR11: The system can incorporate bloom/flora context into guidance decisions.
 - FR11a: The system shall allow users to apply microclimate adjustments to their apiary's seasonal context, including elevation offset and observed bloom timing relative to regional baseline.
 - FR11b: When a user consistently overrides or delays acting on regionally-timed recommendations, the system shall detect this pattern and suggest a microclimate adjustment.
+- FR11c: The system shall integrate with beecounted.org (or equivalent regional scale weight network) to provide local nectar flow indicators alongside weather and bloom data.
 - FR12: The system can combine user history and regional context when generating recommendations.
 - FR12a: The system shall maintain a jurisdiction-aware treatment registry that flags treatments by legal status (approved, restricted, prescription-required, prohibited) for each supported region.
 - FR12b: The system shall never recommend a treatment flagged as prohibited in the user's registered jurisdiction. Treatments flagged as restricted or prescription-required shall include a visible regulatory notice and a directive to consult local authorities or a veterinarian before use.
+- FR12b2: The app shall offer a 'Live Mode' option, accessible from a persistent Live Mode EQ icon (amber gradient equalizer bars) in the top app bar (next to the Notifications bell icon) on every authenticated screen. When activated, Live Mode verbally summarizes all current context to the user via TTS: weather changes, bloom status, scale weight trends, pending actions, and any alerts. This enables a hands-free briefing from any screen without navigating back to the homepage. The homepage may additionally feature a Live Mode entry card for discoverability.
 - FR12c: When the jurisdiction registry does not have data for a user's region, treatment recommendations shall include a disclaimer: "Treatment regulations vary by location — verify legality with your local agricultural authority before use."
 
 ### Planning and Prioritization
 
-- FR13: A user can view a current-week prioritized action queue across hives and locations.
+- FR13: A user can view a current-week prioritized action queue across hives and locations. The weekly planning view shall prominently feature a Live Discussion Mode entry point at the top, allowing users to begin voice-driven plan review immediately without additional taps.
+- FR13a: The weekly planning view shall display a 'Required Materials' checklist before the action queue, listing supplies and equipment needed for the week's planned activities (e.g., treatments, supers, syrup, splitting equipment). Materials shall be linked to the specific hive/action requiring them. This section is shown only when materials are needed.
 - FR14: The system can rank actions by urgency and expected outcome impact.
 - FR15: A user can view a seasonal planning calendar of recommended activities.
-- FR16: The system can identify overdue high-impact tasks and surface catch-up guidance.
+- FR16: Overdue tasks shall be highlighted within their apiary and hive context (e.g., with an URGENT badge and warning styling) rather than surfaced as a separate negative card. The weekly plan shall maintain a constructive tone. The system shall surface catch-up guidance inline with the overdue item.
 - FR16b: A user can defer, reschedule, or dismiss a queued action with optional reason capture, and the system shall adjust remaining priorities accordingly.
 - FR17: A user can view risk-themed seasonal signals (for example swarm, starvation, pest pressure, queen risk).
 - FR18: The system can update priorities when new relevant context is received.
 
 ### Guided Inspection and Decision Support
 
-- FR19: A user can start a guided inspection workflow for a selected hive.
-- FR19a: The system shall present a safety awareness checklist before a user's first guided inspection, covering protective equipment, sting allergy risk, and emergency preparedness. The checklist must be acknowledged before the inspection workflow begins.
-- FR20: The system can adapt inspection guidance based on observations captured during the session.
+- FR19: A user can start a VOICE-FIRST guided inspection workflow for a selected hive. Upon entering each inspection step, the system shall immediately begin listening for voice input. The system shall prompt the user conversationally through each step, process voice responses, and advance to the next step when the user indicates completion (e.g., says "done", "next", or "skip"). Manual UI interaction shall not be required for any inspection step. The inspection mode shall be designed as a continuous beeyard session, not a per-hive session. The user starts once and flows through all hives that need attention.
+- FR19a: The system shall present a safety awareness checklist before a user's first guided inspection FOR NEWBIE PERSONA ONLY, covering protective equipment, sting allergy risk, and emergency preparedness. The checklist must be acknowledged before the inspection workflow begins. Amateur and Sideliner personas shall skip directly to the inspection flow. The checklist appears for the Newbie's first 3 inspections, then becomes optional.
+- FR19b: Each guided inspection step shall present the prompt as a conversational voice message from the system, display the user's voice response as a live transcript, provide real-time acknowledgment, and offer a clear way to advance (voice command "done"/"next"/"skip" or tap fallback). No card-based option selection shall be required.
+- FR19c (CRITICAL — Key Differentiator): The system shall support a continuous, hands-free beeyard session where the user can inspect multiple hives sequentially without touching the device. Once in inspection mode, the user navigates between hives via voice commands (e.g., 'next hive', 'move to Hive 4', 'done with this hive'). All observations, actions, and media triggers are voice-driven. UI tapping shall be available as a fallback but shall never be required for any beeyard workflow. This zero-tap beeyard experience is a core product differentiator.
+- FR19d: The system shall maintain per-hive context during a continuous multi-hive session. When the user moves to the next hive, the system shall: (1) save all observations for the current hive, (2) announce the next hive's context (last inspection, current status, recommended inspection type), (3) begin guided steps for the new hive. Voice command 'which hive am I on?' shall confirm current hive context.
+- FR20: The system can adapt inspection guidance based on voice observations captured during the session. The system shall process natural language descriptions and extract structured observations in real-time, providing conversational acknowledgment and follow-up questions.
 - FR21: The system can provide a recommended next action during inspection.
+- FR21a: After completing the observation steps of an inspection, the system shall initiate a voice-driven discussion about the next scheduled action for this hive. The system proposes a follow-up date and type based on observations; the user can agree, modify, or decline via voice. This agreed follow-up is auto-scheduled without requiring any UI taps.
 - FR22: The system can provide rationale for each recommendation.
 - FR23: The system can provide a confidence level for each recommendation.
 - FR24: The system can provide a safe fallback action when recommendation confidence is limited.
 - FR25: A user can complete a shortened inspection path for time-constrained sessions.
 - FR25b: A user can pause and resume an in-progress inspection workflow, with the system preserving captured observations and adapting remaining guidance to the resumed context.
+- FR25c: The inspection flow shall include all required steps (minimum 5: entrance assessment, brood inspection, queen cell check, overall colony assessment, action planning) with each step being voice-driven and conversationally guided.
 - FR26: The system can distinguish and communicate normal versus cautionary versus urgent observations.
 
 ### Logging, Records, and Data Portability
 
-- FR27: A user can create inspection records using voice input.
+- FR27: A user can create inspection records using voice input as the PRIMARY interaction mode. Voice listening shall begin automatically at each inspection step. The system shall NOT use the term "recording" — instead use "listening" to describe the active voice capture state. Tap-based input shall be available as a fallback but shall not be the default interaction. Voice commands shall include hive navigation: 'next hive', 'move to [hive name]', 'go back to [hive name]', 'which hive am I on?', 'how many hives left?', 'end session'.
 - FR28: A user can add media-based observations to hive records.
 - FR29: The system can convert captured inputs into structured, action-typed records.
+- FR29a: Inspection follow-up actions agreed during the voice-driven post-step discussion (FR21a) shall be automatically scheduled without requiring the user to tap a button. The inspection summary shall display the scheduled follow-up as a confirmation (e.g., 'Re-inspect Mar 28 — scheduled') rather than as an action requiring user input.
 - FR30: A user can review and correct structured records after capture.
 - FR30a: The system shall retain original audio recordings for voice-captured observations to support post-session correction.
 - FR30b: The system shall flag voice entries with low transcription confidence for user review during a post-inspection correction step.
+- FR30c: The system shall provide a post-session review screen ('Evening Review') available after the user leaves the beeyard. This review presents all hives inspected during the session with: captured observations, voice transcripts, photos/videos, AI analysis results, and recommended follow-up actions. The user can correct transcriptions, add notes, confirm or adjust observations, add additional photos/videos via a "+" action, and approve follow-up scheduling from this screen — all via tap-based UI (since they're no longer in the field).
 - FR31: The system can maintain longitudinal hive and action history.
+- FR31a: The hive detail screen shall include an 'Activity Log' view showing a reverse chronological list of all actions logged for the hive, including inspections, treatments, observations, and system events. Each entry shall show date, action type, summary, and any associated media.
 - FR32: A user can export their records in JSON format.
 - FR33: A user can export their records in CSV format.
 
@@ -485,7 +500,9 @@ Seasonal Usage Concentration Risks:
 ### Notifications and Operational Alerts
 
 - FR39: The system can send actionable notifications tied to seasonal and operational risk.
-- FR40: A user can configure notification sensitivity and escalation behavior.
+- FR40: The system shall provide global notification controls including on/off toggle, quiet hours, and seasonal escalation auto-adjustment. Per-apiary sensitivity controls are NOT required for MVP. Additionally, the system shall provide per-category notification toggles allowing users to independently enable or disable each notification type: Seasonal Risk Alerts, Telemetry Alerts, Inspection Reminders, Task & Follow-Up Reminders, Skill Milestone Notifications, and Feedback Prompts.
+- FR40a2: The system shall provide a 'Notification Types' informational screen accessible from notification settings that displays each notification category with a description, example notification, and the toggle to control it. Categories: Seasonal Risk Alerts (swarm, starvation, pest, queen), Telemetry Alerts (weight anomalies, temperature events), Inspection Reminders (overdue or upcoming inspections), Task & Follow-Up Reminders (pending actions, escalations), Skill Milestones (progression achievements), and Feedback Prompts (periodic decision-confidence surveys).
+- FR40b: The system shall support notification quiet hours with configurable start/end times.
 - FR41: The system can escalate unresolved high-priority alerts.
 - FR42: The system can suppress or reduce low-value notifications based on user settings.
 - FR43: Notifications can include contextual reason and recommended next step.
@@ -493,8 +510,10 @@ Seasonal Usage Concentration Risks:
 ### Integrations and External Data
 
 - FR44: A user can connect supported telemetry providers.
+- FR44a: The system shall display connected integration status with freshness indicators and allow disconnect while preserving historical data.
 - FR45: The system can ingest telemetry linked to specific hives and locations.
 - FR46: The system can indicate telemetry freshness and sync status.
+- FR46a: When the user has configured weight telemetry access, the homepage shall display a 'Your Hives' scale weight card showing per-hive weight trends from the user's own connected sensors, in addition to the regional average card.
 - FR47: The system can adjust recommendation priority based on connected telemetry.
 - FR47a: The system shall apply plausibility checks to incoming telemetry data before using it to trigger alerts or alter recommendation priority. Single-reading anomalies (e.g., sudden large weight change without corroborating temperature or prior trend signals) shall be flagged as "unconfirmed sensor reading" rather than treated as confirmed events.
 - FR47b: Telemetry-triggered urgent alerts shall require corroboration from at least one additional signal (e.g., sustained trend over multiple readings, corroborating sensor type, or seasonal plausibility) before escalating to push notification level.

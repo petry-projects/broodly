@@ -312,6 +312,10 @@ Shape language:
 - Introduce hex-derived micro-shapes in badges, confidence chips, and section headers.
 - Preserve functional clarity: shape motifs should reinforce identity without reducing scannability.
 
+Icon conventions:
+- **Edit actions:** Always use a pencil icon (✏️) instead of the word "Edit". The pencil icon is universally recognized and saves horizontal space, especially on mobile. Apply consistently across all edit triggers: inline edit links, edit buttons, record editing, and transcript correction. Pair with a tooltip or accessible label "Edit [item name]" for screen readers.
+- **Live Mode:** Use an EQ Gradient icon (5 vertical equalizer bars in amber gradient — Pollen Gold #F5C33B outer edges through Primary Amber #D4880F center to Deep Amber #9A5F08) for all Live Mode entry points — the persistent top bar icon and any in-context entry cards. Bars animate with staggered scaleY pulse when active. Respects `prefers-reduced-motion`.
+
 ### Accessibility Considerations
 
 - All semantic color pairings must meet WCAG 2.1 AA contrast targets.
@@ -455,7 +459,7 @@ New users must complete a lightweight onboarding flow before reaching the Happy 
 ```mermaid
 flowchart TD
   A([Install & Open]) --> B[Welcome Screen\nValue proposition: one clear sentence]
-  B --> C[Account Creation\nemail/social auth, minimal fields]
+  B --> C[Account Creation\nGoogle or Apple Sign-In, minimal fields]
   C --> D[Experience Level Selection\nNewbie / Amateur / Sideliner\nwith plain-language descriptions]
   D --> E[Region & Location Setup\nauto-detect via GPS with manual override\npermission request with trust messaging]
   E --> F[First Apiary Setup\nname, location pin, hive count]
@@ -496,6 +500,8 @@ Before the first guided inspection begins, the system shall display a non-skippa
 - Did It and Ignore resolution: simple binary response replaces manual task management overhead.
 - Batch voice actions: operation-level commands map to multiple hive records with scope confirmation.
 - Accordion scalability: per-apiary progressive disclosure supports small to large operations.
+- **Continuous beeyard session (Key Differentiator):** The inspection flow is designed as a single continuous session across ALL hives in a yard visit, not as isolated per-hive sessions. Once a beekeeper starts their session, they should NEVER need to tap the phone while at the beeyard. The user navigates between hives via voice commands ("next hive", "move to Hive 4", "done with this hive", "which hive am I on?", "how many hives left?", "end session"). The system automatically saves per-hive observations on transition, announces the next hive's context (last inspection, status, recommended type) via TTS, and begins guided steps for the new hive. All observations, actions, and media triggers are voice-driven. UI tapping is available as a fallback but is never required for any beeyard workflow. This zero-tap beeyard experience is what distinguishes Broodly from every competitor.
+- **Post-session Evening Review:** After leaving the field, a tap-friendly "Evening Review" screen presents all hives inspected during the session with captured observations, voice transcripts, photos/videos, AI analysis results, and recommended follow-up actions. The user can correct transcriptions, add notes, confirm or adjust observations, and approve follow-up scheduling — all via standard tap-based UI since they are no longer wearing gloves in the field. The Photos/Videos section includes a "+" button to add additional media after the session (e.g., photos taken separately, supplemental video). This two-mode paradigm (voice-only in the field, tap-friendly at home) is central to the product experience.
 
 ### Flow Optimization Principles
 
@@ -519,13 +525,31 @@ Settings is accessible from the bottom navigation bar and organized into the fol
 - Add, edit, archive apiaries and hives
 - Hive naming, ordering, and metadata
 - Apiary and hive creation is also accessible from Apiary Summary Screen via a "+" button
+- Apiary editing is also accessible from the Apiary Detail screen via an edit button, allowing in-context modification of apiary name, location, microclimate adjustments, and notes without navigating to Settings
 
 #### Notifications
-- Global notification toggle
-- Per-apiary sensitivity slider (Low / Normal / High)
+- Global notification toggle (master on/off)
+- Per-category toggles for independent control of each notification type:
+  - Seasonal Risk Alerts (swarm, starvation, pest pressure, queen risk)
+  - Telemetry Alerts (weight anomalies, temperature events, sustained trends)
+  - Inspection Reminders (overdue or upcoming inspections)
+  - Task & Follow-Up Reminders (pending actions, escalations)
+  - Skill Milestone Notifications (progression achievements)
+  - Feedback Prompts (periodic decision-confidence surveys)
 - Seasonal escalation auto-adjust toggle
-- Suppression windows (e.g., "quiet hours")
+- Suppression windows (e.g., "quiet hours" with configurable start/end times)
+- Link to "Notification Types" informational screen (see below)
 - Notification history log
+
+#### Notification Types Screen
+- Accessible from notification settings via a "Learn about notification types" link
+- Displays each notification category as a card with:
+  - Category name and icon
+  - Brief description of when and why this type fires
+  - Example notification preview (realistic sample content)
+  - Toggle to enable/disable this category (mirrors the per-category toggles in settings)
+- Categories displayed: Seasonal Risk Alerts, Telemetry Alerts, Inspection Reminders, Task & Follow-Up Reminders, Skill Milestones, Feedback Prompts
+- Educational tone: helps users understand what to expect so they can make informed toggle decisions
 
 #### Integrations
 - Connected telemetry devices with sync status
@@ -607,6 +631,7 @@ All tiered health cards use a shared base contract (`HealthStatusCardBase`) and 
 - `NotificationCenter`: accessible from app header; shows chronological list of alerts grouped by today / this week / earlier.
 - `ActionableNotificationCard`: displays alert reason, affected hive/apiary, recommended next step, and action buttons (Go to Hive, Dismiss, Snooze).
 - `NotificationBadge`: appears on the header bell icon with unread count; clears on open.
+- `NotificationTypesScreen`: informational screen listing all notification categories with descriptions, example previews, and per-category toggles. Accessible from notification settings.
 
 #### Planning Components
 
@@ -617,7 +642,7 @@ All tiered health cards use a shared base contract (`HealthStatusCardBase`) and 
 
 - `ApiaryAccordionQueue`: scalable per-apiary recommendation grouping with progressive disclosure.
 - `VoiceLogCapture`: single-utterance voice input for observation and action logging during inspections. Includes: microphone button (56x56px minimum), live transcript preview, structured interpretation display, confirm/edit/retry controls, and tap-based fallback. This is the MVP voice primitive.
-- `LiveVoiceInputDiscussionMode`: conversational voice interface for free-form guidance queries, clarifications, and multi-step commands. Interaction model: user activates via microphone button or wake phrase; system listens and displays live transcript; on pause detection (1.5 seconds of silence), system processes and responds; conversation context is maintained within a session (multi-turn); exit via "Done" button or 30 seconds of inactivity; all voice exchanges are logged as part of the inspection record; fallback: if voice is unavailable, same interface accepts typed input.
+- `LiveVoiceInputDiscussionMode`: conversational voice interface for free-form guidance queries, clarifications, and multi-step commands. **Activation:** user taps the persistent Live Mode EQ icon in the top app bar (available on every authenticated screen), or activates via wake phrase. The system listens and displays live transcript; on pause detection (1.5 seconds of silence), system processes and responds; conversation context is maintained within a session (multi-turn); exit via "Done" button or 30 seconds of inactivity; all voice exchanges are logged as part of the inspection record; fallback: if voice is unavailable, same interface accepts typed input. The EQ bars animate (staggered scaleY pulse) while Live Mode is active.
 - `ScopeConfirmationSheet`: confirmation step for voice-derived bulk actions before commit. The sheet shall read back the interpreted scope audibly (via text-to-speech) before requiring confirmation. After a batch action is confirmed and written, a 30-second undo window with a prominent undo button is provided. The system shall warn when a batch action conflicts with recent records.
 
 ### Component Implementation Strategy
@@ -767,6 +792,8 @@ Accessibility baseline requirements include WCAG 2.1 AA contrast targets, large 
 - More than 72 hours offline: persistent red banner with "Recommendations are based on significantly outdated context — verify conditions independently before acting"; recommendations revert to conservative safe-action defaults; the system suppresses high-confidence labels entirely.
 
 #### Sync Status
+- The app header contains (left to right): screen title or breadcrumb, then on the right side: sync status indicator (when applicable), Live Mode EQ Gradient icon, and notification bell icon with badge.
+- The **Live Mode icon** (an EQ Gradient icon — 5 vertical equalizer bars in amber gradient) is visible on every authenticated screen. Tapping it activates Live Mode from the current context — the system begins TTS playback summarizing relevant context (weather, bloom, scale trends, pending actions, alerts). This makes Live Mode accessible from anywhere in the app, not just the homepage.
 - A sync status icon appears in the app header when local data has not yet been written to the server.
 - States: Synced (hidden), Pending (subtle dot indicator), Syncing (animated), Sync Failed (warning icon with retry action).
 - Tapping the sync indicator opens a sync detail sheet showing pending items count and last successful sync timestamp.

@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broodly — Live Mode Icon: Final Proposal</title>
+  <style>
+    :root {
+      --primary-500: #D4880F; --primary-600: #B8720A; --primary-700: #9A5F08; --primary-50: #FFF8E1; --primary-100: #FFECB3; --primary-200: #FFD54F; --primary-300: #F5C33B;
+      --secondary-500: #E8B931; --secondary-300: #F5D650;
+      --success-500: #2D7A3A;
+      --error-500: #A63D2F;
+      --info-500: #4A90C4;
+      --bg-0: #FFFFFF; --bg-50: #FDF6E8; --bg-100: #FAFAF7;
+      --text-800: #2C2C2C; --text-500: #6B7280; --text-400: #9CA3AF;
+      --outline-200: #E5E7EB; --outline-300: #D1D5DB;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fafafa; color: var(--text-800); }
+
+    .page { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    h2 { font-size: 20px; font-weight: 700; margin: 40px 0 16px; color: var(--text-800); }
+    h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--text-500); text-transform: uppercase; letter-spacing: 1px; font-size: 12px; }
+    .subtitle { color: var(--text-500); font-size: 14px; margin-bottom: 32px; line-height: 1.5; }
+    p { font-size: 14px; line-height: 1.6; color: var(--text-500); margin-bottom: 12px; }
+    .accent { color: var(--primary-600); font-weight: 600; }
+
+    /* Hero icon display */
+    .hero { display: flex; align-items: center; justify-content: center; gap: 48px; padding: 48px 0; background: white; border-radius: 16px; border: 1px solid var(--outline-200); margin-bottom: 32px; }
+    .hero-icon { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .hero-icon .size-label { font-size: 11px; color: var(--text-400); font-weight: 600; }
+    .hero-icon svg { filter: drop-shadow(0 2px 8px rgba(212,136,15,0.2)); }
+
+    /* Phone mockup */
+    .phone { width: 375px; margin: 0 auto; background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.12); border: 1px solid var(--outline-200); }
+    .phone-status { background: white; padding: 8px 20px 0; display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--text-800); }
+    .phone-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: white; border-bottom: 1px solid var(--outline-200); }
+    .phone-header h4 { font-size: 18px; font-weight: 700; }
+    .header-icons { display: flex; align-items: center; gap: 14px; }
+    .live-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; transition: background 0.15s; }
+    .live-btn:hover { background: var(--primary-50); }
+    .live-btn svg { width: 26px; height: 26px; }
+    .bell { font-size: 22px; position: relative; cursor: pointer; }
+    .bell-badge { position: absolute; top: -4px; right: -6px; background: var(--error-500); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .phone-content { padding: 16px 20px 24px; background: var(--bg-50); min-height: 200px; }
+
+    /* Spec table */
+    .spec-table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; }
+    .spec-table th { text-align: left; font-size: 12px; font-weight: 700; color: var(--text-400); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid var(--outline-200); }
+    .spec-table td { font-size: 14px; padding: 10px 12px; border-bottom: 1px solid var(--outline-200); vertical-align: top; }
+    .spec-table td:first-child { font-weight: 600; color: var(--text-800); white-space: nowrap; }
+
+    /* States row */
+    .states { display: flex; gap: 24px; margin: 16px 0; flex-wrap: wrap; }
+    .state-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--outline-200); text-align: center; flex: 1; min-width: 140px; }
+    .state-card .label { font-size: 12px; font-weight: 700; color: var(--text-400); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .state-card svg { margin: 0 auto; }
+    .state-card .desc { font-size: 12px; color: var(--text-500); margin-top: 8px; }
+
+    /* Size demo */
+    .size-row { display: flex; align-items: flex-end; gap: 32px; padding: 24px; background: white; border-radius: 12px; border: 1px solid var(--outline-200); margin: 16px 0; }
+    .size-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .size-item .px { font-size: 11px; color: var(--text-400); font-weight: 600; }
+
+    /* Dark mode preview */
+    .dark-preview { background: #1a1a2e; border-radius: 12px; padding: 24px; margin: 16px 0; }
+    .dark-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #2a2a3e; border-radius: 12px; }
+    .dark-header h4 { color: white; font-size: 18px; font-weight: 700; }
+    .dark-header .bell { color: white; }
+
+    /* Context mockups */
+    .contexts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+    .context-card { background: white; border-radius: 12px; border: 1px solid var(--outline-200); overflow: hidden; }
+    .context-card .ctx-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--outline-200); }
+    .context-card .ctx-header h5 { font-size: 14px; font-weight: 700; }
+    .context-card .ctx-body { padding: 12px 16px; background: var(--bg-50); font-size: 12px; color: var(--text-500); }
+    .context-label { font-size: 11px; color: var(--text-400); font-weight: 600; text-align: center; padding: 6px; background: #f8f8f8; }
+
+    @keyframes eq-pulse {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.4); }
+    }
+    .active-bar { animation: eq-pulse 0.6s ease-in-out infinite; transform-origin: center; }
+    .active-bar:nth-child(2) { animation-delay: 0.1s; }
+    .active-bar:nth-child(3) { animation-delay: 0.2s; }
+    .active-bar:nth-child(4) { animation-delay: 0.15s; }
+    .active-bar:nth-child(5) { animation-delay: 0.05s; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Live Mode Icon — Final Proposal</h1>
+  <div class="subtitle">EQ Gradient bars in the Broodly amber palette. No bee — the bars alone are universally recognized as "audio/live" and pair cleanly with the app logo already in the header.</div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- HERO: THE ICON -->
+  <!-- ═══════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-icon">
+      <div class="size-label">48px (reference)</div>
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/>
+        <rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/>
+        <rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/>
+        <rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/>
+        <rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/>
+      </svg>
+    </div>
+    <div class="hero-icon">
+      <div class="size-label">32px (touch target)</div>
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+        <rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/>
+        <rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/>
+        <rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/>
+        <rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/>
+        <rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/>
+      </svg>
+    </div>
+    <div class="hero-icon">
+      <div class="size-label">26px (app bar)</div>
+      <svg width="26" height="26" viewBox="0 0 48 48" fill="none">
+        <rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/>
+        <rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/>
+        <rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/>
+        <rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/>
+        <rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/>
+      </svg>
+    </div>
+    <div class="hero-icon">
+      <div class="size-label">20px (compact)</div>
+      <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+        <rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/>
+        <rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/>
+        <rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/>
+        <rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/>
+        <rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- SPEC TABLE -->
+  <!-- ═══════════════════════════════════ -->
+  <h2>Icon Specification</h2>
+  <table class="spec-table">
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Name</td><td>Live Mode EQ</td></tr>
+    <tr><td>Concept</td><td>5 vertical equalizer bars with amber gradient — lightest outer to darkest center — forming a symmetrical audio visualization</td></tr>
+    <tr><td>Viewbox</td><td>0 0 48 48</td></tr>
+    <tr><td>Bar count</td><td>5 (symmetric: short–medium–tall–medium–short)</td></tr>
+    <tr><td>Bar width</td><td>4px with 3px gap, rx="2" for rounded ends</td></tr>
+    <tr><td>Bar 1 (outer left)</td><td>Pollen Gold <span class="accent">#F5C33B</span> — y:20 h:8</td></tr>
+    <tr><td>Bar 2</td><td>Secondary Gold <span class="accent">#E8B931</span> — y:14 h:20</td></tr>
+    <tr><td>Bar 3 (center)</td><td>Primary Amber <span class="accent">#D4880F</span> — y:8 h:32</td></tr>
+    <tr><td>Bar 4</td><td>Dark Amber <span class="accent">#B8720A</span> — y:14 h:20</td></tr>
+    <tr><td>Bar 5 (outer right)</td><td>Deep Amber <span class="accent">#9A5F08</span> — y:20 h:8</td></tr>
+    <tr><td>Display size</td><td>26px in app bar (inside 32px touch target)</td></tr>
+    <tr><td>Touch target</td><td>32x32px circle, hover state: <code>bg-primary-50</code></td></tr>
+    <tr><td>Placement</td><td>App header, right side, immediately left of notification bell</td></tr>
+    <tr><td>Accessibility</td><td><code>aria-label="Live Mode — tap for hands-free briefing"</code></td></tr>
+  </table>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- STATES -->
+  <!-- ═══════════════════════════════════ -->
+  <h2>Icon States</h2>
+  <div class="states">
+    <div class="state-card">
+      <div class="label">Idle (default)</div>
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+        <rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/>
+        <rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/>
+        <rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/>
+        <rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/>
+        <rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/>
+      </svg>
+      <div class="desc">Static bars. Tap to activate.</div>
+    </div>
+    <div class="state-card">
+      <div class="label">Active (listening/speaking)</div>
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+        <rect class="active-bar" x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/>
+        <rect class="active-bar" x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/>
+        <rect class="active-bar" x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/>
+        <rect class="active-bar" x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/>
+        <rect class="active-bar" x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/>
+      </svg>
+      <div class="desc">Bars pulse rhythmically. Tap to stop.</div>
+    </div>
+    <div class="state-card">
+      <div class="label">Disabled (offline)</div>
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+        <rect x="8" y="20" width="4" height="8" rx="2" fill="#D1D5DB"/>
+        <rect x="15" y="14" width="4" height="20" rx="2" fill="#D1D5DB"/>
+        <rect x="22" y="8" width="4" height="32" rx="2" fill="#D1D5DB"/>
+        <rect x="29" y="14" width="4" height="20" rx="2" fill="#D1D5DB"/>
+        <rect x="36" y="20" width="4" height="8" rx="2" fill="#D1D5DB"/>
+      </svg>
+      <div class="desc">Greyed out. Not tappable.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- IN-CONTEXT: PHONE MOCKUP -->
+  <!-- ═══════════════════════════════════ -->
+  <h2>In-Context: App Header</h2>
+
+  <div class="phone">
+    <div class="phone-status">
+      <span>9:41</span>
+      <span>&#x1F4F6; &#x1F50B;</span>
+    </div>
+    <div class="phone-header">
+      <h4>&#x1F41D; Broodly</h4>
+      <div class="header-icons">
+        <div class="live-btn" title="Live Mode">
+          <svg width="26" height="26" viewBox="0 0 48 48" fill="none">
+            <rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/>
+            <rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/>
+            <rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/>
+            <rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/>
+            <rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/>
+          </svg>
+        </div>
+        <div class="bell">&#x1F514;<span class="bell-badge">3</span></div>
+      </div>
+    </div>
+    <div class="phone-content">
+      <div style="padding: 12px 0;">
+        <div style="font-size: 22px; font-weight: 700;">Good morning, Don</div>
+        <div style="font-size: 14px; color: var(--text-500); margin-top: 4px;">Clover at peak bloom. Great week ahead.</div>
+      </div>
+      <div style="background: white; border-radius: 12px; padding: 14px; border: 1px solid var(--outline-200); margin-top: 12px;">
+        <div style="font-size: 13px; color: var(--text-400); font-weight: 600;">TODAY'S WEATHER</div>
+        <div style="font-size: 15px; margin-top: 4px;">72&#xB0;F / Sunny &mdash; foraging conditions excellent</div>
+      </div>
+      <div style="background: linear-gradient(135deg, var(--primary-50), #FFF9E0); border-radius: 12px; padding: 14px; border-left: 3px solid var(--primary-500); margin-top: 12px; cursor: pointer;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg>
+          <div>
+            <div style="font-size: 15px; font-weight: 700;">Live Mode Briefing</div>
+            <div style="font-size: 13px; color: var(--text-500);">Hear your morning update — hands-free</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-screen headers -->
+  <h3 style="margin-top: 32px;">Across Other Screens</h3>
+  <div class="contexts">
+    <div class="context-card">
+      <div class="ctx-header">
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="cursor:pointer;">&#8592;</span><h5>Hive 3 Detail</h5></div>
+        <div class="header-icons">
+          <div class="live-btn"><svg width="22" height="22" viewBox="0 0 48 48" fill="none"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg></div>
+          <span style="font-size:18px;">&#x1F514;</span>
+        </div>
+      </div>
+      <div class="ctx-body">Hive detail content...</div>
+      <div class="context-label">Sub-screen with back nav</div>
+    </div>
+    <div class="context-card">
+      <div class="ctx-header">
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="cursor:pointer;">&#8592;</span><h5>Weekly Plan</h5></div>
+        <div class="header-icons">
+          <div class="live-btn"><svg width="22" height="22" viewBox="0 0 48 48" fill="none"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg></div>
+          <span style="font-size:18px;">&#x1F514;</span>
+        </div>
+      </div>
+      <div class="ctx-body">Planning content...</div>
+      <div class="context-label">Planning screen</div>
+    </div>
+    <div class="context-card">
+      <div class="ctx-header">
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="cursor:pointer;">&#8592;</span><h5>Settings</h5></div>
+        <div class="header-icons">
+          <div class="live-btn"><svg width="22" height="22" viewBox="0 0 48 48" fill="none"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg></div>
+          <span style="font-size:18px;">&#x1F514;</span>
+        </div>
+      </div>
+      <div class="ctx-body">Settings content...</div>
+      <div class="context-label">Settings screen</div>
+    </div>
+    <div class="context-card">
+      <div class="ctx-header">
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="cursor:pointer;">&#8592;</span><h5>Evening Review</h5></div>
+        <div class="header-icons">
+          <div class="live-btn"><svg width="22" height="22" viewBox="0 0 48 48" fill="none"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg></div>
+          <span style="font-size:18px;">&#x1F514;</span>
+        </div>
+      </div>
+      <div class="ctx-body">Review content...</div>
+      <div class="context-label">Evening Review</div>
+    </div>
+  </div>
+
+  <!-- Dark mode -->
+  <h3>Dark Mode</h3>
+  <div class="dark-preview">
+    <div class="dark-header">
+      <h4>&#x1F41D; Broodly</h4>
+      <div class="header-icons">
+        <div class="live-btn" style="background: rgba(255,255,255,0.05);">
+          <svg width="26" height="26" viewBox="0 0 48 48" fill="none">
+            <rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/>
+            <rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/>
+            <rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/>
+            <rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/>
+            <rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/>
+          </svg>
+        </div>
+        <div class="bell" style="color: white;">&#x1F514;<span class="bell-badge">3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- COLOR BREAKDOWN -->
+  <!-- ═══════════════════════════════════ -->
+  <h2>Color Gradient Breakdown</h2>
+  <div style="display: flex; gap: 4px; margin: 16px 0; align-items: flex-end; height: 80px;">
+    <div style="flex: 1; background: #F5C33B; border-radius: 8px 8px 4px 4px; height: 40%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;"><span style="font-size: 9px; color: #2C2C2C; font-weight: 600;">#F5C33B</span></div>
+    <div style="flex: 1; background: #E8B931; border-radius: 8px 8px 4px 4px; height: 65%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;"><span style="font-size: 9px; color: #2C2C2C; font-weight: 600;">#E8B931</span></div>
+    <div style="flex: 1; background: #D4880F; border-radius: 8px 8px 4px 4px; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;"><span style="font-size: 9px; color: white; font-weight: 600;">#D4880F</span></div>
+    <div style="flex: 1; background: #B8720A; border-radius: 8px 8px 4px 4px; height: 65%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;"><span style="font-size: 9px; color: white; font-weight: 600;">#B8720A</span></div>
+    <div style="flex: 1; background: #9A5F08; border-radius: 8px 8px 4px 4px; height: 40%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;"><span style="font-size: 9px; color: white; font-weight: 600;">#9A5F08</span></div>
+  </div>
+  <p>The gradient maps directly to the Broodly token scale: <span class="accent">Pollen Gold (300)</span> on the edges through <span class="accent">Primary Amber (500)</span> at center to <span class="accent">Deep Amber (700)</span>. This creates depth and warmth that reads as "audio visualization" at a glance, while being unmistakably Broodly.</p>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- SVG CODE -->
+  <!-- ═══════════════════════════════════ -->
+  <h2>SVG Source</h2>
+  <div style="background: #1e1e2e; border-radius: 8px; padding: 16px; overflow-x: auto; margin: 16px 0;">
+    <pre style="color: #cdd6f4; font-size: 13px; line-height: 1.5; margin: 0; font-family: 'SF Mono', Monaco, Consolas, monospace;"><code>&lt;svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;
+  &lt;rect x="8"  y="20" width="4" height="8"  rx="2" fill="#F5C33B"/&gt;
+  &lt;rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/&gt;
+  &lt;rect x="22" y="8"  width="4" height="32" rx="2" fill="#D4880F"/&gt;
+  &lt;rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/&gt;
+  &lt;rect x="36" y="20" width="4" height="8"  rx="2" fill="#9A5F08"/&gt;
+&lt;/svg&gt;</code></pre>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- RATIONALE -->
+  <!-- ═══════════════════════════════════ -->
+  <h2>Design Rationale</h2>
+  <table class="spec-table">
+    <tr><td>Recognizability</td><td>EQ bars are universally understood as "audio/live" across all platforms — Spotify, podcasts, voice assistants. Zero learning curve.</td></tr>
+    <tr><td>No bee needed</td><td>The app logo (bee) already sits in the header. Doubling it would add clutter without information. The EQ bars add a distinct, complementary meaning.</td></tr>
+    <tr><td>Brand alignment</td><td>The amber gradient is unique to Broodly. No other app uses this exact warm-to-deep amber progression for audio — it becomes an ownable visual signature.</td></tr>
+    <tr><td>Scales cleanly</td><td>5 simple rects with rounded ends remain crisp at every size from 20px to 48px. No detail is lost at the 26px app bar size.</td></tr>
+    <tr><td>Animatable</td><td>Active state uses CSS <code>scaleY</code> on each bar with staggered delays. Lightweight, respects <code>prefers-reduced-motion</code> (falls back to static).</td></tr>
+    <tr><td>Accessible</td><td>Strong contrast on both light and dark backgrounds. Clear state differentiation (amber = active, grey = disabled). Paired with aria-label.</td></tr>
+  </table>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- BEHAVIOR -->
+  <!-- ═══════════════════════════════════ -->
+  <h2>Interaction Behavior</h2>
+  <table class="spec-table">
+    <tr><th>Trigger</th><th>Result</th></tr>
+    <tr><td>Tap (idle)</td><td>Bars animate. Live Mode activates: TTS begins summarizing current context (weather, bloom, trends, actions, alerts).</td></tr>
+    <tr><td>Tap (active)</td><td>Bars stop. TTS stops. Returns to idle.</td></tr>
+    <tr><td>Hover/press</td><td>Circular <code>bg-primary-50</code> background appears behind icon (32px circle).</td></tr>
+    <tr><td>Offline</td><td>Bars turn <code>outline-300</code> grey. Not tappable. Tooltip: "Live Mode requires connectivity."</td></tr>
+    <tr><td>prefers-reduced-motion</td><td>Bars do not animate. Active state shown with a subtle amber glow ring instead.</td></tr>
+    <tr><td>Screen reader</td><td>"Live Mode. Double tap to start hands-free briefing." / "Live Mode active. Double tap to stop."</td></tr>
+  </table>
+
+  <div style="height: 40px;"></div>
+</div>
+</body>
+</html>

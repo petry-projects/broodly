@@ -1,0 +1,2749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broodly — Interactive Prototype</title>
+  <style>
+    :root {
+      --primary-500: #D4880F; --primary-600: #B8720A; --primary-50: #FFF8E1; --primary-100: #FFECB3; --primary-200: #FFD54F; --primary-300: #F5C33B;
+      --secondary-500: #E8B931; --secondary-300: #F5D650; --secondary-50: #FFF9E0;
+      --success-500: #2D7A3A; --success-50: #E8F5E9; --success-600: #256630;
+      --warning-500: #B8720A; --warning-50: #FFF3E0; --warning-300: #E8A84A;
+      --error-500: #A63D2F; --error-50: #FEE2E2;
+      --info-500: #4A90C4; --info-50: #E3F2FD;
+      --bg-0: #FFFFFF; --bg-50: #FDF6E8; --bg-100: #FAFAF7; --bg-muted: #F3F4F6;
+      --text-800: #2C2C2C; --text-500: #6B7280; --text-400: #9CA3AF; --text-900: #1F2937; --text-0: #FFFFFF;
+      --outline-200: #E5E7EB; --outline-300: #D1D5DB;
+      --radius: 12px; --radius-sm: 8px;
+      --shadow: 0px 2px 10px rgba(38,38,38,0.10);
+      --voice-bg: #F5EDE0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e; color: var(--text-800);
+      display: flex; min-height: 100vh;
+    }
+
+    /* ── Sidebar Flow Map ── */
+    .sidebar {
+      width: 260px; min-width: 260px; background: #16162a; color: #ccc;
+      padding: 20px 0; overflow-y: auto; height: 100vh; position: fixed; left: 0; top: 0; z-index: 100;
+    }
+    .sidebar h2 { font-size: 15px; font-weight: 800; color: var(--primary-500); padding: 0 16px; margin-bottom: 16px; letter-spacing: 0.5px; }
+    .sidebar .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888; padding: 12px 16px 4px; }
+    .sidebar a {
+      display: block; padding: 6px 16px 6px 24px; font-size: 13px; color: #aaa;
+      text-decoration: none; cursor: pointer; transition: background 0.15s;
+    }
+    .sidebar a:hover { background: rgba(212,136,15,0.15); color: #fff; }
+    .sidebar a.active { background: rgba(212,136,15,0.25); color: var(--primary-500); font-weight: 600; border-left: 3px solid var(--primary-500); padding-left: 21px; }
+
+    /* ── Main Area ── */
+    .main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin-left: 260px; padding: 32px 24px; }
+    .screen-title { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 12px; text-align: center; opacity: 0.9; }
+    .screen-subtitle { color: #aaa; font-size: 13px; margin-bottom: 16px; text-align: center; }
+
+    /* ── Phone ── */
+    .phone {
+      width: 375px; height: 812px; border: 3px solid #333; border-radius: 40px;
+      overflow: hidden; background: var(--bg-0); box-shadow: 0 0 40px rgba(0,0,0,0.5); position: relative;
+      display: flex; flex-direction: column;
+    }
+    .phone-status {
+      height: 44px; background: var(--bg-0); display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; font-size: 12px; font-weight: 600; flex-shrink: 0;
+    }
+    .phone-status .time { }
+    .phone-status .icons { display: flex; gap: 4px; font-size: 11px; }
+
+    /* Screen container */
+    .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    .screen-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+    /* ── Bottom Nav ── */
+    .bottom-nav {
+      height: 56px; background: var(--bg-0); border-top: 1px solid var(--outline-200);
+      display: flex; flex-shrink: 0;
+    }
+    .bottom-nav .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 600; color: var(--text-400); cursor: pointer; gap: 2px; transition: color 0.15s;
+    }
+    .bottom-nav .tab .tab-icon { font-size: 20px; }
+    .bottom-nav .tab.active { color: var(--primary-500); }
+    .bottom-nav .tab:hover { color: var(--primary-600); }
+
+    /* ── Shared Components ── */
+    .phone-header {
+      background: var(--bg-0); padding: 12px 20px; border-bottom: 1px solid var(--outline-200);
+      display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .phone-header h4 { font-size: 18px; font-weight: 700; }
+    .phone-header .back { cursor: pointer; font-size: 20px; margin-right: 8px; }
+    .phone-header .header-left { display: flex; align-items: center; }
+
+    .phone-content { padding: 20px; display: grid; gap: 12px; align-content: start; }
+    .phone-content-center { padding: 20px; display: grid; gap: 16px; align-content: center; justify-items: center; text-align: center; min-height: 100%; }
+
+    /* Buttons */
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; border: 2px solid transparent; cursor: pointer; font-family: inherit; border-radius: var(--radius-sm); width: 100%; white-space: nowrap; }
+    .btn:hover { opacity: 0.88; }
+    .btn-xl { height: 48px; font-size: 16px; }
+    .btn-lg { height: 44px; font-size: 16px; }
+    .btn-md { height: 40px; font-size: 14px; }
+    .btn-sm { height: 36px; font-size: 14px; }
+    .btn-primary { background: var(--primary-500); color: white; }
+    .btn-outline { background: transparent; color: var(--primary-500); border-color: var(--primary-300); }
+    .btn-secondary { background: transparent; color: var(--text-500); border-color: var(--outline-300); }
+    .btn-positive { background: var(--success-500); color: white; }
+    .btn-ghost { background: transparent; color: var(--text-500); border: none; }
+    .btn-danger { background: var(--error-50); color: var(--error-500); border-color: var(--error-500); }
+
+    /* Cards */
+    .card { background: var(--bg-0); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 14px; cursor: default; }
+    .card-clickable { cursor: pointer; transition: transform 0.12s, box-shadow 0.12s; }
+    .card-clickable:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .card-selected { border: 2px solid var(--primary-500); background: var(--primary-50); }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+    .card-text { font-size: 13px; color: var(--text-500); }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge-success { background: var(--success-50); color: var(--success-600); }
+    .badge-warning { background: var(--warning-50); color: var(--warning-500); }
+    .badge-error { background: var(--error-50); color: var(--error-500); }
+    .badge-info { background: var(--info-50); color: var(--info-500); }
+    .badge-primary { background: var(--primary-50); color: var(--primary-600); border: 1px solid var(--primary-200); }
+
+    /* Alert */
+    .alert { padding: 12px; border-radius: var(--radius-sm); font-size: 13px; display: flex; gap: 8px; align-items: flex-start; }
+    .alert-info { background: var(--info-50); color: #2C5F8A; }
+    .alert-warning { background: var(--warning-50); color: var(--warning-500); }
+    .alert-success { background: var(--success-50); color: var(--success-500); }
+    .alert-error { background: var(--error-50); color: var(--error-500); }
+
+    /* Progress Dots */
+    .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--outline-200); }
+    .dot-active { background: var(--primary-500); }
+    .dot-done { background: var(--success-500); }
+
+    /* Step bar */
+    .step-bar { display: flex; gap: 4px; }
+    .step-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--outline-200); }
+    .step-seg-active { background: var(--primary-500); }
+    .step-seg-done { background: var(--success-500); }
+
+    /* Checkbox row */
+    .check-row { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+    .check-box { width: 22px; height: 22px; border: 2px solid var(--outline-300); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+    .check-box-checked { background: var(--primary-500); border-color: var(--primary-500); color: white; font-size: 13px; }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--outline-200); margin: 4px 0; }
+
+    /* Social button */
+    .social-btn { height: 52px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 15px; font-weight: 500; background: var(--bg-0); cursor: pointer; color: var(--text-800); font-family: inherit; width: 100%; }
+    .social-btn:hover { background: var(--bg-muted); }
+
+    /* Map placeholder */
+    .map-placeholder { background: var(--bg-muted); border-radius: var(--radius-sm); height: 140px; display: flex; align-items: center; justify-content: center; color: var(--text-400); font-size: 13px; border: 1px dashed var(--outline-300); }
+
+    /* KPI row */
+    .kpi-row { display: flex; gap: 8px; }
+    .kpi { flex: 1; text-align: center; padding: 10px 4px; background: var(--bg-50); border-radius: var(--radius-sm); }
+    .kpi-value { font-size: 18px; font-weight: 700; color: var(--text-800); }
+    .kpi-label { font-size: 11px; color: var(--text-500); margin-top: 2px; }
+
+    /* Settings row */
+    .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--outline-200); cursor: pointer; }
+    .settings-row:hover { background: var(--bg-50); margin: 0 -20px; padding: 14px 20px; }
+    .settings-row .label { font-size: 15px; font-weight: 500; }
+    .settings-row .chevron { color: var(--text-400); font-size: 16px; }
+
+    /* Notification bell */
+    .bell-wrapper { position: relative; cursor: pointer; font-size: 22px; }
+    .bell-badge { position: absolute; top: -4px; right: -6px; background: var(--error-500); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    /* Header icons row — Live Mode + Bell */
+    .header-icons { display: flex; align-items: center; gap: 14px; }
+    .live-mode-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: background 0.15s; position: relative; }
+    .live-mode-btn:hover { background: var(--primary-50); }
+    .live-mode-btn svg { width: 26px; height: 26px; }
+    @keyframes live-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    @keyframes eq-pulse { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.4); } }
+
+    /* Context card */
+    .context-card { background: var(--bg-50); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 12px; }
+    .context-card-title { font-size: 13px; font-weight: 600; color: var(--text-500); margin-bottom: 4px; }
+    .context-card-value { font-size: 14px; font-weight: 600; }
+
+    /* Voice FAB */
+    .voice-fab { width: 56px; height: 56px; border-radius: 50%; background: var(--primary-500); color: white; border: none; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(212,136,15,0.4); position: absolute; bottom: 16px; right: 16px; }
+    .voice-fab:hover { background: var(--primary-600); }
+
+    /* Camera btn */
+    .camera-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-muted); border: 1px solid var(--outline-300); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* Mic pulsing — voice-first inspection */
+    .coach-btn { width: 64px; height: 64px; border-radius: 50%; background: var(--primary-500); color: white; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; animation: coach-pulse 1.5s ease-in-out infinite; }
+    @keyframes coach-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,136,15,0.4); } 50% { transform: scale(1.1); box-shadow: 0 0 0 14px rgba(212,136,15,0); } }
+
+    /* Hex chip */
+    .hex-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: 6px; padding: 4px 10px; font-size: 13px; font-weight: 700; color: var(--primary-600); }
+
+    /* Accordion */
+    .accordion-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--bg-50); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); cursor: pointer; }
+    .accordion-header:hover { background: var(--primary-50); }
+    .accordion-body { border: 1px solid var(--outline-200); border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm); padding: 12px; display: grid; gap: 10px; }
+
+    /* Plan item */
+    .plan-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px; border: 1px solid var(--outline-200); border-radius: var(--radius-sm); }
+    .plan-item.urgent { border-left: 3px solid var(--error-500); background: var(--error-50); }
+    .plan-item-content { flex: 1; }
+    .plan-item-title { font-size: 14px; font-weight: 600; }
+    .plan-item-meta { font-size: 12px; color: var(--text-500); }
+    .plan-item-actions { display: flex; gap: 6px; margin-top: 6px; }
+
+    /* Summary table */
+    .summary-table { width: 100%; }
+    .summary-table tr td { padding: 8px 0; font-size: 14px; border-bottom: 1px solid var(--outline-200); }
+    .summary-table tr td:first-child { color: var(--text-500); font-weight: 500; }
+    .summary-table tr td:last-child { text-align: right; font-weight: 600; }
+
+    /* Photo thumb */
+    .photo-thumb { width: 48px; height: 48px; border-radius: 6px; background: var(--bg-muted); border: 1px solid var(--outline-200); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-400); }
+
+    /* Progress bar */
+    .progress-bar-track { width: 100%; height: 8px; background: var(--outline-200); border-radius: 4px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 4px; background: var(--success-500); }
+
+    /* Warning left border card */
+    .card-warning-border { border-left: 3px solid var(--warning-500); }
+
+    /* Transcript box */
+    .transcript-box { background: var(--bg-muted); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; color: var(--text-800); font-style: italic; min-height: 60px; }
+
+    /* Milestone card */
+    .milestone-card { background: linear-gradient(135deg, var(--primary-50), var(--secondary-50)); border: 1px solid var(--primary-200); border-radius: var(--radius-sm); padding: 14px; text-align: center; }
+
+    /* Option card for inspection */
+    .option-card { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--outline-200); border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; }
+    .option-card:hover { background: var(--bg-50); }
+    .option-card.selected { border: 2px solid var(--primary-500); background: var(--primary-50); }
+    .option-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--outline-300); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .option-card.selected .option-radio { border-color: var(--primary-500); background: var(--primary-500); }
+    .option-card.selected .option-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+
+    /* ── Live Discussion Mode inspection patterns ── */
+    .voice-screen .screen-scroll { background: var(--voice-bg); }
+    .voice-bubble { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; margin-bottom: 4px; }
+    .voice-bubble-app { background: var(--bg-0); color: var(--text-800); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .voice-bubble-user { background: var(--primary-50); color: var(--text-800); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .voice-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-50); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .voice-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+    .voice-row-user { justify-content: flex-end; }
+    .voice-status { font-size: 12px; font-weight: 600; color: var(--primary-500); text-align: center; margin-top: 4px; }
+
+    /* Chip grid for goal selection & settings */
+    .chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .chip { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border: 2px solid var(--outline-200); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; background: var(--bg-0); transition: all 0.15s; }
+    .chip:hover { border-color: var(--primary-300); }
+    .chip.chip-selected { border-color: var(--primary-500); background: var(--primary-50); color: var(--primary-600); }
+
+    /* Actionable card — requires user tap/action. Has primary left border + chevron */
+    .card-action {
+      border-left: 3px solid var(--primary-500);
+      cursor: pointer;
+      position: relative;
+    }
+    .card-action::after {
+      content: '\203A';
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary-500);
+    }
+    .card-action:hover {
+      background: var(--primary-50);
+    }
+
+    /* Informational card — display only, no action needed */
+    .card-info {
+      border-left: none;
+      cursor: default;
+    }
+
+    /* Goal slider */
+    .goal-slider {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      border-radius: 4px;
+      outline: none;
+      background: linear-gradient(to right, var(--secondary-500), var(--success-500));
+    }
+    .goal-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-0);
+      border: 3px solid var(--primary-500);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .goal-slider::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-0);
+      border: 3px solid var(--primary-500);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* Interaction style cards */
+    .interact-card { display: flex; align-items: center; gap: 10px; padding: 14px; border: 2px solid var(--outline-200); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-0); transition: all 0.15s; }
+    .interact-card:hover { border-color: var(--primary-300); }
+    .interact-card.interact-selected { border-color: var(--primary-500); background: var(--primary-50); }
+
+    /* Stepper */
+    .stepper { display: flex; align-items: center; gap: 0; }
+    .stepper-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--outline-300); background: var(--bg-0); font-size: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-800); }
+    .stepper-btn:hover { background: var(--primary-50); border-color: var(--primary-300); }
+    .stepper-value { font-size: 24px; font-weight: 700; width: 48px; text-align: center; }
+
+    /* Toggle switch */
+    .toggle-track { width: 48px; height: 28px; border-radius: 14px; background: var(--outline-300); cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
+    .toggle-track.toggle-on { background: var(--success-500); }
+    .toggle-knob { width: 22px; height: 22px; border-radius: 50%; background: white; position: absolute; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle-track.toggle-on .toggle-knob { left: 23px; }
+
+    /* Input field style */
+    .input-field { width: 100%; padding: 12px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; background: var(--bg-0); color: var(--text-800); }
+    .input-field:focus { outline: none; border-color: var(--primary-500); }
+    .input-label { font-size: 13px; font-weight: 600; color: var(--text-500); margin-bottom: 4px; }
+
+    /* Select field */
+    .select-field { width: 100%; padding: 12px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; background: var(--bg-0); color: var(--text-800); appearance: auto; }
+
+    /* Textarea */
+    .textarea-field { width: 100%; padding: 12px; border: 1px solid var(--outline-300); border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; background: var(--bg-0); color: var(--text-800); resize: vertical; min-height: 80px; }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <h2>Broodly Prototype</h2>
+
+  <div class="section-label">Onboarding</div>
+  <a onclick="showScreen('welcome')" id="nav-welcome">Welcome</a>
+  <a onclick="showScreen('account-creation')" id="nav-account-creation">Account Creation</a>
+  <a onclick="showScreen('experience-level')" id="nav-experience-level">Experience Level</a>
+  <a onclick="showScreen('region-setup')" id="nav-region-setup">Region Setup</a>
+  <a onclick="showScreen('apiary-setup')" id="nav-apiary-setup">Apiary Setup</a>
+  <a onclick="showScreen('goal-selection')" id="nav-goal-selection">Goal Selection</a>
+  <a onclick="showScreen('onboarding-summary')" id="nav-onboarding-summary">Onboarding Summary</a>
+
+  <div class="section-label">Main App</div>
+  <a onclick="showScreen('homepage')" id="nav-homepage">Homepage</a>
+  <a onclick="showScreen('notifications')" id="nav-notifications">Notifications</a>
+  <a onclick="showScreen('my-apiaries')" id="nav-my-apiaries">My Apiaries</a>
+  <a onclick="showScreen('apiary-detail')" id="nav-apiary-detail">Apiary Detail</a>
+  <a onclick="showScreen('edit-apiary')" id="nav-edit-apiary">Edit Apiary</a>
+  <a onclick="showScreen('hive-detail')" id="nav-hive-detail">Hive Detail (Warning)</a>
+  <a onclick="showScreen('hive-activity-log')" id="nav-hive-activity-log">Activity Log</a>
+  <a onclick="showScreen('hive-detail-healthy')" id="nav-hive-detail-healthy">Hive Detail (Healthy)</a>
+  <a onclick="showScreen('weekly-plan')" id="nav-weekly-plan">Weekly Plan</a>
+
+  <div class="section-label">Settings</div>
+  <a onclick="showScreen('settings-hub')" id="nav-settings-hub">Settings Hub</a>
+  <a onclick="showScreen('account-settings')" id="nav-account-settings">Account Settings</a>
+  <a onclick="showScreen('settings-profile')" id="nav-settings-profile">Profile &amp; Preferences</a>
+  <a onclick="showScreen('settings-notifications')" id="nav-settings-notifications">Notifications</a>
+  <a onclick="showScreen('notification-types')" id="nav-notification-types">Notification Types</a>
+  <a onclick="showScreen('settings-integrations')" id="nav-settings-integrations">Integrations</a>
+  <a onclick="showScreen('settings-collaborators')" id="nav-settings-collaborators">Collaborators</a>
+  <a onclick="showScreen('settings-data')" id="nav-settings-data">Data &amp; Privacy</a>
+
+  <div class="section-label">Inspection Flow</div>
+  <a onclick="showScreen('safety-gate')" id="nav-safety-gate">Safety Gate</a>
+  <a onclick="showScreen('inspection-step-1')" id="nav-inspection-step-1">Step 1 — Entrance</a>
+  <a onclick="showScreen('inspection-step-2')" id="nav-inspection-step-2">Step 2 — Brood</a>
+  <a onclick="showScreen('inspection-step-3')" id="nav-inspection-step-3">Step 3 — Queen Cells</a>
+  <a onclick="showScreen('inspection-next-action')" id="nav-inspection-next-action">Next Action Discussion</a>
+  <a onclick="showScreen('inspection-next-hive')" id="nav-inspection-next-hive">Next Hive Transition</a>
+  <a onclick="showScreen('inspection-session-end')" id="nav-inspection-session-end">Session End</a>
+  <a onclick="showScreen('inspection-summary')" id="nav-inspection-summary">Inspection Summary</a>
+  <a onclick="showScreen('evening-review')" id="nav-evening-review">Evening Review</a>
+</div>
+
+<!-- ── MAIN AREA ── -->
+<div class="main">
+  <div class="screen-title" id="current-screen-title">Welcome</div>
+  <div class="screen-subtitle" id="current-screen-subtitle">Tap elements to navigate between screens</div>
+
+  <div class="phone">
+    <!-- Status Bar -->
+    <div class="phone-status">
+      <span class="time">9:41</span>
+      <span class="icons">&#9679;&#9679;&#9679;&#9679; &#128267; 100%</span>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Welcome -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen active" id="screen-welcome">
+      <div class="screen-scroll">
+        <div class="phone-content-center">
+          <div style="font-size: 72px;">&#x1F41D;</div>
+          <h1 style="font-size: 36px; font-weight: 800; color: var(--primary-600);">Broodly</h1>
+          <p style="font-size: 16px; color: var(--text-500); max-width: 280px;">Make the right decision for your bees, every time.</p>
+          <div style="margin-top: 24px; width: 100%; display: grid; gap: 12px;">
+            <button class="btn btn-xl btn-primary" onclick="showScreen('account-creation')">Get Started</button>
+            <button class="btn btn-lg btn-ghost" onclick="showScreen('homepage')">Sign In</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Account Creation -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-account-creation">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('welcome')">&#8592;</span>
+          <h4>Join Broodly</h4>
+        </div>
+        <span style="font-size: 24px;">&#x1F41D;</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content" style="align-content: center; min-height: 600px;">
+          <p style="font-size: 15px; color: var(--text-500); text-align: center; margin-bottom: 8px;">Create your account to get started</p>
+          <button class="social-btn" onclick="showScreen('experience-level')" style="height: 52px;">
+            &#63743; Continue with Apple
+          </button>
+          <button class="social-btn" onclick="showScreen('experience-level')" style="height: 52px;">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+          <div class="divider" style="margin: 8px 0;"></div>
+          <label class="check-row" style="font-size: 13px; color: var(--text-500);">
+            <span class="check-box check-box-checked">&#10003;</span>
+            <span>I agree to the <a style="color: var(--primary-500);">Terms of Service</a> and <a style="color: var(--primary-500);">Privacy Policy</a></span>
+          </label>
+          <div class="alert alert-info" style="margin-top: 8px;">
+            <span>&#x1F512;</span>
+            <span>We never store passwords. Authentication is handled securely through Apple or Google.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Experience Level -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-experience-level">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('account-creation')">&#8592;</span>
+          <h4>About You</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="progress-dots">
+            <span class="dot dot-done"></span>
+            <span class="dot dot-active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <h3 style="font-size: 20px; font-weight: 700;">What kind of beekeeper are you?</h3>
+          <p style="font-size: 14px; color: var(--text-500);">This helps us tailor guidance to your skill level.</p>
+
+          <div class="card card-selected card-clickable" id="exp-newbie" onclick="selectExperience('newbie')">
+            <div class="card-title">&#x1F331; Newbie</div>
+            <div class="card-text">Just getting started. I want guided support.</div>
+          </div>
+          <div class="card card-clickable" id="exp-amateur" onclick="selectExperience('amateur')">
+            <div class="card-title">&#x1F41D; Amateur</div>
+            <div class="card-text">1-3 years experience. I know the basics.</div>
+          </div>
+          <div class="card card-clickable" id="exp-sideliner" onclick="selectExperience('sideliner')">
+            <div class="card-title">&#x2B50; Sideliner</div>
+            <div class="card-text">3+ years with multiple hives. Looking for optimization.</div>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('region-setup')" style="margin-top: 8px;">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Region Setup -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-region-setup">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('experience-level')">&#8592;</span>
+          <h4>Your Location</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="progress-dots">
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <h3 style="font-size: 20px; font-weight: 700;">Where are your bees?</h3>
+          <div class="alert alert-info">
+            <span>&#x1F4CD;</span>
+            <span>Location helps us provide accurate weather, bloom, and seasonal guidance for your area.</span>
+          </div>
+          <div class="map-placeholder">&#x1F5FA; Auto-detected via GPS</div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="card-title">&#x1F4CD; Portland, Oregon</div>
+                <div class="card-text">Zone 8b &middot; Pacific Northwest</div>
+              </div>
+              <span class="badge badge-success">&#10003; Detected</span>
+            </div>
+          </div>
+          <button class="btn btn-xl btn-primary" onclick="showScreen('apiary-setup')" style="margin-top: 8px;">Continue</button>
+          <button class="btn btn-sm btn-ghost">Enter location manually</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Apiary Setup (NEW) -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-apiary-setup">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('region-setup')">&#8592;</span>
+          <h4>First Apiary</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="progress-dots">
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <h3 style="font-size: 20px; font-weight: 700;">Set up your first apiary</h3>
+
+          <div>
+            <div class="input-label">Apiary Name</div>
+            <input class="input-field" type="text" value="Backyard Apiary" />
+          </div>
+
+          <div class="map-placeholder" style="cursor: pointer;">&#x1F4CD; Same as home location &middot; Tap to adjust pin</div>
+
+          <div>
+            <div class="input-label" style="margin-bottom: 8px;">How many hives?</div>
+            <div style="display: flex; align-items: center; justify-content: center;">
+              <div class="stepper">
+                <button class="stepper-btn" onclick="adjustHiveCount(-1)">-</button>
+                <span class="stepper-value" id="hive-count">3</span>
+                <button class="stepper-btn" onclick="adjustHiveCount(1)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <span>&#x2139;&#xFE0F;</span>
+            <span>Don't worry about naming individual hives now — you can set that up later.</span>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('goal-selection')" style="margin-top: 8px;">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Goal Selection (NEW) -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-goal-selection">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('apiary-setup')">&#8592;</span>
+          <h4>Your Goals</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="progress-dots">
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-active"></span>
+            <span class="dot"></span>
+          </div>
+          <h3 style="font-size: 20px; font-weight: 700;">What's your primary management focus?</h3>
+          <p style="font-size: 14px; color: var(--text-500);">Honey production and making splits are competing priorities. Where do you lean?</p>
+
+          <div style="padding: 8px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 14px; font-weight: 600;">&#x1F36F; Honey Production</span>
+              <span style="font-size: 14px; font-weight: 600;">&#x1F41D; Making Splits</span>
+            </div>
+            <input type="range" min="0" max="100" value="50" class="goal-slider" id="goal-slider" oninput="updateGoalLabel(this.value)">
+            <div id="goal-label" style="text-align: center; font-size: 14px; font-weight: 600; color: var(--primary-600); margin-top: 8px;">Balanced — honey and growth equally</div>
+          </div>
+
+          <div class="alert alert-success" style="font-size: 13px;">
+            <span>&#x1F49A;</span>
+            <span>Colony health is always our top priority regardless of your focus.</span>
+          </div>
+
+          <div class="divider" style="margin: 8px 0;"></div>
+
+          <h3 style="font-size: 18px; font-weight: 700;">How do you prefer to interact?</h3>
+          <div style="display: grid; gap: 8px;" id="interact-cards">
+            <div class="interact-card interact-selected" onclick="selectInteract(this)">
+              <span style="font-size: 24px;">&#x1F5E3;</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600;">Live Discussion Mode</div>
+                <div style="font-size: 13px; color: var(--text-500);">Talk to Broodly while inspecting</div>
+              </div>
+            </div>
+            <div class="interact-card" onclick="selectInteract(this)">
+              <span style="font-size: 24px;">&#x1F4DD;</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600;">Tap &amp; read</div>
+                <div style="font-size: 13px; color: var(--text-500);">Manual entry and reading</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('onboarding-summary')" style="margin-top: 8px;">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Onboarding Summary -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-onboarding-summary">
+      <div class="screen-scroll">
+        <div class="phone-content-center">
+          <div class="progress-dots">
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-done"></span>
+            <span class="dot dot-active"></span>
+          </div>
+          <div style="font-size: 56px;">&#x1F41D;</div>
+          <h2 style="font-size: 24px; font-weight: 800; color: var(--success-500);">You're all set!</h2>
+          <p style="font-size: 14px; color: var(--text-500);">Here's a summary of your setup</p>
+          <div style="width: 100%; text-align: left;">
+            <table class="summary-table">
+              <tr><td>Experience</td><td>&#x1F331; Newbie</td></tr>
+              <tr><td>Location</td><td>Portland, OR &middot; Zone 8b</td></tr>
+              <tr><td>Apiary</td><td>Backyard Apiary</td></tr>
+              <tr><td>Hives</td><td id="summary-hive-count">3</td></tr>
+              <tr><td>Focus</td><td>Balanced (honey &amp; splits)</td></tr>
+              <tr><td>Interaction</td><td>&#x1F5E3; Live Discussion Mode</td></tr>
+            </table>
+          </div>
+          <button class="btn btn-xl btn-primary" onclick="showScreen('homepage')" style="margin-top: 16px;">Start Using Broodly &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Homepage -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-homepage">
+      <div class="phone-header">
+        <h4>&#x1F41D; Broodly</h4>
+        <div class="header-icons">
+          <div class="live-mode-btn" onclick="alert('&#x1F41D; Starting Live Mode...\n\nGood morning Don! Here\'s your update:\n\n&#9728;&#xFE0F; Last week was warm and dry — great foraging.\n&#x1F327;&#xFE0F; Rain expected Wednesday through Thursday.\n&#x1F338; Clover is at peak bloom — main nectar flow active.\n&#x2696;&#xFE0F; Area scale weights up 2.3 lbs per day.\n\n&#x1F4CB; You have 3 actions this week. Hive 3 needs urgent attention for queen cells.\n\nReady to start your plan?')" title="Live Mode — tap for hands-free briefing">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="26" height="26"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg>
+          </div>
+          <div class="bell-wrapper" onclick="showScreen('notifications')">
+            &#x1F514;
+            <span class="bell-badge">3</span>
+          </div>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <h3 style="font-size: 20px; font-weight: 700;">Good morning, Don &#9728;&#65039;</h3>
+          <p style="font-size: 14px; color: var(--text-500);">Here's what's happening with your bees.</p>
+
+          <!-- Live Mode Briefing -->
+          <div class="card card-action" onclick="alert('&#x1F41D; Starting Live Mode...\n\nGood morning Don! Here\'s your update:\n\n&#9728;&#xFE0F; Last week was warm and dry — great foraging.\n&#x1F327;&#xFE0F; Rain expected Wednesday through Thursday.\n&#x1F338; Clover is at peak bloom — main nectar flow active.\n&#x2696;&#xFE0F; Area scale weights up 2.3 lbs per day.\n\n&#x1F4CB; You have 3 actions this week. Hive 3 needs urgent attention for queen cells.\n\nReady to start your plan?')" style="background: linear-gradient(135deg, var(--primary-50), var(--secondary-50)); border-left: 3px solid var(--primary-500); padding-right: 32px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28"><rect x="8" y="20" width="4" height="8" rx="2" fill="#F5C33B"/><rect x="15" y="14" width="4" height="20" rx="2" fill="#E8B931"/><rect x="22" y="8" width="4" height="32" rx="2" fill="#D4880F"/><rect x="29" y="14" width="4" height="20" rx="2" fill="#B8720A"/><rect x="36" y="20" width="4" height="8" rx="2" fill="#9A5F08"/></svg>
+              <div>
+                <div style="font-size: 15px; font-weight: 700;">Live Mode Briefing</div>
+                <div style="font-size: 13px; color: var(--text-500);">Hear your morning update — hands-free</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session Review Card -->
+          <div class="card card-action" onclick="showScreen('evening-review')" style="background: var(--secondary-50);">
+            <div style="display: flex; align-items: center; gap: 10px; padding-right: 32px;">
+              <span style="font-size: 20px;">&#x1F4CB;</span>
+              <div>
+                <div class="card-title">Review today's session</div>
+                <div class="card-text">4 hives inspected &middot; Tap to review</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="context-card card-info">
+              <div class="context-card-title">&#x1F324; Last Week</div>
+              <div class="context-card-value">Warm &amp; dry</div>
+              <div style="font-size: 12px; color: var(--text-400);">Avg 72&deg;F</div>
+            </div>
+            <div class="context-card card-info">
+              <div class="context-card-title">&#x1F327; Next Week</div>
+              <div class="context-card-value">Rain Wed-Thu</div>
+              <div style="font-size: 12px; color: var(--text-400);">Plan around it</div>
+            </div>
+            <div class="context-card card-info">
+              <div class="context-card-title">&#x1F33C; Bloom</div>
+              <div class="context-card-value">Clover peak</div>
+              <div style="font-size: 12px; color: var(--text-400);">Strong nectar flow</div>
+            </div>
+            <div class="context-card card-info">
+              <div class="context-card-title">&#x1F33E; Seasonal</div>
+              <div class="context-card-value">Building stores</div>
+              <div style="font-size: 12px; color: var(--text-400);">Spring buildup</div>
+            </div>
+          </div>
+
+          <!-- Area Scale Weights Card -->
+          <div class="card card-info" style="background: var(--bg-0); border-left: 3px solid var(--secondary-500);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 14px; font-weight: 700;">&#x2696;&#xFE0F; Area Scale Weights</div>
+                <div style="font-size: 13px; color: var(--text-500);">Portland area avg: <strong style="color: var(--success-500);">+2.3 lbs/day</strong></div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 20px; font-weight: 600; font-family: monospace; color: var(--success-500);">&uarr; 2.3</div>
+                <div style="font-size: 11px; color: var(--text-400);">lbs/day</div>
+              </div>
+            </div>
+            <div style="font-size: 12px; color: var(--text-400); margin-top: 6px;">Source: beecounted.org &middot; Updated 2h ago</div>
+          </div>
+
+          <!-- Your Hives Weight Trends -->
+          <div class="card card-info" style="background: var(--success-50);">
+            <div style="font-size: 14px; font-weight: 700;">&#x2696;&#xFE0F; Your Hives — Weight Trends</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+              <div style="background: var(--bg-0); border-radius: 8px; padding: 8px; text-align: center;">
+                <div style="font-size: 12px; color: var(--text-500);">Hive 3 &middot; Buzz</div>
+                <div style="font-size: 18px; font-weight: 600; font-family: monospace; color: var(--warning-500);">&rarr; 0.0</div>
+                <div style="font-size: 11px; color: var(--text-400);">lbs/day (plateau)</div>
+              </div>
+              <div style="background: var(--bg-0); border-radius: 8px; padding: 8px; text-align: center;">
+                <div style="font-size: 12px; color: var(--text-500);">Hive 4 &middot; Goldie</div>
+                <div style="font-size: 18px; font-weight: 600; font-family: monospace; color: var(--success-500);">&uarr; 3.1</div>
+                <div style="font-size: 11px; color: var(--text-400);">lbs/day</div>
+              </div>
+            </div>
+            <div style="font-size: 12px; color: var(--text-400); margin-top: 6px;">From BroodMinder &middot; Updated 15 min ago</div>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('weekly-plan')">Start Today's Plan</button>
+          <button class="btn btn-lg btn-outline" onclick="showScreen('my-apiaries')">View My Apiaries</button>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab active" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Notifications -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-notifications">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('homepage')">&#8592;</span>
+          <h4>Notifications</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;">Mark all read</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-500); text-transform: uppercase; letter-spacing: 1px;">Today</div>
+
+          <div class="card card-action card-warning-border">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; padding-right: 32px;">
+              <div class="card-title">&#x26A0;&#xFE0F; Swarm Risk Detected</div>
+              <span class="badge badge-warning">Urgent</span>
+            </div>
+            <div class="card-text">Hive 3 &mdash; Buzz shows signs of swarm impulse. Queen cells may be present.</div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <button class="btn btn-sm btn-primary" style="flex: 1;" onclick="showScreen('hive-detail')">Go to Hive</button>
+              <button class="btn btn-sm btn-secondary" style="flex: 0 0 auto; width: auto; padding: 0 12px;">Dismiss</button>
+              <button class="btn btn-sm btn-ghost" style="flex: 0 0 auto; width: auto; padding: 0 12px;">Snooze</button>
+            </div>
+          </div>
+
+          <div class="card card-action">
+            <div class="card-title">&#x1F489; Treatment Reminder</div>
+            <div class="card-text" style="padding-right: 32px;">Hive 2 &mdash; Queen B: Follow-up treatment due today for varroa management.</div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <button class="btn btn-sm btn-positive" style="flex: 1;">Mark Done</button>
+              <button class="btn btn-sm btn-secondary" style="flex: 0 0 auto; width: auto; padding: 0 12px;">Defer</button>
+            </div>
+          </div>
+
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-500); text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;">This Week</div>
+
+          <div class="card">
+            <div class="card-title">&#x1F327; Weather Alert</div>
+            <div class="card-text">Rain expected Wednesday through Thursday. Consider completing outdoor tasks before then.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: My Apiaries -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-my-apiaries">
+      <div class="phone-header">
+        <h4>My Apiaries</h4>
+        <span style="font-size: 24px; cursor: pointer; color: var(--primary-500);">+</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="card card-action" onclick="showScreen('apiary-detail')">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-right: 32px;">
+              <div>
+                <div class="card-title">&#x1F3E1; Backyard Apiary</div>
+                <div class="card-text">4 hives &middot; Last visited Mar 20</div>
+              </div>
+              <span class="badge badge-warning">1 &#x26A0;</span>
+            </div>
+          </div>
+          <div class="card card-action">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-right: 32px;">
+              <div>
+                <div class="card-title">&#x26F0; Hillside Apiary</div>
+                <div class="card-text">6 hives &middot; Last visited Mar 19</div>
+              </div>
+              <span class="badge badge-success">&#10003; Healthy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab active" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Apiary Detail -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-apiary-detail">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('my-apiaries')">&#8592;</span>
+          <h4>Backyard Apiary</h4>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 14px; cursor: pointer; color: var(--primary-500); font-weight: 600;" onclick="showScreen('edit-apiary')">&#x270F;&#xFE0F; Edit</span>
+          <span style="font-size: 24px; cursor: pointer; color: var(--primary-500);">+</span>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="kpi-row">
+            <div class="kpi">
+              <div class="kpi-value">4</div>
+              <div class="kpi-label">Hives</div>
+            </div>
+            <div class="kpi" style="background: var(--warning-50);">
+              <div class="kpi-value" style="color: var(--warning-500);">1</div>
+              <div class="kpi-label">Attention</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-value">Mar 20</div>
+              <div class="kpi-label">Last Visit</div>
+            </div>
+          </div>
+
+          <div class="card card-action" onclick="showScreen('hive-detail-healthy')">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 32px;">
+              <div>
+                <div class="card-title">Hive 1 &mdash; Sunny</div>
+                <div class="card-text">Strong colony &middot; 2 supers</div>
+              </div>
+              <span class="badge badge-success">Healthy</span>
+            </div>
+          </div>
+          <div class="card card-action">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 32px;">
+              <div>
+                <div class="card-title">Hive 2 &mdash; Queen B</div>
+                <div class="card-text">Treatment in progress</div>
+              </div>
+              <span class="badge badge-warning" style="border: 1px solid var(--warning-300);">Attention</span>
+            </div>
+          </div>
+          <div class="card card-action card-warning-border" onclick="showScreen('hive-detail')">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 32px;">
+              <div>
+                <div class="card-title">Hive 3 &mdash; Buzz</div>
+                <div class="card-text">Swarm risk detected</div>
+              </div>
+              <span class="badge badge-warning">&#x26A0; Warning</span>
+            </div>
+          </div>
+          <div class="card card-action">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 32px;">
+              <div>
+                <div class="card-title">Hive 4 &mdash; Goldie</div>
+                <div class="card-text">New package &middot; Building up</div>
+              </div>
+              <span class="badge badge-success">Healthy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab active" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Edit Apiary (NEW) -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-edit-apiary">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('apiary-detail')">&#8592;</span>
+          <h4>Edit Apiary</h4>
+        </div>
+        <span style="font-size: 14px; cursor: pointer; color: var(--success-500); font-weight: 600;" onclick="showScreen('apiary-detail')">Save</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div>
+            <div class="input-label">Apiary Name</div>
+            <input class="input-field" type="text" value="Backyard Apiary" />
+          </div>
+
+          <div>
+            <div class="input-label">Location</div>
+            <div class="map-placeholder" style="height: 120px; cursor: pointer;">
+              &#x1F4CD; Portland, OR &middot; 45.52&deg;N, 122.68&deg;W &middot; Tap to adjust
+            </div>
+          </div>
+
+          <div>
+            <div class="input-label">Elevation Offset</div>
+            <input class="input-field" type="text" value="+50m from regional baseline" />
+          </div>
+
+          <div>
+            <div class="input-label">Bloom Timing Adjustment</div>
+            <select class="select-field">
+              <option>Normal</option>
+              <option>1 week early</option>
+              <option>1 week late</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="input-label">Notes</div>
+            <textarea class="textarea-field" placeholder="Add notes about this apiary..."></textarea>
+          </div>
+
+          <div class="alert alert-info">
+            <span>&#x2139;&#xFE0F;</span>
+            <span>Microclimate adjustments help Broodly give more accurate bloom and weather guidance for this specific apiary location.</span>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('apiary-detail')">Save Changes</button>
+          <button class="btn btn-lg btn-outline" onclick="showScreen('apiary-detail')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Hive Detail (Warning - Buzz) -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-hive-detail">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('apiary-detail')">&#8592;</span>
+          <h4>Hive 3 &mdash; Buzz</h4>
+        </div>
+        <span class="badge badge-warning">&#x26A0; Warning</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="alert alert-warning">
+            <span>&#x26A0;&#xFE0F;</span>
+            <span><strong>Swarm impulse detected.</strong> Multiple indicators suggest this colony may be preparing to swarm.</span>
+          </div>
+
+          <div class="card card-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <div class="card-title">Last Inspection</div>
+              <span style="font-size: 13px; color: var(--text-500);">Mar 18</span>
+            </div>
+            <div class="card-text">Colony very active. Noted heavy bearding. Multiple frames of capped brood.</div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi card-info">
+              <div class="kpi-value">Moderate</div>
+              <div class="kpi-label">Temperament</div>
+            </div>
+            <div class="kpi card-info">
+              <div class="kpi-value">28.1kg</div>
+              <div class="kpi-label">Weight</div>
+            </div>
+            <div class="kpi card-info">
+              <div class="kpi-value">34.8&deg;</div>
+              <div class="kpi-label">Temp</div>
+            </div>
+          </div>
+
+          <!-- Recommendation Card -->
+          <div class="card" style="border: 1px solid var(--primary-200); background: var(--primary-50);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="card-title" style="font-size: 16px;">Check for queen cells now</div>
+              <span class="hex-chip">&#x2B21; 87%</span>
+            </div>
+            <div class="card-text" style="margin-bottom: 8px;">Heavy bearding + rapid weight gain + warm forecast = high swarm probability. Inspect frames 4-7 for queen cells, especially along the bottom bars.</div>
+            <div class="alert alert-warning" style="font-size: 12px;">
+              <span>&#x1F504;</span>
+              <span><strong>If queen cells are found:</strong> Split into a nuc or remove cells. See the guided action plan for step-by-step instructions.</span>
+            </div>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('safety-gate')">&#x1F41D; Start Inspection</button>
+          <button class="btn btn-lg btn-outline">Show Full Action Plan</button>
+
+          <!-- Activity Log -->
+          <div class="card card-action" onclick="showScreen('hive-activity-log')" style="padding-right: 32px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">&#x1F4CB;</span>
+              <div>
+                <div style="font-size: 14px; font-weight: 600;">Activity Log</div>
+                <div style="font-size: 13px; color: var(--text-500);">View all actions &middot; 12 entries</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab active" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Hive Activity Log -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-hive-activity-log">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('hive-detail')">&#8592;</span>
+          <h4>Activity Log &middot; Buzz</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <!-- Timeline -->
+          <div style="position: relative; padding-left: 24px;">
+            <!-- Timeline line -->
+            <div style="position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--outline-200);"></div>
+
+            <!-- Entry 1: Mar 18 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--success-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Mar 18</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Guided Inspection</span>
+                <span class="badge badge-success" style="font-size: 10px;">Success</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">Checked queen cells, added frame</div>
+              <div style="display: flex; gap: 4px; margin-top: 4px;">
+                <div class="photo-thumb" style="width: 28px; height: 28px; font-size: 12px;">&#x1F4F7;</div>
+                <div class="photo-thumb" style="width: 28px; height: 28px; font-size: 12px;">&#x1F4F7;</div>
+                <div class="photo-thumb" style="width: 28px; height: 28px; font-size: 12px;">&#x1F4F7;</div>
+              </div>
+            </div>
+
+            <!-- Entry 2: Mar 15 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--info-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Mar 15</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Weight Reading</span>
+                <span class="badge badge-info" style="font-size: 10px;">Info</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">28.1 kg (+0.3)</div>
+            </div>
+
+            <!-- Entry 3: Mar 11 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--info-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Mar 11</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Quick Check</span>
+                <span class="badge badge-info" style="font-size: 10px;">Info</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">Colony active, no concerns</div>
+            </div>
+
+            <!-- Entry 4: Mar 4 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--warning-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Mar 4</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Treatment Applied</span>
+                <span class="badge badge-warning" style="font-size: 10px;">Treatment</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">Oxalic acid vaporization</div>
+            </div>
+
+            <!-- Entry 5: Feb 25 -->
+            <div style="position: relative; margin-bottom: 16px; cursor: pointer;">
+              <div style="position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--success-500); border: 2px solid var(--bg-0);"></div>
+              <div style="font-size: 12px; color: var(--text-400); margin-bottom: 2px;">Feb 25</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">Full Inspection</span>
+                <span class="badge badge-success" style="font-size: 10px;">Success</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-500);">Queen spotted, good brood pattern</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab active" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Hive Detail (Healthy - Sunny) -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-hive-detail-healthy">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('apiary-detail')">&#8592;</span>
+          <h4>Hive 1 &mdash; Sunny</h4>
+        </div>
+        <span class="badge badge-success">Healthy</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="alert alert-success">
+            <span>&#x2705;</span>
+            <span>This colony is thriving. Keep up the good work!</span>
+          </div>
+
+          <div class="card card-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <div class="card-title">Last Inspection</div>
+              <span style="font-size: 13px; color: var(--text-500);">Mar 20</span>
+            </div>
+            <div class="card-text">Excellent brood pattern. Queen spotted. Good honey stores in upper super.</div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi card-info">
+              <div class="kpi-value">Calm</div>
+              <div class="kpi-label">Temperament</div>
+            </div>
+            <div class="kpi card-info">
+              <div class="kpi-value">32.4kg</div>
+              <div class="kpi-label">Weight</div>
+            </div>
+            <div class="kpi card-info">
+              <div class="kpi-value">35.1&deg;</div>
+              <div class="kpi-label">Temp</div>
+            </div>
+          </div>
+
+          <div class="card" style="border: 1px solid var(--success-50); background: var(--success-50);">
+            <div class="card-title" style="color: var(--success-500);">No urgent actions needed</div>
+            <div class="card-text">Next suggested inspection: Mar 27. Consider adding a second super if honey stores continue to grow.</div>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('safety-gate')">&#x1F41D; Start Inspection</button>
+          <button class="btn btn-lg btn-outline" onclick="showScreen('apiary-detail')">Back to Apiary</button>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab active" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Weekly Plan -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-weekly-plan">
+      <div class="phone-header">
+        <h4>This Week's Plan</h4>
+        <span style="font-size: 13px; color: var(--text-500);">Mar 21-27</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content" style="position: relative;">
+          <!-- Voice Mode Banner -->
+          <div onclick="showScreen('inspection-step-1')" style="background: linear-gradient(135deg, var(--primary-500), var(--secondary-500)); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: white;">
+            <span style="font-size: 32px;">&#x1F5E3;&#xFE0F;</span>
+            <div>
+              <div style="font-size: 16px; font-weight: 700;">Start Live Discussion</div>
+              <div style="font-size: 13px; opacity: 0.9;">Just start talking &mdash; I'll guide you through today's plan</div>
+            </div>
+          </div>
+
+          <!-- Required Materials -->
+          <div class="card" style="border-left: 3px solid var(--warning-500); background: var(--warning-50);">
+            <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleAccordion('materials-acc')">
+              <div>
+                <div style="font-size: 15px; font-weight: 700; color: var(--warning-500);">&#x1F4E6; Required Materials</div>
+                <div style="font-size: 13px; color: var(--text-500);">3 items needed for this week's plan</div>
+              </div>
+              <span id="materials-acc-icon" style="font-size: 16px; color: var(--text-400);">&#x25BC;</span>
+            </div>
+            <div id="materials-acc" style="display: none; margin-top: 12px; border-top: 1px solid var(--outline-200); padding-top: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">Oxalic acid vaporizer + strips</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 2</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">1 medium super + frames</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 4</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">1:1 sugar syrup (1 gallon)</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 3</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Backyard Apiary Accordion (expanded) -->
+          <div>
+            <div class="accordion-header" onclick="toggleAccordion('backyard-acc')">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600;">&#x1F3E1; Backyard Apiary</span>
+                <span class="badge badge-error" style="font-size: 11px;">1 urgent</span>
+              </div>
+              <span id="backyard-acc-arrow">&#x25BC;</span>
+            </div>
+            <div class="accordion-body" id="backyard-acc">
+              <div class="plan-item urgent">
+                <div class="plan-item-content">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="badge badge-error" style="font-size: 10px; padding: 2px 6px;">URGENT</span>
+                    <span class="plan-item-title">Inspect Hive 3 for queen cells</span>
+                  </div>
+                  <div class="plan-item-meta">Hive 3 &mdash; Buzz &middot; Overdue</div>
+                  <div class="plan-item-actions">
+                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;" onclick="markDone(this)">Did It</button>
+                    <button class="btn btn-sm btn-ghost" style="width: auto; padding: 0 12px; flex: 0;">Ignore</button>
+                  </div>
+                </div>
+              </div>
+              <div class="plan-item">
+                <div class="plan-item-content">
+                  <div class="plan-item-title">Add super to Hive 4</div>
+                  <div class="plan-item-meta">Hive 4 &mdash; Goldie &middot; Due Mar 24</div>
+                  <div class="plan-item-actions">
+                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;" onclick="markDone(this)">Did It</button>
+                  </div>
+                </div>
+              </div>
+              <div class="plan-item">
+                <div class="plan-item-content">
+                  <div class="plan-item-title">Treatment follow-up Hive 2</div>
+                  <div class="plan-item-meta">Hive 2 &mdash; Queen B &middot; Due Mar 25</div>
+                  <div class="plan-item-actions">
+                    <button class="btn btn-sm btn-positive" style="width: auto; padding: 0 12px; flex: 0;" onclick="markDone(this)">Did It</button>
+                    <button class="btn btn-sm btn-ghost" style="width: auto; padding: 0 12px; flex: 0;">Defer</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hillside Apiary Accordion (collapsed) -->
+          <div>
+            <div class="accordion-header" onclick="toggleAccordion('hillside-acc')">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600;">&#x26F0; Hillside Apiary</span>
+              </div>
+              <span id="hillside-acc-arrow">&#x25B6;</span>
+            </div>
+            <div class="accordion-body" id="hillside-acc" style="display: none;">
+              <div class="plan-item">
+                <div class="plan-item-content">
+                  <div class="plan-item-title">Routine inspection all hives</div>
+                  <div class="plan-item-meta">6 hives &middot; Due Mar 26</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab active" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Settings Hub -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-settings-hub">
+      <div class="phone-header">
+        <h4>Settings</h4>
+        <span></span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="settings-row" onclick="showScreen('settings-profile')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F464; Profile &amp; Preferences</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('account-settings')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F512; Account</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F3E1; Apiaries</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-notifications')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F514; Notifications</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-integrations')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F517; Integrations</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-collaborators')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F465; Collaborators</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row" onclick="showScreen('settings-data')" style="border-left: 3px solid var(--primary-500); padding-left: 12px;"><span class="label">&#x1F6E1; Data &amp; Privacy</span><span class="chevron">&#x203A;</span></div>
+          <div style="text-align: center; margin-top: 24px;">
+            <span style="font-size: 13px; color: var(--text-400);">Broodly v1.0.0</span>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab active" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Account Settings -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-account-settings">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('settings-hub')">&#8592;</span>
+          <h4>Account</h4>
+        </div>
+        <span></span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--text-500); margin-bottom: 4px;">Display Name</div>
+            <div style="font-size: 16px; font-weight: 600;">Don</div>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--text-500); margin-bottom: 4px;">Email</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 15px;">don@example.com</span>
+              <span class="badge badge-success" style="font-size: 11px;">&#10003; Verified</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-400); margin-top: 2px;">From your Google account</div>
+          </div>
+          <div class="divider"></div>
+
+          <div style="font-size: 15px; font-weight: 700; margin-top: 4px;">Linked Accounts</div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                <span>Google</span>
+              </div>
+              <span class="badge badge-success" style="font-size: 11px;">Connected</span>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 16px;">&#63743;</span>
+                <span>Apple</span>
+              </div>
+              <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;">Connect</span>
+            </div>
+          </div>
+
+          <div class="alert alert-info" style="margin-top: 4px;">
+            <span>&#x2601;</span>
+            <span>Your data is backed up securely to Google Cloud. Linking multiple accounts adds backup sign-in options.</span>
+          </div>
+
+          <div class="divider" style="margin-top: 12px;"></div>
+          <div style="font-size: 15px; font-weight: 700; margin-top: 4px;">Units</div>
+          <div style="font-size: 13px; color: var(--text-500); margin-bottom: 8px;">Temperature and weight display units</div>
+          <div style="display: flex; gap: 8px;">
+            <div class="chip chip-selected" data-group="units" onclick="toggleFormatChip(this, 'units')" style="flex: 1; text-align: center; padding: 12px;">
+              <div style="font-size: 14px; font-weight: 600;">US Imperial</div>
+              <div style="font-size: 12px; color: var(--text-500);">&deg;F &middot; lbs</div>
+            </div>
+            <div class="chip" data-group="units" onclick="toggleFormatChip(this, 'units')" style="flex: 1; text-align: center; padding: 12px;">
+              <div style="font-size: 14px; font-weight: 600;">Metric</div>
+              <div style="font-size: 12px; color: var(--text-500);">&deg;C &middot; kg</div>
+            </div>
+          </div>
+
+          <div class="divider" style="margin-top: 12px;"></div>
+          <div style="font-size: 14px; font-weight: 700; color: var(--error-500); margin-top: 4px;">Danger Zone</div>
+          <button class="btn btn-md btn-danger">Delete Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Settings — Profile & Preferences -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-settings-profile">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('settings-hub')">&#8592;</span>
+          <h4>Profile &amp; Preferences</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div style="font-size: 14px; font-weight: 700;">Experience Level</div>
+          <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">&#x1F41D;</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600;">Newbie</div>
+                <div style="font-size: 12px; color: var(--text-500);">Guided support mode</div>
+              </div>
+            </div>
+            <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;">Change</span>
+          </div>
+
+          <div class="alert alert-info">
+            <span>&#x2139;&#xFE0F;</span>
+            <span>Changing your experience level adjusts the depth of guidance and explanations you receive.</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="font-size: 15px; font-weight: 700; margin-top: 4px;">Management Focus</div>
+          <div style="font-size: 13px; color: var(--text-500); margin-bottom: 8px;">Honey production &#x2194; Making splits</div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px;">
+            <span>&#x1F36F; Honey</span>
+            <span>&#x1F41D; Splits</span>
+          </div>
+          <input type="range" min="0" max="100" value="50" oninput="document.getElementById('profile-focus-label').textContent = this.value <= 20 ? 'Focused on honey' : this.value <= 40 ? 'Leaning honey' : this.value <= 60 ? 'Balanced' : this.value <= 80 ? 'Leaning splits' : 'Focused on splits'" style="width: 100%; accent-color: var(--primary-500); height: 8px;">
+          <div id="profile-focus-label" style="font-size: 13px; color: var(--primary-500); font-weight: 600; text-align: center; margin-top: 4px;">Balanced</div>
+          <div style="font-size: 12px; color: var(--text-400); margin-top: 4px;">&#x1F49A; Colony health is always our top priority</div>
+
+          <div class="divider"></div>
+
+          <div style="font-size: 14px; font-weight: 700;">Interaction Style</div>
+          <div style="display: grid; gap: 8px;" id="settings-interact">
+            <div class="interact-card interact-selected" onclick="selectInteractIn(this, 'settings-interact')">
+              <span style="font-size: 20px;">&#x1F5E3;</span>
+              <span style="font-size: 14px; font-weight: 600;">Live Discussion Mode</span>
+            </div>
+            <div class="interact-card" onclick="selectInteractIn(this, 'settings-interact')">
+              <span style="font-size: 20px;">&#x1F4DD;</span>
+              <span style="font-size: 14px; font-weight: 600;">Tap &amp; read</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="font-size: 14px; font-weight: 700;">Region</div>
+          <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 15px; font-weight: 600;">Portland, OR &middot; Zone 8b</div>
+              <div style="font-size: 12px; color: var(--text-500);">Pacific Northwest</div>
+            </div>
+            <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;">Edit</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="font-size: 14px; font-weight: 700;">Microclimate</div>
+          <div>
+            <div class="input-label">Elevation Offset</div>
+            <input class="input-field" type="text" value="+50m from regional baseline" />
+          </div>
+          <div>
+            <div class="input-label">Bloom Timing</div>
+            <select class="select-field">
+              <option>Normal</option>
+              <option>1 week early</option>
+              <option>1 week late</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Settings — Notifications -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-settings-notifications">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('settings-hub')">&#8592;</span>
+          <h4>Notifications</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <!-- Global toggle -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+            <div>
+              <div style="font-size: 15px; font-weight: 600;">Push Notifications</div>
+              <div style="font-size: 12px; color: var(--text-500);">Master on/off — receive alerts on your device</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Per-category toggles -->
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-500); text-transform: uppercase; letter-spacing: 1px; padding: 8px 0 4px;">Notification Types</div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x26A0;&#xFE0F; Seasonal Risk Alerts</div>
+              <div style="font-size: 12px; color: var(--text-500);">Swarm, starvation, pest, queen risk</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x2696;&#xFE0F; Telemetry Alerts</div>
+              <div style="font-size: 12px; color: var(--text-500);">Weight anomalies, temperature events</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F50D; Inspection Reminders</div>
+              <div style="font-size: 12px; color: var(--text-500);">Overdue or upcoming inspections</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F4CB; Task &amp; Follow-Up</div>
+              <div style="font-size: 12px; color: var(--text-500);">Pending actions, escalations</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F31F; Skill Milestones</div>
+              <div style="font-size: 12px; color: var(--text-500);">Progression achievements</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F4AC; Feedback Prompts</div>
+              <div style="font-size: 12px; color: var(--text-500);">Periodic decision-confidence surveys</div>
+            </div>
+            <div class="toggle-track" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Learn about notification types -->
+          <div class="settings-row" onclick="showScreen('notification-types')">
+            <span class="label">&#x2139;&#xFE0F; Learn about notification types</span>
+            <span class="chevron">&#x203A;</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Global controls -->
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-500); text-transform: uppercase; letter-spacing: 1px; padding: 8px 0 4px;">Global Controls</div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">Seasonal Escalation</div>
+              <div style="font-size: 12px; color: var(--text-500);">Auto-increase during critical periods</div>
+            </div>
+            <div class="toggle-track toggle-on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+            <div>
+              <div style="font-size: 14px; font-weight: 600;">Quiet Hours</div>
+              <div style="font-size: 12px; color: var(--text-500);">10:00 PM &mdash; 7:00 AM</div>
+            </div>
+            <span style="font-size: 16px; color: var(--primary-500); cursor: pointer;">&#x270F;&#xFE0F;</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="settings-row">
+            <span class="label">&#x1F4CB; Notification History</span>
+            <span class="chevron">&#x203A;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Notification Types -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-notification-types">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('settings-notifications')">&#8592;</span>
+          <h4>Notification Types</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <p style="font-size: 14px; color: var(--text-500);">Learn what each notification type looks like and control which ones you receive.</p>
+
+          <!-- Seasonal Risk Alerts -->
+          <div class="card" style="border-left: 3px solid var(--warning-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x26A0;&#xFE0F; Seasonal Risk Alerts</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Triggered when seasonal conditions create swarm risk, starvation risk, pest pressure, or queen issues.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--warning-50); border: 1px solid var(--warning-300); border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x26A0; Swarm risk elevated — Hive 3</div>
+              <div style="font-size: 12px; color: var(--text-500);">Warm temps + strong nectar flow. Consider inspecting for queen cells this week.</div>
+            </div>
+          </div>
+
+          <!-- Telemetry Alerts -->
+          <div class="card" style="border-left: 3px solid var(--error-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x2696;&#xFE0F; Telemetry Alerts</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Triggered by sudden weight changes, temperature anomalies, or sustained trends from connected sensors.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--error-50); border: 1px solid #E8A0A0; border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F6A8; Sudden weight drop — Hive 4</div>
+              <div style="font-size: 12px; color: var(--text-500);">Lost 4.2 lbs in 2 hours. Possible swarm event. Check immediately.</div>
+            </div>
+          </div>
+
+          <!-- Inspection Reminders -->
+          <div class="card" style="border-left: 3px solid var(--info-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x1F50D; Inspection Reminders</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Reminds you when inspections are overdue or upcoming based on your schedule and seasonal timing.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--info-50); border: 1px solid #A0C4E8; border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F4C5; Inspection due — Backyard Apiary</div>
+              <div style="font-size: 12px; color: var(--text-500);">Last inspected 10 days ago. Spring buildup phase recommends 7-day intervals.</div>
+            </div>
+          </div>
+
+          <!-- Task & Follow-Up -->
+          <div class="card" style="border-left: 3px solid var(--primary-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x1F4CB; Task &amp; Follow-Up Reminders</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Notifies you about pending actions, unresolved tasks, and escalation of high-priority items after 48 hours.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x23F0; Follow-up overdue — Hive 3 queen cell check</div>
+              <div style="font-size: 12px; color: var(--text-500);">Scheduled for Mar 28. Re-inspect to verify queen cell removal was successful.</div>
+            </div>
+          </div>
+
+          <!-- Skill Milestones -->
+          <div class="card" style="border-left: 3px solid var(--secondary-500);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x1F31F; Skill Milestones</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Celebrates your progress as you complete inspections and build beekeeping skills.</div>
+              </div>
+              <div class="toggle-track toggle-on" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--secondary-50); border: 1px solid var(--secondary-300); border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F389; 10 inspections complete!</div>
+              <div style="font-size: 12px; color: var(--text-500);">Your guidance will now include more concise options. Nice work!</div>
+            </div>
+          </div>
+
+          <!-- Feedback Prompts -->
+          <div class="card" style="border-left: 3px solid var(--outline-300);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="flex: 1;">
+                <div style="font-size: 15px; font-weight: 700;">&#x1F4AC; Feedback Prompts</div>
+                <div style="font-size: 13px; color: var(--text-500); margin: 4px 0;">Periodic quick surveys (max 1 every 2 weeks) to measure how confident you feel about your decisions.</div>
+              </div>
+              <div class="toggle-track" onclick="toggleSwitch(this)" style="margin-left: 8px;"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="background: var(--bg-muted); border: 1px solid var(--outline-200); border-radius: var(--radius-sm); padding: 10px; margin-top: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-400); margin-bottom: 2px;">EXAMPLE</div>
+              <div style="font-size: 14px; font-weight: 600;">&#x1F4CA; How confident did you feel?</div>
+              <div style="font-size: 12px; color: var(--text-500);">Rate your confidence in today's inspection decisions (1-5). Optional free-text feedback.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Settings — Integrations -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-settings-integrations">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('settings-hub')">&#8592;</span>
+          <h4>Integrations</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div style="font-size: 14px; font-weight: 700;">Connected</div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div style="font-size: 15px; font-weight: 600;">BroodMinder Hub</div>
+              <span class="badge badge-success">Connected</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-500); margin-bottom: 6px;">Last sync: 2 min ago</div>
+            <span style="font-size: 13px; color: var(--error-500); cursor: pointer; font-weight: 600;">Disconnect</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="font-size: 14px; font-weight: 700;">Available</div>
+          <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 15px; font-weight: 600;">Arnia</div>
+            <button class="btn btn-sm btn-outline" style="width: auto; padding: 0 16px;">Connect</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-500); margin-bottom: 4px;">Data Freshness</div>
+          <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-500);">
+            <span><span style="color: var(--success-500);">&#x25CF;</span> &lt;1hr</span>
+            <span><span style="color: var(--warning-500);">&#x25CF;</span> 1-24hr</span>
+            <span><span style="color: var(--error-500);">&#x25CF;</span> &gt;24hr</span>
+          </div>
+
+          <div class="alert alert-info" style="margin-top: 4px;">
+            <span>&#x2139;&#xFE0F;</span>
+            <span>Disconnecting a device preserves all historical data. You can reconnect at any time.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Settings — Collaborators -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-settings-collaborators">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('settings-hub')">&#8592;</span>
+          <h4>Collaborators</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div style="font-size: 14px; font-weight: 700;">Invite Someone</div>
+          <div style="display: flex; gap: 8px;">
+            <input class="input-field" type="email" placeholder="Email address" style="flex: 1;" />
+            <button class="btn btn-md btn-primary" style="width: auto; padding: 0 16px;">Send Invite</button>
+          </div>
+          <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;">&#x1F517; Copy invite link</span>
+
+          <div class="divider"></div>
+
+          <div style="font-size: 14px; font-weight: 700;">Active Collaborators</div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary-50); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--primary-600);">JS</div>
+                <div>
+                  <div style="font-size: 14px; font-weight: 600;">Jane Smith</div>
+                  <span class="badge badge-info" style="font-size: 10px;">Read-only</span>
+                </div>
+              </div>
+              <span style="font-size: 12px; color: var(--error-500); cursor: pointer; font-weight: 600;">Revoke Access</span>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--success-50); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--success-600);">MJ</div>
+                <div>
+                  <div style="font-size: 14px; font-weight: 600;">Mike Johnson</div>
+                  <span class="badge badge-info" style="font-size: 10px;">Read-only</span>
+                </div>
+              </div>
+              <span style="font-size: 12px; color: var(--error-500); cursor: pointer; font-weight: 600;">Revoke Access</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="accordion-header" onclick="toggleAccordion('access-history-acc')">
+            <span style="font-size: 14px; font-weight: 600;">Access History</span>
+            <span id="access-history-acc-arrow">&#x25B6;</span>
+          </div>
+          <div class="accordion-body" id="access-history-acc" style="display: none;">
+            <div style="font-size: 13px; color: var(--text-500);">
+              <div style="padding: 4px 0;">Jane Smith viewed Backyard Apiary &middot; 2h ago</div>
+              <div style="padding: 4px 0;">Mike Johnson viewed Hillside Apiary &middot; 1d ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Settings — Data & Privacy -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-settings-data">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('settings-hub')">&#8592;</span>
+          <h4>Data &amp; Privacy</h4>
+        </div>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div style="font-size: 14px; font-weight: 700;">Export Data</div>
+
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-500); margin-bottom: 4px;">Scope</div>
+          <div style="display: grid; gap: 6px;" id="export-scope">
+            <div class="option-card selected" onclick="selectOption(this)">
+              <span class="option-radio"></span>
+              <span>All data</span>
+            </div>
+            <div class="option-card" onclick="selectOption(this)">
+              <span class="option-radio"></span>
+              <span>Specific apiary</span>
+            </div>
+            <div class="option-card" onclick="selectOption(this)">
+              <span class="option-radio"></span>
+              <span>Date range</span>
+            </div>
+          </div>
+
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-500); margin-bottom: 4px; margin-top: 4px;">Format</div>
+          <div style="display: flex; gap: 8px;">
+            <div class="chip chip-selected" onclick="toggleFormatChip(this, 'export-format')" data-group="export-format">JSON</div>
+            <div class="chip" onclick="toggleFormatChip(this, 'export-format')" data-group="export-format">CSV</div>
+          </div>
+
+          <button class="btn btn-lg btn-primary" style="margin-top: 4px;">Export</button>
+
+          <div class="divider"></div>
+
+          <div style="font-size: 14px; font-weight: 700;">Legal</div>
+          <div class="settings-row"><span class="label">Privacy Policy</span><span class="chevron">&#x203A;</span></div>
+          <div class="settings-row"><span class="label">Consent Management</span><span class="chevron">&#x203A;</span></div>
+
+          <div class="divider" style="margin-top: 8px;"></div>
+
+          <div style="font-size: 14px; font-weight: 700; color: var(--error-500); margin-top: 4px;">Danger Zone</div>
+          <div class="alert alert-error">
+            <span>&#x26A0;&#xFE0F;</span>
+            <span>Deleting your account permanently removes all data, including inspection history, photos, and recommendations. This cannot be undone.</span>
+          </div>
+          <button class="btn btn-lg btn-danger">Delete Account &amp; All Data</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Safety Gate -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-safety-gate">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('hive-detail')">&#8592;</span>
+          <h4>Safety First</h4>
+        </div>
+        <span class="badge badge-primary">Newbie</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <h3 style="font-size: 18px; font-weight: 700;">Before you open the hive</h3>
+          <p style="font-size: 14px; color: var(--text-500);">Confirm your safety gear and conditions.</p>
+
+          <div class="check-row" onclick="toggleCheck(this)">
+            <span class="check-box check-box-checked">&#10003;</span>
+            <span>Wearing full bee suit with veil secured</span>
+          </div>
+          <div class="check-row" onclick="toggleCheck(this)">
+            <span class="check-box check-box-checked">&#10003;</span>
+            <span>Gloves on, no exposed skin</span>
+          </div>
+          <div class="check-row" onclick="toggleCheck(this)">
+            <span class="check-box check-box-checked">&#10003;</span>
+            <span>Smoker lit and producing cool white smoke</span>
+          </div>
+          <div class="check-row" onclick="toggleCheck(this)">
+            <span class="check-box"></span>
+            <span>Hive tool and frame grip ready</span>
+          </div>
+
+          <div class="alert alert-info" style="margin-top: 8px;">
+            <span>&#x1F9E4;</span>
+            <span>Tip: Light your smoker 5 minutes before opening. Use pine needles or burlap for fuel.</span>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-step-1')" style="margin-top: 8px;">Begin Inspection</button>
+
+          <p style="font-size: 12px; color: var(--text-400); text-align: center;">This safety check appears for your first 3 inspections.</p>
+          <div style="font-size: 12px; color: var(--text-400); font-style: italic; text-align: center;">Shown for Newbie beekeepers only. Amateur and Sideliner skip to inspection.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Inspection Step 1 — Voice-First -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen voice-screen" id="screen-inspection-step-1">
+      <div class="phone-header" style="background: var(--voice-bg); border-bottom-color: #E8DFD0;">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('safety-gate')">&#8592;</span>
+          <h4>Inspection: Buzz</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">Step 1 of 5</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="step-bar">
+            <div class="step-seg step-seg-active"></div>
+            <div class="step-seg"></div>
+            <div class="step-seg"></div>
+            <div class="step-seg"></div>
+            <div class="step-seg"></div>
+          </div>
+
+          <!-- Mic + Listening -->
+          <div style="text-align: center; padding: 12px 0;">
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
+            <div class="voice-status" style="margin-top: 8px;">Listening...</div>
+          </div>
+
+          <!-- App prompt bubble -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">How does the colony entrance look? Watch for 30 seconds and tell me what you see.</div>
+          </div>
+
+          <!-- User transcript -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">The entrance looks busy, lots of bees coming and going. Some are carrying pollen on their legs...</div>
+          </div>
+
+          <div style="text-align: center; font-size: 12px; color: var(--text-400);">Say "done" when finished, or "skip" to move on</div>
+
+          <!-- App auto-advance response -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">I heard: <strong>Active &amp; busy</strong>. Moving to step 2...</div>
+          </div>
+
+          <!-- Fallback controls -->
+          <div style="display: flex; align-items: center; justify-content: center; gap: 16px; padding-top: 8px;">
+            <button class="camera-btn">&#x1F4F7;</button>
+            <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;" onclick="showScreen('inspection-step-2')">Type instead</span>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-step-2')" style="margin-top: 8px;">Next Step</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Inspection Step 2 — Voice-First -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen voice-screen" id="screen-inspection-step-2">
+      <div class="phone-header" style="background: var(--voice-bg); border-bottom-color: #E8DFD0;">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('inspection-step-1')">&#8592;</span>
+          <h4>Inspection: Buzz</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">Step 2 of 5</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="step-bar">
+            <div class="step-seg step-seg-done"></div>
+            <div class="step-seg step-seg-active"></div>
+            <div class="step-seg"></div>
+            <div class="step-seg"></div>
+            <div class="step-seg"></div>
+          </div>
+
+          <!-- Mic + Listening -->
+          <div style="text-align: center; padding: 12px 0;">
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
+            <div class="voice-status" style="margin-top: 8px;">Listening...</div>
+          </div>
+
+          <!-- App prompt -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Open the hive and check the first few frames. Do you see eggs and larvae? Describe what the brood pattern looks like.</div>
+          </div>
+
+          <!-- User response -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">I can see eggs in the center frames, larvae looks healthy, some capped brood...</div>
+          </div>
+
+          <!-- App follow-up -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Good — healthy brood pattern confirmed. Any concerns on these frames?</div>
+          </div>
+
+          <!-- User follow-up -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">Frame 4 has some empty cells in a scattered pattern</div>
+          </div>
+
+          <!-- App acknowledgment -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Noted — spotty pattern on frame 4. I'll factor this in. Moving to step 3...</div>
+          </div>
+
+          <!-- Fallback controls -->
+          <div style="display: flex; align-items: center; justify-content: center; gap: 16px; padding-top: 8px;">
+            <button class="camera-btn">&#x1F4F7;</button>
+            <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;" onclick="showScreen('inspection-step-3')">Type instead</span>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-step-3')" style="margin-top: 8px;">Next Step</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Inspection Step 3 — Voice-First -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen voice-screen" id="screen-inspection-step-3">
+      <div class="phone-header" style="background: var(--voice-bg); border-bottom-color: #E8DFD0;">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('inspection-step-2')">&#8592;</span>
+          <h4>Inspection: Buzz</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">Step 3 of 5</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div class="step-bar">
+            <div class="step-seg step-seg-done"></div>
+            <div class="step-seg step-seg-done"></div>
+            <div class="step-seg step-seg-active"></div>
+            <div class="step-seg"></div>
+            <div class="step-seg"></div>
+          </div>
+
+          <!-- Mic + Listening -->
+          <div style="text-align: center; padding: 12px 0;">
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
+            <div class="voice-status" style="margin-top: 8px;">Listening...</div>
+          </div>
+
+          <!-- App prompt -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Now look for queen cells — check the bottom edges and faces of frames 4 through 6. Do you see any queen cells?</div>
+          </div>
+
+          <!-- User response -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">Yes, I found two queen cells on the bottom of frame 5</div>
+          </div>
+
+          <!-- App warning response -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">&#x26A0;&#xFE0F; Queen cells detected. This suggests swarm preparation. I've captured 2 photos. Should I analyze them?</div>
+          </div>
+
+          <!-- Photo thumbnails -->
+          <div style="display: flex; gap: 8px; padding-left: 36px;">
+            <div class="photo-thumb" style="width: 64px; height: 64px;">&#x1F4F7;</div>
+            <div class="photo-thumb" style="width: 64px; height: 64px;">&#x1F4F7;</div>
+          </div>
+
+          <!-- User confirm -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">Yes analyze them</div>
+          </div>
+
+          <!-- App analysis result -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Analyzing... Queen cells confirmed at 87% confidence. Recommendation: remove cells now to prevent swarm. Say "done" when ready for next step.</div>
+          </div>
+
+          <!-- Inline warning card -->
+          <div class="alert alert-warning">
+            <span>&#x26A0;&#xFE0F;</span>
+            <div>
+              <strong>Swarm cells detected</strong>
+              <div style="font-size: 12px; margin-top: 2px;">2 queen cells on frame 5 &middot; 87% confidence &middot; Action: remove or split</div>
+            </div>
+          </div>
+
+          <!-- Fallback controls -->
+          <div style="display: flex; align-items: center; justify-content: center; gap: 16px; padding-top: 8px;">
+            <button class="camera-btn">&#x1F4F7;</button>
+            <span style="font-size: 13px; color: var(--primary-500); cursor: pointer; font-weight: 600;" onclick="showScreen('inspection-next-action')">Type instead</span>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-next-action')" style="margin-top: 8px;">Next Step</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Inspection Next Action Discussion -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen voice-screen" id="screen-inspection-next-action">
+      <div class="phone-header" style="background: var(--voice-bg); border-bottom-color: #E8DFD0;">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('inspection-step-3')">&#8592;</span>
+          <h4>Next Actions: Buzz</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">Follow-up</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <!-- Mic + Listening -->
+          <div style="text-align: center; padding: 12px 0;">
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
+            <div class="voice-status" style="margin-top: 8px;">Listening...</div>
+          </div>
+
+          <!-- App bubble: recommendation -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Based on what we found — 2 queen cells removed, spotty pattern on frame 4 — I'd recommend a follow-up inspection in 7 days. Does March 28 work for you?</div>
+          </div>
+
+          <!-- User response -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">Yes, that works</div>
+          </div>
+
+          <!-- App confirmation -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">&#x2705; Scheduled: Re-inspect Buzz on March 28 — focus on queen cell check and frame 4 brood pattern. Anything else for this hive?</div>
+          </div>
+
+          <!-- User response -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">No, that's everything</div>
+          </div>
+
+          <!-- App moving on -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Got it. Moving on...</div>
+          </div>
+
+          <!-- Hint text -->
+          <div style="text-align: center; font-size: 12px; color: var(--text-400); padding: 8px 0;">Say a date to reschedule, "skip" to decline, or "add note" for extra context</div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-next-hive')" style="margin-top: 8px;">Continue to Next Hive</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Inspection Next Hive Transition -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen voice-screen" id="screen-inspection-next-hive">
+      <div class="phone-header" style="background: var(--voice-bg); border-bottom-color: #E8DFD0;">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('inspection-next-action')">&#8592;</span>
+          <h4>Inspection Session</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">Hive 1 of 4</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <!-- Mic + Listening -->
+          <div style="text-align: center; padding: 12px 0;">
+            <button class="coach-btn" style="margin: 0 auto;">&#x1F5E3;</button>
+            <div class="voice-status" style="margin-top: 8px;">Listening...</div>
+          </div>
+
+          <!-- App bubble: summary of current hive -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Great work on Buzz! I've saved all observations. You have 2 more hives that need attention today. Ready for the next one?</div>
+          </div>
+
+          <!-- User response -->
+          <div class="voice-row voice-row-user">
+            <div class="voice-bubble voice-bubble-user">Next hive</div>
+          </div>
+
+          <!-- App bubble: next hive context -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">Moving to Hive 4 &mdash; Goldie. &#x1F41D; Last inspected Mar 15. Colony is healthy, weight trending up. Recommended: quick check on honey stores. Listening...</div>
+          </div>
+
+          <!-- Hint text -->
+          <div style="text-align: center; font-size: 12px; color: var(--text-400); padding: 8px 0;">Say "next hive", "skip to Hive 2", "which hive?", "how many left?", or "end session"</div>
+
+          <!-- Session status bar -->
+          <div style="background: var(--bg-muted); border-radius: var(--radius-sm); padding: 10px 14px; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px; color: var(--text-500);">
+            <span style="font-weight: 600;">Session:</span> 2 of 4 hives &middot; 17 min elapsed
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('inspection-step-1')" style="margin-top: 8px;">Continue to Goldie</button>
+          <button class="btn btn-lg btn-outline" onclick="showScreen('inspection-session-end')" style="margin-top: 4px;">End Session</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Inspection Session End -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen voice-screen" id="screen-inspection-session-end">
+      <div class="phone-header" style="background: var(--voice-bg); border-bottom-color: #E8DFD0;">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('inspection-next-hive')">&#8592;</span>
+          <h4>Session Complete</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">38 min</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <!-- App bubble: session done -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">That's all 4 hives! Nice work, Don. Here's your quick summary:</div>
+          </div>
+
+          <!-- Inline summary -->
+          <div style="display: grid; gap: 6px; padding: 12px; background: var(--bg-0); border-radius: var(--radius-sm); border: 1px solid var(--outline-200);">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <span style="color: var(--success-500); font-weight: 700;">&#10003;</span> <strong>Buzz:</strong> queen cells removed, frame added
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <span style="color: var(--success-500); font-weight: 700;">&#10003;</span> <strong>Goldie:</strong> honey stores checked
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <span style="color: var(--success-500); font-weight: 700;">&#10003;</span> <strong>Sunny:</strong> quick check complete
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <span style="color: var(--success-500); font-weight: 700;">&#10003;</span> <strong>Queen B:</strong> treatment confirmed
+            </div>
+          </div>
+
+          <!-- App bubble: evening review -->
+          <div class="voice-row">
+            <div class="voice-avatar">&#x1F41D;</div>
+            <div class="voice-bubble voice-bubble-app">I'll have your full Evening Review ready. You can correct anything and schedule follow-ups from home. Say "end session" or tap below.</div>
+          </div>
+
+          <!-- Session stats -->
+          <div style="display: flex; justify-content: center; gap: 16px; font-size: 12px; color: var(--text-500); padding: 8px 0;">
+            <span>4 hives</span>
+            <span>&middot;</span>
+            <span>38 minutes</span>
+            <span>&middot;</span>
+            <span>12 observations</span>
+            <span>&middot;</span>
+            <span>5 photos</span>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('homepage')" style="margin-top: 8px;">End Session</button>
+          <button class="btn btn-lg btn-outline" onclick="showScreen('evening-review')">Review Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Evening Review -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-evening-review">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('homepage')">&#8592;</span>
+          <h4>Evening Review</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">Mar 24</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <!-- Session summary bar -->
+          <div style="background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius-sm); padding: 12px; text-align: center; font-size: 14px; font-weight: 600; color: var(--primary-600);">
+            4 hives inspected &middot; 38 min &middot; 12 observations
+          </div>
+
+          <!-- Hive 3 — Buzz (expanded, warning) -->
+          <div>
+            <div class="accordion-header" onclick="toggleAccordion('review-buzz-acc')" style="border-left: 3px solid var(--warning-500);">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600;">Hive 3 &mdash; Buzz</span>
+                <span class="badge badge-warning" style="font-size: 11px;">&#x26A0; Warning</span>
+              </div>
+              <span id="review-buzz-acc-arrow">&#x25BC;</span>
+            </div>
+            <div class="accordion-body" id="review-buzz-acc">
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-500);">Observations</div>
+              <div style="display: grid; gap: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                  <span>Entrance: active &amp; busy</span>
+                  <span style="font-size: 16px; color: var(--primary-500); cursor: pointer;" title="Edit observation">&#x270F;&#xFE0F;</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                  <span>Brood: solid frames 3-6, spotty frame 4</span>
+                  <span style="font-size: 16px; color: var(--primary-500); cursor: pointer;" title="Edit observation">&#x270F;&#xFE0F;</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                  <span>Queen cells: 2 found on frame 5 &mdash; removed</span>
+                  <span style="font-size: 16px; color: var(--primary-500); cursor: pointer;" title="Edit observation">&#x270F;&#xFE0F;</span>
+                </div>
+              </div>
+
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-500); margin-top: 4px;">Voice Transcripts</div>
+              <div style="display: grid; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; background: var(--bg-muted); border-radius: var(--radius-sm); padding: 8px 12px;">
+                  <span style="font-size: 16px; cursor: pointer;">&#x1F50A;</span>
+                  <span style="flex: 1; font-style: italic; color: var(--text-500);">"The entrance looks busy, lots of bees..."</span>
+                  <span style="font-size: 12px; color: var(--text-400);">0:24</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; background: var(--warning-50); border: 1px solid var(--warning-300); border-radius: var(--radius-sm); padding: 8px 12px;">
+                  <span style="font-size: 16px; cursor: pointer;">&#x1F50A;</span>
+                  <span style="flex: 1; font-style: italic; color: var(--text-500);">"Frame 4 has some empty cells..."</span>
+                  <span class="badge badge-warning" style="font-size: 10px;">&#x26A0; Review suggested</span>
+                  <span style="font-size: 12px; color: var(--text-400);">0:18</span>
+                </div>
+              </div>
+
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-500); margin-top: 4px;">Photos / Videos</div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <div class="photo-thumb" style="width: 56px; height: 56px;">&#x1F4F7;</div>
+                <div class="photo-thumb" style="width: 56px; height: 56px;">&#x1F4F7;</div>
+                <div class="photo-thumb" style="width: 56px; height: 56px;">&#x1F4F7;</div>
+                <div class="photo-thumb" style="width: 56px; height: 56px; border: 2px dashed var(--primary-300); color: var(--primary-500); font-size: 24px; font-weight: 700; cursor: pointer;" title="Add more photos or videos">+</div>
+              </div>
+
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-500); margin-top: 4px;">AI Analysis</div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="hex-chip">&#x2B21; Queen cells 87%</span>
+              </div>
+
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-500); margin-top: 8px;">Follow-up</div>
+              <div class="card" style="display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--success-500);">
+                <div>
+                  <div style="font-size: 14px; font-weight: 600; color: var(--success-500);">Re-inspect Mar 28 — &#x2705; Scheduled</div>
+                  <div style="font-size: 12px; color: var(--text-500);">Queen cell check &amp; frame 4 brood pattern</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hive 4 — Goldie (collapsed, healthy) -->
+          <div>
+            <div class="accordion-header" onclick="toggleAccordion('review-goldie-acc')">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600;">Hive 4 &mdash; Goldie</span>
+                <span class="badge badge-success" style="font-size: 11px;">&#10003; Healthy</span>
+              </div>
+              <span id="review-goldie-acc-arrow">&#x25B6;</span>
+            </div>
+            <div class="accordion-body" id="review-goldie-acc" style="display: none;">
+              <div style="font-size: 14px; color: var(--text-500);">Honey stores checked. Colony building up well. No concerns.</div>
+            </div>
+          </div>
+
+          <!-- Hive 1 — Sunny (collapsed, healthy) -->
+          <div>
+            <div class="accordion-header" onclick="toggleAccordion('review-sunny-acc')">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600;">Hive 1 &mdash; Sunny</span>
+                <span class="badge badge-success" style="font-size: 11px;">&#10003; Healthy</span>
+              </div>
+              <span id="review-sunny-acc-arrow">&#x25B6;</span>
+            </div>
+            <div class="accordion-body" id="review-sunny-acc" style="display: none;">
+              <div style="font-size: 14px; color: var(--text-500);">Quick check complete. Colony thriving, strong brood pattern.</div>
+            </div>
+          </div>
+
+          <!-- Hive 2 — Queen B (collapsed, attention) -->
+          <div>
+            <div class="accordion-header" onclick="toggleAccordion('review-queenb-acc')">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600;">Hive 2 &mdash; Queen B</span>
+                <span class="badge badge-warning" style="font-size: 11px; border: 1px solid var(--warning-300);">Attention</span>
+              </div>
+              <span id="review-queenb-acc-arrow">&#x25B6;</span>
+            </div>
+            <div class="accordion-body" id="review-queenb-acc" style="display: none;">
+              <div style="font-size: 14px; color: var(--text-500);">Treatment confirmed. Follow-up varroa check scheduled.</div>
+            </div>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('homepage')" style="margin-top: 12px;">Mark Review Complete</button>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="tab active" onclick="showScreen('homepage')"><span class="tab-icon">&#x1F3E0;</span>Home</div>
+        <div class="tab" onclick="showScreen('my-apiaries')"><span class="tab-icon">&#x1F41D;</span>Apiaries</div>
+        <div class="tab" onclick="showScreen('weekly-plan')"><span class="tab-icon">&#x1F4C5;</span>Plan</div>
+        <div class="tab" onclick="showScreen('settings-hub')"><span class="tab-icon">&#9881;</span>Settings</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- SCREEN: Inspection Summary -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="screen" id="screen-inspection-summary">
+      <div class="phone-header">
+        <div class="header-left">
+          <span class="back" onclick="showScreen('inspection-session-end')">&#8592;</span>
+          <h4>Session Complete &#10003;</h4>
+        </div>
+        <span style="font-size: 13px; color: var(--text-500);">38 min</span>
+      </div>
+      <div class="screen-scroll">
+        <div class="phone-content">
+          <div style="text-align: center; padding: 8px 0;">
+            <div style="font-size: 48px;">&#x1F41D;</div>
+            <h3 style="font-size: 20px; font-weight: 700; color: var(--success-500);">Great session, Don!</h3>
+            <p style="font-size: 14px; color: var(--text-500);">4 hives inspected &middot; 12 observations captured</p>
+          </div>
+
+          <div style="font-size: 14px; font-weight: 700; margin-top: 4px;">Session Summary</div>
+          <div style="display: grid; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <span style="color: var(--warning-500); font-weight: 700;">&#x26A0;</span> Buzz: Queen cells removed, frame added
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <span style="color: var(--success-500); font-weight: 700;">&#10003;</span> Goldie: Honey stores checked
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <span style="color: var(--success-500); font-weight: 700;">&#10003;</span> Sunny: Quick check complete
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <span style="color: var(--success-500); font-weight: 700;">&#10003;</span> Queen B: Treatment confirmed
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 14px; font-weight: 600;">Colony Improvement</span>
+              <span style="font-size: 13px; color: var(--success-500); font-weight: 600;">+12% this month</span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: 72%;"></div>
+            </div>
+          </div>
+
+          <div class="milestone-card">
+            <div style="font-size: 20px;">&#x1F31F;</div>
+            <div style="font-size: 15px; font-weight: 700; color: var(--primary-600);">Full apiary session complete!</div>
+            <div style="font-size: 13px; color: var(--text-500);">You're building real confidence as a beekeeper.</div>
+          </div>
+
+          <div class="alert alert-info">
+            <span>&#x1F4CB;</span>
+            <span>Your full <strong>Evening Review</strong> will be ready at home. You can correct observations, review transcripts, and schedule follow-ups.</span>
+          </div>
+
+          <div class="card" style="border-left: 3px solid var(--success-500);">
+            <div class="card-title">&#x1F4C5; Follow-up Scheduled</div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--success-500); margin-top: 4px;">Re-inspect Buzz on Mar 28 — &#x2705; Scheduled</div>
+            <div class="card-text" style="margin-top: 4px;">Focus: queen cell check and frame 4 brood pattern</div>
+          </div>
+
+          <button class="btn btn-xl btn-primary" onclick="showScreen('homepage')">Save &amp; Close</button>
+          <button class="btn btn-lg btn-outline" onclick="showScreen('evening-review')">View Evening Review</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .phone -->
+</div><!-- end .main -->
+
+<script>
+  const screenTitles = {
+    'welcome': 'Welcome',
+    'account-creation': 'Account Creation',
+    'experience-level': 'Experience Level',
+    'region-setup': 'Region Setup',
+    'apiary-setup': 'First Apiary Setup',
+    'goal-selection': 'Goal Selection',
+    'onboarding-summary': 'Onboarding Summary',
+    'homepage': 'Homepage',
+    'notifications': 'Notifications',
+    'my-apiaries': 'My Apiaries',
+    'apiary-detail': 'Apiary Detail — Backyard',
+    'edit-apiary': 'Edit Apiary',
+    'hive-detail': 'Hive Detail — Buzz (Warning)',
+    'hive-activity-log': 'Activity Log — Buzz',
+    'hive-detail-healthy': 'Hive Detail — Sunny (Healthy)',
+    'weekly-plan': 'This Week\'s Plan',
+    'settings-hub': 'Settings',
+    'account-settings': 'Account Settings',
+    'settings-profile': 'Profile & Preferences',
+    'settings-notifications': 'Notifications Settings',
+    'notification-types': 'Notification Types',
+    'settings-integrations': 'Integrations',
+    'settings-collaborators': 'Collaborators',
+    'settings-data': 'Data & Privacy',
+    'safety-gate': 'Safety Gate',
+    'inspection-step-1': 'Inspection Step 1 — Entrance',
+    'inspection-step-2': 'Inspection Step 2 — Brood',
+    'inspection-step-3': 'Inspection Step 3 — Queen Cells',
+    'inspection-next-hive': 'Next Hive Transition',
+    'inspection-session-end': 'Session End',
+    'inspection-summary': 'Session Complete',
+    'evening-review': 'Evening Review',
+  };
+
+  const screenSubtitles = {
+    'welcome': 'Onboarding Flow',
+    'account-creation': 'Onboarding Flow',
+    'experience-level': 'Onboarding Flow',
+    'region-setup': 'Onboarding Flow',
+    'apiary-setup': 'Onboarding Flow',
+    'goal-selection': 'Onboarding Flow',
+    'onboarding-summary': 'Onboarding Flow',
+    'homepage': 'Main App',
+    'notifications': 'Main App',
+    'my-apiaries': 'Main App',
+    'apiary-detail': 'Main App',
+    'edit-apiary': 'Main App',
+    'hive-detail': 'Main App',
+    'hive-detail-healthy': 'Main App',
+    'weekly-plan': 'Main App',
+    'settings-hub': 'Settings',
+    'account-settings': 'Settings',
+    'settings-profile': 'Settings',
+    'settings-notifications': 'Settings',
+    'notification-types': 'Settings — Notification Types',
+    'settings-integrations': 'Settings',
+    'settings-collaborators': 'Settings',
+    'settings-data': 'Settings',
+    'safety-gate': 'Inspection Flow — Voice-First',
+    'inspection-step-1': 'Inspection Flow — Voice-First',
+    'inspection-step-2': 'Inspection Flow — Voice-First',
+    'inspection-step-3': 'Inspection Flow — Voice-First',
+    'inspection-next-hive': 'Inspection Flow — Voice-First',
+    'inspection-session-end': 'Inspection Flow — Voice-First',
+    'inspection-summary': 'Inspection Flow — Voice-First',
+    'evening-review': 'Review — Tap Mode',
+  };
+
+  function showScreen(id) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    // Show target
+    const target = document.getElementById('screen-' + id);
+    if (target) {
+      target.classList.add('active');
+      // Scroll to top
+      const scroll = target.querySelector('.screen-scroll');
+      if (scroll) scroll.scrollTop = 0;
+    }
+    // Update title
+    document.getElementById('current-screen-title').textContent = screenTitles[id] || id;
+    document.getElementById('current-screen-subtitle').textContent = screenSubtitles[id] || '';
+    // Update sidebar
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    const navLink = document.getElementById('nav-' + id);
+    if (navLink) navLink.classList.add('active');
+  }
+
+  function selectExperience(level) {
+    document.querySelectorAll('#screen-experience-level .card').forEach(c => c.classList.remove('card-selected'));
+    document.getElementById('exp-' + level).classList.add('card-selected');
+  }
+
+  function selectOption(el) {
+    el.closest('.phone-content, [id]').querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function toggleCheck(el) {
+    const box = el.querySelector('.check-box');
+    box.classList.toggle('check-box-checked');
+    if (box.classList.contains('check-box-checked')) {
+      box.innerHTML = '&#10003;';
+    } else {
+      box.innerHTML = '';
+    }
+  }
+
+  function toggleAccordion(id) {
+    const body = document.getElementById(id);
+    const arrow = document.getElementById(id + '-arrow') || document.getElementById(id + '-icon');
+    if (body.style.display === 'none') {
+      body.style.display = 'grid';
+      if (arrow) arrow.innerHTML = '&#x25BC;';
+    } else {
+      body.style.display = 'none';
+      if (arrow) arrow.innerHTML = '&#x25B6;';
+    }
+  }
+
+  // Hive count stepper
+  function adjustHiveCount(delta) {
+    const el = document.getElementById('hive-count');
+    let val = parseInt(el.textContent) + delta;
+    if (val < 1) val = 1;
+    if (val > 50) val = 50;
+    el.textContent = val;
+    // Update summary too
+    const summaryEl = document.getElementById('summary-hive-count');
+    if (summaryEl) summaryEl.textContent = val;
+  }
+
+  // Toggle chip selection
+  function toggleChip(el) {
+    el.classList.toggle('chip-selected');
+  }
+
+  // Interaction style selection (single select)
+  function selectInteract(el) {
+    el.closest('#interact-cards').querySelectorAll('.interact-card').forEach(c => c.classList.remove('interact-selected'));
+    el.classList.add('interact-selected');
+  }
+
+  function selectInteractIn(el, containerId) {
+    document.getElementById(containerId).querySelectorAll('.interact-card').forEach(c => c.classList.remove('interact-selected'));
+    el.classList.add('interact-selected');
+  }
+
+  // Toggle switch
+  function toggleSwitch(el) {
+    el.classList.toggle('toggle-on');
+  }
+
+  // Format chip toggle (single select within group)
+  function toggleFormatChip(el, group) {
+    document.querySelectorAll('[data-group="' + group + '"]').forEach(c => c.classList.remove('chip-selected'));
+    el.classList.add('chip-selected');
+  }
+
+  function markDone(btn) {
+    var item = btn.closest('.plan-item');
+    if (item.classList.contains('done')) return;
+    item.classList.add('done');
+    item.style.opacity = '0.5';
+    var title = item.querySelector('.plan-item-title');
+    if (title) title.style.textDecoration = 'line-through';
+    var actions = item.querySelector('.plan-item-actions');
+    if (actions) actions.innerHTML = '<span style="color: var(--success-500); font-size: 14px; font-weight: 600;">&#10003; Done</span>';
+    if (item.classList.contains('urgent')) {
+      item.classList.remove('urgent');
+      item.style.borderLeftColor = 'var(--success-500)';
+    }
+  }
+
+  // Goal slider label update
+  function updateGoalLabel(val) {
+    var label = document.getElementById('goal-label');
+    var v = parseInt(val);
+    if (v <= 20) {
+      label.textContent = 'Focused on honey \u2014 maximize harvest';
+    } else if (v <= 40) {
+      label.textContent = 'Leaning honey \u2014 with occasional splits';
+    } else if (v <= 60) {
+      label.textContent = 'Balanced \u2014 honey and growth equally';
+    } else if (v <= 80) {
+      label.textContent = 'Leaning splits \u2014 growing the operation';
+    } else {
+      label.textContent = 'Focused on splits \u2014 expand colony count';
+    }
+  }
+
+  // Init: highlight welcome in sidebar
+  document.getElementById('nav-welcome').classList.add('active');
+</script>
+
+</body>
+</html>
