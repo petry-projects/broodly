@@ -1,4 +1,4 @@
-@https://github.com/petry-projects/.github/blob/main/AGENTS.md
+@https://raw.githubusercontent.com/petry-projects/.github/main/AGENTS.md
 
 # Broodly - Claude Code Design System Rules
 
