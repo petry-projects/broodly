@@ -1,6 +1,6 @@
 # Story 5.1: Expo Router Navigation Shell
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -120,5 +120,32 @@ so that I can navigate the app's primary sections and drill into detail screens 
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
+
 ### Completion Notes List
+- Installed expo-router (canary), expo-linking, expo-constants, @expo/metro-runtime, @expo/vector-icons, @testing-library/react-native@13
+- Configured app.json with scheme "broodly" and expo-router plugin
+- Switched entry point from index.ts to expo-router/entry
+- Created full route structure: root layout, (tabs) with 4 tabs, (auth) group with sign-in
+- Apiaries tab has nested stack with list + [id] detail screen
+- Tab bar uses primary-500/typography-500 colors, 48px+ touch targets, Ionicons
+- Root layout wraps SafeAreaProvider + GluestackUIProvider
+- Added CSS module mock for Jest (`__mocks__/css.js`)
+- 20 navigation tests covering: screen stubs, route params, layout exports, file structure
+- All 89 tests pass (12 suites) including all existing tests
+
 ### File List
+- apps/mobile/app/_layout.tsx — Root layout with providers
+- apps/mobile/app/(tabs)/_layout.tsx — Tab navigator (Home, Apiaries, Plan, Settings)
+- apps/mobile/app/(tabs)/index.tsx — Home screen stub
+- apps/mobile/app/(tabs)/apiaries/_layout.tsx — Apiaries stack layout
+- apps/mobile/app/(tabs)/apiaries/index.tsx — Apiaries list stub
+- apps/mobile/app/(tabs)/apiaries/[id].tsx — Apiary detail stub
+- apps/mobile/app/(tabs)/plan/index.tsx — Plan screen stub
+- apps/mobile/app/(tabs)/settings/index.tsx — Settings screen stub
+- apps/mobile/app/(auth)/_layout.tsx — Auth stack layout
+- apps/mobile/app/(auth)/sign-in.tsx — Sign-in screen stub
+- apps/mobile/__tests__/navigation.test.tsx — Navigation tests (20 tests)
+- apps/mobile/__mocks__/css.js — CSS module mock for Jest
+- apps/mobile/app.json — Updated with scheme + expo-router plugin
+- apps/mobile/package.json — Updated entry point, deps, jest config

@@ -1,6 +1,6 @@
 # Story 5.2: GraphQL Client (urql) and TanStack Query Integration
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -123,5 +123,31 @@ so that all screens share a single, persistent, type-safe data fetching layer wi
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
+
 ### Completion Notes List
+- Installed urql, @urql/exchange-auth, @urql/exchange-retry, graphql
+- Installed @tanstack/react-query, @tanstack/react-query-persist-client, @tanstack/query-sync-storage-persister, react-native-mmkv
+- Installed @graphql-codegen/typescript-operations, @graphql-codegen/typescript-urql
+- Created urql client factory with authExchange (Firebase ID token from auth store), retryExchange (3 attempts), fetchExchange
+- API URL configurable via EXPO_PUBLIC_API_URL env var
+- Created TanStack QueryClient factory: staleTime 5min, gcTime 24h, retry 3, no refetchOnWindowFocus
+- Created MMKV-backed sync persister for offline-first cache
+- Created useGraphQLQuery hook combining urql transport with TanStack Query caching
+- Created GraphQLErrorBoundary with retry action and custom fallback support
+- Wired all providers into root layout: SafeArea → Gluestack → PersistQueryClient → Urql → ErrorBoundary → Slot
+- Updated codegen.ts to generate urql operation hooks (typescript-operations + typescript-urql)
+- Added __mocks__/react-native-mmkv.js for native module mock in Jest
+- 19 new tests: client creation, auth store integration, query client config, error boundary rendering/retry
+
 ### File List
+- apps/mobile/src/services/graphql/client.ts — urql client factory
+- apps/mobile/src/services/graphql/client.test.ts — Client tests (5 tests)
+- apps/mobile/src/services/graphql/graphql-error-boundary.tsx — Error boundary component
+- apps/mobile/src/services/graphql/graphql-error-boundary.test.tsx — Error boundary tests (5 tests)
+- apps/mobile/src/services/query/query-client.ts — TanStack QueryClient + MMKV persister
+- apps/mobile/src/services/query/query-client.test.ts — QueryClient config tests (8 tests)
+- apps/mobile/src/services/query/use-graphql-query.ts — Combined urql+TanStack Query hook
+- apps/mobile/app/_layout.tsx — Updated root layout with providers
+- apps/mobile/__mocks__/react-native-mmkv.js — MMKV native module mock
+- packages/graphql-types/codegen.ts — Updated with operations codegen
