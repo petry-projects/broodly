@@ -1,5 +1,49 @@
 # Broodly
 
+Field-first beekeeping decision-support app. Mobile-first on iOS, Android, and web via a single Expo + React Native codebase with a Go GraphQL API backend on GCP.
+
+## Prerequisites
+
+- **Node.js** >= 20.x (LTS)
+- **pnpm** >= 9.x
+- **Go** >= 1.24
+- **Expo CLI** (`npx expo`)
+- **Terraform** >= 1.5 (for infrastructure)
+
+## Getting Started
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run mobile app (Expo)
+pnpm --filter mobile start
+
+# Run API server (Go)
+cd apps/api && go run cmd/server/main.go
+```
+
+## Monorepo Structure
+
+```
+broodly/
+├── apps/
+│   ├── mobile/          # Expo app (iOS, Android, Web)
+│   └── api/             # Go GraphQL API service
+├── packages/
+│   ├── ui/              # Shared UI component library
+│   ├── graphql-types/   # Generated TypeScript types
+│   ├── domain-types/    # Shared constants and domain types
+│   ├── config/          # Shared configuration
+│   └── test-utils/      # Shared testing utilities
+├── infra/
+│   └── terraform/       # IaC for GCP resources
+├── tests/
+│   ├── integration/     # Integration tests
+│   └── e2e/             # End-to-end tests
+└── docs/                # Architecture docs, ADRs, runbooks
+```
+
 ## License
 
 Broodly is dual-licensed:

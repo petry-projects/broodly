@@ -1,0 +1,48 @@
+{
+  "name": "mobile",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@broodly/config": "workspace:*",
+    "@broodly/domain-types": "workspace:*",
+    "@broodly/graphql-types": "workspace:*",
+    "@broodly/ui": "workspace:*",
+    "@expo/html-elements": "55.0.4-canary-20260328-bdc6273",
+    "@gluestack-ui/core": "^3.0.15",
+    "@gluestack-ui/nativewind-utils": "^1.0.28",
+    "expo": "55.0.10-canary-20260328-bdc6273",
+    "expo-status-bar": "55.0.5-canary-20260328-bdc6273",
+    "nativewind": "^4.2.3",
+    "react": "19.2.0",
+    "react-native": "0.83.4",
+    "react-native-reanimated": "^4.3.0",
+    "react-native-safe-area-context": "^5.7.0",
+    "react-native-svg": "^15.15.4",
+    "react-native-web": "~0.19.13"
+  },
+  "devDependencies": {
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^12.9.0",
+    "@types/react": "~19.2.2",
+    "jest": "^29.7.0",
+    "jest-expo": "~55.0.0",
+    "tailwindcss": "3.3.2",
+    "typescript": "~5.9.3"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!(.pnpm|((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@gluestack-ui/.*|nativewind|react-native-css-interop|tailwind-variants|@gluestack-style/.*))"
+    ]
+  }
+}

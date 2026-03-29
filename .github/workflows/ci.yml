@@ -1,0 +1,156 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Type Check
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm run test
+
+  go:
+    name: Go
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: apps/api/go.sum
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6
+        with:
+          working-directory: apps/api
+
+      - name: Test
+        run: go test ./... -race -coverprofile=coverage.out
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: go-coverage
+          path: apps/api/coverage.out
+
+      - name: Migration guard
+        shell: bash
+        run: |
+          migrations_dir="migrations"
+          if [ ! -d "$migrations_dir" ]; then
+            echo "No migrations directory found — skipping migration guard."
+            exit 0
+          fi
+
+          files=$(ls "$migrations_dir"/*.sql 2>/dev/null || true)
+          if [ -z "$files" ]; then
+            echo "No migration files found — skipping migration guard."
+            exit 0
+          fi
+
+          errors=0
+
+          # Collect sequence numbers and validate naming
+          declare -A up_files
+          declare -A down_files
+          sequences=()
+
+          for f in $files; do
+            basename=$(basename "$f")
+            if [[ ! "$basename" =~ ^([0-9]+)_(.*)\.(up|down)\.sql$ ]]; then
+              echo "ERROR: Invalid migration filename: $basename"
+              echo "  Expected format: NNNN_description.up.sql or NNNN_description.down.sql"
+              errors=$((errors + 1))
+              continue
+            fi
+
+            seq="${BASH_REMATCH[1]}"
+            direction="${BASH_REMATCH[3]}"
+
+            if [ "$direction" = "up" ]; then
+              up_files["$seq"]="$basename"
+            else
+              down_files["$seq"]="$basename"
+            fi
+
+            if [[ ! " ${sequences[*]} " =~ " $seq " ]]; then
+              sequences+=("$seq")
+            fi
+          done
+
+          # Sort sequences
+          IFS=$'\n' sorted=($(sort <<<"${sequences[*]}")); unset IFS
+
+          # Check each sequence has both up and down
+          for seq in "${sorted[@]}"; do
+            if [ -z "${up_files[$seq]}" ]; then
+              echo "ERROR: Migration $seq is missing an .up.sql file"
+              errors=$((errors + 1))
+            fi
+            if [ -z "${down_files[$seq]}" ]; then
+              echo "ERROR: Migration $seq is missing a .down.sql file"
+              errors=$((errors + 1))
+            fi
+          done
+
+          # Check sequences are sequential (no gaps)
+          prev=""
+          for seq in "${sorted[@]}"; do
+            if [ -n "$prev" ]; then
+              expected=$((10#$prev + 1))
+              expected_padded=$(printf "%0${#seq}d" "$expected")
+              if [ "$seq" != "$expected_padded" ]; then
+                echo "ERROR: Migration sequence gap — expected $expected_padded after $prev, found $seq"
+                errors=$((errors + 1))
+              fi
+            fi
+            prev="$seq"
+          done
+
+          if [ "$errors" -gt 0 ]; then
+            echo ""
+            echo "Migration guard failed with $errors error(s)."
+            exit 1
+          fi
+
+          echo "Migration guard passed — ${#sorted[@]} migration(s) validated."
+
+      - name: Docker build
+        working-directory: .
+        run: docker build -f apps/api/Dockerfile -t broodly-api:ci apps/api/
