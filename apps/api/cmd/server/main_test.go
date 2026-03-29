@@ -5,27 +5,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/broodly/api/internal/auth"
 )
 
-func setupRouter() *chi.Mux {
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"status":"ok"}`))
-	})
-	return r
-}
-
 func TestHealthEndpoint(t *testing.T) {
-	r := setupRouter()
+	kc := auth.NewKeyCache("http://localhost:0/unused", nil)
+	r := newRouter("test-project", kc)
+
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	w := httptest.NewRecorder()
-
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
@@ -35,5 +23,18 @@ func TestHealthEndpoint(t *testing.T) {
 	expected := `{"status":"ok"}`
 	if w.Body.String() != expected {
 		t.Errorf("expected body %q, got %q", expected, w.Body.String())
+	}
+}
+
+func TestGraphQLEndpoint_RequiresAuth(t *testing.T) {
+	kc := auth.NewKeyCache("http://localhost:0/unused", nil)
+	r := newRouter("test-project", kc)
+
+	req := httptest.NewRequest(http.MethodPost, "/graphql", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("expected status 401 for unauthenticated /graphql, got %d", w.Code)
 	}
 }
