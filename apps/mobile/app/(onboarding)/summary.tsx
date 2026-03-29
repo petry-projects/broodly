@@ -17,6 +17,19 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+const GOAL_LABELS: Record<string, string> = {
+  health: 'Colony Health',
+  honey: 'Honey Production',
+  learning: 'Learning',
+  growth: 'Growth',
+};
+
+const EXPERIENCE_LABELS: Record<string, string> = {
+  newbie: 'Newbie',
+  amateur: 'Amateur',
+  sideliner: 'Sideliner',
+};
+
 export default function SummaryScreen() {
   const router = useRouter();
   const state = useOnboardingStore();
@@ -53,7 +66,7 @@ export default function SummaryScreen() {
       <View className="bg-background-50 rounded-xl p-4 mb-8">
         <SummaryRow
           label="Experience"
-          value={state.experienceLevel ?? 'Not set'}
+          value={state.experienceLevel ? (EXPERIENCE_LABELS[state.experienceLevel] ?? state.experienceLevel) : 'Not set'}
         />
         <SummaryRow
           label="Region"
@@ -73,12 +86,18 @@ export default function SummaryScreen() {
         />
         <SummaryRow
           label="Goals"
-          value={state.goals.length > 0 ? state.goals.join(', ') : 'None selected'}
+          value={state.goals.length > 0 ? state.goals.map((g) => GOAL_LABELS[g] ?? g).join(', ') : 'None selected'}
         />
         <SummaryRow
           label="Interaction"
           value={state.interactionMode === 'voice_first' ? 'Voice First' : 'Tap & Read'}
         />
+      </View>
+
+      <View className="bg-background-info rounded-lg p-3 mb-4">
+        <Text size="sm" className="text-info-700">
+          You can change any of these anytime from Settings.
+        </Text>
       </View>
 
       {error && (

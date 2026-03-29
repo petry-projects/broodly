@@ -79,7 +79,7 @@ export default function CreateAccountScreen() {
       )}
 
       <Pressable
-        className="flex-row items-center gap-3 mb-6"
+        className="flex-row items-center gap-3 mb-6 min-h-[48px]"
         onPress={() => setTosAccepted(!tosAccepted)}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: tosAccepted }}
@@ -91,7 +91,7 @@ export default function CreateAccountScreen() {
             tosAccepted ? 'bg-primary-500 border-primary-500' : 'border-outline-300'
           }`}
         >
-          {tosAccepted && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
+          {tosAccepted && <Ionicons name="checkmark" size={16} color="white" />}
         </View>
         <Text size="sm" className="flex-1">
           I agree to the Terms of Service and Privacy Policy
@@ -113,7 +113,7 @@ export default function CreateAccountScreen() {
               {isLoading ? (
                 <ButtonSpinner />
               ) : (
-                <ButtonIcon as={() => <Ionicons name="logo-google" size={20} color="#FFFFFF" />} />
+                <ButtonIcon as={() => <Ionicons name="logo-google" size={20} color="white" />} />
               )}
               <ButtonText>Continue with Google</ButtonText>
             </Button>
@@ -131,7 +131,7 @@ export default function CreateAccountScreen() {
                 {isLoading ? (
                   <ButtonSpinner />
                 ) : (
-                  <ButtonIcon as={() => <Ionicons name="logo-apple" size={20} color="#D4880F" />} />
+                  <ButtonIcon as={() => <Ionicons name="logo-apple" size={20} color="rgb(212, 136, 15)" />} />
                 )}
                 <ButtonText>Continue with Apple</ButtonText>
               </Button>

@@ -8,20 +8,20 @@ import { Button, ButtonText } from '../../components/ui/button';
 import { OnboardingProgressDots } from '@broodly/ui/src/OnboardingProgressDots';
 import { useOnboardingStore, type MidSeasonBaseline } from '../../src/store/onboarding-store';
 
-const CHECKLIST_ITEMS: Array<{ key: keyof MidSeasonBaseline; label: string }> = [
-  { key: 'hasExistingHives', label: 'I have existing hives set up' },
-  { key: 'hasInspectedRecently', label: 'I have inspected in the last 2 weeks' },
-  { key: 'knowsQueenStatus', label: 'I know my queen status' },
-  { key: 'hasHarvestedThisYear', label: 'I have harvested honey this year' },
-  { key: 'hasTreatedForMites', label: 'I have treated for mites this season' },
+const CHECKLIST_ITEMS: Array<{ key: keyof MidSeasonBaseline; label: string; subtitle: string }> = [
+  { key: 'queenPresentAndLaying', label: 'Queen present and laying', subtitle: 'Verified queen is alive and actively laying eggs' },
+  { key: 'colonyStrengthModerateOrStrong', label: 'Colony strength: moderate or strong', subtitle: 'Bees cover at least 5-6 frames in the brood box' },
+  { key: 'treatmentsAppliedThisSeason', label: 'Treatments applied this season', subtitle: 'Varroa or other treatments have been administered' },
+  { key: 'honeySupersOn', label: 'Honey supers on', subtitle: 'Supers are currently on the hive for honey collection' },
+  { key: 'healthConcernsObserved', label: 'Any health concerns observed', subtitle: 'Signs of disease, pests, or unusual behavior noted' },
 ];
 
 const DEFAULT_BASELINE: MidSeasonBaseline = {
-  hasExistingHives: false,
-  hasInspectedRecently: false,
-  knowsQueenStatus: false,
-  hasHarvestedThisYear: false,
-  hasTreatedForMites: false,
+  queenPresentAndLaying: false,
+  colonyStrengthModerateOrStrong: false,
+  treatmentsAppliedThisSeason: false,
+  honeySupersOn: false,
+  healthConcernsObserved: false,
 };
 
 export default function CatchupAssessmentScreen() {
@@ -47,11 +47,13 @@ export default function CatchupAssessmentScreen() {
       <Heading size="2xl" className="mt-6 mb-2">
         Quick catch-up
       </Heading>
-      <Text size="md" className="text-typography-500 mb-8">
-        Since you are joining mid-season, tell us where things stand
-      </Text>
+      <View className="bg-background-warning rounded-xl p-3 mb-6" accessibilityRole="alert">
+        <Text size="sm" className="text-warning-700">
+          You're joining mid-season. Let's capture where your colonies are now so recommendations start from the right baseline.
+        </Text>
+      </View>
 
-      <View className="gap-3 mb-8">
+      <View className="gap-3 mb-6">
         {CHECKLIST_ITEMS.map((item) => (
           <Pressable
             key={item.key}
@@ -70,13 +72,20 @@ export default function CatchupAssessmentScreen() {
               }`}
             >
               {baseline[item.key] && (
-                <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                <Ionicons name="checkmark" size={16} color="white" />
               )}
             </View>
-            <Text size="md" className="flex-1">{item.label}</Text>
+            <View className="flex-1">
+              <Text size="md">{item.label}</Text>
+              <Text size="xs" className="text-typography-400">{item.subtitle}</Text>
+            </View>
           </Pressable>
         ))}
       </View>
+
+      <Text size="xs" className="text-typography-400 mb-4">
+        Past milestones will show as "not tracked" rather than "missed."
+      </Text>
 
       <Button
         action="primary"

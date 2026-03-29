@@ -41,7 +41,7 @@ export default function RegionSetupScreen() {
       <TextInput
         className="border-2 border-outline-200 rounded-xl px-4 py-3 text-base text-typography-800 mb-8"
         placeholder="e.g., Pacific Northwest, London, Melbourne"
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor="rgb(156, 163, 175)"
         value={input}
         onChangeText={setInput}
         accessibilityLabel="Region or city name"

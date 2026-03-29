@@ -19,11 +19,11 @@ export interface SeasonalContext {
 }
 
 export interface MidSeasonBaseline {
-  hasExistingHives: boolean;
-  hasInspectedRecently: boolean;
-  knowsQueenStatus: boolean;
-  hasHarvestedThisYear: boolean;
-  hasTreatedForMites: boolean;
+  queenPresentAndLaying: boolean;
+  colonyStrengthModerateOrStrong: boolean;
+  treatmentsAppliedThisSeason: boolean;
+  honeySupersOn: boolean;
+  healthConcernsObserved: boolean;
 }
 
 interface OnboardingState {

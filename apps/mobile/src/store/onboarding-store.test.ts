@@ -78,11 +78,11 @@ describe('Onboarding store', () => {
 
   it('setMidSeasonBaseline updates value', () => {
     const baseline = {
-      hasExistingHives: true,
-      hasInspectedRecently: false,
-      knowsQueenStatus: true,
-      hasHarvestedThisYear: false,
-      hasTreatedForMites: true,
+      queenPresentAndLaying: true,
+      colonyStrengthModerateOrStrong: false,
+      treatmentsAppliedThisSeason: true,
+      honeySupersOn: false,
+      healthConcernsObserved: true,
     };
     useOnboardingStore.getState().setMidSeasonBaseline(baseline);
     expect(useOnboardingStore.getState().midSeasonBaseline).toEqual(baseline);
@@ -112,5 +112,20 @@ describe('getResumeRoute', () => {
 
   it('returns root for unknown step', () => {
     expect(getResumeRoute(99)).toBe('/(onboarding)');
+  });
+
+  it('returns root for negative step', () => {
+    expect(getResumeRoute(-1)).toBe('/(onboarding)');
+  });
+
+  it('returns root for step 8 (beyond max)', () => {
+    expect(getResumeRoute(8)).toBe('/(onboarding)');
+  });
+
+  it('maps all steps 0 through 7 to valid routes', () => {
+    for (let step = 0; step <= 7; step++) {
+      const route = getResumeRoute(step);
+      expect(route).toMatch(/^\/\(onboarding\)/);
+    }
   });
 });

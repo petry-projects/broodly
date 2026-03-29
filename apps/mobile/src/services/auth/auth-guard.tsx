@@ -26,7 +26,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         className="flex-1 bg-background-0 justify-center items-center"
         testID="auth-loading"
       >
-        <ActivityIndicator size="large" color="#D4880F" />
+        <ActivityIndicator size="large" color="rgb(212, 136, 15)" />
       </View>
     );
   }

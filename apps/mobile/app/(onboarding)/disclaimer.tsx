@@ -25,23 +25,35 @@ export default function DisclaimerScreen() {
       <OnboardingProgressDots totalSteps={7} currentStep={6} />
 
       <Heading size="2xl" className="mt-6 mb-2">
-        Important advisory
+        Advisory-Only Guidance
       </Heading>
 
-      <View className="bg-background-warning rounded-xl p-4 mb-6">
+      <View className="bg-background-warning rounded-xl p-4 mb-4">
+        <View className="flex-row items-center gap-2 mb-2">
+          <Ionicons name="warning-outline" size={24} color="rgb(184, 114, 10)" />
+          <Heading size="lg">Recommendations include confidence levels</Heading>
+        </View>
         <Text size="md" className="text-typography-800 leading-6">
-          Broodly provides decision-support recommendations based on your observations and general
-          beekeeping knowledge. It is not a substitute for professional veterinary advice, local
-          regulations, or hands-on experience.
+          Broodly provides decision-support recommendations based on your observations, seasonal context,
+          and general beekeeping knowledge. Each recommendation includes a confidence level to help you
+          judge its reliability.
         </Text>
-        <Text size="md" className="text-typography-800 leading-6 mt-3">
-          Always consult local beekeeping associations and veterinary professionals for colony health
-          concerns. Treatment decisions and interventions are your responsibility.
+        <View className="mt-3 gap-1">
+          <Text size="md" className="text-typography-800">{'\u2022'} Not a substitute for professional veterinary advice</Text>
+          <Text size="md" className="text-typography-800">{'\u2022'} Treatment decisions are your responsibility</Text>
+          <Text size="md" className="text-typography-800">{'\u2022'} Always consult local regulations and beekeeping associations</Text>
+        </View>
+      </View>
+
+      <View className="bg-background-info rounded-xl p-4 mb-6">
+        <Text size="sm" className="text-info-700">
+          Treatment recommendations are filtered by your region's regulatory status. Always verify
+          legality with your local agricultural authority before use.
         </Text>
       </View>
 
       <Pressable
-        className="flex-row items-center gap-3 mb-8"
+        className="flex-row items-center gap-3 mb-8 min-h-[48px]"
         onPress={() => setAccepted(!accepted)}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: accepted }}
@@ -53,7 +65,7 @@ export default function DisclaimerScreen() {
             accepted ? 'bg-primary-500 border-primary-500' : 'border-outline-300'
           }`}
         >
-          {accepted && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
+          {accepted && <Ionicons name="checkmark" size={16} color="white" />}
         </View>
         <Text size="sm" className="flex-1">
           I understand and acknowledge this advisory

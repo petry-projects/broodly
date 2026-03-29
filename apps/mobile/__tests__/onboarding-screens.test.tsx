@@ -174,7 +174,7 @@ describe('Disclaimer screen (6.4)', () => {
   it('renders advisory text', () => {
     const Screen = require('../app/(onboarding)/disclaimer').default;
     render(<Screen />);
-    expect(screen.getByText(/Important advisory/)).toBeTruthy();
+    expect(screen.getByText(/Advisory-Only Guidance/)).toBeTruthy();
     expect(screen.getByText(/decision-support recommendations/)).toBeTruthy();
   });
 
@@ -209,11 +209,11 @@ describe('Summary screen (6.4)', () => {
 
     const Screen = require('../app/(onboarding)/summary').default;
     render(<Screen />);
-    expect(screen.getByText('amateur')).toBeTruthy();
+    expect(screen.getByText('Amateur')).toBeTruthy();
     expect(screen.getByText('Oregon')).toBeTruthy();
     expect(screen.getByText('Backyard')).toBeTruthy();
     expect(screen.getByText('5')).toBeTruthy();
-    expect(screen.getByText('health, honey')).toBeTruthy();
+    expect(screen.getByText('Colony Health, Honey Production')).toBeTruthy();
     expect(screen.getByText('Voice First')).toBeTruthy();
   });
 
@@ -228,9 +228,9 @@ describe('Catchup Assessment screen (6.5)', () => {
   it('renders checklist items', () => {
     const Screen = require('../app/(onboarding)/catchup-assessment').default;
     render(<Screen />);
-    expect(screen.getByText(/existing hives/)).toBeTruthy();
-    expect(screen.getByText(/queen status/)).toBeTruthy();
-    expect(screen.getByText(/treated for mites/)).toBeTruthy();
+    expect(screen.getByText(/Queen present and laying/)).toBeTruthy();
+    expect(screen.getByText(/Colony strength/)).toBeTruthy();
+    expect(screen.getByText(/Treatments applied/)).toBeTruthy();
   });
 });
 
