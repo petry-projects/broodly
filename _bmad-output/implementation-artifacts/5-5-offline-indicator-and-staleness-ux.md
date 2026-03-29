@@ -1,6 +1,6 @@
 # Story 5.5: Offline Indicator and Staleness UX
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -151,5 +151,29 @@ so that I understand the reliability of what I am seeing and can make informed d
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
+
 ### Completion Notes List
+- Created staleness utilities: getStalenessLevel (4 tiers), getRelativeTimeLabel
+- Created per-source thresholds: weather 24h, flora 7d, telemetry 1h
+- Created StalenessIndicator component with 3 visual tiers (subtle/warning/critical)
+- Created SourceStalenessIndicator for per-source staleness on context cards
+- Created ConfidenceDowngradeNotice for recommendation confidence messaging
+- Created useStaleness and useSourceStaleness hooks for TanStack Query integration
+- Created staleness feature barrel export
+- Offline banner already integrated from Story 5.3 (verified working)
+- 36 new tests: staleness utils (13), source thresholds (12), indicator (7), confidence (4)
+
 ### File List
+- apps/mobile/src/services/staleness/staleness-utils.ts — Staleness level + relative time utils
+- apps/mobile/src/services/staleness/staleness-utils.test.ts — 13 tests
+- apps/mobile/src/services/staleness/source-thresholds.ts — Per-source threshold config
+- apps/mobile/src/services/staleness/source-thresholds.test.ts — 12 tests
+- apps/mobile/src/features/staleness/components/StalenessIndicator/index.tsx — 3-tier indicator
+- apps/mobile/src/features/staleness/components/StalenessIndicator/StalenessIndicator.test.tsx — 7 tests
+- apps/mobile/src/features/staleness/components/SourceStalenessIndicator/index.tsx — Per-source indicator
+- apps/mobile/src/features/staleness/components/ConfidenceDowngradeNotice/index.tsx — Confidence downgrade
+- apps/mobile/src/features/staleness/components/ConfidenceDowngradeNotice/ConfidenceDowngradeNotice.test.tsx — 4 tests
+- apps/mobile/src/features/staleness/hooks/use-staleness.ts — Staleness hook
+- apps/mobile/src/features/staleness/hooks/use-source-staleness.ts — Source staleness hook
+- apps/mobile/src/features/staleness/index.ts — Feature barrel export

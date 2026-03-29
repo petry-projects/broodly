@@ -14,6 +14,7 @@
     "@graphql-codegen/cli": "^6.2.1",
     "@graphql-codegen/typescript": "^5.0.9",
     "@graphql-codegen/typescript-operations": "^5.0.9",
+    "@graphql-codegen/typescript-urql": "^5.0.0",
     "@types/jest": "^30.0.0",
     "graphql": "^16.13.2",
     "ts-jest": "^29.4.6",
