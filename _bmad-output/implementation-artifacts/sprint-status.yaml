@@ -58,12 +58,12 @@ development_status:
   5-5-offline-indicator-and-staleness-ux: done
   epic-5-retrospective: optional
 
-  epic-6: backlog
-  6-1-welcome-and-account-creation-screens: ready-for-dev
-  6-2-experience-level-and-region-setup: ready-for-dev
-  6-3-apiary-setup-and-goal-selection: ready-for-dev
-  6-4-disclaimer-and-onboarding-completion: ready-for-dev
-  6-5-mid-season-catchup-and-state-persistence: ready-for-dev
+  epic-6: done
+  6-1-welcome-and-account-creation-screens: done
+  6-2-experience-level-and-region-setup: done
+  6-3-apiary-setup-and-goal-selection: done
+  6-4-disclaimer-and-onboarding-completion: done
+  6-5-mid-season-catchup-and-state-persistence: done
   epic-6-retrospective: optional
 
   epic-7: backlog

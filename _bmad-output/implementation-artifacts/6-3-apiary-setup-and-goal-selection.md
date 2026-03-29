@@ -1,6 +1,6 @@
 # Story 6.3: Apiary Setup and Goal Selection
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -116,7 +116,11 @@ so that I get relevant, personalized recommendations immediately after onboardin
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Completion Notes List
+- Apiary setup with name input (50 char max) and hive count stepper (1-99), goal selection with multi-select chips (Colony Health, Honey Production, Learning, Growth), interaction mode single-select (Voice First, Tap & Read)
 
 ### File List
+- apps/mobile/app/(onboarding)/apiary-setup.tsx
+- apps/mobile/app/(onboarding)/goal-selection.tsx

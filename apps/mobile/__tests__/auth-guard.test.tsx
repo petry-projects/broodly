@@ -2,6 +2,8 @@ import React from 'react';
 import { Text } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 import { useAuthStore } from '../src/store/auth-store';
+import { useUIStore } from '../src/store/ui-store';
+import { useOnboardingStore } from '../src/store/onboarding-store';
 
 // Mock expo-router
 const mockUseSegments = jest.fn<string[], []>(() => ['(tabs)']);
@@ -19,11 +21,9 @@ import { AuthGuard } from '../src/services/auth/auth-guard';
 
 beforeEach(() => {
   jest.clearAllMocks();
-  useAuthStore.setState({
-    user: null,
-    isLoading: false,
-    error: null,
-  });
+  useAuthStore.setState({ user: null, isLoading: false, error: null });
+  useUIStore.setState({ onboardingComplete: false, activeApiaryId: null });
+  useOnboardingStore.getState().reset();
   mockUseSegments.mockReturnValue(['(tabs)']);
 });
 
@@ -39,46 +39,59 @@ describe('AuthGuard', () => {
     expect(screen.queryByText('Content')).toBeNull();
   });
 
-  it('redirects unauthenticated user from tabs to sign-in', () => {
-    useAuthStore.setState({ user: null, isLoading: false });
+  it('redirects unauthenticated user from tabs to onboarding', () => {
     mockUseSegments.mockReturnValue(['(tabs)']);
     render(
       <AuthGuard>
         <Text>Content</Text>
       </AuthGuard>
     );
-    expect(screen.getByTestId('redirect-/(auth)/sign-in')).toBeTruthy();
+    expect(screen.getByTestId('redirect-/(onboarding)')).toBeTruthy();
   });
 
-  it('redirects authenticated user from auth to tabs', () => {
+  it('renders children for unauthenticated user on auth', () => {
+    mockUseSegments.mockReturnValue(['(auth)']);
+    render(
+      <AuthGuard>
+        <Text>Sign In Form</Text>
+      </AuthGuard>
+    );
+    expect(screen.getByText('Sign In Form')).toBeTruthy();
+    expect(screen.queryByTestId(/redirect/)).toBeNull();
+  });
+
+  it('renders children for unauthenticated user on onboarding', () => {
+    mockUseSegments.mockReturnValue(['(onboarding)']);
+    render(
+      <AuthGuard>
+        <Text>Onboarding</Text>
+      </AuthGuard>
+    );
+    expect(screen.getByText('Onboarding')).toBeTruthy();
+    expect(screen.queryByTestId(/redirect/)).toBeNull();
+  });
+
+  it('redirects authenticated user without onboarding to resume route', () => {
     useAuthStore.setState({
-      user: {
-        uid: 'user-1',
-        email: 'test@example.com',
-        displayName: 'Test',
-        idToken: 'token',
-      },
+      user: { uid: 'u1', email: 'a@b.com', displayName: 'A', idToken: 't' },
       isLoading: false,
     });
-    mockUseSegments.mockReturnValue(['(auth)']);
+    useOnboardingStore.getState().setStep(3);
+    mockUseSegments.mockReturnValue(['(tabs)']);
     render(
       <AuthGuard>
         <Text>Content</Text>
       </AuthGuard>
     );
-    expect(screen.getByTestId('redirect-/(tabs)')).toBeTruthy();
+    expect(screen.getByTestId('redirect-/(onboarding)/region-setup')).toBeTruthy();
   });
 
-  it('renders children for authenticated user on tabs', () => {
+  it('renders children for authenticated user with completed onboarding on tabs', () => {
     useAuthStore.setState({
-      user: {
-        uid: 'user-1',
-        email: 'test@example.com',
-        displayName: 'Test',
-        idToken: 'token',
-      },
+      user: { uid: 'u1', email: 'a@b.com', displayName: 'A', idToken: 't' },
       isLoading: false,
     });
+    useUIStore.setState({ onboardingComplete: true });
     mockUseSegments.mockReturnValue(['(tabs)']);
     render(
       <AuthGuard>
@@ -89,15 +102,18 @@ describe('AuthGuard', () => {
     expect(screen.queryByTestId(/redirect/)).toBeNull();
   });
 
-  it('renders children for unauthenticated user on auth', () => {
-    useAuthStore.setState({ user: null, isLoading: false });
-    mockUseSegments.mockReturnValue(['(auth)']);
+  it('redirects completed user from onboarding to tabs', () => {
+    useAuthStore.setState({
+      user: { uid: 'u1', email: 'a@b.com', displayName: 'A', idToken: 't' },
+      isLoading: false,
+    });
+    useUIStore.setState({ onboardingComplete: true });
+    mockUseSegments.mockReturnValue(['(onboarding)']);
     render(
       <AuthGuard>
-        <Text>Sign In Form</Text>
+        <Text>Content</Text>
       </AuthGuard>
     );
-    expect(screen.getByText('Sign In Form')).toBeTruthy();
-    expect(screen.queryByTestId(/redirect/)).toBeNull();
+    expect(screen.getByTestId('redirect-/(tabs)')).toBeTruthy();
   });
 });

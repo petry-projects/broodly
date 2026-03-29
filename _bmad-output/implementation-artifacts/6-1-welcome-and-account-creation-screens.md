@@ -1,6 +1,6 @@
 # Story 6.1: Welcome and Account Creation Screens
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -99,7 +99,16 @@ so that I can begin the onboarding flow with a personalized identity.
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Completion Notes List
+- Welcome screen with Broodly logo, tagline, Get Started + Sign In buttons
+- Create Account screen with ToS checkbox, Google/Apple sign-in, offline fallback
+- OnboardingProgressDots shared component (packages/ui)
+- Onboarding route group with stack layout
 
 ### File List
+- apps/mobile/app/(onboarding)/_layout.tsx — Onboarding stack layout
+- apps/mobile/app/(onboarding)/index.tsx — Welcome screen
+- apps/mobile/app/(onboarding)/create-account.tsx — Account creation with ToS gate
+- packages/ui/src/OnboardingProgressDots/index.tsx — Progress dots component

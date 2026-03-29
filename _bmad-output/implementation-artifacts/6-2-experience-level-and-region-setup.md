@@ -1,6 +1,6 @@
 # Story 6.2: Experience Level and Region Setup
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -110,7 +110,12 @@ so that guidance is tailored to my skill level and localized to my area and curr
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Completion Notes List
+- Experience level selection (Newbie/Amateur/Sideliner single-select cards), region setup with manual text input, seasonal context resolver utility (hemisphere + season detection)
 
 ### File List
+- apps/mobile/app/(onboarding)/experience-level.tsx
+- apps/mobile/app/(onboarding)/region-setup.tsx
+- apps/mobile/src/features/onboarding/utils/seasonal-context.ts
