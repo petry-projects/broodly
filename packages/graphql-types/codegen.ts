@@ -21,6 +21,24 @@ const config: CodegenConfig = {
         strictScalars: true,
       },
     },
+    "src/generated/operations.ts": {
+      documents: "src/operations/**/*.graphql",
+      plugins: [
+        "typescript",
+        "typescript-operations",
+        "typescript-urql",
+      ],
+      config: {
+        scalars: {
+          JSON: "Record<string, unknown>",
+          DateTime: "string",
+          UUID: "string",
+        },
+        strictScalars: true,
+        withHooks: true,
+        urqlImportFrom: "urql",
+      },
+    },
   },
 };
 
