@@ -1,4 +1,4 @@
-import type { Apiary } from '@broodly/graphql-types';
+import type { Apiary, HiveStatus } from '@broodly/graphql-types';
 
 // We test the computation logic directly by extracting it
 // The hook itself wraps useApiaries which is mocked in screen tests
@@ -36,7 +36,7 @@ describe('Dashboard summary computation', () => {
 
     const healths = apiaries.map((a) => ({
       name: a.name,
-      health: deriveApiaryHealth(a.hives.map((h) => h.status as 'ACTIVE')),
+      health: deriveApiaryHealth(a.hives.map((h) => h.status as HiveStatus)),
     }));
 
     healths.sort((a, b) => {
@@ -59,7 +59,7 @@ describe('Dashboard summary computation', () => {
 
     const counts = { healthy: 0, attention: 0, warning: 0, critical: 0 };
     for (const a of apiaries) {
-      const h = deriveApiaryHealth(a.hives.map((hive) => hive.status as 'ACTIVE'));
+      const h = deriveApiaryHealth(a.hives.map((hive) => hive.status as HiveStatus));
       counts[h]++;
     }
 

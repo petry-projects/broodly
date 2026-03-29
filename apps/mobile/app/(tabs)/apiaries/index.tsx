@@ -12,6 +12,7 @@ import {
   type HealthStatus,
 } from '../../../src/features/apiary/utils/health-status';
 import type { Apiary, HiveStatus } from '@broodly/graphql-types';
+import { ICON_COLORS } from '../../../src/theme/colors';
 
 function StatusBadge({ status }: { status: HealthStatus }) {
   const config = HEALTH_BADGE_CONFIG[status];
@@ -60,7 +61,7 @@ function ApiaryCard({ apiary, onPress }: { apiary: Apiary; onPress: () => void }
         <StatusBadge status={health} />
       </View>
       <View className="flex-row items-center gap-1">
-        <Ionicons name="cube-outline" size={14} color="rgb(107, 114, 128)" />
+        <Ionicons name="cube-outline" size={14} color={ICON_COLORS.muted} />
         <Text size="sm" className="text-typography-500">
           {hiveCount} {hiveCount === 1 ? 'hive' : 'hives'}
         </Text>
@@ -72,7 +73,7 @@ function ApiaryCard({ apiary, onPress }: { apiary: Apiary; onPress: () => void }
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <View className="flex-1 justify-center items-center p-8">
-      <Ionicons name="leaf-outline" size={48} color="rgb(107, 114, 128)" />
+      <Ionicons name="leaf-outline" size={48} color={ICON_COLORS.muted} />
       <Heading size="xl" className="mt-4 mb-2 text-center">
         No apiaries yet
       </Heading>

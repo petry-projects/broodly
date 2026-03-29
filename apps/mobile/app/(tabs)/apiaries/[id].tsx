@@ -13,6 +13,7 @@ import {
   type HealthStatus,
 } from '../../../src/features/apiary/utils/health-status';
 import type { Hive, HiveStatus } from '@broodly/graphql-types';
+import { ICON_COLORS } from '../../../src/theme/colors';
 
 const HIVE_TYPE_ICONS: Record<string, string> = {
   LANGSTROTH: 'cube-outline',
@@ -54,7 +55,7 @@ function HiveCard({ hive, onPress }: { hive: Hive; onPress: () => void }) {
     >
       <View className="flex-row justify-between items-center">
         <View className="flex-row items-center gap-2 flex-1 mr-3">
-          <Ionicons name={typeIcon as 'cube-outline'} size={18} color="rgb(107, 114, 128)" />
+          <Ionicons name={typeIcon as 'cube-outline'} size={18} color={ICON_COLORS.muted} />
           <View>
             <Heading size="md">{hive.name}</Heading>
             <Text size="xs" className="text-typography-400">{hive.type.replace('_', ' ')}</Text>
@@ -107,7 +108,7 @@ export default function ApiaryDetailScreen() {
               </View>
               <View className="flex-row items-center gap-4 mt-2">
                 <View className="flex-row items-center gap-1">
-                  <Ionicons name="cube-outline" size={14} color="rgb(107, 114, 128)" />
+                  <Ionicons name="cube-outline" size={14} color={ICON_COLORS.muted} />
                   <Text size="sm" className="text-typography-500">
                     {apiary.hives.length} {apiary.hives.length === 1 ? 'hive' : 'hives'}
                   </Text>

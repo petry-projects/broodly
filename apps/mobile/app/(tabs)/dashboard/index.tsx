@@ -60,7 +60,7 @@ function SummaryBar({
           return (
             <Pressable
               key={status}
-              className={`flex-row items-center gap-1 px-2 py-1 rounded-md min-h-[32px] ${bgClass} ${
+              className={`flex-row items-center gap-1 px-3 py-2 rounded-md min-h-[48px] ${bgClass} ${
                 isActive ? 'border-2 border-primary-500' : ''
               }`}
               onPress={() => onFilterTap(status)}

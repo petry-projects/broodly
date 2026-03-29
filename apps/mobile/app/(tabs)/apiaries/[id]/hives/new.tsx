@@ -7,6 +7,7 @@ import { Text } from '../../../../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner } from '../../../../../components/ui/button';
 import { useCreateHive } from '../../../../../src/features/hive/hooks/use-hives';
 import type { HiveType } from '@broodly/graphql-types';
+import { ICON_COLORS } from '../../../../../src/theme/colors';
 
 const HIVE_TYPES: Array<{ value: HiveType; label: string; icon: string; description: string }> = [
   { value: 'LANGSTROTH', label: 'Langstroth', icon: 'cube-outline', description: 'Most common, stackable boxes' },
@@ -68,7 +69,7 @@ export default function CreateHiveScreen() {
             accessibilityLabel={`${ht.label}: ${ht.description}`}
             testID={`type-${ht.value}`}
           >
-            <Ionicons name={ht.icon as 'cube-outline'} size={20} color="rgb(107, 114, 128)" />
+            <Ionicons name={ht.icon as 'cube-outline'} size={20} color={ICON_COLORS.muted} />
             <View>
               <Text size="md" className="font-medium">{ht.label}</Text>
               <Text size="xs" className="text-typography-400">{ht.description}</Text>
