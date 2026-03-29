@@ -1,0 +1,58 @@
+"""
+Hive type classification.
+"""
+enum HiveType {
+  LANGSTROTH
+  TOP_BAR
+  WARRE
+  OTHER
+}
+
+"""
+Current operational status of a hive.
+"""
+enum HiveStatus {
+  ACTIVE
+  INACTIVE
+  DEAD
+  SOLD
+}
+
+"""
+A single hive within an apiary.
+"""
+type Hive {
+  id: UUID!
+  apiary: Apiary!
+  name: String!
+  type: HiveType!
+  status: HiveStatus!
+  notes: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateHiveInput {
+  apiaryId: UUID!
+  name: String!
+  type: HiveType!
+  notes: String
+}
+
+input UpdateHiveInput {
+  name: String
+  type: HiveType
+  status: HiveStatus
+  notes: String
+}
+
+extend type Query {
+  hives(apiaryId: UUID!): [Hive!]!
+  hive(id: UUID!): Hive!
+}
+
+extend type Mutation {
+  createHive(input: CreateHiveInput!): Hive!
+  updateHive(id: UUID!, input: UpdateHiveInput!): Hive!
+  deleteHive(id: UUID!): Boolean!
+}

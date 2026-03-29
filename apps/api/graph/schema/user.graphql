@@ -1,0 +1,25 @@
+"""
+Experience level of the beekeeper.
+"""
+enum ExperienceLevel {
+  NEWBIE
+  AMATEUR
+  SIDELINER
+}
+
+"""
+Authenticated user profile.
+"""
+type User {
+  id: UUID!
+  email: String!
+  displayName: String!
+  experienceLevel: ExperienceLevel!
+  region: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+extend type Query {
+  me: User!
+}

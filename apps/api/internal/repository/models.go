@@ -19,6 +19,7 @@ type Apiary struct {
 	BloomOffset     int32              `json:"bloom_offset"`
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt       pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type AuditEvent struct {
@@ -49,6 +50,7 @@ type Hive struct {
 	Notes     string             `json:"notes"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type Inspection struct {
