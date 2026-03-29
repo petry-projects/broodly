@@ -69,7 +69,7 @@ export default function SignInScreen() {
           {isLoading ? (
             <ButtonSpinner />
           ) : (
-            <ButtonIcon as={() => <Ionicons name="logo-google" size={20} color="#FFFFFF" />} />
+            <ButtonIcon as={() => <Ionicons name="logo-google" size={20} color="white" />} />
           )}
           <ButtonText>Sign in with Google</ButtonText>
         </Button>
@@ -87,7 +87,7 @@ export default function SignInScreen() {
             {isLoading ? (
               <ButtonSpinner />
             ) : (
-              <ButtonIcon as={() => <Ionicons name="logo-apple" size={20} color="#D4880F" />} />
+              <ButtonIcon as={() => <Ionicons name="logo-apple" size={20} color="rgb(212, 136, 15)" />} />
             )}
             <ButtonText>Sign in with Apple</ButtonText>
           </Button>

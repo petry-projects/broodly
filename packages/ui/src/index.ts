@@ -1,1 +1,1 @@
-export {};
+export { OnboardingProgressDots } from './OnboardingProgressDots';
