@@ -1,6 +1,6 @@
 # Story 6.4: Disclaimer and Onboarding Completion
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -115,7 +115,11 @@ so that I understand guidance limitations and can verify my configuration is cor
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Completion Notes List
+- Advisory disclaimer screen with mandatory acknowledgment checkbox, summary screen displaying all collected onboarding data, completeOnboarding mutation placeholder, navigates to (tabs) on completion
 
 ### File List
+- apps/mobile/app/(onboarding)/disclaimer.tsx
+- apps/mobile/app/(onboarding)/summary.tsx
