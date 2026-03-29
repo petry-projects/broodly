@@ -26,12 +26,12 @@ development_status:
   1-4-terraform-baseline-for-gcp-dev-environment: done
   epic-1-retrospective: done
 
-  epic-2: in-progress
+  epic-2: done
   2-1-firebase-auth-setup: done
   2-2-go-server-jwt-validation-middleware: done
-  2-3-rbac-middleware-and-role-enforcement: ready-for-dev
-  2-4-account-management-settings: ready-for-dev
-  2-5-account-deletion-and-data-purge: ready-for-dev
+  2-3-rbac-middleware-and-role-enforcement: done
+  2-4-account-management-settings: done
+  2-5-account-deletion-and-data-purge: done
   epic-2-retrospective: optional
 
   epic-3: backlog
