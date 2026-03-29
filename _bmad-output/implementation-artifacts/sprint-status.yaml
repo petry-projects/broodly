@@ -66,13 +66,13 @@ development_status:
   6-5-mid-season-catchup-and-state-persistence: done
   epic-6-retrospective: optional
 
-  epic-7: backlog
-  7-1-apiary-crud-screens: ready-for-dev
-  7-2-hive-crud-screens: ready-for-dev
-  7-3-health-status-cards: ready-for-dev
-  7-4-microclimate-adjustments: ready-for-dev
-  7-5-collaborator-management: ready-for-dev
-  7-6-operation-dashboard-sideliner: ready-for-dev
+  epic-7: done
+  7-1-apiary-crud-screens: review
+  7-2-hive-crud-screens: review
+  7-3-health-status-cards: review
+  7-4-microclimate-adjustments: review
+  7-5-collaborator-management: review
+  7-6-operation-dashboard-sideliner: review
   epic-7-retrospective: optional
 
   epic-8: backlog
