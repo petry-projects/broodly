@@ -66,8 +66,8 @@ development_status:
   6-5-mid-season-catchup-and-state-persistence: done
   epic-6-retrospective: optional
 
-  epic-7: backlog
-  7-1-apiary-crud-screens: ready-for-dev
+  epic-7: in-progress
+  7-1-apiary-crud-screens: review
   7-2-hive-crud-screens: ready-for-dev
   7-3-health-status-cards: ready-for-dev
   7-4-microclimate-adjustments: ready-for-dev
