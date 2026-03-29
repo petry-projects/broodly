@@ -19,7 +19,7 @@ variable "bucket_name" {
 }
 
 variable "cors_origins" {
-  description = "List of allowed CORS origins for signed URL uploads"
+  description = "List of allowed CORS origins for signed URL uploads. Must be explicitly set per environment."
   type        = list(string)
-  default     = ["*"]
+  default     = []
 }

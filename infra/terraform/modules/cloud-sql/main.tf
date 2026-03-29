@@ -55,6 +55,9 @@ data "google_secret_manager_secret_version" "db_password" {
   project = var.project_id
 }
 
+# NOTE: Password will be stored in Terraform state. Ensure state backend
+# (GCS bucket) has restricted IAM access. Consider migrating to Cloud SQL
+# IAM DB authentication for production environments.
 resource "google_sql_user" "app" {
   name     = "broodly-app"
   instance = google_sql_database_instance.main.name

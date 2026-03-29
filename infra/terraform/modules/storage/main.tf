@@ -10,11 +10,14 @@ resource "google_storage_bucket" "media" {
     enabled = true
   }
 
-  cors {
-    origin          = var.cors_origins
-    method          = ["GET", "PUT", "POST", "DELETE", "HEAD"]
-    response_header = ["Content-Type", "Content-Disposition", "Content-Length"]
-    max_age_seconds = 3600
+  dynamic "cors" {
+    for_each = length(var.cors_origins) > 0 ? [1] : []
+    content {
+      origin          = var.cors_origins
+      method          = ["GET", "PUT", "POST", "HEAD"]
+      response_header = ["Content-Type", "Content-Disposition", "Content-Length"]
+      max_age_seconds = 3600
+    }
   }
 
   lifecycle_rule {

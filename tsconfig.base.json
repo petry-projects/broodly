@@ -11,9 +11,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "baseUrl": ".",
     "paths": {
       "@broodly/ui": ["./packages/ui/src"],
       "@broodly/graphql-types": ["./packages/graphql-types/src"],

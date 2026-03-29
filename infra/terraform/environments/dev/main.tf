@@ -158,10 +158,11 @@ module "cloud_sql" {
 module "storage" {
   source = "../../modules/storage"
 
-  project_id  = var.project_id
-  region      = var.region
-  environment = var.environment
-  bucket_name = "broodly-media-${var.environment}"
+  project_id   = var.project_id
+  region       = var.region
+  environment  = var.environment
+  bucket_name  = "broodly-media-${var.environment}"
+  cors_origins = ["http://localhost:8081", "http://localhost:19006"]
 }
 
 module "pubsub" {
