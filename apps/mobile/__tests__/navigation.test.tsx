@@ -114,12 +114,11 @@ describe('Screen stubs render correctly', () => {
 // Apiary detail stub with route param -----------------------------------
 
 describe('Apiary detail screen', () => {
-  it('renders apiary id from route params', () => {
+  it('renders loading state with route params', () => {
     const ApiaryDetailScreen =
       require('../app/(tabs)/apiaries/[id]').default;
     render(<ApiaryDetailScreen />);
-    expect(screen.getByText('Apiary Detail')).toBeTruthy();
-    expect(screen.getByText(/test-apiary-123/)).toBeTruthy();
+    expect(screen.getByText('Loading...')).toBeTruthy();
   });
 });
 

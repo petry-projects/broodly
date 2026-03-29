@@ -27,10 +27,16 @@ export function deriveApiaryHealth(hiveStatuses: HiveStatus[]): HealthStatus {
 
 export const HEALTH_BADGE_CONFIG: Record<
   HealthStatus,
-  { action: 'success' | 'warning' | 'error'; variant: 'solid' | 'outline'; label: string }
+  {
+    action: 'success' | 'warning' | 'error';
+    variant: 'solid' | 'outline';
+    label: string;
+    icon: string;
+    bgClass: string;
+  }
 > = {
-  healthy: { action: 'success', variant: 'solid', label: 'Healthy' },
-  attention: { action: 'warning', variant: 'outline', label: 'Attention' },
-  warning: { action: 'warning', variant: 'solid', label: 'Warning' },
-  critical: { action: 'error', variant: 'solid', label: 'Critical' },
+  healthy: { action: 'success', variant: 'solid', label: 'Healthy', icon: 'checkmark-circle', bgClass: 'bg-background-success' },
+  attention: { action: 'warning', variant: 'outline', label: 'Needs Attention', icon: 'information-circle', bgClass: 'bg-background-warning' },
+  warning: { action: 'warning', variant: 'solid', label: 'Warning', icon: 'alert-circle', bgClass: 'bg-background-warning' },
+  critical: { action: 'error', variant: 'solid', label: 'Critical', icon: 'warning', bgClass: 'bg-background-error' },
 };
