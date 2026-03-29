@@ -1,6 +1,6 @@
 # Story 2.4: Account Management Settings — Update Display Name and View Linked Account
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

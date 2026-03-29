@@ -1,6 +1,6 @@
 # Story 2.3: RBAC Middleware and Role Enforcement
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
