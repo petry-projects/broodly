@@ -1,0 +1,99 @@
+"""
+Type of inspection performed.
+"""
+enum InspectionType {
+  FULL
+  QUICK
+}
+
+"""
+Current status of an inspection session.
+"""
+enum InspectionStatus {
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+}
+
+"""
+Category of observation recorded during an inspection.
+"""
+enum ObservationType {
+  BROOD_PATTERN
+  QUEEN_STATUS
+  STORES
+  PEST_DISEASE
+  TEMPERAMENT
+  EQUIPMENT
+  GENERAL
+}
+
+"""
+A structured inspection session for a specific hive.
+"""
+type Inspection {
+  id: UUID!
+  hive: Hive!
+  type: InspectionType!
+  status: InspectionStatus!
+  observations: [Observation!]!
+  startedAt: DateTime!
+  completedAt: DateTime
+  notes: String!
+  createdAt: DateTime!
+}
+
+"""
+A single observation recorded during an inspection.
+"""
+type Observation {
+  id: UUID!
+  inspection: Inspection!
+  sequenceOrder: Int!
+  observationType: ObservationType!
+  structuredData: JSON
+  rawVoiceUrl: String
+  transcription: String
+  transcriptionConfidence: Float
+  media: [Media!]!
+  createdAt: DateTime!
+}
+
+"""
+Media attachment (photo, audio) linked to an observation.
+"""
+type Media {
+  id: UUID!
+  storagePath: String!
+  contentType: String!
+  analysisStatus: String!
+  analysisResult: JSON
+  createdAt: DateTime!
+}
+
+input StartInspectionInput {
+  hiveId: UUID!
+  type: InspectionType!
+}
+
+input AddObservationInput {
+  inspectionId: UUID!
+  observationType: ObservationType!
+  structuredData: JSON
+  rawVoiceUrl: String
+  transcription: String
+  transcriptionConfidence: Float
+}
+
+extend type Query {
+  inspections(hiveId: UUID, limit: Int, offset: Int): [Inspection!]!
+  inspection(id: UUID!): Inspection!
+}
+
+extend type Mutation {
+  startInspection(input: StartInspectionInput!): Inspection!
+  pauseInspection(id: UUID!): Inspection!
+  resumeInspection(id: UUID!): Inspection!
+  completeInspection(id: UUID!): Inspection!
+  addObservation(input: AddObservationInput!): Observation!
+}

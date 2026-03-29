@@ -11,10 +11,23 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countHivesByUser = `-- name: CountHivesByUser :one
+SELECT COUNT(*) FROM hives h
+JOIN apiaries a ON h.apiary_id = a.id
+WHERE a.user_id = $1 AND h.deleted_at IS NULL AND a.deleted_at IS NULL
+`
+
+func (q *Queries) CountHivesByUser(ctx context.Context, userID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countHivesByUser, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createHive = `-- name: CreateHive :one
 INSERT INTO hives (apiary_id, name, type, status, notes)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, apiary_id, name, type, status, notes, created_at, updated_at
+RETURNING id, apiary_id, name, type, status, notes, created_at, updated_at, deleted_at
 `
 
 type CreateHiveParams struct {
@@ -43,6 +56,7 @@ func (q *Queries) CreateHive(ctx context.Context, arg CreateHiveParams) (Hive, e
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -57,7 +71,7 @@ func (q *Queries) DeleteHive(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getHiveByID = `-- name: GetHiveByID :one
-SELECT id, apiary_id, name, type, status, notes, created_at, updated_at FROM hives WHERE id = $1
+SELECT id, apiary_id, name, type, status, notes, created_at, updated_at, deleted_at FROM hives WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetHiveByID(ctx context.Context, id pgtype.UUID) (Hive, error) {
@@ -72,12 +86,41 @@ func (q *Queries) GetHiveByID(ctx context.Context, id pgtype.UUID) (Hive, error)
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getHiveByIDAndUser = `-- name: GetHiveByIDAndUser :one
+SELECT h.id, h.apiary_id, h.name, h.type, h.status, h.notes, h.created_at, h.updated_at, h.deleted_at FROM hives h
+JOIN apiaries a ON h.apiary_id = a.id
+WHERE h.id = $1 AND a.user_id = $2 AND h.deleted_at IS NULL AND a.deleted_at IS NULL
+`
+
+type GetHiveByIDAndUserParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetHiveByIDAndUser(ctx context.Context, arg GetHiveByIDAndUserParams) (Hive, error) {
+	row := q.db.QueryRow(ctx, getHiveByIDAndUser, arg.ID, arg.UserID)
+	var i Hive
+	err := row.Scan(
+		&i.ID,
+		&i.ApiaryID,
+		&i.Name,
+		&i.Type,
+		&i.Status,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const listHivesByApiary = `-- name: ListHivesByApiary :many
-SELECT id, apiary_id, name, type, status, notes, created_at, updated_at FROM hives WHERE apiary_id = $1 ORDER BY name
+SELECT id, apiary_id, name, type, status, notes, created_at, updated_at, deleted_at FROM hives WHERE apiary_id = $1 AND deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListHivesByApiary(ctx context.Context, apiaryID pgtype.UUID) ([]Hive, error) {
@@ -98,6 +141,7 @@ func (q *Queries) ListHivesByApiary(ctx context.Context, apiaryID pgtype.UUID) (
 			&i.Notes,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -109,9 +153,61 @@ func (q *Queries) ListHivesByApiary(ctx context.Context, apiaryID pgtype.UUID) (
 	return items, nil
 }
 
+const listHivesByApiaryIDs = `-- name: ListHivesByApiaryIDs :many
+SELECT id, apiary_id, name, type, status, notes, created_at, updated_at, deleted_at FROM hives WHERE apiary_id = ANY($1::uuid[]) AND deleted_at IS NULL ORDER BY apiary_id, name
+`
+
+func (q *Queries) ListHivesByApiaryIDs(ctx context.Context, dollar_1 []pgtype.UUID) ([]Hive, error) {
+	rows, err := q.db.Query(ctx, listHivesByApiaryIDs, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Hive
+	for rows.Next() {
+		var i Hive
+		if err := rows.Scan(
+			&i.ID,
+			&i.ApiaryID,
+			&i.Name,
+			&i.Type,
+			&i.Status,
+			&i.Notes,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const softDeleteHive = `-- name: SoftDeleteHive :exec
+UPDATE hives SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteHive(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, softDeleteHive, id)
+	return err
+}
+
+const softDeleteHivesByApiary = `-- name: SoftDeleteHivesByApiary :exec
+UPDATE hives SET deleted_at = NOW() WHERE apiary_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteHivesByApiary(ctx context.Context, apiaryID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, softDeleteHivesByApiary, apiaryID)
+	return err
+}
+
 const updateHive = `-- name: UpdateHive :one
 UPDATE hives SET name = $2, type = $3, status = $4, notes = $5, updated_at = NOW()
-WHERE id = $1 RETURNING id, apiary_id, name, type, status, notes, created_at, updated_at
+WHERE id = $1 AND deleted_at IS NULL RETURNING id, apiary_id, name, type, status, notes, created_at, updated_at, deleted_at
 `
 
 type UpdateHiveParams struct {
@@ -140,6 +236,7 @@ func (q *Queries) UpdateHive(ctx context.Context, arg UpdateHiveParams) (Hive, e
 		&i.Notes,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
