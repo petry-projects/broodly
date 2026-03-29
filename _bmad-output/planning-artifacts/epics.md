@@ -74,8 +74,8 @@
 
 ## Epic 2: Authentication & User Identity
 
-**Goal:** Users can create accounts via social login (Google + Apple Sign-In), sign in, and delete accounts. Server validates Firebase tokens on every request. RBAC middleware enforces roles.
-**FRs:** FR1a, FR1b, FR1d, FR55
+**Goal:** Users can create accounts via social login (Google + Apple Sign-In), sign in, and delete accounts. Server validates Firebase tokens on every request. RBAC middleware enforces roles. Local development uses Firebase Auth Emulator with documented environment setup, CI injects Firebase config from secrets, and Firebase infrastructure is Terraform-managed.
+**FRs:** FR1a, FR1b, FR1d, FR55 | **NFRs:** NFR29, NFR30, NFR31, NFR32
 
 ### Story 2.1: Firebase Auth Setup — Google and Apple Sign-In
 
@@ -149,6 +149,69 @@
 - [ ] Every DB query includes `WHERE tenant_id = $1` enforced by repository interface
 - [ ] Access changes logged to audit table (FR7)
 **Tech Notes:** Roles stored as Firebase custom claims. Middleware reads claims from validated JWT context.
+
+### Story 2.7: Firebase Auth Emulator for Local Development
+
+**As a** developer, **I want** the Firebase Auth Emulator configured for local development, **so that** I can develop and test auth flows without real Firebase credentials or network access.
+**NFRs:** NFR29
+**TDD Requirements:**
+- Test: Firebase web client connects to emulator when `EXPO_PUBLIC_FIREBASE_USE_EMULATOR=true`.
+- Test: Firebase web client connects to production when `EXPO_PUBLIC_FIREBASE_USE_EMULATOR` is unset or false.
+- Test: Auth operations (sign-in, sign-out, onAuthStateChanged) work against emulator in test environment.
+**Acceptance Criteria:**
+- [ ] `firebase.json` configured with Auth Emulator on port 9099
+- [ ] `firebase-web.ts` auto-connects to emulator when `EXPO_PUBLIC_FIREBASE_USE_EMULATOR=true`
+- [ ] npm scripts: `firebase:emulator:start`, `firebase:emulator:start:ci` (non-interactive)
+- [ ] Emulator works for web platform auth flows (signInWithPopup fallback to signInWithCredential in emulator)
+- [ ] Existing auth unit tests continue to pass
+**Tech Notes:** Install `firebase-tools` as a dev dependency. Use `connectAuthEmulator()` from `firebase/auth`. Emulator UI available at `localhost:4000`. CI script uses `--only auth` flag.
+
+### Story 2.8: Environment Variable Documentation (.env.example)
+
+**As a** developer, **I want** a documented `.env.example` file listing all required environment variables, **so that** I can bootstrap my local environment without guesswork.
+**NFRs:** NFR30
+**TDD Requirements:**
+- Test: Every `EXPO_PUBLIC_` variable referenced in source code is documented in `.env.example`.
+- Test: Every variable in `.env.example` has a descriptive comment.
+**Acceptance Criteria:**
+- [ ] `apps/mobile/.env.example` lists all `EXPO_PUBLIC_FIREBASE_*` variables with emulator-friendly defaults
+- [ ] `EXPO_PUBLIC_FIREBASE_USE_EMULATOR=true` set as default for local dev
+- [ ] `EXPO_PUBLIC_API_URL` included for GraphQL endpoint
+- [ ] Test-specific variables documented (`FIREBASE_API_KEY`, `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`)
+- [ ] Comments explain each variable's purpose and where to find production values
+- [ ] `.env` added to `.gitignore` (if not already)
+**Tech Notes:** Emulator-friendly defaults mean the app boots against local emulator with zero manual config.
+
+### Story 2.9: CD Pipeline — Firebase Config Injection from Secrets
+
+**As a** CI/CD pipeline, **I want** Firebase configuration injected from GitHub secrets during builds and deploys, **so that** no manual credential distribution is needed and environments stay consistent.
+**NFRs:** NFR31
+**TDD Requirements:**
+- Test: CI workflow includes step to generate `.env` from secrets for mobile builds.
+- Test: CI workflow includes step to inject `google-services.json` and `GoogleService-Info.plist` from secrets for native builds.
+- Test: CI workflow uses Firebase Emulator for auth-dependent integration tests.
+**Acceptance Criteria:**
+- [ ] GitHub Actions CI generates `apps/mobile/.env` from `EXPO_PUBLIC_FIREBASE_*` secrets
+- [ ] Native build steps inject `google-services.json` and `GoogleService-Info.plist` from base64-encoded secrets
+- [ ] Integration/E2E test jobs start Firebase Auth Emulator before running tests
+- [ ] No real Firebase credentials required for PR CI checks (emulator-only)
+- [ ] Deploy jobs inject production Firebase config from environment-specific secrets
+**Tech Notes:** Use `echo "$SECRET" | base64 -d > file` pattern for native config files. Firebase Emulator in CI uses `firebase emulators:exec` with `--only auth`.
+
+### Story 2.10: Terraform Firebase Project Provisioning
+
+**As a** platform engineer, **I want** the Firebase project, web app, and auth providers provisioned via Terraform, **so that** environment setup is reproducible and consistent across dev, staging, and production.
+**NFRs:** NFR32
+**TDD Requirements:**
+- Test: `terraform validate` passes for all new Firebase-related `.tf` files.
+- Test: `terraform plan` succeeds with no errors for the Firebase module.
+**Acceptance Criteria:**
+- [ ] Terraform `google-beta` provider provisions Firebase project (`google_firebase_project`)
+- [ ] Terraform provisions Firebase web app (`google_firebase_web_app`)
+- [ ] Auth provider configuration (Google, Apple, Facebook) documented as manual Console step with Terraform comments (provider config is not fully Terraform-manageable)
+- [ ] Web app config values (apiKey, authDomain, etc.) output as Terraform outputs for CI secret injection
+- [ ] Module follows existing pattern in `infra/terraform/modules/`
+**Tech Notes:** Use `google_firebase_project` and `google_firebase_web_app` resources from `google-beta` provider. Auth provider enablement is a Firebase Console operation — document in README with Terraform comments.
 
 ---
 

@@ -598,3 +598,10 @@ Seasonal Usage Concentration Risks:
 - NFR26: The system shall expose operational health metrics and alerting for critical sync, recommendation, notification, and image-analysis pipelines.
 - NFR27: The system shall suppress high-confidence visual-analysis conclusions when model confidence falls below the defined trust threshold and present a fallback guidance path instead.
 - NFR28: The system shall achieve at least 80% precision on supported inspection image categories (brood pattern assessment, queen cell detection, pest/disease indicators) as measured against expert-labeled validation sets before production deployment.
+
+### Developer Experience and Local Tooling
+
+- NFR29: The development environment shall use Firebase Auth Emulator for local development and testing, eliminating the need for real Firebase credentials during development workflows.
+- NFR30: The repository shall include documented environment variable templates (`.env.example`) for all required configuration, enabling new developers to bootstrap local environments without tribal knowledge.
+- NFR31: The CD pipeline shall inject Firebase configuration (API keys, native config files) from CI secrets during build and deploy, with no manual credential distribution required.
+- NFR32: Firebase project infrastructure (project, web app, auth providers) shall be provisioned via Terraform, ensuring environment parity and reproducible setup across dev, staging, and production.
