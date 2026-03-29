@@ -31,10 +31,12 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "scheme": "broodly",
     "plugins": [
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-router"
     ]
   }
 }
