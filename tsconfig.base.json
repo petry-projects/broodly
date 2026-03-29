@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@broodly/ui": ["./packages/ui/src"],
+      "@broodly/graphql-types": ["./packages/graphql-types/src"],
+      "@broodly/domain-types": ["./packages/domain-types/src"],
+      "@broodly/config": ["./packages/config/src"],
+      "@broodly/test-utils": ["./packages/test-utils/src"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".expo"]
+}

@@ -1,0 +1,48 @@
+# Cloud SQL outputs
+output "cloud_sql_connection_name" {
+  description = "Cloud SQL instance connection name"
+  value       = module.cloud_sql.connection_name
+}
+
+output "cloud_sql_ip_address" {
+  description = "Cloud SQL instance IP address"
+  value       = module.cloud_sql.ip_address
+}
+
+output "cloud_sql_database_name" {
+  description = "Cloud SQL database name"
+  value       = module.cloud_sql.database_name
+}
+
+# Storage outputs
+output "media_bucket_name" {
+  description = "Media storage bucket name"
+  value       = module.storage.bucket_name
+}
+
+output "media_bucket_url" {
+  description = "Media storage bucket URL"
+  value       = module.storage.bucket_url
+}
+
+# Pub/Sub outputs
+output "pubsub_topic_names" {
+  description = "Map of Pub/Sub topic names"
+  value       = module.pubsub.topic_names
+}
+
+output "pubsub_subscription_names" {
+  description = "Map of Pub/Sub subscription names"
+  value       = module.pubsub.subscription_names
+}
+
+# Service account outputs
+output "api_service_account_email" {
+  description = "API service account email"
+  value       = google_service_account.api.email
+}
+
+output "worker_service_account_email" {
+  description = "Worker service account email"
+  value       = google_service_account.worker.email
+}
