@@ -46,6 +46,10 @@ terraform.rc
 *~
 .DS_Store
 
+# Firebase config (contains API keys — provided via CI secrets)
+**/google-services.json
+**/GoogleService-Info.plist
+
 # Environment
 .env
 .env.local
