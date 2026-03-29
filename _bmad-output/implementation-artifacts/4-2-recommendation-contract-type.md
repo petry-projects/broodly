@@ -1,6 +1,6 @@
 # Story 4.2: Recommendation Contract Type
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,22 +20,22 @@ so that every recommendation surface in the app returns a trustworthy, explainab
 
 ## Tasks / Subtasks
 
-- [ ] Write domain validation test: Recommendation struct rejects missing mandatory fields (AC: #1)
-- [ ] Write confidence range test: ConfidenceLevel outside 0.0-1.0 returns typed error (AC: #2)
-- [ ] Write confidence coherence test: INSUFFICIENT_DATA with high confidence is rejected (AC: #3)
-- [ ] Write resolver mapping test: Recommendation domain struct maps to GraphQL response with all non-null fields (AC: #4)
-- [ ] Write evidence serialization test: evidenceContext contains structured source references (AC: #5)
-- [ ] Write skill adaptation test: skillAdaptedExplanation varies by user skill level (AC: #6)
-- [ ] Write fallback enforcement test: low-confidence recommendations always have non-empty fallbackAction (AC: #7)
-- [ ] Implement `Recommendation` domain struct in `apps/api/internal/domain/recommendation.go` (AC: #1, #2, #3)
-- [ ] Implement `ConfidenceType` enum as Go constants with string mapping (AC: #3)
-- [ ] Implement `NewRecommendation()` constructor with field validation (AC: #1, #2, #3)
-- [ ] Implement `Validate()` method with coherence checks between ConfidenceType and ConfidenceLevel (AC: #3)
-- [ ] Implement `EvidenceSource` struct for traceability (AC: #5)
-- [ ] Implement Recommendation GraphQL resolver in `apps/api/graph/resolver/recommendation.go` (AC: #4)
-- [ ] Implement `skillAdaptedExplanation` field resolver with skill-level lookup (AC: #6)
-- [ ] Implement fallback enforcement: ensure FallbackAction is always populated, especially for low confidence (AC: #7)
-- [ ] Bind Recommendation domain type to gqlgen model in `gqlgen.yml` (AC: #4)
+- [x] Write domain validation test: Recommendation struct rejects missing mandatory fields (AC: #1)
+- [x] Write confidence range test: ConfidenceLevel outside 0.0-1.0 returns typed error (AC: #2)
+- [x] Write confidence coherence test: INSUFFICIENT_DATA with high confidence is rejected (AC: #3)
+- [x] Write resolver mapping test: Recommendation domain struct maps to GraphQL response with all non-null fields (AC: #4)
+- [x] Write evidence serialization test: evidenceContext contains structured source references (AC: #5)
+- [x] Write skill adaptation test: skillAdaptedExplanation varies by user skill level (AC: #6)
+- [x] Write fallback enforcement test: low-confidence recommendations always have non-empty fallbackAction (AC: #7)
+- [x] Implement `Recommendation` domain struct in `apps/api/internal/domain/recommendation.go` (AC: #1, #2, #3)
+- [x] Implement `ConfidenceType` enum as Go constants with string mapping (AC: #3)
+- [x] Implement `NewRecommendation()` constructor with field validation (AC: #1, #2, #3)
+- [x] Implement `Validate()` method with coherence checks between ConfidenceType and ConfidenceLevel (AC: #3)
+- [x] Implement `EvidenceSource` struct for traceability (AC: #5)
+- [x] Implement Recommendation GraphQL resolver in `apps/api/graph/resolver/recommendation.go` (AC: #4)
+- [x] Implement `skillAdaptedExplanation` field resolver with skill-level lookup (AC: #6)
+- [x] Implement fallback enforcement: ensure FallbackAction is always populated, especially for low confidence (AC: #7)
+- [x] Bind Recommendation domain type to gqlgen model in `gqlgen.yml` (AC: #4)
 
 ## Dev Notes
 
@@ -89,5 +89,33 @@ so that every recommendation surface in the app returns a trustworthy, explainab
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
+
 ### Completion Notes List
+- Recommendation domain struct with NewRecommendation() constructor enforcing all 5 mandatory contract fields
+- ConfidenceType as typed Go constants with IsValid() method matching GraphQL enum
+- Validate() enforces: non-empty mandatory fields, confidence range [0.0-1.0], INSUFFICIENT_DATA coherence check (<=0.5)
+- EvidenceSource struct with sourceType, sourceID, relevanceScore, summary for provenance tracking
+- EvidenceContextJSON() serializes evidence sources into structured JSON
+- SkillAdaptedExplanation() returns skill-level-adapted text (newbie=simple, amateur=standard, sideliner=concise+percentage)
+- DomainError type with Code/Message/Retryable for typed error propagation
+- GraphQL error helper functions (NewGraphQLError, ValidationError, ForbiddenError, NotFoundError, ScaleLimitError)
+- Updated GraphQL schema: added EvidenceSource type and skillAdaptedExplanation field to Recommendation
+- 9 domain tests + 1 mapping test — all pass; zero regressions
+
+### Change Log
+- 2026-03-29: Story 4.2 implemented — Recommendation domain contract, validation, evidence, skill adaptation
+
 ### File List
+- apps/api/internal/domain/recommendation.go (new)
+- apps/api/internal/domain/recommendation_test.go (new)
+- apps/api/internal/domain/recommendation_mapping_test.go (new)
+- apps/api/internal/domain/errors.go (new)
+- apps/api/graph/schema/recommendation.graphql (modified — added EvidenceSource type, skillAdaptedExplanation field)
+- apps/api/graph/generated.go (regenerated)
+- apps/api/graph/model/models_gen.go (regenerated)
+- apps/api/graph/resolver/recommendation.resolvers.go (regenerated)
+- apps/api/go.mod (modified)
+- apps/api/go.sum (modified)
+- packages/graphql-types/src/generated/types.ts (regenerated)
+- packages/graphql-types/src/generated/types.test.ts (modified)

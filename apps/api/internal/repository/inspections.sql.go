@@ -38,6 +38,17 @@ func (q *Queries) CompleteInspection(ctx context.Context, arg CompleteInspection
 	return i, err
 }
 
+const countObservationsByInspection = `-- name: CountObservationsByInspection :one
+SELECT COUNT(*) FROM observations WHERE inspection_id = $1
+`
+
+func (q *Queries) CountObservationsByInspection(ctx context.Context, inspectionID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countObservationsByInspection, inspectionID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createInspection = `-- name: CreateInspection :one
 INSERT INTO inspections (hive_id, user_id, type, status, notes)
 VALUES ($1, $2, $3, $4, $5)
@@ -164,12 +175,129 @@ func (q *Queries) GetInspectionByID(ctx context.Context, id pgtype.UUID) (Inspec
 	return i, err
 }
 
+const getInspectionByIDAndUser = `-- name: GetInspectionByIDAndUser :one
+SELECT id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at FROM inspections WHERE id = $1 AND user_id = $2
+`
+
+type GetInspectionByIDAndUserParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetInspectionByIDAndUser(ctx context.Context, arg GetInspectionByIDAndUserParams) (Inspection, error) {
+	row := q.db.QueryRow(ctx, getInspectionByIDAndUser, arg.ID, arg.UserID)
+	var i Inspection
+	err := row.Scan(
+		&i.ID,
+		&i.HiveID,
+		&i.UserID,
+		&i.Type,
+		&i.Status,
+		&i.StartedAt,
+		&i.CompletedAt,
+		&i.Notes,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getMaxSequenceOrder = `-- name: GetMaxSequenceOrder :one
+SELECT COALESCE(MAX(sequence_order), 0) FROM observations WHERE inspection_id = $1
+`
+
+func (q *Queries) GetMaxSequenceOrder(ctx context.Context, inspectionID pgtype.UUID) (interface{}, error) {
+	row := q.db.QueryRow(ctx, getMaxSequenceOrder, inspectionID)
+	var coalesce interface{}
+	err := row.Scan(&coalesce)
+	return coalesce, err
+}
+
 const listInspectionsByHive = `-- name: ListInspectionsByHive :many
 SELECT id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at FROM inspections WHERE hive_id = $1 ORDER BY started_at DESC
 `
 
 func (q *Queries) ListInspectionsByHive(ctx context.Context, hiveID pgtype.UUID) ([]Inspection, error) {
 	rows, err := q.db.Query(ctx, listInspectionsByHive, hiveID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Inspection
+	for rows.Next() {
+		var i Inspection
+		if err := rows.Scan(
+			&i.ID,
+			&i.HiveID,
+			&i.UserID,
+			&i.Type,
+			&i.Status,
+			&i.StartedAt,
+			&i.CompletedAt,
+			&i.Notes,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listInspectionsByHivePaginated = `-- name: ListInspectionsByHivePaginated :many
+SELECT id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at FROM inspections WHERE hive_id = $1 ORDER BY started_at DESC LIMIT $2 OFFSET $3
+`
+
+type ListInspectionsByHivePaginatedParams struct {
+	HiveID pgtype.UUID `json:"hive_id"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
+
+func (q *Queries) ListInspectionsByHivePaginated(ctx context.Context, arg ListInspectionsByHivePaginatedParams) ([]Inspection, error) {
+	rows, err := q.db.Query(ctx, listInspectionsByHivePaginated, arg.HiveID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Inspection
+	for rows.Next() {
+		var i Inspection
+		if err := rows.Scan(
+			&i.ID,
+			&i.HiveID,
+			&i.UserID,
+			&i.Type,
+			&i.Status,
+			&i.StartedAt,
+			&i.CompletedAt,
+			&i.Notes,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listInspectionsByUser = `-- name: ListInspectionsByUser :many
+SELECT id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at FROM inspections WHERE user_id = $1 ORDER BY started_at DESC LIMIT $2 OFFSET $3
+`
+
+type ListInspectionsByUserParams struct {
+	UserID pgtype.UUID `json:"user_id"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
+
+func (q *Queries) ListInspectionsByUser(ctx context.Context, arg ListInspectionsByUserParams) ([]Inspection, error) {
+	rows, err := q.db.Query(ctx, listInspectionsByUser, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -270,6 +398,53 @@ UPDATE inspections SET status = 'paused' WHERE id = $1 RETURNING id, hive_id, us
 
 func (q *Queries) PauseInspection(ctx context.Context, id pgtype.UUID) (Inspection, error) {
 	row := q.db.QueryRow(ctx, pauseInspection, id)
+	var i Inspection
+	err := row.Scan(
+		&i.ID,
+		&i.HiveID,
+		&i.UserID,
+		&i.Type,
+		&i.Status,
+		&i.StartedAt,
+		&i.CompletedAt,
+		&i.Notes,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const resumeInspection = `-- name: ResumeInspection :one
+UPDATE inspections SET status = 'in_progress' WHERE id = $1 RETURNING id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at
+`
+
+func (q *Queries) ResumeInspection(ctx context.Context, id pgtype.UUID) (Inspection, error) {
+	row := q.db.QueryRow(ctx, resumeInspection, id)
+	var i Inspection
+	err := row.Scan(
+		&i.ID,
+		&i.HiveID,
+		&i.UserID,
+		&i.Type,
+		&i.Status,
+		&i.StartedAt,
+		&i.CompletedAt,
+		&i.Notes,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateInspectionStatus = `-- name: UpdateInspectionStatus :one
+UPDATE inspections SET status = $2 WHERE id = $1 RETURNING id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at
+`
+
+type UpdateInspectionStatusParams struct {
+	ID     pgtype.UUID `json:"id"`
+	Status string      `json:"status"`
+}
+
+func (q *Queries) UpdateInspectionStatus(ctx context.Context, arg UpdateInspectionStatusParams) (Inspection, error) {
+	row := q.db.QueryRow(ctx, updateInspectionStatus, arg.ID, arg.Status)
 	var i Inspection
 	err := row.Scan(
 		&i.ID,
