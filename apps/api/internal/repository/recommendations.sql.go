@@ -174,6 +174,34 @@ func (q *Queries) GetTaskByID(ctx context.Context, id pgtype.UUID) (Task, error)
 	return i, err
 }
 
+const getTaskByIDAndUser = `-- name: GetTaskByIDAndUser :one
+SELECT id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at FROM tasks WHERE id = $1 AND user_id = $2
+`
+
+type GetTaskByIDAndUserParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetTaskByIDAndUser(ctx context.Context, arg GetTaskByIDAndUserParams) (Task, error) {
+	row := q.db.QueryRow(ctx, getTaskByIDAndUser, arg.ID, arg.UserID)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.RecommendationID,
+		&i.HiveID,
+		&i.UserID,
+		&i.Title,
+		&i.Priority,
+		&i.Status,
+		&i.DueDate,
+		&i.DeferredReason,
+		&i.CompletedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const insertAuditEvent = `-- name: InsertAuditEvent :exec
 INSERT INTO audit_events (event_type, actor_id, tenant_id, payload_version, payload)
 VALUES ($1, $2, $3, $4, $5)
@@ -334,6 +362,224 @@ func (q *Queries) ListRecommendationsByHive(ctx context.Context, hiveID pgtype.U
 			&i.SourceVersions,
 			&i.CreatedAt,
 			&i.ExpiresAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listRecommendationsByHivePaginated = `-- name: ListRecommendationsByHivePaginated :many
+SELECT id, hive_id, user_id, action, rationale, confidence_level, confidence_type, fallback_action, evidence_context, source_versions, created_at, expires_at FROM recommendations WHERE hive_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3
+`
+
+type ListRecommendationsByHivePaginatedParams struct {
+	HiveID pgtype.UUID `json:"hive_id"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
+
+func (q *Queries) ListRecommendationsByHivePaginated(ctx context.Context, arg ListRecommendationsByHivePaginatedParams) ([]Recommendation, error) {
+	rows, err := q.db.Query(ctx, listRecommendationsByHivePaginated, arg.HiveID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Recommendation
+	for rows.Next() {
+		var i Recommendation
+		if err := rows.Scan(
+			&i.ID,
+			&i.HiveID,
+			&i.UserID,
+			&i.Action,
+			&i.Rationale,
+			&i.ConfidenceLevel,
+			&i.ConfidenceType,
+			&i.FallbackAction,
+			&i.EvidenceContext,
+			&i.SourceVersions,
+			&i.CreatedAt,
+			&i.ExpiresAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listRecommendationsByUser = `-- name: ListRecommendationsByUser :many
+SELECT id, hive_id, user_id, action, rationale, confidence_level, confidence_type, fallback_action, evidence_context, source_versions, created_at, expires_at FROM recommendations WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3
+`
+
+type ListRecommendationsByUserParams struct {
+	UserID pgtype.UUID `json:"user_id"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
+
+func (q *Queries) ListRecommendationsByUser(ctx context.Context, arg ListRecommendationsByUserParams) ([]Recommendation, error) {
+	rows, err := q.db.Query(ctx, listRecommendationsByUser, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Recommendation
+	for rows.Next() {
+		var i Recommendation
+		if err := rows.Scan(
+			&i.ID,
+			&i.HiveID,
+			&i.UserID,
+			&i.Action,
+			&i.Rationale,
+			&i.ConfidenceLevel,
+			&i.ConfidenceType,
+			&i.FallbackAction,
+			&i.EvidenceContext,
+			&i.SourceVersions,
+			&i.CreatedAt,
+			&i.ExpiresAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTasksByHive = `-- name: ListTasksByHive :many
+SELECT id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at FROM tasks WHERE hive_id = $1 ORDER BY due_date NULLS LAST, priority LIMIT $2 OFFSET $3
+`
+
+type ListTasksByHiveParams struct {
+	HiveID pgtype.UUID `json:"hive_id"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
+
+func (q *Queries) ListTasksByHive(ctx context.Context, arg ListTasksByHiveParams) ([]Task, error) {
+	rows, err := q.db.Query(ctx, listTasksByHive, arg.HiveID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.RecommendationID,
+			&i.HiveID,
+			&i.UserID,
+			&i.Title,
+			&i.Priority,
+			&i.Status,
+			&i.DueDate,
+			&i.DeferredReason,
+			&i.CompletedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTasksByUser = `-- name: ListTasksByUser :many
+SELECT id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at FROM tasks WHERE user_id = $1 ORDER BY due_date NULLS LAST, priority LIMIT $2 OFFSET $3
+`
+
+type ListTasksByUserParams struct {
+	UserID pgtype.UUID `json:"user_id"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
+
+func (q *Queries) ListTasksByUser(ctx context.Context, arg ListTasksByUserParams) ([]Task, error) {
+	rows, err := q.db.Query(ctx, listTasksByUser, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.RecommendationID,
+			&i.HiveID,
+			&i.UserID,
+			&i.Title,
+			&i.Priority,
+			&i.Status,
+			&i.DueDate,
+			&i.DeferredReason,
+			&i.CompletedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTasksByUserAndStatus = `-- name: ListTasksByUserAndStatus :many
+SELECT id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at FROM tasks WHERE user_id = $1 AND status = $2 ORDER BY due_date NULLS LAST, priority LIMIT $3 OFFSET $4
+`
+
+type ListTasksByUserAndStatusParams struct {
+	UserID pgtype.UUID `json:"user_id"`
+	Status string      `json:"status"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
+
+func (q *Queries) ListTasksByUserAndStatus(ctx context.Context, arg ListTasksByUserAndStatusParams) ([]Task, error) {
+	rows, err := q.db.Query(ctx, listTasksByUserAndStatus,
+		arg.UserID,
+		arg.Status,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.RecommendationID,
+			&i.HiveID,
+			&i.UserID,
+			&i.Title,
+			&i.Priority,
+			&i.Status,
+			&i.DueDate,
+			&i.DeferredReason,
+			&i.CompletedAt,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { useAuthStore } from '../store/auth-store';
 
 jest.mock('./account', () => ({
@@ -39,7 +39,9 @@ describe('SettingsScreen', () => {
 
     render(<SettingsScreen />);
 
-    fireEvent.press(screen.getByTestId('save-button'));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('save-button'));
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId('save-spinner')).toBeTruthy();
@@ -48,7 +50,9 @@ describe('SettingsScreen', () => {
     const saveBtn = screen.getByTestId('save-button');
     expect(saveBtn.props.accessibilityState?.disabled).toBe(true);
 
-    resolvePromise!();
+    await act(async () => {
+      resolvePromise!();
+    });
   });
 
   it('shows success message on successful update', async () => {
@@ -56,7 +60,9 @@ describe('SettingsScreen', () => {
 
     render(<SettingsScreen />);
 
-    fireEvent.press(screen.getByTestId('save-button'));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('save-button'));
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId('success-message')).toBeTruthy();
@@ -70,7 +76,9 @@ describe('SettingsScreen', () => {
 
     render(<SettingsScreen />);
 
-    fireEvent.press(screen.getByTestId('save-button'));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('save-button'));
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId('error-message')).toBeTruthy();
