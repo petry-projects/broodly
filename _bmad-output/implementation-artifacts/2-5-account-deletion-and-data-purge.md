@@ -1,6 +1,6 @@
 # Story 2.5: Account Deletion and Data Purge
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
