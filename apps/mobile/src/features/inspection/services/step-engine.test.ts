@@ -35,7 +35,7 @@ describe('getPromptSequence', () => {
     expect(ids).toContain('swarm_risk');
   });
 
-  it('does not insert swarm_risk when no queen cells observed', () => {
+  it('does not duplicate swarm_risk when no swarm cells observed', () => {
     const obs: Observation[] = [
       {
         id: '1',
@@ -48,9 +48,26 @@ describe('getPromptSequence', () => {
     ];
     const prompts = getPromptSequence('full', obs);
     const ids = prompts.map((p) => p.id);
-    // swarm_risk should still be in the base list but not duplicated by branching
+    // swarm_risk appears once in the base list but branching should not add a second copy
     const swarmCount = ids.filter((id) => id === 'swarm_risk').length;
-    expect(swarmCount).toBeLessThanOrEqual(1);
+    expect(swarmCount).toBe(1);
+  });
+
+  it('places swarm_risk immediately after queen_cells when swarm cells observed', () => {
+    const obs: Observation[] = [
+      {
+        id: '1',
+        promptId: 'queen_cells',
+        observationType: 'queen_cell_check',
+        value: 'swarm',
+        classification: 'urgent',
+        createdAt: new Date().toISOString(),
+      },
+    ];
+    const prompts = getPromptSequence('full', obs);
+    const queenIdx = prompts.findIndex((p) => p.id === 'queen_cells');
+    const swarmIdx = prompts.findIndex((p) => p.id === 'swarm_risk');
+    expect(swarmIdx).toBe(queenIdx + 1);
   });
 });
 

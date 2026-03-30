@@ -129,7 +129,7 @@ export default function InspectionStepScreen() {
               >
                 <View className="flex-row items-center gap-2">
                   <View className={`px-2 py-0.5 rounded ${styles.bg}`}>
-                    <Ionicons name={styles.icon as 'checkmark-circle'} size={14} />
+                    <Ionicons name={styles.icon as keyof typeof Ionicons.glyphMap} size={14} />
                   </View>
                   <Text size="md">{option.label}</Text>
                 </View>

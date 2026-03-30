@@ -82,7 +82,7 @@ export default function InspectionSummaryScreen() {
               accessibilityLabel={`${obs.observationType}: ${obs.value}, ${config.label}`}
             >
               <View className={`p-1 rounded ${config.bg}`}>
-                <Ionicons name={config.icon as 'checkmark-circle'} size={16} />
+                <Ionicons name={config.icon as keyof typeof Ionicons.glyphMap} size={16} />
               </View>
               <View className="flex-1">
                 <Text size="sm" className="font-medium">{obs.observationType.replace(/_/g, ' ')}</Text>

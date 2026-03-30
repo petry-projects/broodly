@@ -50,6 +50,34 @@ describe('Inspection store', () => {
     expect(useInspectionStore.getState().observations[0].value).toBe('normal');
   });
 
+  it('updates an existing observation', () => {
+    useInspectionStore.getState().startInspection({
+      inspectionId: 'insp-1',
+      hiveId: 'hive-1',
+      hiveName: 'Test Hive',
+      type: 'full',
+    });
+
+    useInspectionStore.getState().addObservation({
+      id: 'obs-1',
+      promptId: 'entrance',
+      observationType: 'entrance_assessment',
+      value: 'normal',
+      classification: 'normal',
+      createdAt: new Date().toISOString(),
+    });
+
+    useInspectionStore.getState().updateObservation('obs-1', {
+      value: 'reduced',
+      classification: 'cautionary',
+    });
+
+    const obs = useInspectionStore.getState().observations[0];
+    expect(obs.value).toBe('reduced');
+    expect(obs.classification).toBe('cautionary');
+    expect(obs.promptId).toBe('entrance');
+  });
+
   it('pauses and resumes inspection', () => {
     useInspectionStore.getState().startInspection({
       inspectionId: 'insp-1',
