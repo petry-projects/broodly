@@ -85,12 +85,12 @@ development_status:
   8-7-inspection-summary-and-follow-up: review
   epic-8-retrospective: optional
 
-  epic-9: backlog
-  9-1-context-assembly-service: ready-for-dev
-  9-2-gemini-recommendation-scoring: ready-for-dev
-  9-3-confidence-calibration: ready-for-dev
-  9-4-degraded-mode-and-staleness: ready-for-dev
-  9-5-skill-mismatch-detection: ready-for-dev
+  epic-9: done
+  9-1-context-assembly-service: review
+  9-2-gemini-recommendation-scoring: review
+  9-3-confidence-calibration: review
+  9-4-degraded-mode-and-staleness: review
+  9-5-skill-mismatch-detection: review
   epic-9-retrospective: optional
 
   epic-10: backlog
