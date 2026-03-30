@@ -107,19 +107,18 @@ func (s *RecommendationService) ApplyConfidencePenalty(
 		adjusted = 0.1
 	}
 
-	// Downgrade confidence type if significant penalty
+	// Downgrade confidence type if significant penalty.
+	// Order matters: most severe condition (missing sources) wins.
 	resultType := confidenceType
-	if penalty >= 0.2 && confidenceType == domain.ConfidenceHigh {
-		resultType = domain.ConfidenceModerate
-	}
-	if penalty >= 0.3 {
-		resultType = domain.ConfidenceLow
-	}
 	if len(ctx.MissingSources) >= 3 {
 		resultType = domain.ConfidenceInsufficientData
 		if adjusted > 0.5 {
 			adjusted = 0.5
 		}
+	} else if penalty >= 0.3 {
+		resultType = domain.ConfidenceLow
+	} else if penalty >= 0.2 && confidenceType == domain.ConfidenceHigh {
+		resultType = domain.ConfidenceModerate
 	}
 
 	return adjusted, resultType
@@ -144,12 +143,15 @@ func (s *RecommendationService) GenerateConservativeDefault(
 		fallback = "Observe entrance for unusual traffic patterns."
 	}
 
-	r, _ := domain.NewRecommendation(
-		"", hiveID, userID,
+	r, err := domain.NewRecommendation(
+		"conservative-default", hiveID, userID,
 		action, rationale, 0.3,
 		domain.ConfidenceInsufficientData,
 		fallback,
 	)
+	if err != nil {
+		return nil
+	}
 	return r
 }
 
