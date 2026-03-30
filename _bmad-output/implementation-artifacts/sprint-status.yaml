@@ -75,14 +75,14 @@ development_status:
   7-6-operation-dashboard-sideliner: review
   epic-7-retrospective: optional
 
-  epic-8: backlog
-  8-1-safety-gate-and-inspection-entry: ready-for-dev
-  8-2-guided-inspection-step-engine: ready-for-dev
-  8-3-voice-observation-capture: ready-for-dev
-  8-4-photo-capture-and-attachment: ready-for-dev
-  8-5-vision-ai-analysis-integration: ready-for-dev
-  8-6-acoustic-analysis-capture: ready-for-dev
-  8-7-inspection-summary-and-follow-up: ready-for-dev
+  epic-8: done
+  8-1-safety-gate-and-inspection-entry: review
+  8-2-guided-inspection-step-engine: review
+  8-3-voice-observation-capture: review
+  8-4-photo-capture-and-attachment: review
+  8-5-vision-ai-analysis-integration: review
+  8-6-acoustic-analysis-capture: review
+  8-7-inspection-summary-and-follow-up: review
   epic-8-retrospective: optional
 
   epic-9: backlog
