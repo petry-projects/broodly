@@ -93,12 +93,12 @@ development_status:
   9-5-skill-mismatch-detection: review
   epic-9-retrospective: optional
 
-  epic-10: backlog
-  10-1-happy-context-homepage: ready-for-dev
-  10-2-weekly-action-queue: ready-for-dev
-  10-3-task-resolution-actions: ready-for-dev
-  10-4-seasonal-planning-calendar: ready-for-dev
-  10-5-dynamic-priority-updates: ready-for-dev
+  epic-10: done
+  10-1-happy-context-homepage: review
+  10-2-weekly-action-queue: review
+  10-3-task-resolution-actions: review
+  10-4-seasonal-planning-calendar: review
+  10-5-dynamic-priority-updates: review
   epic-10-retrospective: optional
 
   epic-11: backlog
