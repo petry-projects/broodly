@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Platform } from 'react-native';
+import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Heading } from '../../components/ui/heading';
 import { Text } from '../../components/ui/text';
@@ -12,33 +12,16 @@ export default function SignInScreen() {
   const isLoading = useAuthStore((s) => s.isLoading);
   const setLoading = useAuthStore((s) => s.setLoading);
 
-  async function handleGoogleSignIn() {
+  async function handleSignIn(method: 'google' | 'apple') {
     setError(null);
     setLoading(true);
     try {
-      // Google Sign-In flow — requires native module at runtime
-      const { signInWithGoogle } = await import('../../src/services/auth');
-      // In production, googleIdToken comes from @react-native-google-signin
-      // Placeholder: actual OAuth token retrieval is wired in the native integration
-      const googleIdToken = ''; // replaced by native Google Sign-In SDK
-      await signInWithGoogle(googleIdToken);
-    } catch (err) {
-      const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleAppleSignIn() {
-    setError(null);
-    setLoading(true);
-    try {
-      const { signInWithApple } = await import('../../src/services/auth');
-      // In production, token + nonce come from expo-apple-authentication
-      const appleIdToken = '';
-      const nonce = '';
-      await signInWithApple(appleIdToken, nonce);
+      const auth = await import('../../src/services/auth');
+      if (method === 'google') {
+        await auth.signInWithGoogle();
+      } else {
+        await auth.signInWithApple();
+      }
     } catch (err) {
       const code = (err as { code?: string }).code ?? '';
       setError(mapFirebaseError(code));
@@ -61,7 +44,7 @@ export default function SignInScreen() {
           action="primary"
           variant="solid"
           size="xl"
-          onPress={handleGoogleSignIn}
+          onPress={() => handleSignIn('google')}
           disabled={isLoading}
           accessibilityLabel="Sign in with Google"
           testID="google-sign-in"
@@ -74,24 +57,22 @@ export default function SignInScreen() {
           <ButtonText>Sign in with Google</ButtonText>
         </Button>
 
-        {Platform.OS === 'ios' && (
-          <Button
-            action="primary"
-            variant="outline"
-            size="xl"
-            onPress={handleAppleSignIn}
-            disabled={isLoading}
-            accessibilityLabel="Sign in with Apple"
-            testID="apple-sign-in"
-          >
-            {isLoading ? (
-              <ButtonSpinner />
-            ) : (
-              <ButtonIcon as={() => <Ionicons name="logo-apple" size={20} color="rgb(212, 136, 15)" />} />
-            )}
-            <ButtonText>Sign in with Apple</ButtonText>
-          </Button>
-        )}
+        <Button
+          action="primary"
+          variant="outline"
+          size="xl"
+          onPress={() => handleSignIn('apple')}
+          disabled={isLoading}
+          accessibilityLabel="Sign in with Apple"
+          testID="apple-sign-in"
+        >
+          {isLoading ? (
+            <ButtonSpinner />
+          ) : (
+            <ButtonIcon as={() => <Ionicons name="logo-apple" size={20} color="rgb(212, 136, 15)" />} />
+          )}
+          <ButtonText>Sign in with Apple</ButtonText>
+        </Button>
       </View>
 
       {error && (

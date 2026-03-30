@@ -19,15 +19,16 @@ test.describe('Onboarding Flow', () => {
     await onboarding.assertOnCreateAccount();
   });
 
-  test('create account screen shows ToS checkbox and sign-in buttons', async ({ page }) => {
+  test('create account screen shows ToS checkbox and both sign-in providers', async ({ page }) => {
     const welcome = new WelcomePage(page);
     await welcome.goto();
     await welcome.clickGetStarted();
 
     const onboarding = new OnboardingPage(page);
     await expect(onboarding.tosCheckbox).toBeVisible();
-    // Google sign-in should be visible (web platform)
     await expect(onboarding.googleSignInButton).toBeVisible();
+    // Apple Sign-In must be visible on ALL platforms including web (FR1a, FR1b)
+    await expect(page.getByTestId('apple-sign-in')).toBeVisible();
   });
 
   test('sign-in buttons are disabled until ToS is accepted', async ({ page }) => {
@@ -60,6 +61,17 @@ test.describe('Onboarding Flow', () => {
       await offlineBtn.click();
       await onboarding.assertOnExperienceLevel();
     }
+  });
+
+  test('sign-in screen shows both Google and Apple providers', async ({ page }) => {
+    const welcome = new WelcomePage(page);
+    await welcome.goto();
+    await welcome.clickSignIn();
+    await page.waitForTimeout(1_000);
+
+    // Both providers must be available on web
+    await expect(page.getByTestId('google-sign-in')).toBeVisible();
+    await expect(page.getByTestId('apple-sign-in')).toBeVisible();
   });
 
   test('Sign In button navigates to auth sign-in screen', async ({ page }) => {
