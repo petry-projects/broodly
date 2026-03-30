@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Platform, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Heading } from '../../components/ui/heading';
@@ -21,34 +21,26 @@ export default function CreateAccountScreen() {
   const setLoading = useAuthStore((s) => s.setLoading);
   const isOnline = useConnectivityStore((s) => s.isOnline);
 
-  async function handleGoogleSignIn() {
+  async function handleSignIn(method: 'google' | 'apple') {
     setError(null);
     setLoading(true);
     try {
-      const { signInWithGoogle } = await import('../../src/services/auth');
-      const googleIdToken = '';
-      await signInWithGoogle(googleIdToken);
-      setStep(2);
-      router.push('/(onboarding)/experience-level');
-    } catch (err) {
-      const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
-    } finally {
-      setLoading(false);
-    }
-  }
+      const auth = await import('../../src/services/auth');
+      const result = method === 'google'
+        ? await auth.signInWithGoogle()
+        : await auth.signInWithApple();
 
-  async function handleAppleSignIn() {
-    setError(null);
-    setLoading(true);
-    try {
-      const { signInWithApple } = await import('../../src/services/auth');
-      await signInWithApple('', '');
-      setStep(2);
-      router.push('/(onboarding)/experience-level');
+      if (result?.user) {
+        setStep(2);
+        router.push('/(onboarding)/experience-level');
+      } else {
+        // Redirect flow — result will be picked up on page reload
+        setError(null);
+      }
     } catch (err) {
       const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
+      const message = (err as { message?: string }).message;
+      setError(message || mapFirebaseError(code));
     } finally {
       setLoading(false);
     }
@@ -105,7 +97,7 @@ export default function CreateAccountScreen() {
               action="primary"
               variant="solid"
               size="xl"
-              onPress={handleGoogleSignIn}
+              onPress={() => handleSignIn('google')}
               disabled={!tosAccepted || isLoading}
               accessibilityLabel="Continue with Google"
               testID="google-sign-in"
@@ -118,24 +110,22 @@ export default function CreateAccountScreen() {
               <ButtonText>Continue with Google</ButtonText>
             </Button>
 
-            {Platform.OS === 'ios' && (
-              <Button
-                action="primary"
-                variant="outline"
-                size="xl"
-                onPress={handleAppleSignIn}
-                disabled={!tosAccepted || isLoading}
-                accessibilityLabel="Continue with Apple"
-                testID="apple-sign-in"
-              >
-                {isLoading ? (
-                  <ButtonSpinner />
-                ) : (
-                  <ButtonIcon as={() => <Ionicons name="logo-apple" size={20} color="rgb(212, 136, 15)" />} />
-                )}
-                <ButtonText>Continue with Apple</ButtonText>
-              </Button>
-            )}
+            <Button
+              action="primary"
+              variant="outline"
+              size="xl"
+              onPress={() => handleSignIn('apple')}
+              disabled={!tosAccepted || isLoading}
+              accessibilityLabel="Continue with Apple"
+              testID="apple-sign-in"
+            >
+              {isLoading ? (
+                <ButtonSpinner />
+              ) : (
+                <ButtonIcon as={() => <Ionicons name="logo-apple" size={20} color="rgb(212, 136, 15)" />} />
+              )}
+              <ButtonText>Continue with Apple</ButtonText>
+            </Button>
           </>
         ) : (
           <Button
