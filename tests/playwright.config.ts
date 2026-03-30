@@ -23,23 +23,18 @@ export default defineConfig({
     actionTimeout: 10_000,
   },
 
-  // Build and serve the Expo web app for e2e tests.
-  // Uses production build (expo export) because the Hermes dev bundler
-  // has import.meta compatibility issues with ESM deps. The exported
-  // static site is served via npx serve.
+  // Start the Expo web dev server for e2e tests.
+  // Dev server uses the correct expo-router entry point via package.json
+  // "main" field. Set CI=1 for non-interactive mode.
   webServer: {
-    command: [
-      `cd ${require('path').resolve(__dirname, '../apps/mobile')}`,
-      'npx expo export --platform web 2>/dev/null',
-      `npx serve dist -l ${WEB_PORT} -s --no-clipboard`,
-    ].join(' && '),
+    command: `cd ${require('path').resolve(__dirname, '../apps/mobile')} && CI=1 npx expo start --web --port ${WEB_PORT}`,
     port: WEB_PORT,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
     env: {
       ...process.env,
-      EXPO_USE_METRO_REQUIRE: '1',
+      CI: '1',
       EXPO_PUBLIC_FIREBASE_USE_EMULATOR: 'true',
       EXPO_PUBLIC_FIREBASE_PROJECT_ID: 'broodly-dev',
       EXPO_PUBLIC_FIREBASE_API_KEY: 'fake-api-key',
