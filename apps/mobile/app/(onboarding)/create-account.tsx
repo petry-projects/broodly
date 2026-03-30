@@ -26,16 +26,21 @@ export default function CreateAccountScreen() {
     setLoading(true);
     try {
       const auth = await import('../../src/services/auth');
-      if (method === 'google') {
-        await auth.signInWithGoogle();
+      const result = method === 'google'
+        ? await auth.signInWithGoogle()
+        : await auth.signInWithApple();
+
+      if (result?.user) {
+        setStep(2);
+        router.push('/(onboarding)/experience-level');
       } else {
-        await auth.signInWithApple();
+        // Redirect flow — result will be picked up on page reload
+        setError(null);
       }
-      setStep(2);
-      router.push('/(onboarding)/experience-level');
     } catch (err) {
       const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
+      const message = (err as { message?: string }).message;
+      setError(message || mapFirebaseError(code));
     } finally {
       setLoading(false);
     }

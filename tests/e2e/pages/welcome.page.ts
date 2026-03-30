@@ -26,11 +26,12 @@ export class WelcomePage extends BasePage {
 
   async clickGetStarted() {
     await this.getStartedButton.click();
-    await this.waitForNavigation();
+    // Wait for Expo Router to process the navigation and render the new screen
+    await expect(this.page.locator('body')).toContainText('Create your account', { timeout: 10_000 });
   }
 
   async clickSignIn() {
     await this.signInButton.click();
-    await this.waitForNavigation();
+    await expect(this.page.locator('body')).toContainText('Welcome to Broodly', { timeout: 10_000 });
   }
 }

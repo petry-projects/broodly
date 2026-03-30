@@ -35,9 +35,15 @@ export class BasePage {
     });
   }
 
-  /** Wait for navigation to settle (Expo Router transitions) */
+  /** Wait for Expo Router client-side navigation to settle.
+   * SPA navigation doesn't trigger page loads — wait for DOM changes. */
   async waitForNavigation(): Promise<void> {
+    // Wait for React to process the route change and re-render
+    await this.page.waitForTimeout(500);
+    // Wait for any lazy bundle loading triggered by the new route
     await this.page.waitForLoadState('networkidle');
+    // Give React one more render cycle
+    await this.page.waitForTimeout(500);
   }
 
   /** Assert no crash errors visible on page */

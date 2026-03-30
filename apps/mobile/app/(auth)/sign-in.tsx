@@ -17,14 +17,18 @@ export default function SignInScreen() {
     setLoading(true);
     try {
       const auth = await import('../../src/services/auth');
-      if (method === 'google') {
-        await auth.signInWithGoogle();
-      } else {
-        await auth.signInWithApple();
+      const result = method === 'google'
+        ? await auth.signInWithGoogle()
+        : await auth.signInWithApple();
+
+      if (!result?.user) {
+        // Redirect flow — result picked up on reload
+        setError(null);
       }
     } catch (err) {
       const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
+      const message = (err as { message?: string }).message;
+      setError(message || mapFirebaseError(code));
     } finally {
       setLoading(false);
     }
