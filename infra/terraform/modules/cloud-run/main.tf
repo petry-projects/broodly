@@ -52,8 +52,12 @@ resource "google_cloud_run_v2_service" "api" {
   }
 }
 
-# Allow unauthenticated access (API handles its own auth via Firebase)
-resource "google_cloud_run_v2_service_iam_member" "public" {
+# SECURITY: Allow unauthenticated HTTP access to Cloud Run.
+# This is intentional — the Go API validates Firebase ID tokens in its own
+# auth middleware (internal/auth/middleware.go). Cloud Run's built-in IAM
+# auth is bypassed because mobile/web clients send Bearer tokens directly.
+# Removing this binding would block all client traffic.
+resource "google_cloud_run_v2_service_iam_member" "public" { # NOSONAR — intentional, see comment above
   count    = var.allow_unauthenticated ? 1 : 0
   project  = var.project_id
   location = var.region
