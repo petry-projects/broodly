@@ -6,12 +6,54 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/broodly/api/graph/model"
+	"github.com/broodly/api/internal/auth"
+	"github.com/broodly/api/internal/domain"
+	"github.com/broodly/api/internal/repository"
 )
 
 // Recommendations is the resolver for the recommendations field.
 func (r *queryResolver) Recommendations(ctx context.Context, hiveID *string, limit *int, offset *int) ([]*model.Recommendation, error) {
-	panic(fmt.Errorf("not implemented: Recommendations - recommendations"))
+	uid, err := auth.UserIDFromContext(ctx)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+	userID := stringToUUID(uid)
+
+	lim := int32(20)
+	off := int32(0)
+	if limit != nil {
+		lim = int32(*limit)
+	}
+	if offset != nil {
+		off = int32(*offset)
+	}
+
+	var recs []repository.Recommendation
+
+	if hiveID != nil {
+		hID := stringToUUID(*hiveID)
+		recs, err = r.Queries.ListRecommendationsByHivePaginated(ctx, repository.ListRecommendationsByHivePaginatedParams{
+			HiveID: hID,
+			Limit:  lim,
+			Offset: off,
+		})
+	} else {
+		recs, err = r.Queries.ListRecommendationsByUser(ctx, repository.ListRecommendationsByUserParams{
+			UserID: userID,
+			Limit:  lim,
+			Offset: off,
+		})
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*model.Recommendation, len(recs))
+	for i, rec := range recs {
+		result[i] = recommendationToModel(rec)
+	}
+	return result, nil
 }

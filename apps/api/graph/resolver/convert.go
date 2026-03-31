@@ -170,6 +170,31 @@ func timePtrVal(t time.Time, valid bool) *time.Time {
 	return &t
 }
 
+func userToModel(u repository.User) *model.User {
+	return &model.User{
+		ID:              uuidToString(u.ID),
+		Email:           u.Email,
+		DisplayName:     u.DisplayName,
+		ExperienceLevel: model.ExperienceLevel(strings.ToUpper(u.ExperienceLevel)),
+		Region:          u.Region,
+		CreatedAt:       timestampToTime(u.CreatedAt),
+		UpdatedAt:       timestampToTime(u.UpdatedAt),
+	}
+}
+
+func recommendationToModel(r repository.Recommendation) *model.Recommendation {
+	return &model.Recommendation{
+		ID:              uuidToString(r.ID),
+		Action:          r.Action,
+		Rationale:       r.Rationale,
+		ConfidenceLevel: r.ConfidenceLevel,
+		ConfidenceType:  model.ConfidenceType(strings.ToUpper(r.ConfidenceType)),
+		FallbackAction:  r.FallbackAction,
+		CreatedAt:       timestampToTime(r.CreatedAt),
+		ExpiresAt:       timePtr(r.ExpiresAt),
+	}
+}
+
 func taskToModel(t repository.Task) *model.Task {
 	m := &model.Task{
 		ID:              uuidToStringR(t.ID),

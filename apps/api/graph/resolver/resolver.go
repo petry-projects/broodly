@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"github.com/broodly/api/internal/repository"
 	"github.com/broodly/api/internal/service"
 )
 
@@ -14,4 +15,5 @@ type Resolver struct {
 	InspectionService *service.InspectionService
 	PlanningService   *service.PlanningService
 	ExportService     *service.ExportService
+	Queries           repository.Querier
 }

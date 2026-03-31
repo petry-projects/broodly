@@ -5,12 +5,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/broodly/api/graph/resolver"
 	"github.com/broodly/api/internal/auth"
 )
 
+func testResolver() *resolver.Resolver {
+	return &resolver.Resolver{}
+}
+
 func TestHealthEndpoint(t *testing.T) {
 	kc := auth.NewKeyCache("http://localhost:0/unused", nil)
-	r := newRouter("test-project", kc)
+	r := newRouter("test-project", kc, testResolver())
 
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	w := httptest.NewRecorder()
@@ -28,7 +33,7 @@ func TestHealthEndpoint(t *testing.T) {
 
 func TestGraphQLEndpoint_RequiresAuth(t *testing.T) {
 	kc := auth.NewKeyCache("http://localhost:0/unused", nil)
-	r := newRouter("test-project", kc)
+	r := newRouter("test-project", kc, testResolver())
 
 	req := httptest.NewRequest(http.MethodPost, "/graphql", nil)
 	w := httptest.NewRecorder()
