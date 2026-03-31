@@ -1,6 +1,6 @@
 # Story 6.5: Mid-Season Catch-up and State Persistence
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -147,7 +147,13 @@ so that recommendations begin immediately with reasonable context and I never ha
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Completion Notes List
+- Onboarding Zustand store with MMKV persistence (all onboarding state), mid-season detection via seasonal context, catch-up assessment screen with 5-item checklist, getResumeRoute for app launch routing, AuthGuard updated to handle onboarding resume flow
 
 ### File List
+- apps/mobile/src/store/onboarding-store.ts
+- apps/mobile/src/features/onboarding/utils/seasonal-context.ts (isMidSeason)
+- apps/mobile/app/(onboarding)/catchup-assessment.tsx
+- apps/mobile/src/services/auth/auth-guard.tsx (updated)

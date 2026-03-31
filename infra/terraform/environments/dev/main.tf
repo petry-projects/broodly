@@ -171,3 +171,11 @@ module "pubsub" {
   project_id  = var.project_id
   environment = var.environment
 }
+
+module "firebase" {
+  source = "../../modules/firebase"
+
+  project_id   = var.project_id
+  environment  = var.environment
+  display_name = "Broodly Web"
+}

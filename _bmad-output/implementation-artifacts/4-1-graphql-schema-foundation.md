@@ -1,6 +1,6 @@
 # Story 4.1: GraphQL Schema Foundation
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,27 +22,27 @@ so that frontend and backend share a single source of truth for the API surface.
 
 ## Tasks / Subtasks
 
-- [ ] Write schema parse test: verify `gqlgen generate` succeeds with zero errors (AC: #1)
-- [ ] Write Recommendation type test: assert all non-nullable fields are present and correctly typed (AC: #2)
-- [ ] Write ConfidenceType enum test: assert all six enum values exist (AC: #3)
-- [ ] Write core types test: assert User, Apiary, Hive, Inspection, Observation, Recommendation, Task, AuditEvent types exist (AC: #4)
-- [ ] Write Query type test: assert all required query fields resolve (AC: #5)
-- [ ] Write Mutation type test: assert all required mutation fields resolve (AC: #6)
-- [ ] Write codegen test: assert `@graphql-codegen/cli` produces TypeScript output without errors (AC: #7)
-- [ ] Write TS Recommendation type test: assert generated type has all required (non-optional) properties (AC: #8)
-- [ ] Define `schema.graphql` with scalar definitions (JSON, DateTime, UUID) and error interface (AC: #9)
-- [ ] Define `recommendation.graphql` with Recommendation type, ConfidenceType enum, and EvidenceSource type (AC: #2, #3)
-- [ ] Define `apiary.graphql` with Apiary and related input types (AC: #4, #5, #6)
-- [ ] Define `hive.graphql` with Hive and related input types (AC: #4, #5, #6)
-- [ ] Define `inspection.graphql` with Inspection, Observation, and related input types (AC: #4, #5, #6)
-- [ ] Define `task.graphql` with Task and related input types (AC: #4, #5, #6)
-- [ ] Define `user.graphql` with User type and `me` query (AC: #4, #5)
-- [ ] Define `audit.graphql` with AuditEvent type (AC: #4)
-- [ ] Configure `gqlgen.yml` to point at schema files, set model and resolver output paths (AC: #1)
-- [ ] Run `gqlgen generate` and verify resolver stubs compile (AC: #1)
-- [ ] Configure `codegen.ts` for `@graphql-codegen/cli` with `typescript` + `typescript-operations` plugins targeting `packages/graphql-types/src/` (AC: #7)
-- [ ] Run codegen and verify generated TS types (AC: #7, #8)
-- [ ] Define GraphQL error extensions type for typed domain errors (AC: #9)
+- [x] Write schema parse test: verify `gqlgen generate` succeeds with zero errors (AC: #1)
+- [x] Write Recommendation type test: assert all non-nullable fields are present and correctly typed (AC: #2)
+- [x] Write ConfidenceType enum test: assert all six enum values exist (AC: #3)
+- [x] Write core types test: assert User, Apiary, Hive, Inspection, Observation, Recommendation, Task, AuditEvent types exist (AC: #4)
+- [x] Write Query type test: assert all required query fields resolve (AC: #5)
+- [x] Write Mutation type test: assert all required mutation fields resolve (AC: #6)
+- [x] Write codegen test: assert `@graphql-codegen/cli` produces TypeScript output without errors (AC: #7)
+- [x] Write TS Recommendation type test: assert generated type has all required (non-optional) properties (AC: #8)
+- [x] Define `schema.graphql` with scalar definitions (JSON, DateTime, UUID) and error interface (AC: #9)
+- [x] Define `recommendation.graphql` with Recommendation type, ConfidenceType enum, and EvidenceSource type (AC: #2, #3)
+- [x] Define `apiary.graphql` with Apiary and related input types (AC: #4, #5, #6)
+- [x] Define `hive.graphql` with Hive and related input types (AC: #4, #5, #6)
+- [x] Define `inspection.graphql` with Inspection, Observation, and related input types (AC: #4, #5, #6)
+- [x] Define `task.graphql` with Task and related input types (AC: #4, #5, #6)
+- [x] Define `user.graphql` with User type and `me` query (AC: #4, #5)
+- [x] Define `audit.graphql` with AuditEvent type (AC: #4)
+- [x] Configure `gqlgen.yml` to point at schema files, set model and resolver output paths (AC: #1)
+- [x] Run `gqlgen generate` and verify resolver stubs compile (AC: #1)
+- [x] Configure `codegen.ts` for `@graphql-codegen/cli` with `typescript` + `typescript-operations` plugins targeting `packages/graphql-types/src/` (AC: #7)
+- [x] Run codegen and verify generated TS types (AC: #7, #8)
+- [x] Define GraphQL error extensions type for typed domain errors (AC: #9)
 
 ## Dev Notes
 
@@ -100,5 +100,49 @@ so that frontend and backend share a single source of truth for the API surface.
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
+
 ### Completion Notes List
+- Defined 8 GraphQL schema files covering all MVP domain types: User, Apiary, Hive, Inspection, Observation, Recommendation, Task, AuditEvent
+- Recommendation contract enforces non-nullable fields: action, rationale, confidenceLevel, confidenceType, fallbackAction (evidenceContext is nullable JSON per spec)
+- ConfidenceType enum has all 6 values: HIGH, MODERATE, LOW, INSUFFICIENT_DATA, CONFLICTING_EVIDENCE, LIMITED_EXPERIENCE
+- Query type exposes 9 fields: me, apiaries, apiary, hives, hive, inspections, inspection, tasks, recommendations
+- Mutation type exposes 11 fields: createApiary, updateApiary, deleteApiary, createHive, updateHive, deleteHive, startInspection, completeInspection, addObservation, deferTask, completeTask
+- ErrorExtensions type defines typed domain error shape (code, message, retryable)
+- Custom scalars: JSON (map), DateTime (ISO-8601), UUID (string)
+- gqlgen generates Go models + resolver stubs; @graphql-codegen/cli generates TypeScript types
+- 7 Go tests (schema introspection) + 5 TS tests (type validation) — all pass
+- Zero regressions in existing auth and repository test suites
+
+### Change Log
+- 2026-03-29: Story 4.1 implemented — GraphQL schema, gqlgen generation, TS codegen, full test coverage
+
 ### File List
+- apps/api/graph/schema/schema.graphql (new)
+- apps/api/graph/schema/recommendation.graphql (new)
+- apps/api/graph/schema/user.graphql (new)
+- apps/api/graph/schema/apiary.graphql (new)
+- apps/api/graph/schema/hive.graphql (new)
+- apps/api/graph/schema/inspection.graphql (new)
+- apps/api/graph/schema/task.graphql (new)
+- apps/api/graph/schema/audit.graphql (new)
+- apps/api/graph/schema_test.go (new)
+- apps/api/graph/generated.go (generated)
+- apps/api/graph/model/model.go (new)
+- apps/api/graph/model/models_gen.go (generated)
+- apps/api/graph/resolver/resolver.go (generated)
+- apps/api/graph/resolver/apiary.resolvers.go (generated)
+- apps/api/graph/resolver/hive.resolvers.go (generated)
+- apps/api/graph/resolver/inspection.resolvers.go (generated)
+- apps/api/graph/resolver/recommendation.resolvers.go (generated)
+- apps/api/graph/resolver/schema.resolvers.go (generated)
+- apps/api/graph/resolver/task.resolvers.go (generated)
+- apps/api/graph/resolver/user.resolvers.go (generated)
+- apps/api/gqlgen.yml (modified)
+- apps/api/go.mod (modified)
+- apps/api/go.sum (modified)
+- packages/graphql-types/codegen.ts (new)
+- packages/graphql-types/package.json (modified)
+- packages/graphql-types/src/index.ts (modified)
+- packages/graphql-types/src/generated/types.ts (generated)
+- packages/graphql-types/src/generated/types.test.ts (new)

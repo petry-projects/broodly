@@ -46,6 +46,10 @@ terraform.rc
 *~
 .DS_Store
 
+# Firebase config (contains API keys — provided via CI secrets)
+**/google-services.json
+**/GoogleService-Info.plist
+
 # Environment
 .env
 .env.local
@@ -60,3 +64,5 @@ coverage/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+apps/api/server
+infra/terraform/modules/cloud-run/.terraform*

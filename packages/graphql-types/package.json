@@ -5,12 +5,18 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
+    "codegen": "graphql-codegen --config codegen.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^6.2.1",
+    "@graphql-codegen/typescript": "^5.0.9",
+    "@graphql-codegen/typescript-operations": "^5.0.9",
+    "@graphql-codegen/typescript-urql": "^5.0.0",
     "@types/jest": "^30.0.0",
+    "graphql": "^16.13.2",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.3"
   }

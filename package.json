@@ -8,7 +8,12 @@
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "firebase:emulator:start": "firebase emulators:start --only auth",
+    "firebase:emulator:start:ci": "firebase emulators:start --only auth --project broodly-dev",
+    "test:e2e": "playwright test --config tests/playwright.config.ts --project e2e-chromium",
+    "test:e2e:mobile": "playwright test --config tests/playwright.config.ts --project e2e-mobile",
+    "test:e2e:all": "playwright test --config tests/playwright.config.ts"
   },
   "engines": {
     "node": ">=20",
@@ -16,10 +21,13 @@
   },
   "packageManager": "pnpm@9.15.4",
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
     "eslint": "^10.1.0",
+    "firebase-tools": "^15.12.0",
     "prettier": "^3.4.2",
+    "serve": "^14.2.6",
     "typescript": "~5.9.3"
   }
 }
