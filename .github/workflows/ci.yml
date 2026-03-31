@@ -154,3 +154,44 @@ jobs:
       - name: Docker build
         working-directory: .
         run: docker build -f apps/api/Dockerfile -t broodly-api:ci apps/api/
+
+  # ---------------------------------------------------------------------------
+  # Push API image to Artifact Registry (main branch only)
+  # ---------------------------------------------------------------------------
+  # The Cloud Run service is managed by Terraform (infra/terraform/modules/cloud-run/).
+  # This job builds and pushes the image; Terraform references the :latest tag.
+  # To deploy a new version: push to main (image pushed here), then run terraform apply.
+  #
+  # Required GitHub Secrets:
+  #   GCP_PROJECT_ID                    — GCP project ID (e.g. broodly-491920)
+  #   GCP_WORKLOAD_IDENTITY_PROVIDER    — Full provider resource name:
+  #     projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>
+  #   GCP_SERVICE_ACCOUNT               — SA email for WIF (e.g. broodly-ci@broodly-491920.iam.gserviceaccount.com)
+  push-api-image:
+    name: Push API Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [go]
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build and push container image
+        working-directory: .
+        run: |
+          IMAGE_BASE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api"
+          docker build -f apps/api/Dockerfile -t "${IMAGE_BASE}:${{ github.sha }}" -t "${IMAGE_BASE}:latest" apps/api/
+          docker push "${IMAGE_BASE}:${{ github.sha }}"
+          docker push "${IMAGE_BASE}:latest"
