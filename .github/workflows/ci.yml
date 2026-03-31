@@ -156,15 +156,19 @@ jobs:
         run: docker build -f apps/api/Dockerfile -t broodly-api:ci apps/api/
 
   # ---------------------------------------------------------------------------
-  # Deploy API to Cloud Run (main branch only)
+  # Push API image to Artifact Registry (main branch only)
   # ---------------------------------------------------------------------------
+  # The Cloud Run service is managed by Terraform (infra/terraform/modules/cloud-run/).
+  # This job builds and pushes the image; Terraform references the :latest tag.
+  # To deploy a new version: push to main (image pushed here), then run terraform apply.
+  #
   # Required GitHub Secrets:
   #   GCP_PROJECT_ID                    — GCP project ID (e.g. broodly-491920)
   #   GCP_WORKLOAD_IDENTITY_PROVIDER    — Full provider resource name:
   #     projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>
   #   GCP_SERVICE_ACCOUNT               — SA email for WIF (e.g. broodly-ci@broodly-491920.iam.gserviceaccount.com)
-  deploy-api:
-    name: Deploy API
+  push-api-image:
+    name: Push API Image
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -172,9 +176,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    env:
-      REGION: us-central1
-      SERVICE_NAME: broodly-api-dev
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -190,15 +191,7 @@ jobs:
       - name: Build and push container image
         working-directory: .
         run: |
-          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}"
-          docker build -f apps/api/Dockerfile -t "$IMAGE" apps/api/
-          docker push "$IMAGE"
-
-      - name: Deploy to Cloud Run
-        run: |
-          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}"
-          gcloud run deploy "$SERVICE_NAME" \
-            --image "$IMAGE" \
-            --region "$REGION" \
-            --project "${{ secrets.GCP_PROJECT_ID }}" \
-            --quiet
+          IMAGE_BASE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api"
+          docker build -f apps/api/Dockerfile -t "${IMAGE_BASE}:${{ github.sha }}" -t "${IMAGE_BASE}:latest" apps/api/
+          docker push "${IMAGE_BASE}:${{ github.sha }}"
+          docker push "${IMAGE_BASE}:latest"

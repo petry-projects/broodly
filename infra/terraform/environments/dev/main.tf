@@ -189,7 +189,8 @@ module "cloud_run" {
   image                 = "us-central1-docker.pkg.dev/${var.project_id}/broodly/api:latest"
   service_account_email = google_service_account.api.email
   db_connection_secret  = google_secret_manager_secret.db_connection_string.secret_id
-  cors_origin           = "https://broodly-${var.environment}.web.app"
-  min_instances         = 0
-  max_instances         = 5
+  cors_origin              = "https://broodly-${var.environment}.web.app"
+  min_instances            = 0
+  max_instances            = 5
+  allow_unauthenticated    = true # API validates Firebase tokens internally
 }

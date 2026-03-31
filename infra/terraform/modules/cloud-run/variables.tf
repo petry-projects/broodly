@@ -59,7 +59,7 @@ variable "cors_origin" {
 }
 
 variable "allow_unauthenticated" {
-  description = "Whether to allow unauthenticated access (API handles its own auth)"
+  description = "Whether to allow unauthenticated access to the Cloud Run service. The API validates Firebase tokens internally, so this must be true for client access. Default false for safety — set explicitly per environment."
   type        = bool
-  default     = true
+  default     = false
 }
