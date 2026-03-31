@@ -1,9 +1,10 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { ICON_COLORS } from '../../src/theme/colors';
 
-const ACTIVE_COLOR = '#D4880F'; // primary-500
-const INACTIVE_COLOR = '#6B7280'; // typography-500
+const ACTIVE_COLOR = ICON_COLORS.primary;
+const INACTIVE_COLOR = ICON_COLORS.muted;
 
 type TabIconProps = {
   color: string;

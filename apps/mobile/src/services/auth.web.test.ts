@@ -4,7 +4,6 @@
 import {
   signInWithGoogle,
   signInWithApple,
-  signInWithFacebook,
   signOut,
   getIdToken,
 } from './auth.web';
@@ -18,9 +17,6 @@ jest.mock('firebase/auth', () => ({
   signOut: (...args: unknown[]) => mockSignOut(...args),
   GoogleAuthProvider: jest.fn(),
   OAuthProvider: jest.fn(() => ({
-    addScope: jest.fn(),
-  })),
-  FacebookAuthProvider: jest.fn(() => ({
     addScope: jest.fn(),
   })),
 }));
@@ -82,29 +78,6 @@ describe('signInWithApple (web)', () => {
     await expect(signInWithApple()).rejects.toMatchObject({
       code: 'auth/popup-closed-by-user',
       message: 'Sign-in was cancelled. Please try again.',
-    });
-  });
-});
-
-describe('signInWithFacebook (web)', () => {
-  it('calls signInWithPopup with FacebookAuthProvider', async () => {
-    const mockUser = { uid: 'fb-uid', email: 'user@facebook.com', displayName: 'FB User' };
-    mockSignInWithPopup.mockResolvedValue({ user: mockUser });
-
-    const result = await signInWithFacebook();
-
-    expect(mockSignInWithPopup).toHaveBeenCalledTimes(1);
-    expect(result).toEqual({ user: mockUser });
-  });
-
-  it('rejects with user-friendly message for duplicate credential', async () => {
-    mockSignInWithPopup.mockRejectedValue({
-      code: 'auth/account-exists-with-different-credential',
-    });
-
-    await expect(signInWithFacebook()).rejects.toMatchObject({
-      code: 'auth/account-exists-with-different-credential',
-      message: 'An account already exists with a different sign-in method.',
     });
   });
 });

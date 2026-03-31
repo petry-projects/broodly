@@ -6,14 +6,14 @@ import { Heading } from '../../../../../../components/ui/heading';
 import { Text } from '../../../../../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner } from '../../../../../../components/ui/button';
 import { useHive, useUpdateHive } from '../../../../../../src/features/hive/hooks/use-hives';
-import type { HiveType } from '@broodly/graphql-types';
+import { HiveType } from '@broodly/graphql-types';
 import { ICON_COLORS } from '../../../../../../src/theme/colors';
 
 const HIVE_TYPES: Array<{ value: HiveType; label: string; icon: string }> = [
-  { value: 'LANGSTROTH', label: 'Langstroth', icon: 'cube-outline' },
-  { value: 'TOP_BAR', label: 'Top Bar', icon: 'reorder-three-outline' },
-  { value: 'WARRE', label: 'Warré', icon: 'layers-outline' },
-  { value: 'OTHER', label: 'Other', icon: 'ellipse-outline' },
+  { value: HiveType.Langstroth, label: 'Langstroth', icon: 'cube-outline' },
+  { value: HiveType.TopBar, label: 'Top Bar', icon: 'reorder-three-outline' },
+  { value: HiveType.Warre, label: 'Warré', icon: 'layers-outline' },
+  { value: HiveType.Other, label: 'Other', icon: 'ellipse-outline' },
 ];
 
 export default function EditHiveScreen() {

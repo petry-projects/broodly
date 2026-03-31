@@ -1,109 +1,76 @@
 import { test, expect } from '@playwright/test';
 import { WelcomePage, OnboardingPage } from './pages';
 
-test.describe('Authentication Flow', () => {
-  test('Google sign-in button is clickable after ToS accepted', async ({ page, context }) => {
-    // Track popups and console
-    const popups: string[] = [];
-    context.on('page', (p) => popups.push(p.url()));
-    const consoleErrors: string[] = [];
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') consoleErrors.push(msg.text().substring(0, 200));
-    });
-    page.on('pageerror', (err) => consoleErrors.push(err.message.substring(0, 200)));
-
+/**
+ * Auth flow tests run with EXPO_PUBLIC_FIREBASE_API_KEY=fake-api-key,
+ * so all Firebase auth attempts will fail. These tests validate that
+ * the app handles auth failures gracefully: shows error feedback to
+ * the user and recovers to an interactive state.
+ */
+test.describe('Authentication Error Handling', () => {
+  test('Google sign-in failure shows error and recovers', async ({ page }) => {
     const welcome = new WelcomePage(page);
     await welcome.goto();
     await welcome.clickGetStarted();
 
-    // Wait for create-account content to render
-    await expect(page.locator('body')).toContainText('Create your account', { timeout: 10_000 });
-
     const onboarding = new OnboardingPage(page);
-    await expect(onboarding.googleSignInButton).toBeDisabled();
     await onboarding.acceptTos();
     await expect(onboarding.googleSignInButton).toBeEnabled();
 
-    // Click Google sign-in
+    // Trigger sign-in — will fail with fake-api-key
     await onboarding.googleSignInButton.click();
-    await page.waitForTimeout(8_000);
 
-    // Log diagnostic info
-    console.log(`Popups opened: ${popups.length} (${popups.join(', ')})`);
-    console.log(`Console errors: ${consoleErrors.length}`);
-    consoleErrors.forEach(e => console.log(`  ${e}`));
-    console.log(`Current URL: ${page.url()}`);
-    console.log(`Body text (first 200): ${(await page.locator('body').textContent())?.substring(0, 200)}`);
+    // App must show user-facing error feedback (not silently fail)
+    await expect(onboarding.authErrorAlert).toBeVisible({ timeout: 15_000 });
+    await expect(onboarding.authErrorAlert).toHaveText(/.+/);
 
-    // App must show visible feedback — error alert, loading, or popup
-    const hasError = await page.locator('[role="alert"]').isVisible().catch(() => false);
-    const hasLoading = await page.locator('[role="progressbar"]').isVisible().catch(() => false);
-    const hasPopup = popups.length > 0;
-
-    expect(hasError || hasLoading || hasPopup).toBeTruthy();
+    // App must recover: buttons re-enabled, not stuck in loading state
+    await expect(onboarding.googleSignInButton).toBeEnabled({ timeout: 5_000 });
+    await expect(onboarding.appleSignInButton).toBeEnabled({ timeout: 5_000 });
   });
 
-  test('Apple sign-in button is clickable after ToS accepted', async ({ page, context }) => {
-    const popups: string[] = [];
-    context.on('page', (p) => popups.push(p.url()));
-
+  test('Apple sign-in failure shows error and recovers', async ({ page }) => {
     const welcome = new WelcomePage(page);
     await welcome.goto();
     await welcome.clickGetStarted();
 
-    await expect(page.locator('body')).toContainText('Create your account', { timeout: 10_000 });
-
     const onboarding = new OnboardingPage(page);
     await onboarding.acceptTos();
-    await expect(page.getByTestId('apple-sign-in')).toBeEnabled();
+    await expect(onboarding.appleSignInButton).toBeEnabled();
 
-    await page.getByTestId('apple-sign-in').click();
-    await page.waitForTimeout(8_000);
+    // Trigger sign-in — will fail with fake-api-key
+    await onboarding.appleSignInButton.click();
 
-    const hasError = await page.locator('[role="alert"]').isVisible().catch(() => false);
-    const hasPopup = popups.length > 0;
-    expect(hasError || hasPopup).toBeTruthy();
+    // App must show user-facing error feedback
+    await expect(onboarding.authErrorAlert).toBeVisible({ timeout: 15_000 });
+    await expect(onboarding.authErrorAlert).toHaveText(/.+/);
+
+    // App must recover to interactive state
+    await expect(onboarding.googleSignInButton).toBeEnabled({ timeout: 5_000 });
+    await expect(onboarding.appleSignInButton).toBeEnabled({ timeout: 5_000 });
   });
 
-  test('auth attempt with fake credentials shows feedback', async ({ page, context }) => {
-    // With fake-api-key, Firebase auth attempts will fail.
-    // The app must show SOME feedback (popup attempt, error, or loading).
-    const popups: string[] = [];
-    context.on('page', (p) => popups.push(p.url()));
-
-    const welcome = new WelcomePage(page);
-    await welcome.goto();
-    await welcome.clickGetStarted();
-
-    await expect(page.locator('body')).toContainText('Create your account', { timeout: 10_000 });
-
-    const onboarding = new OnboardingPage(page);
-    await onboarding.acceptTos();
-    await onboarding.googleSignInButton.click();
-    await page.waitForTimeout(8_000);
-
-    // Firebase opens a popup to its auth handler — with fake credentials this fails
-    expect(popups.length).toBeGreaterThan(0);
-  });
-
-  test('sign-in screen shows both providers and responds to click', async ({ page, context }) => {
-    const popups: string[] = [];
-    context.on('page', (p) => popups.push(p.url()));
-
+  test('sign-in screen auth failure shows error and recovers', async ({ page }) => {
     const welcome = new WelcomePage(page);
     await welcome.goto();
     await welcome.clickSignIn();
 
-    await expect(page.locator('body')).toContainText('Welcome to Broodly', { timeout: 10_000 });
+    const googleBtn = page.getByTestId('google-sign-in');
+    const appleBtn = page.getByTestId('apple-sign-in');
+    await expect(googleBtn).toBeVisible();
 
-    await expect(page.getByTestId('google-sign-in')).toBeVisible();
-    await expect(page.getByTestId('apple-sign-in')).toBeVisible();
+    // Trigger sign-in — will fail with fake-api-key
+    await googleBtn.click();
 
-    await page.getByTestId('google-sign-in').click();
-    await page.waitForTimeout(8_000);
+    // Error feedback must appear with meaningful text
+    const authError = page.locator('[role="alert"]').filter({
+      hasText: /try again|went wrong|cancelled|timed out|failed/i,
+    });
+    await expect(authError).toBeVisible({ timeout: 15_000 });
+    await expect(authError).toHaveText(/.+/);
 
-    const hasError = await page.locator('[role="alert"]').isVisible().catch(() => false);
-    const hasPopup = popups.length > 0;
-    expect(hasError || hasPopup).toBeTruthy();
+    // Buttons must be re-enabled for retry
+    await expect(googleBtn).toBeEnabled({ timeout: 5_000 });
+    await expect(appleBtn).toBeEnabled({ timeout: 5_000 });
   });
 });

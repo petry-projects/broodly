@@ -11,8 +11,19 @@ export class OnboardingPage extends BasePage {
     return this.byTestId('google-sign-in');
   }
 
+  get appleSignInButton() {
+    return this.byTestId('apple-sign-in');
+  }
+
   get offlineContinueButton() {
     return this.byTestId('offline-continue');
+  }
+
+  /** Auth error alert — matches [role="alert"] containing error message text */
+  get authErrorAlert() {
+    return this.page.locator('[role="alert"]').filter({
+      hasText: /try again|went wrong|cancelled|timed out|failed/i,
+    });
   }
 
   // Experience Level screen
@@ -27,12 +38,37 @@ export class OnboardingPage extends BasePage {
 
   // Apiary Setup screen
   get apiaryNameInput() {
-    return this.byTestId('name-input');
+    return this.byTestId('apiary-name-input');
+  }
+
+  get hiveIncrementButton() {
+    return this.byTestId('hive-increment');
+  }
+
+  get hiveDecrementButton() {
+    return this.byTestId('hive-decrement');
+  }
+
+  get hiveCountDisplay() {
+    return this.byTestId('hive-count');
   }
 
   // Goal Selection screen
   goalOption(id: string) {
     return this.byTestId(`goal-${id}`);
+  }
+
+  get voiceFirstMode() {
+    return this.byTestId('mode-voice_first');
+  }
+
+  get tapAndReadMode() {
+    return this.byTestId('mode-tap_and_read');
+  }
+
+  // Catchup Assessment screen
+  catchupCheckbox(key: string) {
+    return this.byTestId(`check-${key}`);
   }
 
   // Disclaimer screen
@@ -46,12 +82,14 @@ export class OnboardingPage extends BasePage {
   }
 
   // Shared
+  /** Returns the active screen's next button (last in DOM, since Expo Router keeps previous screens hidden) */
   get nextButton() {
-    return this.byTestId('next-btn');
+    return this.byTestId('next-btn').last();
   }
 
+  /** Returns the active screen's progress dots (last in DOM for SPA) */
   get progressDots() {
-    return this.byTestId('progress-dots');
+    return this.byTestId('progress-dots').last();
   }
 
   async assertOnCreateAccount() {
@@ -67,11 +105,15 @@ export class OnboardingPage extends BasePage {
   }
 
   async assertOnApiarySetup() {
-    await expect(this.byText(/Name your apiary/i)).toBeVisible();
+    await expect(this.byText(/Set up your first apiary/i)).toBeVisible();
   }
 
   async assertOnGoalSelection() {
     await expect(this.byText(/What are your goals/)).toBeVisible();
+  }
+
+  async assertOnCatchupAssessment() {
+    await expect(this.byText(/Quick catch-up/)).toBeVisible();
   }
 
   async assertOnDisclaimer() {

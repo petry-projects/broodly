@@ -148,6 +148,7 @@ describe("Core types exist", () => {
       title: "Test",
       priority: "HIGH" as any,
       status: "PENDING" as any,
+      isOverdue: false,
       createdAt: "",
     };
     const auditEvent: AuditEvent = {

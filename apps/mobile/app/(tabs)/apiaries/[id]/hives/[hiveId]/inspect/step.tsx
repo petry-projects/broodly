@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Pressable, TextInput, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,9 +30,14 @@ export default function InspectionStepScreen() {
   const currentPrompt = prompts[store.currentPromptIndex];
   const totalSteps = prompts.length;
 
+  useEffect(() => {
+    if (!currentPrompt) {
+      // All steps complete — navigate to summary
+      router.replace(`/(tabs)/apiaries/${apiaryId}/hives/${hiveId}/inspect/summary`);
+    }
+  }, [currentPrompt, router, apiaryId, hiveId]);
+
   if (!currentPrompt) {
-    // All steps complete — navigate to summary
-    router.replace(`/(tabs)/apiaries/${apiaryId}/hives/${hiveId}/inspect/summary`);
     return null;
   }
 

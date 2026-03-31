@@ -6,29 +6,29 @@ test.describe('App Smoke', () => {
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(err.message));
 
-    await page.goto('/');
-    await page.waitForTimeout(3_000);
-
-    // No import.meta or native module errors
-    const criticalErrors = errors.filter(
-      (e) =>
-        e.includes('import.meta') ||
-        e.includes('Cannot use') ||
-        e.includes('react-native-mmkv') ||
-        e.includes('@react-native-firebase'),
-    );
-    expect(criticalErrors).toEqual([]);
-  });
-
-  test('renders a visible screen for unauthenticated user', async ({ page }) => {
     const welcome = new WelcomePage(page);
     await welcome.goto();
-    await welcome.assertVisible();
+    // Wait for real UI to render — not an arbitrary timeout
+    await expect(welcome.getStartedButton).toBeVisible({ timeout: 15_000 });
+
+    // Zero JS errors — no filtering, no exceptions
+    expect(errors).toEqual([]);
   });
 
-  test('page has correct title and favicon', async ({ page }) => {
+  test('renders welcome screen with branding and CTAs', async ({ page }) => {
+    const welcome = new WelcomePage(page);
+    await welcome.goto();
+
+    // Assert specific branding elements — not vague body text checks
+    await expect(welcome.heading).toBeVisible();
+    await expect(welcome.getStartedButton).toBeVisible();
+    await expect(welcome.signInButton).toBeVisible();
+    await expect(page.getByText(/Make the right decision/)).toBeVisible();
+    await expect(page.getByText(/Field-first beekeeping/)).toBeVisible();
+  });
+
+  test('page has correct title', async ({ page }) => {
     await page.goto('/');
-    // Expo sets document title from app.json name
     await expect(page).toHaveTitle(/mobile|Broodly/i);
   });
 });

@@ -2,52 +2,63 @@ import { test, expect } from '@playwright/test';
 import { WelcomePage } from './pages';
 
 test.describe('Accessibility', () => {
-  test('welcome screen has accessible buttons with labels', async ({ page }) => {
+  test('welcome screen buttons have accessible labels', async ({ page }) => {
     const welcome = new WelcomePage(page);
     await welcome.goto();
     await welcome.assertVisible();
 
-    // Buttons should have accessible names
-    const getStarted = welcome.getStartedButton;
-    await expect(getStarted).toHaveAttribute('aria-label', /.+/);
-
-    const signIn = welcome.signInButton;
-    await expect(signIn).toHaveAttribute('aria-label', /.+/);
+    // Buttons must have aria-label for screen readers
+    await expect(welcome.getStartedButton).toHaveAttribute('aria-label', /.+/);
+    await expect(welcome.signInButton).toHaveAttribute('aria-label', /.+/);
   });
 
-  test('interactive elements meet minimum touch target size', async ({ page }) => {
+  test('interactive elements meet 48px minimum touch target', async ({ page }) => {
     const welcome = new WelcomePage(page);
     await welcome.goto();
     await welcome.assertVisible();
 
-    // Get Started button should be at least 48px tall (CLAUDE.md requirement)
-    const box = await welcome.getStartedButton.boundingBox();
-    if (box) {
-      expect(box.height).toBeGreaterThanOrEqual(44); // Allow slight rendering variance
-    }
+    // CLAUDE.md requirement: 48x48px minimum for gloved field use
+    const getStartedBox = await welcome.getStartedButton.boundingBox();
+    expect(getStartedBox).not.toBeNull();
+    expect(getStartedBox!.height).toBeGreaterThanOrEqual(48);
+
+    const signInBox = await welcome.signInButton.boundingBox();
+    expect(signInBox).not.toBeNull();
+    expect(signInBox!.height).toBeGreaterThanOrEqual(48);
   });
 
-  test('no color-only status indicators on welcome screen', async ({ page }) => {
+  test('no runtime errors on welcome screen', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(err.message));
+
     const welcome = new WelcomePage(page);
     await welcome.goto();
     await welcome.assertVisible();
-
-    // The welcome screen should not crash — this is a basic sanity check
-    // Full color-only audit requires visual regression tools
     await welcome.assertNoCrash();
+
+    expect(errors).toEqual([]);
   });
 
-  test('page responds to keyboard navigation', async ({ page }) => {
+  test('keyboard Tab moves focus to an interactive element', async ({ page }) => {
     const welcome = new WelcomePage(page);
     await welcome.goto();
     await welcome.assertVisible();
 
-    // Tab through interactive elements
-    await page.keyboard.press('Tab');
+    // Tab into the page
     await page.keyboard.press('Tab');
 
-    // Something should be focused
-    const focusedElement = page.locator(':focus');
-    await expect(focusedElement).toBeVisible();
+    const focused = page.locator(':focus');
+    await expect(focused).toBeVisible();
+
+    // Focused element must be interactive (button, link, or input)
+    const role = await focused.getAttribute('role');
+    const tagName = await focused.evaluate((el) => el.tagName.toLowerCase());
+    const isInteractive =
+      role === 'button' ||
+      role === 'link' ||
+      tagName === 'button' ||
+      tagName === 'a' ||
+      tagName === 'input';
+    expect(isInteractive).toBe(true);
   });
 });

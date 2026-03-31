@@ -66,6 +66,7 @@ function TaskRow({ task, onComplete, onDismiss }: { task: QueueTask; onComplete:
         <Button
           action="positive"
           variant="solid"
+          size="lg"
           onPress={onComplete}
           accessibilityLabel={`Mark '${task.title}' as done`}
           testID={`complete-${task.id}`}
@@ -75,6 +76,7 @@ function TaskRow({ task, onComplete, onDismiss }: { task: QueueTask; onComplete:
         <Button
           action="secondary"
           variant="link"
+          size="lg"
           onPress={onDismiss}
           accessibilityLabel={`Dismiss '${task.title}'`}
           testID={`dismiss-${task.id}`}

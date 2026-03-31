@@ -1,14 +1,6 @@
-import { createMMKV } from 'react-native-mmkv';
-import type { StateStorage } from 'zustand/middleware';
-
-const mmkv = createMMKV({ id: 'broodly-zustand' });
-
 /**
- * Zustand StateStorage adapter backed by MMKV.
- * Used for persisting UI preferences (onboarding state, active apiary).
+ * Base mmkv-storage module for TypeScript resolution.
+ * Metro bundler resolves .web.ts or .native.ts at runtime;
+ * this file satisfies tsc --noEmit for non-platform-aware tooling.
  */
-export const mmkvStorage: StateStorage = {
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => { mmkv.remove(name); },
-};
+export { mmkvStorage } from './mmkv-storage.web';

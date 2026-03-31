@@ -38,7 +38,7 @@ export default function WelcomeScreen() {
         <Button
           action="primary"
           variant="outline"
-          size="lg"
+          size="xl"
           onPress={() => router.push('/(auth)/sign-in')}
           testID="sign-in-btn"
           accessibilityLabel="Sign In"

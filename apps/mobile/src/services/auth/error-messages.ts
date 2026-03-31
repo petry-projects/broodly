@@ -7,6 +7,7 @@ const FIREBASE_ERROR_MAP: Record<string, string> = {
   'auth/network-request-failed': 'Network error. Check your connection and try again.',
   'auth/invalid-credential': 'Invalid credentials. Please try again.',
   'auth/user-disabled': 'This account has been disabled. Please contact support.',
+  'auth/timeout': 'Sign-in timed out. Please try again.',
 };
 
 /**

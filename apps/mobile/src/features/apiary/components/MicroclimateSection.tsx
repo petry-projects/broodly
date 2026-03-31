@@ -37,7 +37,7 @@ export function MicroclimateSection({
       </Text>
 
       {isNewRegion && (
-        <View className="bg-background-info rounded-lg p-3 mb-4" accessibilityRole="status">
+        <View className="bg-background-info rounded-lg p-3 mb-4" accessibilityRole="alert">
           <Text size="sm" className="text-info-700">
             This apiary is in a different region from your others. Seasonal context will use
             this region's baseline — personal history from other regions won't apply here.

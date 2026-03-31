@@ -7,23 +7,21 @@ import { Text } from '../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner, ButtonIcon } from '../../components/ui/button';
 import { OnboardingProgressDots } from '@broodly/ui/src/OnboardingProgressDots';
 import { useOnboardingStore } from '../../src/store/onboarding-store';
-import { useAuthStore } from '../../src/store/auth-store';
 import { useConnectivityStore } from '../../src/store/connectivity-store';
 import { mapFirebaseError } from '../../src/services/auth/error-messages';
 
 export default function CreateAccountScreen() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const tosAccepted = useOnboardingStore((s) => s.tosAccepted);
   const setTosAccepted = useOnboardingStore((s) => s.setTosAccepted);
   const setStep = useOnboardingStore((s) => s.setStep);
-  const isLoading = useAuthStore((s) => s.isLoading);
-  const setLoading = useAuthStore((s) => s.setLoading);
   const isOnline = useConnectivityStore((s) => s.isOnline);
 
   async function handleSignIn(method: 'google' | 'apple') {
     setError(null);
-    setLoading(true);
+    setIsLoading(true);
     try {
       const auth = await import('../../src/services/auth');
       const result = method === 'google'
@@ -42,7 +40,7 @@ export default function CreateAccountScreen() {
       const message = (err as { message?: string }).message;
       setError(message || mapFirebaseError(code));
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 

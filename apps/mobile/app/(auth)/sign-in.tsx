@@ -4,17 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { Heading } from '../../components/ui/heading';
 import { Text } from '../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner, ButtonIcon } from '../../components/ui/button';
-import { useAuthStore } from '../../src/store/auth-store';
 import { mapFirebaseError } from '../../src/services/auth/error-messages';
 
 export default function SignInScreen() {
   const [error, setError] = useState<string | null>(null);
-  const isLoading = useAuthStore((s) => s.isLoading);
-  const setLoading = useAuthStore((s) => s.setLoading);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSignIn(method: 'google' | 'apple') {
     setError(null);
-    setLoading(true);
+    setIsLoading(true);
     try {
       const auth = await import('../../src/services/auth');
       const result = method === 'google'
@@ -30,7 +28,7 @@ export default function SignInScreen() {
       const message = (err as { message?: string }).message;
       setError(message || mapFirebaseError(code));
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 

@@ -81,7 +81,7 @@ export default function InspectionEntryScreen() {
       </Text>
 
       {!isOnline && (
-        <View className="bg-background-info rounded-lg p-3 mb-4" accessibilityRole="status">
+        <View className="bg-background-info rounded-lg p-3 mb-4" accessibilityRole="alert">
           <Text size="sm" className="text-info-700">
             You are offline. Inspection data will be saved locally and synced when you reconnect.
           </Text>

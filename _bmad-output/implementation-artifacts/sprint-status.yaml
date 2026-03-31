@@ -1,10 +1,9 @@
 # generated: 2026-03-21
-# last_updated: 2026-03-29
+# last_updated: 2026-03-30
 # project: bmad-method
 # project_key: NOKEY
 # tracking_system: file-system
 # story_location: {project-root}/_bmad-output/implementation-artifacts
-# sprint: 1 — Epic 1: Project Scaffolding & Monorepo Setup
 
 # STATUS DEFINITIONS:
 # Epic: backlog → in-progress → done
@@ -12,7 +11,7 @@
 # Retrospective: optional ↔ done
 
 generated: 2026-03-21
-last_updated: 2026-03-29
+last_updated: 2026-03-30
 project: bmad-method
 project_key: NOKEY
 tracking_system: file-system
@@ -32,6 +31,10 @@ development_status:
   2-3-rbac-middleware-and-role-enforcement: done
   2-4-account-management-settings: done
   2-5-account-deletion-and-data-purge: done
+  2-7-firebase-auth-emulator-for-local-development: done
+  2-8-environment-variable-documentation: done
+  2-9-cd-pipeline-firebase-config-injection: done
+  2-10-terraform-firebase-project-provisioning: done
   epic-2-retrospective: optional
 
   epic-3: done
@@ -43,11 +46,11 @@ development_status:
   epic-3-retrospective: optional
 
   epic-4: done
-  4-1-graphql-schema-foundation: review
-  4-2-recommendation-contract-type: review
-  4-3-apiary-hive-resolvers: review
-  4-4-inspection-recommendation-resolvers: review
-  4-5-data-export-resolvers: review
+  4-1-graphql-schema-foundation: done
+  4-2-recommendation-contract-type: done
+  4-3-apiary-hive-resolvers: done
+  4-4-inspection-recommendation-resolvers: done
+  4-5-data-export-resolvers: done
   epic-4-retrospective: optional
 
   epic-5: done
@@ -67,52 +70,54 @@ development_status:
   epic-6-retrospective: optional
 
   epic-7: done
-  7-1-apiary-crud-screens: review
-  7-2-hive-crud-screens: review
-  7-3-health-status-cards: review
-  7-4-microclimate-adjustments: review
-  7-5-collaborator-management: review
-  7-6-operation-dashboard-sideliner: review
+  7-1-apiary-crud-screens: done
+  7-2-hive-crud-screens: done
+  7-3-health-status-cards: done
+  7-4-microclimate-adjustments: done
+  7-5-collaborator-management: done
+  7-6-operation-dashboard-sideliner: done
   epic-7-retrospective: optional
 
   epic-8: done
-  8-1-safety-gate-and-inspection-entry: review
-  8-2-guided-inspection-step-engine: review
-  8-3-voice-observation-capture: review
-  8-4-photo-capture-and-attachment: review
-  8-5-vision-ai-analysis-integration: review
-  8-6-acoustic-analysis-capture: review
-  8-7-inspection-summary-and-follow-up: review
+  8-1-safety-gate-and-inspection-entry: done
+  8-2-guided-inspection-step-engine: done
+  8-3-voice-observation-capture: done
+  8-4-photo-capture-and-attachment: done
+  8-5-vision-ai-analysis-integration: done
+  8-6-acoustic-analysis-capture: done
+  8-7-inspection-summary-and-follow-up: done
+  8-8-continuous-multi-hive-voice-session: done
+  8-9-post-session-evening-review: done
   epic-8-retrospective: optional
 
   epic-9: done
-  9-1-context-assembly-service: review
-  9-2-gemini-recommendation-scoring: review
-  9-3-confidence-calibration: review
-  9-4-degraded-mode-and-staleness: review
-  9-5-skill-mismatch-detection: review
+  9-1-context-assembly-service: done
+  9-2-gemini-recommendation-scoring: done
+  9-3-confidence-calibration: done
+  9-4-degraded-mode-and-staleness: done
+  9-5-skill-mismatch-detection: done
   epic-9-retrospective: optional
 
   epic-10: done
-  10-1-happy-context-homepage: review
-  10-2-weekly-action-queue: review
-  10-3-task-resolution-actions: review
-  10-4-seasonal-planning-calendar: review
-  10-5-dynamic-priority-updates: review
+  10-1-happy-context-homepage: done
+  10-2-weekly-action-queue: done
+  10-3-task-resolution-actions: done
+  10-4-seasonal-planning-calendar: done
+  10-5-dynamic-priority-updates: done
   epic-10-retrospective: optional
 
   epic-11: done
-  11-1-signed-url-media-upload: review
-  11-2-stt-transcription-worker: review
-  11-3-vision-ai-analysis-worker: review
-  11-4-acoustic-analysis-worker: review
-  11-5-embedding-generation-pipeline: review
+  11-1-signed-url-media-upload: done
+  11-2-stt-transcription-worker: done
+  11-3-vision-ai-analysis-worker: done
+  11-4-acoustic-analysis-worker: done
+  11-5-embedding-generation-pipeline: done
   epic-11-retrospective: optional
 
   epic-12: done
-  12-1-notification-dispatch-service: review
-  12-2-notification-center-ui: review
-  12-3-notification-sensitivity-config: review
-  12-4-alert-escalation-engine: review
-  12-5-feedback-prompts: review
+  12-1-notification-dispatch-service: done
+  12-2-notification-center-ui: done
+  12-3-notification-sensitivity-config: done
+  12-4-alert-escalation-engine: done
+  12-5-feedback-prompts: done
   epic-12-retrospective: optional

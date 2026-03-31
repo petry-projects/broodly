@@ -23,6 +23,7 @@ export function OnboardingProgressDots({
       accessibilityRole="progressbar"
       accessibilityLabel={`Step ${currentStep} of ${totalSteps}`}
       accessibilityValue={{ min: 1, max: totalSteps, now: currentStep }}
+      testID="progress-dots"
     >
       {Array.from({ length: totalSteps }, (_, i) => {
         const step = i + 1;

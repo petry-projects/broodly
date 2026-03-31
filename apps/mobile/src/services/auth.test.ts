@@ -60,7 +60,7 @@ describe('signInWithGoogle', () => {
     mockSignInWithCredential.mockRejectedValue({ code: 'auth/network-request-failed' });
 
     await expect(signInWithGoogle('bad-token')).rejects.toThrow(
-      'Network error. Please check your connection and try again.'
+      'Network error. Check your connection and try again.'
     );
   });
 });
@@ -133,7 +133,7 @@ describe('getIdToken', () => {
 describe('mapFirebaseError', () => {
   it('maps auth/network-request-failed to human-readable message', () => {
     const message = mapFirebaseError('auth/network-request-failed');
-    expect(message).toBe('Network error. Please check your connection and try again.');
+    expect(message).toBe('Network error. Check your connection and try again.');
   });
 
   it('maps auth/popup-closed-by-user to cancellation message', () => {
@@ -149,7 +149,7 @@ describe('mapFirebaseError', () => {
   it('maps auth/account-exists-with-different-credential', () => {
     const message = mapFirebaseError('auth/account-exists-with-different-credential');
     expect(message).toBe(
-      'An account already exists with the same email. Try signing in with a different provider.'
+      'An account already exists with a different sign-in method.'
     );
   });
 

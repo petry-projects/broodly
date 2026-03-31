@@ -6,14 +6,14 @@ import { Heading } from '../../../../../components/ui/heading';
 import { Text } from '../../../../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner } from '../../../../../components/ui/button';
 import { useCreateHive } from '../../../../../src/features/hive/hooks/use-hives';
-import type { HiveType } from '@broodly/graphql-types';
+import { HiveType } from '@broodly/graphql-types';
 import { ICON_COLORS } from '../../../../../src/theme/colors';
 
 const HIVE_TYPES: Array<{ value: HiveType; label: string; icon: string; description: string }> = [
-  { value: 'LANGSTROTH', label: 'Langstroth', icon: 'cube-outline', description: 'Most common, stackable boxes' },
-  { value: 'TOP_BAR', label: 'Top Bar', icon: 'reorder-three-outline', description: 'Horizontal bar hive' },
-  { value: 'WARRE', label: 'Warré', icon: 'layers-outline', description: 'Vertical, minimal intervention' },
-  { value: 'OTHER', label: 'Other', icon: 'ellipse-outline', description: 'Custom or alternative design' },
+  { value: HiveType.Langstroth, label: 'Langstroth', icon: 'cube-outline', description: 'Most common, stackable boxes' },
+  { value: HiveType.TopBar, label: 'Top Bar', icon: 'reorder-three-outline', description: 'Horizontal bar hive' },
+  { value: HiveType.Warre, label: 'Warré', icon: 'layers-outline', description: 'Vertical, minimal intervention' },
+  { value: HiveType.Other, label: 'Other', icon: 'ellipse-outline', description: 'Custom or alternative design' },
 ];
 
 export default function CreateHiveScreen() {
