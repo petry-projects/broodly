@@ -154,3 +154,51 @@ jobs:
       - name: Docker build
         working-directory: .
         run: docker build -f apps/api/Dockerfile -t broodly-api:ci apps/api/
+
+  # ---------------------------------------------------------------------------
+  # Deploy API to Cloud Run (main branch only)
+  # ---------------------------------------------------------------------------
+  # Required GitHub Secrets:
+  #   GCP_PROJECT_ID                    — GCP project ID (e.g. broodly-491920)
+  #   GCP_WORKLOAD_IDENTITY_PROVIDER    — Full provider resource name:
+  #     projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>
+  #   GCP_SERVICE_ACCOUNT               — SA email for WIF (e.g. broodly-ci@broodly-491920.iam.gserviceaccount.com)
+  deploy-api:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [go]
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      REGION: us-central1
+      SERVICE_NAME: broodly-api-dev
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build and push container image
+        working-directory: .
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}"
+          docker build -f apps/api/Dockerfile -t "$IMAGE" apps/api/
+          docker push "$IMAGE"
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}"
+          gcloud run deploy "$SERVICE_NAME" \
+            --image "$IMAGE" \
+            --region "$REGION" \
+            --project "${{ secrets.GCP_PROJECT_ID }}" \
+            --quiet

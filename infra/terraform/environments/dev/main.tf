@@ -171,3 +171,25 @@ module "pubsub" {
   project_id  = var.project_id
   environment = var.environment
 }
+
+module "firebase" {
+  source = "../../modules/firebase"
+
+  project_id   = var.project_id
+  environment  = var.environment
+  display_name = "Broodly Web"
+}
+
+module "cloud_run" {
+  source = "../../modules/cloud-run"
+
+  service_name          = "broodly-api-${var.environment}"
+  project_id            = var.project_id
+  region                = var.region
+  image                 = "us-central1-docker.pkg.dev/${var.project_id}/broodly/api:latest"
+  service_account_email = google_service_account.api.email
+  db_connection_secret  = google_secret_manager_secret.db_connection_string.secret_id
+  cors_origin           = "https://broodly-${var.environment}.web.app"
+  min_instances         = 0
+  max_instances         = 5
+}
