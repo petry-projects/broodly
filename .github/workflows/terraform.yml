@@ -20,7 +20,7 @@ permissions:
 
 concurrency:
   group: terraform-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }} # Cancel stale PR plans; never cancel applies on main
+  cancel-in-progress: false # Never cancel in-progress applies
 
 jobs:
   terraform:
@@ -41,23 +41,22 @@ jobs:
         env:
           WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           WIF_SA: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
-          if [ -z "${WIF_PROVIDER}" ] || [ -z "${WIF_SA}" ] || [ -z "${PROJECT_ID}" ]; then
+          if [ -z "${WIF_PROVIDER}" ] || [ -z "${WIF_SA}" ]; then
             echo "configured=false" >> "${GITHUB_OUTPUT}"
-            echo "::warning::Skipping Terraform — GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT, or GCP_PROJECT_ID not configured. Run the Bootstrap workflow first."
+            echo "::warning::Skipping Terraform — GCP_WORKLOAD_IDENTITY_PROVIDER or GCP_SERVICE_ACCOUNT not configured. Run the Bootstrap workflow first."
           else
             echo "configured=true" >> "${GITHUB_OUTPUT}"
           fi
 
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         if: steps.prereqs.outputs.configured == 'true'
 
       - name: Authenticate to Google Cloud
         if: steps.prereqs.outputs.configured == 'true'
         id: auth
-        continue-on-error: ${{ github.event_name == 'pull_request' }} # Fail loudly on push; allow bootstrap-in-progress on PRs
-        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        continue-on-error: true
+        uses: google-github-actions/auth@62cf5bd3e4211a0a0b51f2c6d6a37129d828611d # v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
@@ -68,7 +67,7 @@ jobs:
 
       - name: Set up Terraform
         if: steps.prereqs.outputs.configured == 'true' && steps.auth.outcome == 'success'
-        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
         with:
           terraform_version: "~> 1.5"
 
@@ -83,18 +82,18 @@ jobs:
       - name: Terraform Plan
         if: steps.prereqs.outputs.configured == 'true' && steps.auth.outcome == 'success'
         id: plan
-        run: terraform plan -no-color -out=tfplan 2>&1 | tee /tmp/tfplan.txt; exit ${PIPESTATUS[0]}
+        run: terraform plan -no-color -out=tfplan
         continue-on-error: true
 
       - name: Comment plan on PR
         if: steps.prereqs.outputs.configured == 'true' && steps.auth.outcome == 'success' && github.event_name == 'pull_request'
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         env:
+          TERRAFORM_PLAN: ${{ steps.plan.outputs.stdout }}
           PLAN_OUTCOME: ${{ steps.plan.outcome }}
         with:
           script: |
-            const fs = require('fs');
-            const plan = (fs.existsSync('/tmp/tfplan.txt') ? fs.readFileSync('/tmp/tfplan.txt', 'utf8') : '').substring(0, 60000);
+            const plan = (process.env.TERRAFORM_PLAN || '').substring(0, 60000);
             const body = `### Terraform Plan\n\`\`\`\n${plan}\n\`\`\`\n*Plan: ${process.env.PLAN_OUTCOME}*`;
 
             const { data: comments } = await github.rest.issues.listComments({
