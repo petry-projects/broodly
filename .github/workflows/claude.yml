@@ -31,7 +31,7 @@ jobs:
       issues: write
     steps:
       - name: Run Claude Code
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        if: github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]'
         uses: anthropics/claude-code-action@094bd24d575e7b30ac1576024817bf1a97c81262 # v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
