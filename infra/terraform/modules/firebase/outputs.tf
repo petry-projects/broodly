@@ -1,8 +1,3 @@
-output "web_app_id" {
-  description = "Firebase web app ID"
-  value       = google_firebase_web_app.default.app_id
-}
-
 output "api_key" {
   description = "Firebase web app API key (for EXPO_PUBLIC_FIREBASE_API_KEY)"
   value       = data.google_firebase_web_app_config.default.api_key

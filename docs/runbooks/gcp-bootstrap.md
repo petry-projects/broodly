@@ -1,6 +1,6 @@
 # GCP Bootstrap — One-Time Setup
 
-This runbook covers the single manual prerequisite and the automated bootstrap workflow that provisions all GCP infrastructure.
+This runbook covers the preparation steps and the automated bootstrap workflow that provisions all GCP infrastructure.
 
 ## Overview
 
@@ -12,11 +12,13 @@ The bootstrap workflow (`bootstrap.yml`) creates all GCP resources automatically
 - All Terraform-managed resources (Cloud SQL, Firebase, Cloud Run, Pub/Sub, Storage)
 - GitHub Actions secrets populated from Terraform outputs
 
+**Two preparation steps** are required before running the workflow. After the workflow completes, a cleanup step removes the temporary credentials.
+
 **Prerequisites:** A GCP service account key stored as GitHub secret `GCP_SERVICE_ACCOUNT`. If you already have this, skip to [Run the Bootstrap Workflow](#run-the-bootstrap-workflow).
 
 ---
 
-## Create a GCP Service Account Key (if not already done)
+## Preparation Step 1: Create a GCP Service Account Key (if not already done)
 
 This service account key lets the bootstrap workflow authenticate to GCP. After bootstrap, it is automatically replaced with a Workload Identity Federation service account email — the JSON key is no longer used.
 
@@ -47,7 +49,7 @@ This service account key lets the bootstrap workflow authenticate to GCP. After 
 4. Select **JSON** → **Create**
 5. A `.json` file downloads
 
-### 4. Add the key as a GitHub secret
+### Preparation Step 2: Add the key as a GitHub secret
 
 1. Go to your GitHub repo → **Settings** → **Secrets and variables** → **Actions**
 2. Click **New repository secret**
