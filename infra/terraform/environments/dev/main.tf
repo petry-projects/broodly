@@ -171,3 +171,35 @@ module "pubsub" {
   project_id  = var.project_id
   environment = var.environment
 }
+
+module "firebase" {
+  source = "../../modules/firebase"
+
+  project_id        = var.project_id
+  environment       = var.environment
+  display_name      = "Broodly Web"
+  authorized_domains = ["localhost"]
+
+  # Google Sign-In OAuth client ID/secret — leave empty on first apply.
+  # After Firebase auto-creates the OAuth client, retrieve it from
+  # GCP Console → APIs & Services → Credentials and re-apply.
+  google_sign_in_client_id     = var.google_sign_in_client_id
+  google_sign_in_client_secret = var.google_sign_in_client_secret
+}
+
+module "cloud_run" {
+  source = "../../modules/cloud-run"
+
+  project_id          = var.project_id
+  region              = var.region
+  environment         = var.environment
+  service_name        = "broodly-api-${var.environment}"
+  image               = "us-central1-docker.pkg.dev/${var.project_id}/broodly/api:latest"
+  service_account_email = google_service_account.api.email
+
+  env_vars = {
+    DB_CONNECTION_SECRET = google_secret_manager_secret.db_connection_string.secret_id
+    FIREBASE_PROJECT_ID  = var.project_id
+    ENVIRONMENT          = var.environment
+  }
+}

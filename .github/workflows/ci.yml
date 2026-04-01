@@ -154,3 +154,94 @@ jobs:
       - name: Docker build
         working-directory: .
         run: docker build -f apps/api/Dockerfile -t broodly-api:ci apps/api/
+
+  # ---------------------------------------------------------------------------
+  # Deploy API to Cloud Run (main branch only)
+  # ---------------------------------------------------------------------------
+  deploy-api:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [go]
+    permissions:
+      contents: read
+      id-token: write # Required for Workload Identity Federation
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@62cf5bd3e4211a0a0b51f2c6d6a37129d828611d # v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a # v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build and push container image
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api"
+          docker build -f apps/api/Dockerfile \
+            -t "${IMAGE}:${{ github.sha }}" \
+            -t "${IMAGE}:latest" \
+            apps/api/
+          docker push "${IMAGE}:${{ github.sha }}"
+          docker push "${IMAGE}:latest"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy broodly-api-dev \
+            --image "us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}" \
+            --region us-central1 \
+            --project "${{ secrets.GCP_PROJECT_ID }}" \
+            --quiet
+
+  # ---------------------------------------------------------------------------
+  # Mobile Web Build (main branch only)
+  # ---------------------------------------------------------------------------
+  mobile-build:
+    name: Mobile Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [typescript]
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate .env from secrets
+        working-directory: apps/mobile
+        run: |
+          cat > .env << 'ENVEOF'
+          EXPO_PUBLIC_FIREBASE_USE_EMULATOR=false
+          ENVEOF
+          echo "EXPO_PUBLIC_FIREBASE_API_KEY=${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}" >> .env
+          echo "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}" >> .env
+          echo "EXPO_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}" >> .env
+          echo "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET }}" >> .env
+          echo "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "EXPO_PUBLIC_FIREBASE_APP_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}" >> .env
+          echo "EXPO_PUBLIC_API_URL=${{ secrets.EXPO_PUBLIC_API_URL }}" >> .env
+
+      - name: Expo web export
+        working-directory: apps/mobile
+        run: npx expo export --platform web
+
+      - name: Upload web build artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: web-build
+          path: apps/mobile/dist/
+          retention-days: 14
