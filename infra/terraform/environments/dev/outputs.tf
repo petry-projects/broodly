@@ -80,7 +80,12 @@ output "firebase_app_id" {
 }
 
 # Cloud Run outputs
-output "cloud_run_url" {
-  description = "Cloud Run service URL"
+output "cloud_run_service_url" {
+  description = "Cloud Run API service URL"
   value       = module.cloud_run.service_url
+}
+
+output "cloud_run_service_name" {
+  description = "Cloud Run API service name"
+  value       = module.cloud_run.service_name
 }

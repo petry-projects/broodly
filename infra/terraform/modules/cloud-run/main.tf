@@ -6,16 +6,7 @@
 # IAM, and environment configuration.
 # -----------------------------------------------------------------------------
 
-resource "google_project_service" "run" {
-  project = var.project_id
-  service = "run.googleapis.com"
-
-  disable_on_destroy = false
-}
-
 resource "google_cloud_run_v2_service" "api" {
-  provider = google-beta
-  project  = var.project_id
   name     = var.service_name
   location = var.region
 
@@ -27,16 +18,11 @@ resource "google_cloud_run_v2_service" "api" {
   template {
     service_account = var.service_account_email
 
-    scaling {
-      min_instance_count = var.min_instances
-      max_instance_count = var.max_instances
-    }
-
     containers {
       image = var.image
 
       ports {
-        container_port = var.port
+        container_port = 8080
       }
 
       resources {
@@ -46,17 +32,37 @@ resource "google_cloud_run_v2_service" "api" {
         }
       }
 
-      dynamic "env" {
-        for_each = var.env_vars
-        content {
-          name  = env.key
-          value = env.value
+      env {
+        name  = "FIREBASE_PROJECT_ID"
+        value = var.project_id
+      }
+
+      env {
+        name = "DATABASE_URL"
+        value_source {
+          secret_key_ref {
+            secret  = var.db_connection_secret
+            version = "latest"
+          }
         }
       }
+
+      env {
+        name  = "CORS_ORIGIN"
+        value = var.cors_origin
+      }
+    }
+
+    scaling {
+      min_instance_count = var.min_instances
+      max_instance_count = var.max_instances
     }
   }
 
-  depends_on = [google_project_service.run]
+  traffic {
+    type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
+    percent = 100
+  }
 
   lifecycle {
     # CI deploys new images via gcloud; don't revert to the Terraform-specified tag
@@ -64,13 +70,13 @@ resource "google_cloud_run_v2_service" "api" {
   }
 }
 
-# Allow unauthenticated access (public API endpoint).
-# Security note: This makes the service publicly reachable without GCP
-# credentials. Only enable for APIs where authentication is enforced at the
-# application layer (e.g., Firebase Auth bearer tokens) or for public endpoints.
-resource "google_cloud_run_v2_service_iam_member" "public" {
-  count = var.allow_unauthenticated ? 1 : 0
-
+# SECURITY: Allow unauthenticated HTTP access to Cloud Run.
+# This is intentional — the Go API validates Firebase ID tokens in its own
+# auth middleware (internal/auth/middleware.go). Cloud Run's built-in IAM
+# auth is bypassed because mobile/web clients send Bearer tokens directly.
+# Removing this binding would block all client traffic.
+resource "google_cloud_run_v2_service_iam_member" "public" { # NOSONAR — intentional, see comment above
+  count    = var.allow_unauthenticated ? 1 : 0
   project  = var.project_id
   location = var.region
   name     = google_cloud_run_v2_service.api.name

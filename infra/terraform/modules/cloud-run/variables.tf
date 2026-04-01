@@ -1,25 +1,25 @@
+variable "service_name" {
+  description = "Name of the Cloud Run service"
+  type        = string
+}
+
 variable "project_id" {
   description = "GCP project ID"
   type        = string
 }
 
 variable "region" {
-  description = "GCP region"
+  description = "GCP region for the Cloud Run service"
   type        = string
 }
 
 variable "environment" {
-  description = "Environment name (dev, staging, prod)"
-  type        = string
-}
-
-variable "service_name" {
-  description = "Cloud Run service name"
+  description = "Environment name (dev, staging, prod) — used for resource labels"
   type        = string
 }
 
 variable "image" {
-  description = "Container image to deploy (e.g., us-central1-docker.pkg.dev/project/repo/api:tag)"
+  description = "Container image to deploy (full Artifact Registry path)"
   type        = string
 }
 
@@ -28,10 +28,16 @@ variable "service_account_email" {
   type        = string
 }
 
-variable "env_vars" {
-  description = "Environment variables to set on the Cloud Run service"
-  type        = map(string)
-  default     = {}
+variable "cpu" {
+  description = "CPU limit for the container"
+  type        = string
+  default     = "1"
+}
+
+variable "memory" {
+  description = "Memory limit for the container"
+  type        = string
+  default     = "512Mi"
 }
 
 variable "min_instances" {
@@ -43,29 +49,22 @@ variable "min_instances" {
 variable "max_instances" {
   description = "Maximum number of instances"
   type        = number
-  default     = 2
+  default     = 10
 }
 
-variable "cpu" {
-  description = "CPU allocation (e.g., 1, 2)"
+variable "db_connection_secret" {
+  description = "Secret Manager secret ID containing the database connection string"
   type        = string
-  default     = "1"
 }
 
-variable "memory" {
-  description = "Memory allocation (e.g., 256Mi, 512Mi)"
+variable "cors_origin" {
+  description = "Allowed CORS origin for the API"
   type        = string
-  default     = "256Mi"
-}
-
-variable "port" {
-  description = "Container port"
-  type        = number
-  default     = 8080
+  default     = ""
 }
 
 variable "allow_unauthenticated" {
-  description = "Allow unauthenticated access. Defaults to false — set to true only when app-layer auth is enforced."
+  description = "Whether to allow unauthenticated access to the Cloud Run service. The API validates Firebase tokens internally, so this must be true for client access. Default false for safety — set explicitly per environment."
   type        = bool
   default     = false
 }

@@ -175,9 +175,9 @@ module "pubsub" {
 module "firebase" {
   source = "../../modules/firebase"
 
-  project_id        = var.project_id
-  environment       = var.environment
-  display_name      = "Broodly Web"
+  project_id         = var.project_id
+  environment        = var.environment
+  display_name       = "Broodly Web"
   authorized_domains = [] # localhost is auto-included for dev by the module
 
   # Google Sign-In OAuth client ID/secret — leave empty on first apply.
@@ -190,17 +190,15 @@ module "firebase" {
 module "cloud_run" {
   source = "../../modules/cloud-run"
 
-  project_id             = var.project_id
-  region                 = var.region
-  environment            = var.environment
-  service_name           = "broodly-api-${var.environment}"
-  image                  = "us-central1-docker.pkg.dev/${var.project_id}/broodly/api:latest"
-  service_account_email  = google_service_account.api.email
-  allow_unauthenticated  = true # App-layer auth via Firebase bearer tokens
-
-  env_vars = {
-    DB_CONNECTION_SECRET = google_secret_manager_secret.db_connection_string.secret_id
-    FIREBASE_PROJECT_ID  = var.project_id
-    ENVIRONMENT          = var.environment
-  }
+  service_name          = "broodly-api-${var.environment}"
+  project_id            = var.project_id
+  region                = var.region
+  environment           = var.environment
+  image                 = "us-central1-docker.pkg.dev/${var.project_id}/broodly/api:latest"
+  service_account_email = google_service_account.api.email
+  db_connection_secret  = google_secret_manager_secret.db_connection_string.secret_id
+  cors_origin           = "https://broodly-${var.environment}.web.app"
+  min_instances         = 0
+  max_instances         = 5
+  allow_unauthenticated = true # API validates Firebase tokens internally
 }
