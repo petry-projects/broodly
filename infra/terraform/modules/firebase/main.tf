@@ -73,14 +73,14 @@ resource "google_identity_platform_config" "default" {
     allow_duplicate_emails = false
   }
 
-  authorized_domains = concat(
+  authorized_domains = distinct(concat(
     [
-      "localhost",
       "${var.project_id}.firebaseapp.com",
       "${var.project_id}.web.app",
     ],
+    var.environment == "dev" ? ["localhost"] : [],
     var.authorized_domains,
-  )
+  ))
 
   depends_on = [
     google_project_service.identity_toolkit,
@@ -100,4 +100,11 @@ resource "google_identity_platform_default_supported_idp_config" "google" {
   enabled       = true
 
   depends_on = [google_identity_platform_config.default]
+
+  lifecycle {
+    precondition {
+      condition     = var.google_sign_in_client_secret != ""
+      error_message = "google_sign_in_client_secret must be set when google_sign_in_client_id is non-empty."
+    }
+  }
 }

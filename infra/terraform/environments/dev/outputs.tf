@@ -48,11 +48,6 @@ output "worker_service_account_email" {
 }
 
 # Firebase outputs
-output "firebase_web_app_id" {
-  description = "Firebase web app ID"
-  value       = module.firebase.web_app_id
-}
-
 output "firebase_api_key" {
   description = "Firebase API key for web app"
   value       = module.firebase.api_key

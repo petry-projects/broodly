@@ -19,6 +19,11 @@ resource "google_cloud_run_v2_service" "api" {
   name     = var.service_name
   location = var.region
 
+  labels = {
+    environment = var.environment
+    managed-by  = "terraform"
+  }
+
   template {
     service_account = var.service_account_email
 
@@ -59,10 +64,10 @@ resource "google_cloud_run_v2_service" "api" {
   }
 }
 
-# Allow unauthenticated access (public API endpoint)
-# Security note: The API enforces authentication at the application layer via
-# Firebase Auth bearer tokens. Cloud Run IAM is left open so the mobile app
-# can reach the GraphQL endpoint without GCP credentials.
+# Allow unauthenticated access (public API endpoint).
+# Security note: This makes the service publicly reachable without GCP
+# credentials. Only enable for APIs where authentication is enforced at the
+# application layer (e.g., Firebase Auth bearer tokens) or for public endpoints.
 resource "google_cloud_run_v2_service_iam_member" "public" {
   count = var.allow_unauthenticated ? 1 : 0
 

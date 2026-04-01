@@ -65,7 +65,7 @@ variable "port" {
 }
 
 variable "allow_unauthenticated" {
-  description = "Allow unauthenticated access (public API)"
+  description = "Allow unauthenticated access. Defaults to false — set to true only when app-layer auth is enforced."
   type        = bool
-  default     = true
+  default     = false
 }

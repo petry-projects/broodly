@@ -192,11 +192,16 @@ jobs:
           docker push "${IMAGE}:${{ github.sha }}"
           docker push "${IMAGE}:latest"
 
+      # Service name and region must match Terraform cloud-run module config
+      # in infra/terraform/environments/dev/main.tf
       - name: Deploy to Cloud Run
+        env:
+          CLOUD_RUN_SERVICE: broodly-api-dev
+          CLOUD_RUN_REGION: us-central1
         run: |
-          gcloud run deploy broodly-api-dev \
+          gcloud run deploy "${CLOUD_RUN_SERVICE}" \
             --image "us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}" \
-            --region us-central1 \
+            --region "${CLOUD_RUN_REGION}" \
             --project "${{ secrets.GCP_PROJECT_ID }}" \
             --quiet
 
@@ -221,19 +226,35 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Validate required secrets
+        env:
+          FIREBASE_API_KEY: ${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}
+          FIREBASE_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}
+          API_URL: ${{ secrets.EXPO_PUBLIC_API_URL }}
+        run: |
+          missing=()
+          [ -z "${FIREBASE_API_KEY}" ] && missing+=("EXPO_PUBLIC_FIREBASE_API_KEY")
+          [ -z "${FIREBASE_PROJECT_ID}" ] && missing+=("EXPO_PUBLIC_FIREBASE_PROJECT_ID")
+          [ -z "${API_URL}" ] && missing+=("EXPO_PUBLIC_API_URL")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing required secrets: ${missing[*]}"
+            echo "Run the Bootstrap workflow or scripts/bootstrap-secrets.sh first."
+            exit 1
+          fi
+
       - name: Generate .env from secrets
         working-directory: apps/mobile
         run: |
-          cat > .env << 'ENVEOF'
-          EXPO_PUBLIC_FIREBASE_USE_EMULATOR=false
-          ENVEOF
-          echo "EXPO_PUBLIC_FIREBASE_API_KEY=${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}" >> .env
-          echo "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}" >> .env
-          echo "EXPO_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}" >> .env
-          echo "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET }}" >> .env
-          echo "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}" >> .env
-          echo "EXPO_PUBLIC_FIREBASE_APP_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}" >> .env
-          echo "EXPO_PUBLIC_API_URL=${{ secrets.EXPO_PUBLIC_API_URL }}" >> .env
+          {
+            echo "EXPO_PUBLIC_FIREBASE_USE_EMULATOR=false"
+            echo "EXPO_PUBLIC_FIREBASE_API_KEY=${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}"
+            echo "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}"
+            echo "EXPO_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}"
+            echo "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET }}"
+            echo "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}"
+            echo "EXPO_PUBLIC_FIREBASE_APP_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}"
+            echo "EXPO_PUBLIC_API_URL=${{ secrets.EXPO_PUBLIC_API_URL }}"
+          } > .env
 
       - name: Expo web export
         working-directory: apps/mobile

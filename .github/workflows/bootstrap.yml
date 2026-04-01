@@ -22,10 +22,10 @@ on:
         description: "GCP region"
         required: true
         default: "us-central1"
-      destroy:
-        description: "Set to 'true' to tear down bootstrap resources (dangerous)"
+      google_sign_in_client_id:
+        description: "Google OAuth client ID (leave empty on first run, set on phase 2)"
         required: false
-        default: "false"
+        default: ""
 
 permissions:
   contents: read
@@ -205,18 +205,18 @@ jobs:
         run: |
           cd infra/terraform/environments/dev
 
-          # Update tfvars with actual project ID
-          cat > terraform.tfvars << TFEOF
-          project_id  = "${{ inputs.project_id }}"
-          region      = "${{ inputs.region }}"
-          environment = "dev"
-          TFEOF
+          # Write tfvars — includes google_sign_in_client_id when provided
+          {
+            printf 'project_id  = "%s"\n' "${{ inputs.project_id }}"
+            printf 'region      = "%s"\n' "${{ inputs.region }}"
+            printf 'environment = "dev"\n'
+            if [ -n "${{ inputs.google_sign_in_client_id }}" ]; then
+              printf 'google_sign_in_client_id = "%s"\n' "${{ inputs.google_sign_in_client_id }}"
+            fi
+          } > terraform.tfvars
 
           terraform init
-          terraform apply -auto-approve \
-            -var="project_id=${{ inputs.project_id }}" \
-            -var="region=${{ inputs.region }}" \
-            -var="environment=dev"
+          terraform apply -auto-approve
 
       - name: Export Firebase config to GitHub secrets
         env:
@@ -271,4 +271,4 @@ jobs:
           echo "1. **Delete the bootstrap service account** in GCP Console (no longer needed)" >> "$GITHUB_STEP_SUMMARY"
           echo "2. Enable Google Sign-In in Firebase Console → Authentication → Sign-in method" >> "$GITHUB_STEP_SUMMARY"
           echo "3. Retrieve the auto-created OAuth client ID from GCP Console → Credentials" >> "$GITHUB_STEP_SUMMARY"
-          echo "4. Re-run bootstrap (or terraform apply) with \`google_sign_in_client_id\` to complete auth setup" >> "$GITHUB_STEP_SUMMARY"
+          echo "4. Re-run this workflow with \`google_sign_in_client_id\` to complete auth setup" >> "$GITHUB_STEP_SUMMARY"

@@ -27,6 +27,8 @@ jobs:
     name: Terraform
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
     defaults:
       run:
         working-directory: infra/terraform/environments/dev
@@ -58,14 +60,13 @@ jobs:
       - name: Comment plan on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        env:
+          TERRAFORM_PLAN: ${{ steps.plan.outputs.stdout }}
+          PLAN_OUTCOME: ${{ steps.plan.outcome }}
         with:
           script: |
-            const plan = `${{ steps.plan.outputs.stdout }}`.substring(0, 60000);
-            const body = `### Terraform Plan
-            \`\`\`
-            ${plan}
-            \`\`\`
-            *Plan: ${{ steps.plan.outcome }}*`;
+            const plan = (process.env.TERRAFORM_PLAN || '').substring(0, 60000);
+            const body = `### Terraform Plan\n\`\`\`\n${plan}\n\`\`\`\n*Plan: ${process.env.PLAN_OUTCOME}*`;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,

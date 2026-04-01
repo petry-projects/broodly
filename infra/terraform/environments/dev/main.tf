@@ -178,7 +178,7 @@ module "firebase" {
   project_id        = var.project_id
   environment       = var.environment
   display_name      = "Broodly Web"
-  authorized_domains = ["localhost"]
+  authorized_domains = [] # localhost is auto-included for dev by the module
 
   # Google Sign-In OAuth client ID/secret — leave empty on first apply.
   # After Firebase auto-creates the OAuth client, retrieve it from
@@ -190,12 +190,13 @@ module "firebase" {
 module "cloud_run" {
   source = "../../modules/cloud-run"
 
-  project_id          = var.project_id
-  region              = var.region
-  environment         = var.environment
-  service_name        = "broodly-api-${var.environment}"
-  image               = "us-central1-docker.pkg.dev/${var.project_id}/broodly/api:latest"
-  service_account_email = google_service_account.api.email
+  project_id             = var.project_id
+  region                 = var.region
+  environment            = var.environment
+  service_name           = "broodly-api-${var.environment}"
+  image                  = "us-central1-docker.pkg.dev/${var.project_id}/broodly/api:latest"
+  service_account_email  = google_service_account.api.email
+  allow_unauthenticated  = true # App-layer auth via Firebase bearer tokens
 
   env_vars = {
     DB_CONNECTION_SECRET = google_secret_manager_secret.db_connection_string.secret_id
