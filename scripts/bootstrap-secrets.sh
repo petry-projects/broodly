@@ -16,7 +16,7 @@
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
-REPO="${GITHUB_REPOSITORY:-petry-projects/broodly}"
+REPO=""
 ENVIRONMENT="dev"
 DRY_RUN=false
 
@@ -32,9 +32,29 @@ done
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 TF_DIR="${REPO_ROOT}/infra/terraform/environments/${ENVIRONMENT}"
 
+# Derive repo from git remote if not specified
+if [ -z "${REPO}" ]; then
+  REPO="${GITHUB_REPOSITORY:-}"
+  if [ -z "${REPO}" ]; then
+    REMOTE_URL=$(git -C "${REPO_ROOT}" remote get-url origin 2>/dev/null) || REMOTE_URL=""
+    # Extract owner/repo from SSH or HTTPS URL
+    REPO=$(echo "${REMOTE_URL}" | sed -E 's#.*[:/]([^/]+/[^/]+?)(\.git)?$#\1#')
+    if [ -z "${REPO}" ]; then
+      echo "ERROR: Could not determine repository. Use --repo owner/repo"
+      exit 1
+    fi
+  fi
+fi
+
 if [ ! -d "${TF_DIR}/.terraform" ]; then
   echo "ERROR: Terraform not initialized in ${TF_DIR}"
   echo "Run: cd ${TF_DIR} && terraform init"
+  exit 1
+fi
+
+if ! gh auth status &>/dev/null; then
+  echo "ERROR: GitHub CLI not authenticated"
+  echo "Run: gh auth login"
   exit 1
 fi
 
@@ -58,7 +78,22 @@ set_count=0
 for tf_output in "${!SECRET_MAP[@]}"; do
   secret_name="${SECRET_MAP[$tf_output]}"
 
-  value=$(cd "${TF_DIR}" && terraform output -raw "${tf_output}" 2>/dev/null) || value=""
+  # Capture both stdout and stderr to distinguish missing outputs from real errors
+  tf_stderr=""
+  if value=$(cd "${TF_DIR}" && terraform output -raw "${tf_output}" 2>/tmp/tf_stderr.$$.txt); then
+    tf_stderr=$(cat /tmp/tf_stderr.$$.txt 2>/dev/null) || true
+  else
+    tf_stderr=$(cat /tmp/tf_stderr.$$.txt 2>/dev/null) || true
+    # Distinguish "output not found" from real failures
+    if echo "${tf_stderr}" | grep -qiE "not found|no outputs"; then
+      value=""
+    else
+      echo "  ERROR ${secret_name} — terraform output failed: ${tf_stderr}"
+      errors=$((errors + 1))
+      continue
+    fi
+  fi
+  rm -f /tmp/tf_stderr.$$.txt
 
   if [ -z "${value}" ]; then
     echo "  SKIP  ${secret_name} — terraform output '${tf_output}' is empty"
@@ -68,7 +103,7 @@ for tf_output in "${!SECRET_MAP[@]}"; do
   if [ "${DRY_RUN}" = true ]; then
     echo "  [dry-run] Would set ${secret_name}"
   else
-    if echo "${value}" | gh secret set "${secret_name}" --repo "${REPO}" 2>/dev/null; then
+    if gh secret set "${secret_name}" --repo "${REPO}" --body "${value}" 2>/dev/null; then
       echo "  SET   ${secret_name}"
       set_count=$((set_count + 1))
     else
