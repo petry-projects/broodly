@@ -27,7 +27,7 @@ variable "google_sign_in_client_id" {
 }
 
 variable "google_sign_in_client_secret" {
-  description = "OAuth 2.0 client secret for Google Sign-In"
+  description = "OAuth 2.0 client secret for Google Sign-In. Required when google_sign_in_client_id is set."
   type        = string
   default     = ""
   sensitive   = true
