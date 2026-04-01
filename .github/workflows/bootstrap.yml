@@ -2,15 +2,15 @@ name: Bootstrap GCP Infrastructure
 
 # One-time workflow to create foundational GCP resources that Terraform and
 # CI/CD depend on. After successful bootstrap, WIF replaces the service
-# account key for all subsequent workflows — delete the GCP_SA_KEY secret.
+# account key for all subsequent workflows.
 #
 # Prerequisites (manual, one-time):
 #   1. Create a GCP project and enable billing
-#   2. Create a service account with Owner role (temporary, for bootstrap only)
-#   3. Create a JSON key for that service account
-#   4. Add these GitHub secrets:
-#      - GCP_SA_KEY: the JSON key (base64-encoded)
-#      - GCP_PROJECT_ID: your GCP project ID
+#   2. Create a service account with Owner role
+#   3. Create a JSON key and add it as GitHub secret: GCP_SERVICE_ACCOUNT
+#
+# After bootstrap completes, GCP_SERVICE_ACCOUNT is overwritten with the
+# WIF service account email — the JSON key is no longer needed.
 
 on:
   workflow_dispatch:
@@ -41,7 +41,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@62cf5bd3e4211a0a0b51f2c6d6a37129d828611d # v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a # v2
@@ -184,7 +184,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Set the WIF secrets that deploy-api and terraform jobs need
+          # Set the WIF secrets that deploy-api and terraform jobs need.
+          # GCP_SERVICE_ACCOUNT is overwritten: JSON key → WIF SA email.
           gh secret set GCP_PROJECT_ID --body "${{ inputs.project_id }}"
           gh secret set GCP_WORKLOAD_IDENTITY_PROVIDER --body "${{ steps.wif.outputs.wif_provider }}"
           gh secret set GCP_SERVICE_ACCOUNT --body "${{ steps.wif.outputs.service_account }}"
@@ -195,10 +196,10 @@ jobs:
           echo "============================================"
           echo "  GCP_PROJECT_ID"
           echo "  GCP_WORKLOAD_IDENTITY_PROVIDER"
-          echo "  GCP_SERVICE_ACCOUNT"
+          echo "  GCP_SERVICE_ACCOUNT (overwritten with WIF SA email)"
           echo ""
-          echo "You can now delete the GCP_SA_KEY secret —"
-          echo "all future workflows use Workload Identity Federation."
+          echo "All future workflows use Workload Identity Federation."
+          echo "The original JSON key in GCP_SERVICE_ACCOUNT has been replaced."
 
       - name: Run Terraform init and apply
         run: |
@@ -267,7 +268,7 @@ jobs:
           echo "- \`EXPO_PUBLIC_API_URL\`" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Next Steps" >> "$GITHUB_STEP_SUMMARY"
-          echo "1. **Delete the \`GCP_SA_KEY\` secret** — no longer needed" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. **Delete the bootstrap service account** in GCP Console (no longer needed)" >> "$GITHUB_STEP_SUMMARY"
           echo "2. Enable Google Sign-In in Firebase Console → Authentication → Sign-in method" >> "$GITHUB_STEP_SUMMARY"
           echo "3. Retrieve the auto-created OAuth client ID from GCP Console → Credentials" >> "$GITHUB_STEP_SUMMARY"
           echo "4. Re-run bootstrap (or terraform apply) with \`google_sign_in_client_id\` to complete auth setup" >> "$GITHUB_STEP_SUMMARY"
