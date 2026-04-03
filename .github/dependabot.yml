@@ -4,7 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     labels:
       - "security"
       - "dependencies"
@@ -13,7 +13,7 @@ updates:
     directory: "/apps/api"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     labels:
       - "security"
       - "dependencies"
@@ -22,7 +22,7 @@ updates:
     directory: "/infra/terraform"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     labels:
       - "security"
       - "dependencies"
