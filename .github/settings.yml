@@ -1,0 +1,11 @@
+# Repository settings managed via probot/settings
+# https://github.com/apps/settings
+#
+# This file brings the repository into compliance with the
+# petry-projects label standard:
+# https://github.com/petry-projects/.github/blob/main/standards/github-settings.md#labels--standard-set
+
+labels:
+  - name: security
+    color: "e4e669"
+    description: Security-related issues and improvements
