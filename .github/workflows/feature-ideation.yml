@@ -1,0 +1,77 @@
+# Feature Ideation — broodly caller stub.
+#
+# Calls the org-wide reusable workflow at
+# petry-projects/.github/.github/workflows/feature-ideation-reusable.yml
+# All ideation logic, the multi-skill pipeline, the Opus 4.6 model
+# selection, and the github_token override live in the reusable workflow.
+#
+# To tune the prompt or pipeline for ALL BMAD repos, edit the reusable
+# workflow in petry-projects/.github — changes propagate here on next run.
+#
+# Standard: https://github.com/petry-projects/.github/blob/main/standards/ci-standards.md#8-feature-ideation-feature-ideationyml--bmad-method-repos
+name: Feature Research & Ideation (BMAD Analyst)
+
+on:
+  schedule:
+    - cron: '0 7 * * 5'   # Friday 07:00 UTC (3 AM EDT / 2 AM EST)
+  workflow_dispatch:
+    inputs:
+      focus_area:
+        description: 'Optional focus area (e.g., "hive inspection UX", "offline-first", "sensor integration")'
+        required: false
+        type: string
+      research_depth:
+        description: 'Research depth'
+        required: false
+        default: 'standard'
+        type: choice
+        options:
+          - quick
+          - standard
+          - deep
+
+permissions: {}
+
+concurrency:
+  group: feature-ideation
+  cancel-in-progress: false
+
+jobs:
+  ideate:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+      discussions: write
+      id-token: write
+    uses: petry-projects/.github/.github/workflows/feature-ideation-reusable.yml@main
+    with:
+      project_context: |
+        Broodly is a field-first beekeeping decision-support app for
+        hobbyist and small-commercial beekeepers, designed to be used
+        one-handed in the apiary while wearing gloves. Mobile-first on
+        iOS and Android (with web as a secondary surface) via a single
+        Expo + React Native codebase. Backend is a Go GraphQL API
+        deployed on GCP, with Terraform-managed infrastructure. The
+        product helps beekeepers record hive inspections, track colony
+        health, get timely treatment and feeding recommendations, and
+        understand seasonal patterns across their apiary.
+
+        Adjacent / competitor space: HiveTracks, BeePlus, Apiary Book,
+        Apivetus, BeeKeepPal, BroodMinder (sensor + app), Mellisphera
+        (commercial / IoT). Most existing tools are inspection logbooks
+        with limited intelligence; few combine field-first UX with
+        decision support, and even fewer integrate sensor data well.
+
+        Trends to research: hive sensor / IoT integration (BroodMinder,
+        Pollenity, Apis Protect); computer vision for varroa mite
+        counting and queen detection; climate-adaptive treatment
+        recommendations; offline-first mobile UX patterns for rural and
+        low-connectivity field use; voice-driven inspection capture;
+        regenerative agriculture and pollinator health policy trends;
+        small-commercial apiary management (multi-yard scheduling,
+        treatment compliance records).
+      focus_area: ${{ inputs.focus_area || '' }}
+      research_depth: ${{ inputs.research_depth || 'standard' }}
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
