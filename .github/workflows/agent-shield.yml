@@ -1,0 +1,19 @@
+# Agent Shield — thin caller that delegates to the org-level reusable workflow.
+# All logic is maintained centrally in agent-shield-reusable.yml.
+# Standard: https://github.com/petry-projects/.github/blob/main/standards/ci-standards.md#required-workflows
+name: Agent Shield
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  agent-shield:
+    uses: petry-projects/.github/.github/workflows/agent-shield-reusable.yml@main
+    secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: write
