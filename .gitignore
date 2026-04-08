@@ -27,6 +27,8 @@ apps/api/tmp/
 
 # Terraform
 **/.terraform/
+# Module-level lock files are not used; only root environment lock files matter
+infra/terraform/modules/**/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfplan

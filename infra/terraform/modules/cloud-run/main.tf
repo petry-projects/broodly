@@ -1,6 +1,19 @@
+# -----------------------------------------------------------------------------
+# Cloud Run Service
+# -----------------------------------------------------------------------------
+# Deploys the API container to Cloud Run. CI pushes new revisions via
+# `gcloud run deploy`; Terraform manages the service definition, scaling,
+# IAM, and environment configuration.
+# -----------------------------------------------------------------------------
+
 resource "google_cloud_run_v2_service" "api" {
   name     = var.service_name
   location = var.region
+
+  labels = {
+    environment = var.environment
+    managed-by  = "terraform"
+  }
 
   template {
     service_account = var.service_account_email
@@ -49,6 +62,11 @@ resource "google_cloud_run_v2_service" "api" {
   traffic {
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
     percent = 100
+  }
+
+  lifecycle {
+    # CI deploys new images via gcloud; don't revert to the Terraform-specified tag
+    ignore_changes = [template[0].containers[0].image]
   }
 }
 

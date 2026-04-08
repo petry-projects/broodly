@@ -163,26 +163,17 @@ jobs:
         run: docker build -f apps/api/Dockerfile -t broodly-api:ci apps/api/
 
   # ---------------------------------------------------------------------------
-  # Push API image to Artifact Registry (main branch only)
+  # Deploy API to Cloud Run (main branch only)
   # ---------------------------------------------------------------------------
-  # The Cloud Run service is managed by Terraform (infra/terraform/modules/cloud-run/).
-  # This job builds and pushes the image; Terraform references the :latest tag.
-  # To deploy a new version: push to main (image pushed here), then run terraform apply.
-  #
-  # Required GitHub Secrets:
-  #   GCP_PROJECT_ID                    — GCP project ID (e.g. broodly-491920)
-  #   GCP_WORKLOAD_IDENTITY_PROVIDER    — Full provider resource name:
-  #     projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>
-  #   GCP_SERVICE_ACCOUNT               — SA email for WIF (e.g. broodly-ci@broodly-491920.iam.gserviceaccount.com)
-  push-api-image:
-    name: Push API Image
+  deploy-api:
+    name: Deploy API
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [go]
     permissions:
       contents: read
-      id-token: write
+      id-token: write # Required for Workload Identity Federation
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -198,7 +189,85 @@ jobs:
       - name: Build and push container image
         working-directory: .
         run: |
-          IMAGE_BASE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api"
-          docker build -f apps/api/Dockerfile -t "${IMAGE_BASE}:${{ github.sha }}" -t "${IMAGE_BASE}:latest" apps/api/
-          docker push "${IMAGE_BASE}:${{ github.sha }}"
-          docker push "${IMAGE_BASE}:latest"
+          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api"
+          docker build -f apps/api/Dockerfile \
+            -t "${IMAGE}:${{ github.sha }}" \
+            -t "${IMAGE}:latest" \
+            apps/api/
+          docker push "${IMAGE}:${{ github.sha }}"
+          docker push "${IMAGE}:latest"
+
+      # Service name and region must match Terraform cloud-run module config
+      # in infra/terraform/environments/dev/main.tf
+      - name: Deploy to Cloud Run
+        env:
+          CLOUD_RUN_SERVICE: broodly-api-dev
+          CLOUD_RUN_REGION: us-central1
+        run: |
+          gcloud run deploy "${CLOUD_RUN_SERVICE}" \
+            --image "us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}" \
+            --region "${CLOUD_RUN_REGION}" \
+            --project "${{ secrets.GCP_PROJECT_ID }}" \
+            --quiet
+
+  # ---------------------------------------------------------------------------
+  # Mobile Web Build (main branch only)
+  # ---------------------------------------------------------------------------
+  mobile-build:
+    name: Mobile Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [typescript]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate required secrets
+        env:
+          FIREBASE_API_KEY: ${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}
+          FIREBASE_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}
+          API_URL: ${{ secrets.EXPO_PUBLIC_API_URL }}
+        run: |
+          missing=()
+          [ -z "${FIREBASE_API_KEY}" ] && missing+=("EXPO_PUBLIC_FIREBASE_API_KEY")
+          [ -z "${FIREBASE_PROJECT_ID}" ] && missing+=("EXPO_PUBLIC_FIREBASE_PROJECT_ID")
+          [ -z "${API_URL}" ] && missing+=("EXPO_PUBLIC_API_URL")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing required secrets: ${missing[*]}"
+            echo "Run the Bootstrap workflow or scripts/bootstrap-secrets.sh first."
+            exit 1
+          fi
+
+      - name: Generate .env from secrets
+        working-directory: apps/mobile
+        run: |
+          {
+            echo "EXPO_PUBLIC_FIREBASE_USE_EMULATOR=false"
+            echo "EXPO_PUBLIC_FIREBASE_API_KEY=${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}"
+            echo "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}"
+            echo "EXPO_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}"
+            echo "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET }}"
+            echo "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}"
+            echo "EXPO_PUBLIC_FIREBASE_APP_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}"
+            echo "EXPO_PUBLIC_API_URL=${{ secrets.EXPO_PUBLIC_API_URL }}"
+          } > .env
+
+      - name: Expo web export
+        working-directory: apps/mobile
+        run: npx expo export --platform web
+
+      - name: Upload web build artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: web-build
+          path: apps/mobile/dist/
+          retention-days: 14

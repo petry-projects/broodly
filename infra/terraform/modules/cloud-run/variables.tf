@@ -13,6 +13,11 @@ variable "region" {
   type        = string
 }
 
+variable "environment" {
+  description = "Environment name (dev, staging, prod) — used for resource labels"
+  type        = string
+}
+
 variable "image" {
   description = "Container image to deploy (full Artifact Registry path)"
   type        = string
