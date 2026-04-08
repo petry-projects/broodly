@@ -16,7 +16,9 @@ func main() {
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"status":"ok"}`)
+		if _, err := fmt.Fprintf(w, `{"status":"ok"}`); err != nil {
+			log.Printf("health check: write response: %v", err)
+		}
 	})
 
 	addr := ":8080"
