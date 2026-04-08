@@ -1,12 +1,36 @@
-# Feature Ideation — broodly caller stub.
+# ─────────────────────────────────────────────────────────────────────────────
+# SOURCE OF TRUTH: petry-projects/.github/standards/workflows/feature-ideation.yml
+# Standard:        petry-projects/.github/standards/ci-standards.md#8-feature-ideation-feature-ideationyml--bmad-method-repos
+# Reusable:        petry-projects/.github/.github/workflows/feature-ideation-reusable.yml
 #
-# Calls the org-wide reusable workflow at
+# AGENTS — READ BEFORE EDITING:
+#   • This file is a THIN CALLER STUB. The 5-phase ideation pipeline, the
+#     Opus 4.6 model selection, the github_token override, and the
+#     ANTHROPIC_MODEL env var all live in the reusable workflow above.
+#   • You MAY change: the `project_context` value (the only required edit
+#     per repo), and optionally the cron schedule.
+#   • You MUST NOT change: trigger event shape, the `uses:` line, the
+#     job-level `permissions:` block, or the `secrets:` block — these are
+#     required for the reusable to work.
+#   • If you need different behaviour, open a PR against the reusable in
+#     the central repo. The change will propagate everywhere on next run.
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Feature Ideation workflow stub — for BMAD Method-enabled repos.
+#
+# This is a thin caller for the org-wide reusable workflow at
 # petry-projects/.github/.github/workflows/feature-ideation-reusable.yml
 # All ideation logic, the multi-skill pipeline, the Opus 4.6 model
 # selection, and the github_token override live in the reusable workflow.
 #
-# To tune the prompt or pipeline for ALL BMAD repos, edit the reusable
-# workflow in petry-projects/.github — changes propagate here on next run.
+# To adopt:
+#   1. Copy this file to .github/workflows/feature-ideation.yml in your repo.
+#   2. Replace the `project_context` value with a 3-5 sentence description
+#      of your project, its target users, and the competitive landscape Mary
+#      should research. This is the only required customisation.
+#   3. (Optional) Adjust the schedule cron if Friday morning UTC doesn't suit.
+#   4. Ensure GitHub Discussions is enabled with an "Ideas" category.
+#   5. Confirm the org-level secret CLAUDE_CODE_OAUTH_TOKEN is accessible.
 #
 # Standard: https://github.com/petry-projects/.github/blob/main/standards/ci-standards.md#8-feature-ideation-feature-ideationyml--bmad-method-repos
 name: Feature Research & Ideation (BMAD Analyst)
@@ -17,7 +41,7 @@ on:
   workflow_dispatch:
     inputs:
       focus_area:
-        description: 'Optional focus area (e.g., "hive inspection UX", "offline-first", "sensor integration")'
+        description: 'Optional focus area (e.g., "accessibility", "performance")'
         required: false
         type: string
       research_depth:
@@ -38,39 +62,29 @@ concurrency:
 
 jobs:
   ideate:
+    # Permissions cascade from the calling job to the reusable workflow.
+    # The reusable workflow's two jobs (gather-signals + analyze) need:
+    #   - contents:    read   (checkout, file reads)
+    #   - issues:      read   (signal collection)
+    #   - pull-requests: read (signal collection)
+    #   - discussions: write  (CRITICAL — create/update Discussion threads)
+    #   - id-token:    write  (claude-code-action OIDC for GitHub App token)
     permissions:
       contents: read
       issues: read
       pull-requests: read
       discussions: write
       id-token: write
-    uses: petry-projects/.github/.github/workflows/feature-ideation-reusable.yml@main
+    uses: petry-projects/.github/.github/workflows/feature-ideation-reusable.yml@v1
     with:
+      # === CUSTOMISE THIS PER REPO — the only required edit ===
+      # Replace this paragraph with a 3-5 sentence description of your project,
+      # its target users, and the competitive landscape. The more specific you
+      # are, the more useful the proposals.
       project_context: |
-        Broodly is a field-first beekeeping decision-support app for
-        hobbyist and small-commercial beekeepers, designed to be used
-        one-handed in the apiary while wearing gloves. Mobile-first on
-        iOS and Android (with web as a secondary surface) via a single
-        Expo + React Native codebase. Backend is a Go GraphQL API
-        deployed on GCP, with Terraform-managed infrastructure. The
-        product helps beekeepers record hive inspections, track colony
-        health, get timely treatment and feeding recommendations, and
-        understand seasonal patterns across their apiary.
-
-        Adjacent / competitor space: HiveTracks, BeePlus, Apiary Book,
-        Apivetus, BeeKeepPal, BroodMinder (sensor + app), Mellisphera
-        (commercial / IoT). Most existing tools are inspection logbooks
-        with limited intelligence; few combine field-first UX with
-        decision support, and even fewer integrate sensor data well.
-
-        Trends to research: hive sensor / IoT integration (BroodMinder,
-        Pollenity, Apis Protect); computer vision for varroa mite
-        counting and queen detection; climate-adaptive treatment
-        recommendations; offline-first mobile UX patterns for rural and
-        low-connectivity field use; voice-driven inspection capture;
-        regenerative agriculture and pollinator health policy trends;
-        small-commercial apiary management (multi-yard scheduling,
-        treatment compliance records).
+        TODO: Replace this with a description of the project and its market.
+        Example: "ProjectX is a [type of product] for [target user]. Competitors
+        include A, B, C. Key emerging trends in this space: X, Y, Z."
       focus_area: ${{ inputs.focus_area || '' }}
       research_depth: ${{ inputs.research_depth || 'standard' }}
     secrets:
