@@ -167,22 +167,30 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
     steps:
       - name: Checkout (full history)
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
 
-      - name: Run gitleaks
-        # gitleaks-action v2 requires GITLEAKS_LICENSE for organisation repos.
-        # Obtain a key at https://gitleaks.io and store it as an org/repo secret
-        # named GITLEAKS_LICENSE.  The `args` input is not supported by v2 —
-        # scan configuration is handled via environment variables or .gitleaks.toml.
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+      - name: Install gitleaks
+        # Install the gitleaks CLI directly to avoid the gitleaks-action license
+        # requirement for GitHub organisation repos.  Pin to a specific release
+        # and verify the SHA-256 checksum before extracting.
+        # To upgrade: update GITLEAKS_VERSION, download the new checksums.txt from
+        # https://github.com/gitleaks/gitleaks/releases, and replace GITLEAKS_SHA256.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITLEAKS_VERSION: "8.30.1"
+          GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+        run: |
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tarball}"
+          wget -q "${url}" -O /tmp/gitleaks.tar.gz
+          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tar.gz" | sha256sum -c
+          tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks
+
+      - name: Run gitleaks
+        run: gitleaks detect --source . --redact --verbose --exit-code 1
 
   # ---------------------------------------------------------------------------
   # Push API image to Artifact Registry (main branch only)
