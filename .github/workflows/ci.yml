@@ -175,11 +175,14 @@ jobs:
           fetch-depth: 0
 
       - name: Run gitleaks
+        # gitleaks-action v2 requires GITLEAKS_LICENSE for organisation repos.
+        # Obtain a key at https://gitleaks.io and store it as an org/repo secret
+        # named GITLEAKS_LICENSE.  The `args` input is not supported by v2 —
+        # scan configuration is handled via environment variables or .gitleaks.toml.
         uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
-        with:
-          args: detect --source . --redact --verbose --exit-code 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   # ---------------------------------------------------------------------------
   # Push API image to Artifact Registry (main branch only)
