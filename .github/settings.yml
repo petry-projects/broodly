@@ -6,6 +6,7 @@
 # https://github.com/petry-projects/.github/blob/main/standards/github-settings.md
 
 repository:
+  has_wiki: false
   has_discussions: true
 
 labels:
