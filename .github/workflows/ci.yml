@@ -190,7 +190,7 @@ jobs:
           tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks
 
       - name: Run gitleaks
-        run: gitleaks detect --source . --redact --verbose --exit-code 1
+        run: gitleaks detect --source . --config .gitleaks.toml --redact --verbose --exit-code 1
 
   # ---------------------------------------------------------------------------
   # Push API image to Artifact Registry (main branch only)
