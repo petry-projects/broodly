@@ -15,6 +15,7 @@ apps/mobile/web-build/
 *.p8
 *.p12
 *.key
+*.pem
 *.mobileprovision
 *.orig.*
 
