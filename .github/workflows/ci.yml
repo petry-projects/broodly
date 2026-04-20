@@ -181,16 +181,16 @@ jobs:
         # Refresh with: gh api repos/gitleaks/gitleaks-action/git/refs/tags/v2 --jq '.object.sha'
         # then dereference if it points at an annotated tag.
         # NOTE: gitleaks-action v2+ requires a GITLEAKS_LICENSE secret for org accounts.
-        # Until GITLEAKS_LICENSE is configured, the action is skipped and the binary step below
-        # provides enforcement. To enable: add GITLEAKS_LICENSE to repo/org secrets.
+        # Set continue-on-error so the workflow continues to the binary step below when the
+        # license is not configured. To fully enable the action, add GITLEAKS_LICENSE to
+        # repo/org secrets; once configured, both steps enforce — remove continue-on-error then.
         uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
-        if: ${{ secrets.GITLEAKS_LICENSE != '' }}
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
-      - name: Run gitleaks binary (fallback when GITLEAKS_LICENSE not configured)
-        if: ${{ secrets.GITLEAKS_LICENSE == '' }}
+      - name: Run gitleaks binary (enforcement — always runs)
         run: |
           VERSION="8.24.0"
           gh release download "v${VERSION}" \
