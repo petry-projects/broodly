@@ -198,7 +198,14 @@ jobs:
             --pattern "gitleaks_${VERSION}_linux_x64.tar.gz" \
             --output gitleaks.tar.gz
           tar -xzf gitleaks.tar.gz gitleaks
-          ./gitleaks git --redact --exit-code 1
+          ./gitleaks git --redact --exit-code 1 \
+            --report-format json \
+            --report-path gitleaks-report.json \
+            || (
+              echo "::error::gitleaks found secrets in git history — see report below"
+              jq -r '.[] | "Rule: \(.RuleID) | File: \(.File) | Commit: \(.Commit[:8]) | Author: \(.Author)"' gitleaks-report.json 2>/dev/null
+              exit 1
+            )
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
