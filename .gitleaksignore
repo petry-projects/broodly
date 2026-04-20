@@ -1,0 +1,30 @@
+# .gitleaksignore — false-positive suppressions for gitleaks secret scanning
+#
+# Format: {commit}:{file}:{ruleID}:{lineNumber}
+# Each entry must include a justification comment above it.
+#
+# Process:
+#   1. Verify the flagged value is NOT a real credential (check the commit, file, and line).
+#   2. If it is a real credential, rotate it immediately — do NOT add it here.
+#   3. If it is a false positive, add the fingerprint with a clear justification.
+#
+# See: https://github.com/petry-projects/.github/blob/main/standards/push-protection.md
+
+# ─── _bmad/_config/files-manifest.csv @ ac7e03d4 ─────────────────────────────
+# The `hash` column in files-manifest.csv contains SHA-256 content-hashes of
+# BMAD workspace files, not API keys. The 64-character hex strings match the
+# generic-api-key rule but are deterministic checksums with no secret value.
+# Commit: ac7e03d4 "Add BMAD method workspace and resume beekeeping brainstorming session" (2026-03-14)
+ac7e03d4866392274c10a40b452b4617c40bbd8c:_bmad/_config/files-manifest.csv:generic-api-key:286
+ac7e03d4866392274c10a40b452b4617c40bbd8c:_bmad/_config/files-manifest.csv:generic-api-key:287
+ac7e03d4866392274c10a40b452b4617c40bbd8c:_bmad/_config/files-manifest.csv:generic-api-key:289
+ac7e03d4866392274c10a40b452b4617c40bbd8c:_bmad/_config/files-manifest.csv:generic-api-key:305
+ac7e03d4866392274c10a40b452b4617c40bbd8c:_bmad/_config/files-manifest.csv:generic-api-key:413
+ac7e03d4866392274c10a40b452b4617c40bbd8c:_bmad/_config/files-manifest.csv:generic-api-key:437
+
+# ─── _bmad/tea/testarch/knowledge/api-testing-patterns.md @ ac7e03d4 ──────────
+# The flagged value is example/fixture code in a testing-patterns knowledge
+# document. The string is not a real credential — it is illustrative test data
+# in a documentation file for the BMAD TEA (Test Engineering Advisor) agent.
+# Commit: ac7e03d4 "Add BMAD method workspace and resume beekeeping brainstorming session" (2026-03-14)
+ac7e03d4866392274c10a40b452b4617c40bbd8c:_bmad/tea/testarch/knowledge/api-testing-patterns.md:generic-api-key:681
