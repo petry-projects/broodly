@@ -1,0 +1,19 @@
+title = "gitleaks config"
+
+[extend]
+# Extend the upstream default ruleset.
+useDefault = true
+
+[allowlist]
+description = "False-positive suppressions"
+paths = [
+  # _bmad/ contains BMAD planning artifacts, knowledge files, and configuration
+  # manifests.  The files-manifest.csv stores SHA-256 hashes of tracked files
+  # which gitleaks misidentifies as high-entropy API keys.  Test knowledge files
+  # may contain truncated placeholder tokens for documentation purposes.
+  # None of these paths contain real credentials.
+  '''(^|/)_bmad/''',
+  # _bmad-output/ contains generated planning artifacts and documentation.
+  # These files may reference example tokens or hashes for illustration only.
+  '''(^|/)_bmad-output/''',
+]

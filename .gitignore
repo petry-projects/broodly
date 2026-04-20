@@ -15,8 +15,15 @@ apps/mobile/web-build/
 *.p8
 *.p12
 *.key
+*.pem
 *.mobileprovision
 *.orig.*
+
+# Secrets files
+secrets.yaml
+secrets.yml
+*.secrets.yaml
+*.secrets.yml
 
 # Go
 apps/api/bin/
