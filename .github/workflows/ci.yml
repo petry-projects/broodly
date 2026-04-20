@@ -203,7 +203,7 @@ jobs:
             --report-path gitleaks-report.json \
             || (
               echo "::error::gitleaks found secrets in git history — see report below"
-              jq -r '.[] | "Rule: \(.RuleID) | File: \(.File) | Commit: \(.Commit[:8]) | Author: \(.Author)"' gitleaks-report.json 2>/dev/null
+              jq -r '.[] | "Fingerprint: \(.Fingerprint) | Rule: \(.RuleID) | File: \(.File) | Commit: \(.Commit[:8])"' gitleaks-report.json 2>/dev/null
               exit 1
             )
         env:
