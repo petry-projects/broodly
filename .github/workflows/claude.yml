@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # SOURCE OF TRUTH: petry-projects/.github/standards/workflows/claude.yml
 # Standard:        petry-projects/.github/standards/ci-standards.md#4-claude-code-claudeyml
-# Reusable:        petry-projects/.github/workflows/claude-code-reusable.yml
+# Reusable:        petry-projects/.github/.github/workflows/claude-code-reusable.yml
 #
 # AGENTS — READ BEFORE EDITING:
 #   • This file is a THIN CALLER STUB. All Claude Code logic, the prompt,
@@ -36,7 +36,7 @@ permissions: {}
 
 jobs:
   claude-code:
-    uses: petry-projects/.github/workflows/claude-code-reusable.yml@v1
+    uses: petry-projects/.github/.github/workflows/claude-code-reusable.yml@v1
     secrets: inherit
     permissions:
       contents: write
