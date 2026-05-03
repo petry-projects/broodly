@@ -3,19 +3,19 @@
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # Default owner for all files
-* @don-petry
+* @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
 
 # Mobile app
-/apps/mobile/ @don-petry
+/apps/mobile/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
 
 # API server
-/apps/api/ @don-petry
+/apps/api/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
 
 # Shared packages
-/packages/ @don-petry
+/packages/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
 
 # Infrastructure
-/infra/ @don-petry
+/infra/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
 
 # CI/CD and GitHub configuration
-/.github/ @don-petry
+/.github/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
