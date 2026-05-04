@@ -1,21 +1,5 @@
 # CODEOWNERS
-# This file defines code owners for automatic review requests.
-# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# Standard: use the @petry-projects/org-leads team for all code owner
+# assignments. See petry-projects/.github standards/codeowners-standard.md
 
-# Default owner for all files
-* @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
-
-# Mobile app
-/apps/mobile/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
-
-# API server
-/apps/api/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
-
-# Shared packages
-/packages/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
-
-# Infrastructure
-/infra/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
-
-# CI/CD and GitHub configuration
-/.github/ @don-petry @petry-projects-pr-review-agent @dependabot-automerge-petry
+* @petry-projects/org-leads
