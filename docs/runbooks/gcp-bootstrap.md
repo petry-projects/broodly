@@ -49,7 +49,7 @@ This service account key lets the bootstrap workflow authenticate to GCP. After 
 4. Select **JSON** → **Create**
 5. A `.json` file downloads
 
-### Preparation Step 2: Add the key as a GitHub secret
+## Preparation Step 2: Add the key as a GitHub secret
 
 1. Go to your GitHub repo → **Settings** → **Secrets and variables** → **Actions**
 2. Click **New repository secret**

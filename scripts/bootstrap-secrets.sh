@@ -23,8 +23,12 @@ DRY_RUN=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) DRY_RUN=true; shift ;;
-    --env) ENVIRONMENT="$2"; shift 2 ;;
-    --repo) REPO="$2"; shift 2 ;;
+    --env)
+      if [[ -z "${2:-}" || "${2:-}" == --* ]]; then echo "ERROR: --env requires a value"; exit 1; fi
+      ENVIRONMENT="$2"; shift 2 ;;
+    --repo)
+      if [[ -z "${2:-}" || "${2:-}" == --* ]]; then echo "ERROR: --repo requires a value"; exit 1; fi
+      REPO="$2"; shift 2 ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
 done
@@ -90,6 +94,7 @@ for tf_output in "${!SECRET_MAP[@]}"; do
     else
       echo "  ERROR ${secret_name} — terraform output failed: ${tf_stderr}"
       errors=$((errors + 1))
+      rm -f /tmp/tf_stderr.$$.txt
       continue
     fi
   fi
