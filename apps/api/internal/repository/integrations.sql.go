@@ -202,16 +202,17 @@ func (q *Queries) ListTelemetryByHive(ctx context.Context, arg ListTelemetryByHi
 
 const updateIntegrationSync = `-- name: UpdateIntegrationSync :one
 UPDATE integrations SET last_sync_at = NOW(), status = $2
-WHERE id = $1 RETURNING id, user_id, provider, credentials_ref, status, hive_mappings, last_sync_at, created_at
+WHERE id = $1 AND user_id = $3 RETURNING id, user_id, provider, credentials_ref, status, hive_mappings, last_sync_at, created_at
 `
 
 type UpdateIntegrationSyncParams struct {
 	ID     pgtype.UUID `json:"id"`
 	Status string      `json:"status"`
+	UserID pgtype.UUID `json:"user_id"`
 }
 
 func (q *Queries) UpdateIntegrationSync(ctx context.Context, arg UpdateIntegrationSyncParams) (Integration, error) {
-	row := q.db.QueryRow(ctx, updateIntegrationSync, arg.ID, arg.Status)
+	row := q.db.QueryRow(ctx, updateIntegrationSync, arg.ID, arg.Status, arg.UserID)
 	var i Integration
 	err := row.Scan(
 		&i.ID,
@@ -229,7 +230,7 @@ func (q *Queries) UpdateIntegrationSync(ctx context.Context, arg UpdateIntegrati
 const upsertExternalContext = `-- name: UpsertExternalContext :one
 INSERT INTO external_context (apiary_id, source_type, data, fetched_at, staleness_threshold_hours)
 VALUES ($1, $2, $3, NOW(), $4)
-ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, fetched_at = NOW()
+ON CONFLICT (apiary_id, source_type) DO UPDATE SET data = EXCLUDED.data, fetched_at = NOW(), staleness_threshold_hours = EXCLUDED.staleness_threshold_hours
 RETURNING id, apiary_id, source_type, data, fetched_at, staleness_threshold_hours
 `
 

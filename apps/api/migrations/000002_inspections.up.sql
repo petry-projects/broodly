@@ -2,7 +2,7 @@
 
 CREATE TABLE inspections (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    hive_id UUID NOT NULL REFERENCES hives(id),
+    hive_id UUID NOT NULL REFERENCES hives(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id),
     type TEXT NOT NULL DEFAULT 'full' CHECK (type IN ('full', 'quick')),
     status TEXT NOT NULL DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'paused', 'completed')),

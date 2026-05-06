@@ -48,20 +48,33 @@ func (q *Queries) CreateHive(ctx context.Context, arg CreateHiveParams) (Hive, e
 }
 
 const deleteHive = `-- name: DeleteHive :exec
-DELETE FROM hives WHERE id = $1
+DELETE FROM hives WHERE id = $1 AND apiary_id IN (SELECT id FROM apiaries WHERE user_id = $2)
 `
 
-func (q *Queries) DeleteHive(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteHive, id)
+type DeleteHiveParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) DeleteHive(ctx context.Context, arg DeleteHiveParams) error {
+	_, err := q.db.Exec(ctx, deleteHive, arg.ID, arg.UserID)
 	return err
 }
 
 const getHiveByID = `-- name: GetHiveByID :one
-SELECT id, apiary_id, name, type, status, notes, created_at, updated_at FROM hives WHERE id = $1
+SELECT h.id, h.apiary_id, h.name, h.type, h.status, h.notes, h.created_at, h.updated_at
+FROM hives h
+JOIN apiaries a ON h.apiary_id = a.id
+WHERE h.id = $1 AND a.user_id = $2
 `
 
-func (q *Queries) GetHiveByID(ctx context.Context, id pgtype.UUID) (Hive, error) {
-	row := q.db.QueryRow(ctx, getHiveByID, id)
+type GetHiveByIDParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetHiveByID(ctx context.Context, arg GetHiveByIDParams) (Hive, error) {
+	row := q.db.QueryRow(ctx, getHiveByID, arg.ID, arg.UserID)
 	var i Hive
 	err := row.Scan(
 		&i.ID,
@@ -111,7 +124,8 @@ func (q *Queries) ListHivesByApiary(ctx context.Context, apiaryID pgtype.UUID) (
 
 const updateHive = `-- name: UpdateHive :one
 UPDATE hives SET name = $2, type = $3, status = $4, notes = $5, updated_at = NOW()
-WHERE id = $1 RETURNING id, apiary_id, name, type, status, notes, created_at, updated_at
+WHERE id = $1 AND apiary_id IN (SELECT id FROM apiaries WHERE user_id = $6)
+RETURNING id, apiary_id, name, type, status, notes, created_at, updated_at
 `
 
 type UpdateHiveParams struct {
@@ -120,6 +134,7 @@ type UpdateHiveParams struct {
 	Type   string      `json:"type"`
 	Status string      `json:"status"`
 	Notes  string      `json:"notes"`
+	UserID pgtype.UUID `json:"user_id"`
 }
 
 func (q *Queries) UpdateHive(ctx context.Context, arg UpdateHiveParams) (Hive, error) {
@@ -129,6 +144,7 @@ func (q *Queries) UpdateHive(ctx context.Context, arg UpdateHiveParams) (Hive, e
 		arg.Type,
 		arg.Status,
 		arg.Notes,
+		arg.UserID,
 	)
 	var i Hive
 	err := row.Scan(

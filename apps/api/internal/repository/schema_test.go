@@ -30,8 +30,8 @@ func TestApiaryModel_Fields(t *testing.T) {
 	_ = a.ID
 	_ = a.UserID       // pgtype.UUID
 	_ = a.Name         // string
-	_ = a.Latitude     // *float64
-	_ = a.Longitude    // *float64
+	_ = a.Latitude     // pgtype.Float8 (nullable via Valid)
+	_ = a.Longitude    // pgtype.Float8 (nullable via Valid)
 	_ = a.Region       // string
 	_ = a.ElevationOffset // float64
 	_ = a.BloomOffset  // int32

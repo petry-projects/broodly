@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -92,23 +94,39 @@ func TestMigrationFiles_SequentialNumbering(t *testing.T) {
 		t.Fatalf("failed to read migrations dir: %v", err)
 	}
 
-	upCount := 0
-	downCount := 0
+	var upFiles, downFiles []string
 	for _, e := range entries {
 		if strings.HasSuffix(e.Name(), ".up.sql") {
-			upCount++
+			upFiles = append(upFiles, e.Name())
 		}
 		if strings.HasSuffix(e.Name(), ".down.sql") {
-			downCount++
+			downFiles = append(downFiles, e.Name())
 		}
 	}
 
-	if upCount != downCount {
-		t.Errorf("mismatch: %d up migrations, %d down migrations", upCount, downCount)
+	if len(upFiles) != len(downFiles) {
+		t.Errorf("mismatch: %d up migrations, %d down migrations", len(upFiles), len(downFiles))
 	}
 
-	if upCount != 5 {
-		t.Errorf("expected 5 up migrations, got %d", upCount)
+	// Verify up files are sequentially numbered with no gaps
+	sort.Strings(upFiles)
+	for i, f := range upFiles {
+		expectedPrefix := fmt.Sprintf("%06d_", i+1)
+		if !strings.HasPrefix(f, expectedPrefix) {
+			t.Errorf("migration %q is not sequentially numbered (expected prefix %q)", f, expectedPrefix)
+		}
+		// Verify a matching down file exists for each up file
+		downFile := strings.Replace(f, ".up.sql", ".down.sql", 1)
+		found := false
+		for _, df := range downFiles {
+			if df == downFile {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("up migration %q has no matching down migration %q", f, downFile)
+		}
 	}
 }
 

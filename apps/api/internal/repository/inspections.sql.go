@@ -13,16 +13,17 @@ import (
 
 const completeInspection = `-- name: CompleteInspection :one
 UPDATE inspections SET status = 'completed', completed_at = NOW(), notes = $2
-WHERE id = $1 RETURNING id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at
+WHERE id = $1 AND user_id = $3 RETURNING id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at
 `
 
 type CompleteInspectionParams struct {
-	ID    pgtype.UUID `json:"id"`
-	Notes string      `json:"notes"`
+	ID     pgtype.UUID `json:"id"`
+	Notes  string      `json:"notes"`
+	UserID pgtype.UUID `json:"user_id"`
 }
 
 func (q *Queries) CompleteInspection(ctx context.Context, arg CompleteInspectionParams) (Inspection, error) {
-	row := q.db.QueryRow(ctx, completeInspection, arg.ID, arg.Notes)
+	row := q.db.QueryRow(ctx, completeInspection, arg.ID, arg.Notes, arg.UserID)
 	var i Inspection
 	err := row.Scan(
 		&i.ID,
@@ -144,11 +145,16 @@ func (q *Queries) CreateObservation(ctx context.Context, arg CreateObservationPa
 }
 
 const getInspectionByID = `-- name: GetInspectionByID :one
-SELECT id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at FROM inspections WHERE id = $1
+SELECT id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at FROM inspections WHERE id = $1 AND user_id = $2
 `
 
-func (q *Queries) GetInspectionByID(ctx context.Context, id pgtype.UUID) (Inspection, error) {
-	row := q.db.QueryRow(ctx, getInspectionByID, id)
+type GetInspectionByIDParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetInspectionByID(ctx context.Context, arg GetInspectionByIDParams) (Inspection, error) {
+	row := q.db.QueryRow(ctx, getInspectionByID, arg.ID, arg.UserID)
 	var i Inspection
 	err := row.Scan(
 		&i.ID,
@@ -265,11 +271,16 @@ func (q *Queries) ListObservationsByInspection(ctx context.Context, inspectionID
 }
 
 const pauseInspection = `-- name: PauseInspection :one
-UPDATE inspections SET status = 'paused' WHERE id = $1 RETURNING id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at
+UPDATE inspections SET status = 'paused' WHERE id = $1 AND user_id = $2 RETURNING id, hive_id, user_id, type, status, started_at, completed_at, notes, created_at
 `
 
-func (q *Queries) PauseInspection(ctx context.Context, id pgtype.UUID) (Inspection, error) {
-	row := q.db.QueryRow(ctx, pauseInspection, id)
+type PauseInspectionParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) PauseInspection(ctx context.Context, arg PauseInspectionParams) (Inspection, error) {
+	row := q.db.QueryRow(ctx, pauseInspection, arg.ID, arg.UserID)
 	var i Inspection
 	err := row.Scan(
 		&i.ID,
@@ -287,17 +298,22 @@ func (q *Queries) PauseInspection(ctx context.Context, id pgtype.UUID) (Inspecti
 
 const updateMediaAnalysis = `-- name: UpdateMediaAnalysis :one
 UPDATE media SET analysis_status = $2, analysis_result = $3
-WHERE id = $1 RETURNING id, observation_id, storage_path, content_type, analysis_status, analysis_result, created_at
+WHERE id = $1 AND observation_id IN (
+  SELECT o.id FROM observations o
+  JOIN inspections i ON o.inspection_id = i.id
+  WHERE i.user_id = $4
+) RETURNING id, observation_id, storage_path, content_type, analysis_status, analysis_result, created_at
 `
 
 type UpdateMediaAnalysisParams struct {
 	ID             pgtype.UUID `json:"id"`
 	AnalysisStatus string      `json:"analysis_status"`
 	AnalysisResult []byte      `json:"analysis_result"`
+	UserID         pgtype.UUID `json:"user_id"`
 }
 
 func (q *Queries) UpdateMediaAnalysis(ctx context.Context, arg UpdateMediaAnalysisParams) (Medium, error) {
-	row := q.db.QueryRow(ctx, updateMediaAnalysis, arg.ID, arg.AnalysisStatus, arg.AnalysisResult)
+	row := q.db.QueryRow(ctx, updateMediaAnalysis, arg.ID, arg.AnalysisStatus, arg.AnalysisResult, arg.UserID)
 	var i Medium
 	err := row.Scan(
 		&i.ID,

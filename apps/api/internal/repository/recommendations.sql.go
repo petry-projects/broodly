@@ -128,11 +128,16 @@ func (q *Queries) CreateUserFeedback(ctx context.Context, arg CreateUserFeedback
 }
 
 const getRecommendationByID = `-- name: GetRecommendationByID :one
-SELECT id, hive_id, user_id, action, rationale, confidence_level, confidence_type, fallback_action, evidence_context, source_versions, created_at, expires_at FROM recommendations WHERE id = $1
+SELECT id, hive_id, user_id, action, rationale, confidence_level, confidence_type, fallback_action, evidence_context, source_versions, created_at, expires_at FROM recommendations WHERE id = $1 AND user_id = $2
 `
 
-func (q *Queries) GetRecommendationByID(ctx context.Context, id pgtype.UUID) (Recommendation, error) {
-	row := q.db.QueryRow(ctx, getRecommendationByID, id)
+type GetRecommendationByIDParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetRecommendationByID(ctx context.Context, arg GetRecommendationByIDParams) (Recommendation, error) {
+	row := q.db.QueryRow(ctx, getRecommendationByID, arg.ID, arg.UserID)
 	var i Recommendation
 	err := row.Scan(
 		&i.ID,
@@ -152,11 +157,16 @@ func (q *Queries) GetRecommendationByID(ctx context.Context, id pgtype.UUID) (Re
 }
 
 const getTaskByID = `-- name: GetTaskByID :one
-SELECT id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at FROM tasks WHERE id = $1
+SELECT id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at FROM tasks WHERE id = $1 AND user_id = $2
 `
 
-func (q *Queries) GetTaskByID(ctx context.Context, id pgtype.UUID) (Task, error) {
-	row := q.db.QueryRow(ctx, getTaskByID, id)
+type GetTaskByIDParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetTaskByID(ctx context.Context, arg GetTaskByIDParams) (Task, error) {
+	row := q.db.QueryRow(ctx, getTaskByID, arg.ID, arg.UserID)
 	var i Task
 	err := row.Scan(
 		&i.ID,
@@ -273,7 +283,15 @@ func (q *Queries) ListAuditEventsByTenant(ctx context.Context, arg ListAuditEven
 }
 
 const listPendingTasksByUser = `-- name: ListPendingTasksByUser :many
-SELECT id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at FROM tasks WHERE user_id = $1 AND status = 'pending' ORDER BY due_date NULLS LAST, priority
+SELECT id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at FROM tasks WHERE user_id = $1 AND status = 'pending'
+ORDER BY due_date NULLS LAST,
+         CASE priority
+             WHEN 'critical' THEN 1
+             WHEN 'high'     THEN 2
+             WHEN 'medium'   THEN 3
+             WHEN 'low'      THEN 4
+             ELSE 5
+         END
 `
 
 func (q *Queries) ListPendingTasksByUser(ctx context.Context, userID pgtype.UUID) ([]Task, error) {
@@ -347,17 +365,18 @@ func (q *Queries) ListRecommendationsByHive(ctx context.Context, hiveID pgtype.U
 
 const updateTaskStatus = `-- name: UpdateTaskStatus :one
 UPDATE tasks SET status = $2, deferred_reason = $3, completed_at = CASE WHEN $2 = 'completed' THEN NOW() ELSE NULL END
-WHERE id = $1 RETURNING id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at
+WHERE id = $1 AND user_id = $4 RETURNING id, recommendation_id, hive_id, user_id, title, priority, status, due_date, deferred_reason, completed_at, created_at
 `
 
 type UpdateTaskStatusParams struct {
 	ID             pgtype.UUID `json:"id"`
 	Status         string      `json:"status"`
 	DeferredReason pgtype.Text `json:"deferred_reason"`
+	UserID         pgtype.UUID `json:"user_id"`
 }
 
 func (q *Queries) UpdateTaskStatus(ctx context.Context, arg UpdateTaskStatusParams) (Task, error) {
-	row := q.db.QueryRow(ctx, updateTaskStatus, arg.ID, arg.Status, arg.DeferredReason)
+	row := q.db.QueryRow(ctx, updateTaskStatus, arg.ID, arg.Status, arg.DeferredReason, arg.UserID)
 	var i Task
 	err := row.Scan(
 		&i.ID,

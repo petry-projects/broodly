@@ -11,10 +11,31 @@ RETURNING *;
 SELECT * FROM notification_preferences WHERE user_id = $1 AND apiary_id IS NOT DISTINCT FROM $2;
 
 -- name: UpsertNotificationPreferences :one
-INSERT INTO notification_preferences (user_id, apiary_id, sensitivity_level, suppression_window_start, suppression_window_end, escalation_enabled)
-VALUES ($1, $2, $3, $4, $5, $6)
-ON CONFLICT (user_id, apiary_id) DO UPDATE SET sensitivity_level = EXCLUDED.sensitivity_level, suppression_window_start = EXCLUDED.suppression_window_start, suppression_window_end = EXCLUDED.suppression_window_end, escalation_enabled = EXCLUDED.escalation_enabled, updated_at = NOW()
-RETURNING *;
+-- Uses CTE UPDATE+INSERT because ON CONFLICT is unreliable when apiary_id is nullable:
+-- standard UNIQUE treats NULL != NULL, so multiple global-pref rows could accumulate.
+WITH updated AS (
+  UPDATE notification_preferences
+  SET sensitivity_level = $3,
+      suppression_window_start = $4,
+      suppression_window_end = $5,
+      escalation_enabled = $6,
+      updated_at = NOW()
+  WHERE user_id = $1
+    AND apiary_id IS NOT DISTINCT FROM $2
+  RETURNING *
+), inserted AS (
+  INSERT INTO notification_preferences (
+    user_id, apiary_id, sensitivity_level, suppression_window_start, suppression_window_end, escalation_enabled
+  )
+  SELECT $1, $2, $3, $4, $5, $6
+  WHERE NOT EXISTS (SELECT 1 FROM updated)
+  RETURNING *
+)
+SELECT id, user_id, apiary_id, sensitivity_level, suppression_window_start, suppression_window_end, escalation_enabled, created_at, updated_at
+FROM updated
+UNION ALL
+SELECT id, user_id, apiary_id, sensitivity_level, suppression_window_start, suppression_window_end, escalation_enabled, created_at, updated_at
+FROM inserted;
 
 -- name: ListTreatmentsByRegion :many
 SELECT * FROM treatment_registry WHERE region = $1 ORDER BY treatment_name;

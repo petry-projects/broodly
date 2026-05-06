@@ -11,7 +11,7 @@ CREATE TABLE skill_progression (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_skill_progression_user_id ON skill_progression (user_id);
+-- idx_skill_progression_user_id omitted: UNIQUE on user_id already creates an implicit index
 
 CREATE TABLE notification_preferences (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -22,11 +22,16 @@ CREATE TABLE notification_preferences (
     suppression_window_end TIME,
     escalation_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE (user_id, apiary_id)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    -- No inline UNIQUE(user_id, apiary_id): NULL != NULL in standard UNIQUE constraints,
+    -- so a user could accumulate unlimited global-preference rows when apiary_id IS NULL.
+    -- Replaced below with partial unique indexes.
 );
 
-CREATE INDEX idx_notification_prefs_user_id ON notification_preferences (user_id);
+-- One global-preference row per user (apiary_id IS NULL)
+CREATE UNIQUE INDEX idx_notif_prefs_user_global ON notification_preferences (user_id) WHERE apiary_id IS NULL;
+-- One per-apiary-preference row per (user, apiary) pair
+CREATE UNIQUE INDEX idx_notif_prefs_user_apiary ON notification_preferences (user_id, apiary_id) WHERE apiary_id IS NOT NULL;
 
 CREATE TABLE treatment_registry (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

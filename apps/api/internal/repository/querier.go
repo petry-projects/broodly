@@ -24,15 +24,15 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUserFeedback(ctx context.Context, arg CreateUserFeedbackParams) (UserFeedback, error)
 	DeleteApiary(ctx context.Context, arg DeleteApiaryParams) error
-	DeleteHive(ctx context.Context, id pgtype.UUID) error
+	DeleteHive(ctx context.Context, arg DeleteHiveParams) error
 	GetApiaryByID(ctx context.Context, arg GetApiaryByIDParams) (Apiary, error)
 	GetExternalContext(ctx context.Context, arg GetExternalContextParams) (ExternalContext, error)
-	GetHiveByID(ctx context.Context, id pgtype.UUID) (Hive, error)
-	GetInspectionByID(ctx context.Context, id pgtype.UUID) (Inspection, error)
+	GetHiveByID(ctx context.Context, arg GetHiveByIDParams) (Hive, error)
+	GetInspectionByID(ctx context.Context, arg GetInspectionByIDParams) (Inspection, error)
 	GetNotificationPreferences(ctx context.Context, arg GetNotificationPreferencesParams) (NotificationPreference, error)
-	GetRecommendationByID(ctx context.Context, id pgtype.UUID) (Recommendation, error)
+	GetRecommendationByID(ctx context.Context, arg GetRecommendationByIDParams) (Recommendation, error)
 	GetSkillProgression(ctx context.Context, userID pgtype.UUID) (SkillProgression, error)
-	GetTaskByID(ctx context.Context, id pgtype.UUID) (Task, error)
+	GetTaskByID(ctx context.Context, arg GetTaskByIDParams) (Task, error)
 	GetUserByFirebaseUID(ctx context.Context, firebaseUid string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	InsertAuditEvent(ctx context.Context, arg InsertAuditEventParams) error
@@ -50,7 +50,7 @@ type Querier interface {
 	ListStaleExternalContext(ctx context.Context) ([]ExternalContext, error)
 	ListTelemetryByHive(ctx context.Context, arg ListTelemetryByHiveParams) ([]TelemetryReading, error)
 	ListTreatmentsByRegion(ctx context.Context, region string) ([]TreatmentRegistry, error)
-	PauseInspection(ctx context.Context, id pgtype.UUID) (Inspection, error)
+	PauseInspection(ctx context.Context, arg PauseInspectionParams) (Inspection, error)
 	SoftDeleteUser(ctx context.Context, id pgtype.UUID) error
 	UpdateApiary(ctx context.Context, arg UpdateApiaryParams) (Apiary, error)
 	UpdateHive(ctx context.Context, arg UpdateHiveParams) (Hive, error)

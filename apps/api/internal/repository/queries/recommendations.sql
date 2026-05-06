@@ -4,7 +4,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING *;
 
 -- name: GetRecommendationByID :one
-SELECT * FROM recommendations WHERE id = $1;
+SELECT * FROM recommendations WHERE id = $1 AND user_id = $2;
 
 -- name: ListRecommendationsByHive :many
 SELECT * FROM recommendations WHERE hive_id = $1 ORDER BY created_at DESC;
@@ -18,14 +18,22 @@ VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: GetTaskByID :one
-SELECT * FROM tasks WHERE id = $1;
+SELECT * FROM tasks WHERE id = $1 AND user_id = $2;
 
 -- name: ListPendingTasksByUser :many
-SELECT * FROM tasks WHERE user_id = $1 AND status = 'pending' ORDER BY due_date NULLS LAST, priority;
+SELECT * FROM tasks WHERE user_id = $1 AND status = 'pending'
+ORDER BY due_date NULLS LAST,
+         CASE priority
+             WHEN 'critical' THEN 1
+             WHEN 'high'     THEN 2
+             WHEN 'medium'   THEN 3
+             WHEN 'low'      THEN 4
+             ELSE 5
+         END;
 
 -- name: UpdateTaskStatus :one
 UPDATE tasks SET status = $2, deferred_reason = $3, completed_at = CASE WHEN $2 = 'completed' THEN NOW() ELSE NULL END
-WHERE id = $1 RETURNING *;
+WHERE id = $1 AND user_id = $4 RETURNING *;
 
 -- name: InsertAuditEvent :exec
 INSERT INTO audit_events (event_type, actor_id, tenant_id, payload_version, payload)

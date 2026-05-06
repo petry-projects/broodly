@@ -1,8 +1,8 @@
-# Traceability Validation Report — Epic 2: Authentication & User Identity
+# Traceability Validation Report — Epic 3: Database Schema & Migrations
 
 **Date:** 2026-03-28
 **Evaluator:** Claude Opus 4.6 (Master Test Architect)
-**Scope:** Stories 2.1–2.5
+**Scope:** Stories 3.1–3.5
 **Total Tests:** 72 (39 TypeScript, 33 Go)
 
 ---

@@ -2,7 +2,7 @@
 
 CREATE TABLE recommendations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    hive_id UUID NOT NULL REFERENCES hives(id),
+    hive_id UUID NOT NULL REFERENCES hives(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id),
     action TEXT NOT NULL,
     rationale TEXT NOT NULL,
@@ -22,7 +22,7 @@ CREATE INDEX idx_recommendations_created_at ON recommendations (created_at);
 CREATE TABLE tasks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     recommendation_id UUID REFERENCES recommendations(id),
-    hive_id UUID NOT NULL REFERENCES hives(id),
+    hive_id UUID NOT NULL REFERENCES hives(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id),
     title TEXT NOT NULL,
     priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('critical', 'high', 'medium', 'low')),
@@ -51,6 +51,10 @@ CREATE TABLE audit_events (
 CREATE INDEX idx_audit_events_tenant_id ON audit_events (tenant_id);
 CREATE INDEX idx_audit_events_occurred_at ON audit_events (occurred_at);
 CREATE INDEX idx_audit_events_event_type ON audit_events (event_type);
+
+-- Enforce append-only semantics at the DB level
+CREATE RULE audit_no_update AS ON UPDATE TO audit_events DO INSTEAD NOTHING;
+CREATE RULE audit_no_delete AS ON DELETE TO audit_events DO INSTEAD NOTHING;
 
 -- User feedback on recommendations
 CREATE TABLE user_feedback (

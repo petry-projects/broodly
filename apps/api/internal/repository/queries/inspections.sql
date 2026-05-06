@@ -4,17 +4,17 @@ VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: GetInspectionByID :one
-SELECT * FROM inspections WHERE id = $1;
+SELECT * FROM inspections WHERE id = $1 AND user_id = $2;
 
 -- name: ListInspectionsByHive :many
 SELECT * FROM inspections WHERE hive_id = $1 ORDER BY started_at DESC;
 
 -- name: CompleteInspection :one
 UPDATE inspections SET status = 'completed', completed_at = NOW(), notes = $2
-WHERE id = $1 RETURNING *;
+WHERE id = $1 AND user_id = $3 RETURNING *;
 
 -- name: PauseInspection :one
-UPDATE inspections SET status = 'paused' WHERE id = $1 RETURNING *;
+UPDATE inspections SET status = 'paused' WHERE id = $1 AND user_id = $2 RETURNING *;
 
 -- name: CreateObservation :one
 INSERT INTO observations (inspection_id, sequence_order, observation_type, structured_data, raw_voice_url, transcription, transcription_confidence)
@@ -31,7 +31,11 @@ RETURNING *;
 
 -- name: UpdateMediaAnalysis :one
 UPDATE media SET analysis_status = $2, analysis_result = $3
-WHERE id = $1 RETURNING *;
+WHERE id = $1 AND observation_id IN (
+  SELECT o.id FROM observations o
+  JOIN inspections i ON o.inspection_id = i.id
+  WHERE i.user_id = $4
+) RETURNING *;
 
 -- name: ListMediaByObservation :many
 SELECT * FROM media WHERE observation_id = $1;

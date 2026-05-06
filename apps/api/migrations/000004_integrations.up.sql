@@ -4,7 +4,7 @@ CREATE TABLE integrations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id),
     provider TEXT NOT NULL,
-    credentials_ref TEXT NOT NULL,
+    credentials_ref TEXT NOT NULL CHECK (credentials_ref LIKE 'projects/%/secrets/%'),
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'error')),
     hive_mappings JSONB NOT NULL DEFAULT '{}',
     last_sync_at TIMESTAMPTZ,
@@ -37,5 +37,9 @@ CREATE TABLE external_context (
     staleness_threshold_hours INTEGER NOT NULL DEFAULT 24
 );
 
-CREATE INDEX idx_external_context_apiary_id ON external_context (apiary_id);
+-- Unique per apiary+source; required for UpsertExternalContext ON CONFLICT target
+ALTER TABLE external_context ADD CONSTRAINT uq_external_context_apiary_source UNIQUE (apiary_id, source_type);
+-- Composite index supports the hot-path GetExternalContext query (apiary_id, source_type, ORDER BY fetched_at DESC)
+CREATE INDEX idx_external_context_apiary_source_fetched ON external_context (apiary_id, source_type, fetched_at DESC);
+-- Retain a covering index for staleness sweeps ordered purely by time
 CREATE INDEX idx_external_context_fetched_at ON external_context (fetched_at);

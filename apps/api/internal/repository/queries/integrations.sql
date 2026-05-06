@@ -8,7 +8,7 @@ SELECT * FROM integrations WHERE user_id = $1;
 
 -- name: UpdateIntegrationSync :one
 UPDATE integrations SET last_sync_at = NOW(), status = $2
-WHERE id = $1 RETURNING *;
+WHERE id = $1 AND user_id = $3 RETURNING *;
 
 -- name: CreateTelemetryReading :exec
 INSERT INTO telemetry_readings (integration_id, hive_id, reading_type, value, unit, recorded_at, plausibility_status)
@@ -20,7 +20,7 @@ SELECT * FROM telemetry_readings WHERE hive_id = $1 AND recorded_at >= $2 ORDER 
 -- name: UpsertExternalContext :one
 INSERT INTO external_context (apiary_id, source_type, data, fetched_at, staleness_threshold_hours)
 VALUES ($1, $2, $3, NOW(), $4)
-ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, fetched_at = NOW()
+ON CONFLICT (apiary_id, source_type) DO UPDATE SET data = EXCLUDED.data, fetched_at = NOW(), staleness_threshold_hours = EXCLUDED.staleness_threshold_hours
 RETURNING *;
 
 -- name: GetExternalContext :one

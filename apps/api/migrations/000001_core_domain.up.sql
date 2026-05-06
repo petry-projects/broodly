@@ -16,7 +16,7 @@ CREATE TABLE users (
     deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_users_firebase_uid ON users (firebase_uid);
+-- idx_users_firebase_uid omitted: UNIQUE on firebase_uid already creates an implicit index
 CREATE INDEX idx_users_deleted_at ON users (deleted_at) WHERE deleted_at IS NOT NULL;
 
 -- Apiaries table
@@ -38,7 +38,7 @@ CREATE INDEX idx_apiaries_user_id ON apiaries (user_id);
 -- Hives table
 CREATE TABLE hives (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    apiary_id UUID NOT NULL REFERENCES apiaries(id),
+    apiary_id UUID NOT NULL REFERENCES apiaries(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     type TEXT NOT NULL DEFAULT 'langstroth' CHECK (type IN ('langstroth', 'top_bar', 'warre', 'other')),
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'dead', 'sold')),
@@ -47,5 +47,5 @@ CREATE TABLE hives (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_hives_apiary_id ON hives (apiary_id);
+-- idx_hives_apiary_id omitted: idx_hives_unique_name_per_apiary (apiary_id, name) already covers apiary_id lookups
 CREATE UNIQUE INDEX idx_hives_unique_name_per_apiary ON hives (apiary_id, name);
