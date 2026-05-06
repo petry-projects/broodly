@@ -106,6 +106,7 @@ PAYLOAD
 #   - agent-shield / AgentShield        (agent-shield.yml present)
 #   - dependency-audit / Detect ecosystems (dependency-audit.yml present)
 #   - CI / TypeScript          (ci.yml present; first job = TypeScript)
+#   - CI / Go                  (ci.yml present; go job)
 # ---------------------------------------------------------------------------
 CODE_QUALITY_PAYLOAD=$(cat <<'PAYLOAD'
 {
@@ -129,7 +130,8 @@ CODE_QUALITY_PAYLOAD=$(cat <<'PAYLOAD'
           {"context": "CodeQL"},
           {"context": "agent-shield / AgentShield"},
           {"context": "dependency-audit / Detect ecosystems"},
-          {"context": "CI / TypeScript"}
+          {"context": "CI / TypeScript"},
+          {"context": "CI / Go"}
         ]
       }
     }
@@ -143,7 +145,17 @@ PAYLOAD
 # Apply
 # ---------------------------------------------------------------------------
 info "Fetching existing rulesets for $ORG/$REPO ..."
-existing=$(gh api "repos/$ORG/$REPO/rulesets" 2>/dev/null || echo "[]")
+gh_err_file=$(mktemp)
+if ! existing=$(gh api "repos/$ORG/$REPO/rulesets" 2>"$gh_err_file"); then
+  gh_err=$(cat "$gh_err_file")
+  rm -f "$gh_err_file"
+  err "Failed to fetch existing rulesets for $ORG/$REPO"
+  if [ -n "$gh_err" ]; then
+    err "$gh_err"
+  fi
+  exit 1
+fi
+rm -f "$gh_err_file"
 
 apply_ruleset() {
   local name="$1"
