@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Heading } from '../../components/ui/heading';
 import { Text } from '../../components/ui/text';
 import { Button, ButtonText } from '../../components/ui/button';
-import { OnboardingProgressDots } from '@broodly/ui/src/OnboardingProgressDots';
+import { OnboardingProgressDots } from '@broodly/ui';
 import { useOnboardingStore, type MidSeasonBaseline } from '../../src/store/onboarding-store';
 
 const CHECKLIST_ITEMS: Array<{ key: keyof MidSeasonBaseline; label: string }> = [
@@ -42,7 +42,7 @@ export default function CatchupAssessmentScreen() {
 
   return (
     <View className="flex-1 bg-background-0 px-8 pt-16">
-      <OnboardingProgressDots totalSteps={7} currentStep={5} />
+      <OnboardingProgressDots totalSteps={7} currentStep={6} />
 
       <Heading size="2xl" className="mt-6 mb-2">
         Quick catch-up

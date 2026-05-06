@@ -9,8 +9,8 @@ import { useOnboardingStore, getResumeRoute } from '../../store/onboarding-store
  * Route protection guard. Redirects based on auth + onboarding state:
  * - Loading: shows spinner (prevents redirect flash)
  * - Unauthenticated + not in (auth)/(onboarding): redirect to onboarding welcome
- * - Authenticated + onboarding incomplete: redirect to resume onboarding step
- * - Authenticated + in (auth): redirect to tabs
+ * - Authenticated + onboarding incomplete + not in (onboarding): redirect to resume onboarding step
+ * - Authenticated + onboarding complete + in (auth)/(onboarding): redirect to tabs
  * - Otherwise: render children
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -19,6 +19,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const isLoading = useAuthStore((s) => s.isLoading);
   const onboardingComplete = useUIStore((s) => s.onboardingComplete);
   const currentStep = useOnboardingStore((s) => s.currentStep);
+  const seasonalContext = useOnboardingStore((s) => s.seasonalContext);
+  const midSeasonBaseline = useOnboardingStore((s) => s.midSeasonBaseline);
 
   if (isLoading) {
     return (
@@ -41,7 +43,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   // Authenticated but onboarding not complete: resume onboarding
   if (isAuthenticated && !onboardingComplete && !inOnboardingGroup) {
-    const resumeRoute = getResumeRoute(currentStep);
+    const resumeRoute = getResumeRoute(currentStep, { seasonalContext, midSeasonBaseline });
     return <Redirect href={resumeRoute as `/${string}`} />;
   }
 

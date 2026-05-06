@@ -102,8 +102,33 @@ describe('getResumeRoute', () => {
     expect(getResumeRoute(2)).toBe('/(onboarding)/experience-level');
   });
 
-  it('returns disclaimer for step 6', () => {
+  it('returns disclaimer for step 6 (non-mid-season)', () => {
     expect(getResumeRoute(6)).toBe('/(onboarding)/disclaimer');
+  });
+
+  it('returns disclaimer for step 6 when mid-season baseline is already set', () => {
+    const baseline = {
+      hasExistingHives: true,
+      hasInspectedRecently: false,
+      knowsQueenStatus: true,
+      hasHarvestedThisYear: false,
+      hasTreatedForMites: true,
+    };
+    expect(
+      getResumeRoute(6, {
+        seasonalContext: { isMidSeason: true },
+        midSeasonBaseline: baseline,
+      }),
+    ).toBe('/(onboarding)/disclaimer');
+  });
+
+  it('returns catchup-assessment for step 6 when mid-season and baseline not yet set', () => {
+    expect(
+      getResumeRoute(6, {
+        seasonalContext: { isMidSeason: true },
+        midSeasonBaseline: null,
+      }),
+    ).toBe('/(onboarding)/catchup-assessment');
   });
 
   it('returns summary for step 7', () => {

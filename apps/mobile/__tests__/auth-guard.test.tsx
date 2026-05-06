@@ -116,4 +116,24 @@ describe('AuthGuard', () => {
     );
     expect(screen.getByTestId('redirect-/(tabs)')).toBeTruthy();
   });
+
+  it('resumes mid-season user at catch-up screen when baseline not yet set', () => {
+    useAuthStore.setState({
+      user: { uid: 'u1', email: 'a@b.com', displayName: 'A', idToken: 't' },
+      isLoading: false,
+    });
+    useOnboardingStore.getState().setStep(6);
+    useOnboardingStore.getState().setSeasonalContext({
+      hemisphere: 'northern',
+      season: 'summer',
+      isMidSeason: true,
+    });
+    mockUseSegments.mockReturnValue(['(tabs)']);
+    render(
+      <AuthGuard>
+        <Text>Content</Text>
+      </AuthGuard>
+    );
+    expect(screen.getByTestId('redirect-/(onboarding)/catchup-assessment')).toBeTruthy();
+  });
 });

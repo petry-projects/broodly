@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Heading } from '../../components/ui/heading';
 import { Text } from '../../components/ui/text';
 import { Button, ButtonText } from '../../components/ui/button';
-import { OnboardingProgressDots } from '@broodly/ui/src/OnboardingProgressDots';
+import { OnboardingProgressDots } from '@broodly/ui';
 import { useOnboardingStore } from '../../src/store/onboarding-store';
 
 export default function ApiarySetupScreen() {

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Heading } from '../../components/ui/heading';
 import { Text } from '../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner } from '../../components/ui/button';
-import { OnboardingProgressDots } from '@broodly/ui/src/OnboardingProgressDots';
+import { OnboardingProgressDots } from '@broodly/ui';
 import { useOnboardingStore } from '../../src/store/onboarding-store';
 import { useUIStore } from '../../src/store/ui-store';
 
@@ -77,7 +77,13 @@ export default function SummaryScreen() {
         />
         <SummaryRow
           label="Interaction"
-          value={state.interactionMode === 'voice_first' ? 'Voice First' : 'Tap & Read'}
+          value={
+            state.interactionMode === 'voice_first'
+              ? 'Voice First'
+              : state.interactionMode === 'tap_and_read'
+              ? 'Tap & Read'
+              : 'Not set'
+          }
         />
       </View>
 

@@ -5,7 +5,7 @@ const SOUTHERN_HEMISPHERE_KEYWORDS = [
   'new zealand', 'auckland', 'wellington',
   'south africa', 'cape town', 'johannesburg',
   'argentina', 'buenos aires', 'chile', 'santiago',
-  'brazil', 'são paulo', 'rio',
+  'brazil', 'são paulo', 'rio de janeiro',
 ];
 
 /**
@@ -36,7 +36,7 @@ function getSeasonForMonth(
   if (hemisphere === 'northern') return season;
 
   // Southern hemisphere is 6 months offset
-  const flip: Record<string, 'spring' | 'summer' | 'fall' | 'winter'> = {
+  const flip: Record<'spring' | 'summer' | 'fall' | 'winter', 'spring' | 'summer' | 'fall' | 'winter'> = {
     spring: 'fall',
     summer: 'winter',
     fall: 'spring',

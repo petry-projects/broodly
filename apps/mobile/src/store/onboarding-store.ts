@@ -104,8 +104,24 @@ export const useOnboardingStore = create<OnboardingState>()(
 
 /**
  * Maps currentStep to the onboarding route for resume functionality.
+ * When a mid-season user is at step 6 and has not yet completed the catch-up
+ * assessment, resumes at the catch-up screen rather than the disclaimer.
  */
-export function getResumeRoute(step: number): string {
+export function getResumeRoute(
+  step: number,
+  state?: {
+    seasonalContext?: { isMidSeason?: boolean } | null;
+    midSeasonBaseline?: MidSeasonBaseline | null;
+  },
+): string {
+  if (
+    step === 6 &&
+    state?.seasonalContext?.isMidSeason === true &&
+    state?.midSeasonBaseline == null
+  ) {
+    return '/(onboarding)/catchup-assessment';
+  }
+
   const routes: Record<number, string> = {
     0: '/(onboarding)',
     1: '/(onboarding)/create-account',

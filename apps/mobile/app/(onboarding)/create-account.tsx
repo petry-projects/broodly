@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Heading } from '../../components/ui/heading';
 import { Text } from '../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner, ButtonIcon } from '../../components/ui/button';
-import { OnboardingProgressDots } from '@broodly/ui/src/OnboardingProgressDots';
+import { OnboardingProgressDots } from '@broodly/ui';
 import { useOnboardingStore } from '../../src/store/onboarding-store';
 import { useAuthStore } from '../../src/store/auth-store';
 import { useConnectivityStore } from '../../src/store/connectivity-store';
@@ -26,6 +26,8 @@ export default function CreateAccountScreen() {
     setLoading(true);
     try {
       const { signInWithGoogle } = await import('../../src/services/auth');
+      // TODO: Obtain a real Google ID token via expo-auth-session or @react-native-google-signin
+      // before calling signInWithGoogle. Replace the empty string once the OAuth flow is wired up.
       const googleIdToken = '';
       await signInWithGoogle(googleIdToken);
       setStep(2);
@@ -43,6 +45,8 @@ export default function CreateAccountScreen() {
     setLoading(true);
     try {
       const { signInWithApple } = await import('../../src/services/auth');
+      // TODO: Retrieve a real Apple ID token and nonce via expo-apple-authentication
+      // before calling signInWithApple. Replace the empty strings once the Apple OAuth flow is wired up.
       await signInWithApple('', '');
       setStep(2);
       router.push('/(onboarding)/experience-level');
