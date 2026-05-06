@@ -35,7 +35,7 @@ describe('getPromptSequence', () => {
     expect(ids).toContain('swarm_risk');
   });
 
-  it('does not duplicate swarm_risk when no swarm cells observed', () => {
+  it('does not add swarm_risk when no swarm cells observed', () => {
     const obs: Observation[] = [
       {
         id: '1',
@@ -48,9 +48,26 @@ describe('getPromptSequence', () => {
     ];
     const prompts = getPromptSequence('full', obs);
     const ids = prompts.map((p) => p.id);
-    // swarm_risk appears once in the base list but branching should not add a second copy
-    const swarmCount = ids.filter((id) => id === 'swarm_risk').length;
-    expect(swarmCount).toBe(1);
+    // swarm_risk is branch-only; it must not appear without a triggering observation
+    expect(ids).not.toContain('swarm_risk');
+  });
+
+  it('inserts swarm_risk in quick inspection when swarm cells observed', () => {
+    const obs: Observation[] = [
+      {
+        id: '1',
+        promptId: 'queen_cells',
+        observationType: 'queen_cell_check',
+        value: 'swarm',
+        classification: 'urgent',
+        createdAt: new Date().toISOString(),
+      },
+    ];
+    // swarm_risk has quickMode: false so it is not in the quick base sequence,
+    // but it must still be inserted when explicitly triggered via nextPromptOverride.
+    const prompts = getPromptSequence('quick', obs);
+    const ids = prompts.map((p) => p.id);
+    expect(ids).toContain('swarm_risk');
   });
 
   it('places swarm_risk immediately after queen_cells when swarm cells observed', () => {

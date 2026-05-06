@@ -7,14 +7,24 @@ import { Text } from '../../../../../../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner } from '../../../../../../../components/ui/button';
 import { useInspectionStore } from '../../../../../../../src/store/inspection-store';
 import { useConnectivityStore } from '../../../../../../../src/store/connectivity-store';
+import { getTotalSteps } from '../../../../../../../src/features/inspection/services/step-engine';
 import { ICON_COLORS } from '../../../../../../../src/theme/colors';
 import type { InspectionType } from '../../../../../../../src/features/inspection/types';
+
+// Derived counts — computed once at module level since they don't depend on
+// observations and the prompt tree is static at build time.
+const fullStepCount = getTotalSteps('full', []);
+const quickStepCount = getTotalSteps('quick', []);
 
 export default function InspectionEntryScreen() {
   const router = useRouter();
   const { id: apiaryId, hiveId } = useLocalSearchParams<{ id: string; hiveId: string }>();
   const startInspection = useInspectionStore((s) => s.startInspection);
-  const hasActive = useInspectionStore((s) => s.hasActiveInspection);
+  // Select a derived boolean so the component re-renders when inspectionId or
+  // status changes — selecting the function reference would prevent reactivity.
+  const hasActiveInspection = useInspectionStore(
+    (s) => s.inspectionId !== null && s.status !== 'completed',
+  );
   const isOnline = useConnectivityStore((s) => s.isOnline);
   const [isStarting, setIsStarting] = useState(false);
   const [selectedType, setSelectedType] = useState<InspectionType | null>(null);
@@ -37,7 +47,7 @@ export default function InspectionEntryScreen() {
     }
   }
 
-  if (hasActive()) {
+  if (hasActiveInspection) {
     return (
       <View className="flex-1 bg-background-0 px-6 pt-8">
         <Heading size="2xl" className="mb-4">Resume Inspection?</Heading>
@@ -104,7 +114,7 @@ export default function InspectionEntryScreen() {
             <View className="flex-1">
               <Heading size="md">Full Inspection</Heading>
               <Text size="sm" className="text-typography-500">
-                8 steps — entrance, brood, queen cells, stores, pests, colony health, actions
+                {fullStepCount} steps — entrance, brood, queen cells, stores, pests, colony health, actions
               </Text>
             </View>
           </View>
@@ -125,7 +135,7 @@ export default function InspectionEntryScreen() {
             <View className="flex-1">
               <Heading size="md">Quick Check</Heading>
               <Text size="sm" className="text-typography-500">
-                5 steps — entrance, brood, queen cells, colony health, actions
+                {quickStepCount} steps — entrance, brood, queen cells, colony health, actions
               </Text>
             </View>
           </View>
