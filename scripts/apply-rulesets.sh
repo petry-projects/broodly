@@ -15,7 +15,7 @@
 # See: https://github.com/petry-projects/.github/blob/main/standards/ci-standards.md#centralization-tiers
 #
 # Usage:
-#   GH_TOKEN=<admin-token> ./scripts/apply-rulesets.sh [--dry-run]
+#   GH_TOKEN=<admin-token> ./scripts/apply-rulesets.sh [--dry-run] [--force]
 #
 # Requirements:
 #   - GH_TOKEN must have administration:write scope on this repo
@@ -27,6 +27,7 @@ set -euo pipefail
 ORG="petry-projects"
 REPO="broodly"
 DRY_RUN=false
+FORCE=false
 
 info()  { echo "[INFO]  $*"; }
 ok()    { echo "[OK]    $*"; }
@@ -36,8 +37,10 @@ skip()  { echo "[SKIP]  $*"; }
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=true ;;
+    --force)   FORCE=true ;;
     -h|--help)
-      echo "Usage: $0 [--dry-run]"
+      echo "Usage: $0 [--dry-run] [--force]"
+      echo "  --force  Skip repo-identity safety check (use when running from a fork or CI)"
       exit 0
       ;;
     *) err "Unknown flag: $arg"; exit 1 ;;
@@ -51,8 +54,34 @@ fi
 
 export GH_TOKEN
 
+# Safety guard: verify the current git remote matches ORG/REPO.
+# Prevents accidentally targeting the wrong repository when running from a fork
+# or a different checkout that has administration access to petry-projects/broodly.
+if [ "$FORCE" = false ]; then
+  actual_repo=$(gh repo view --json nameWithOwner -q '.nameWithOwner' 2>/dev/null || true)
+  if [ -z "$actual_repo" ]; then
+    err "Unable to determine current repo (gh repo view failed)."
+    err "Run with --force to skip this safety check, or ensure GH_TOKEN has repo read access."
+    exit 1
+  fi
+  if [ "$actual_repo" != "$ORG/$REPO" ]; then
+    err "Current repo ($actual_repo) does not match target ($ORG/$REPO)."
+    err "Run with --force to override this safety check."
+    exit 1
+  fi
+fi
+
 # ---------------------------------------------------------------------------
 # pr-quality ruleset
+#
+# bypass_actors:
+#   actor_id 0 / OrganizationAdmin — org admins can always bypass PR rules
+#   actor_id 3167543 / Integration  — this is the claude-code-action GitHub App
+#     (https://github.com/apps/claude-code-action).  bypass_mode "pull_request"
+#     lets it open and merge its own PRs without requiring a human review, which
+#     is necessary for automated fix PRs produced by Claude Code in CI.
+#     The numeric ID was obtained via:
+#       gh api /apps/claude-code-action --jq '.id'
 # ---------------------------------------------------------------------------
 PR_QUALITY_PAYLOAD=$(cat <<'PAYLOAD'
 {
@@ -148,13 +177,24 @@ PAYLOAD
 # Apply
 # ---------------------------------------------------------------------------
 info "Fetching existing rulesets for $ORG/$REPO ..."
-existing=$(gh api "repos/$ORG/$REPO/rulesets" 2>/dev/null || echo "[]")
+if ! existing=$(gh api "repos/$ORG/$REPO/rulesets"); then
+  err "Failed to fetch existing rulesets for $ORG/$REPO — check GH_TOKEN has administration:read scope"
+  exit 1
+fi
 
 apply_ruleset() {
   local name="$1"
   local payload="$2"
-  local existing_id
-  existing_id=$(echo "$existing" | jq -r --arg n "$name" '.[] | select(.name == $n) | .id' 2>/dev/null || echo "")
+  local match_count existing_id
+
+  # Guard against duplicate ruleset names: multiple matches would produce a
+  # multi-line string that breaks the API URL and causes a confusing failure.
+  match_count=$(echo "$existing" | jq -r --arg n "$name" '[.[] | select(.name == $n)] | length')
+  if [ "$match_count" -gt 1 ]; then
+    err "Multiple ($match_count) rulesets named '$name' found — resolve duplicates manually before rerunning."
+    exit 1
+  fi
+  existing_id=$(echo "$existing" | jq -r --arg n "$name" 'first(.[] | select(.name == $n) | .id) // empty')
 
   if [ "$DRY_RUN" = true ]; then
     if [ -n "$existing_id" ]; then
