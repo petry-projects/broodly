@@ -17,6 +17,10 @@ import (
 
 const defaultGoogleCertsURL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 
+// maxCertsBodyBytes caps the Google cert response to prevent memory exhaustion
+// from a misconfigured or malicious certsURL.
+const maxCertsBodyBytes = 1 << 20 // 1 MiB
+
 // KeyCache fetches and caches Google's public keys for Firebase token verification.
 type KeyCache struct {
 	mu       sync.RWMutex
@@ -104,7 +108,7 @@ func (kc *KeyCache) fetchKeys() (map[string]*rsa.PublicKey, time.Time, error) {
 		return nil, time.Time{}, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxCertsBodyBytes))
 	if err != nil {
 		return nil, time.Time{}, fmt.Errorf("reading response: %w", err)
 	}

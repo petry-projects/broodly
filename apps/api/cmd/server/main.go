@@ -28,7 +28,7 @@ func main() {
 
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		dbURL = "postgres://broodly:broodly@localhost:5432/broodly?sslmode=disable"
+		log.Fatal("DATABASE_URL environment variable is required (set postgres://user:pass@host:5432/db?sslmode=disable in your env or docker-compose)")
 	}
 
 	// Connect to PostgreSQL

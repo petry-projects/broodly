@@ -53,11 +53,11 @@ func TestRoleFromContext_WithRole(t *testing.T) {
 	}
 }
 
-func TestRoleFromContext_DefaultOwner(t *testing.T) {
+func TestRoleFromContext_MissingReturnsEmpty(t *testing.T) {
 	ctx := context.Background()
 
 	role := RoleFromContext(ctx)
-	if role != "owner" {
-		t.Errorf("expected default 'owner', got %q", role)
+	if role != "" {
+		t.Errorf("expected empty string when no role in context, got %q", role)
 	}
 }

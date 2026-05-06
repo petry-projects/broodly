@@ -25,5 +25,8 @@ models:
     model:
       - github.com/99designs/gqlgen/graphql.Time
   UUID:
+    # TODO: migrate to github.com/google/uuid.UUID for format validation.
+    # Requires running `go run github.com/99designs/gqlgen generate` to regenerate
+    # graph/generated.go and graph/model/models_gen.go after this change.
     model:
       - github.com/99designs/gqlgen/graphql.String

@@ -38,11 +38,11 @@ func EmailFromContext(ctx context.Context) string {
 	return email
 }
 
-// RoleFromContext extracts the role from the context, defaulting to "owner".
+// RoleFromContext extracts the role from the context.
+// Returns an empty string when no role has been injected (i.e., auth middleware
+// was not in the chain). Callers that require a role should treat "" as
+// unauthorised rather than assuming a default.
 func RoleFromContext(ctx context.Context) string {
-	role, ok := ctx.Value(roleKey).(string)
-	if !ok || role == "" {
-		return "owner"
-	}
+	role, _ := ctx.Value(roleKey).(string)
 	return role
 }

@@ -83,7 +83,7 @@ export default function EditHiveScreen() {
             accessibilityLabel={ht.label}
             testID={`type-${ht.value}`}
           >
-            <Ionicons name={ht.icon as 'cube-outline'} size={20} color={ICON_COLORS.muted} />
+            <Ionicons name={ht.icon as React.ComponentProps<typeof Ionicons>['name']} size={20} color={ICON_COLORS.muted} />
             <Text size="md" className="font-medium">{ht.label}</Text>
           </Pressable>
         ))}

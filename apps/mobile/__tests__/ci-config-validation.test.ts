@@ -8,7 +8,11 @@ describe('CI workflow configuration', () => {
   let ciContent: string;
 
   beforeAll(() => {
-    ciContent = readFileSync(ciYmlPath, 'utf-8');
+    if (existsSync(ciYmlPath)) {
+      ciContent = readFileSync(ciYmlPath, 'utf-8');
+    } else {
+      ciContent = '';
+    }
   });
 
   it('ci.yml exists', () => {

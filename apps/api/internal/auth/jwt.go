@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -56,20 +57,5 @@ func ValidateToken(tokenString string, projectID string, keyCache *KeyCache) (*F
 }
 
 func isExpiredError(err error) bool {
-	// golang-jwt/jwt wraps the error; check if it contains the expired message
-	return err != nil && (err.Error() == "token has invalid claims: token is expired" ||
-		contains(err.Error(), "token is expired"))
-}
-
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && searchString(s, substr)
-}
-
-func searchString(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
+	return errors.Is(err, jwt.ErrTokenExpired)
 }

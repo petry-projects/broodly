@@ -58,17 +58,20 @@ func (d *NotificationDispatcher) ShouldSuppress(
 	}
 
 	if prefs.QuietHoursStart != "" && prefs.QuietHoursEnd != "" {
-		hour := currentTime.Hour()
-		start, _ := parseHour(prefs.QuietHoursStart)
-		end, _ := parseHour(prefs.QuietHoursEnd)
+		start, errStart := parseHour(prefs.QuietHoursStart)
+		end, errEnd := parseHour(prefs.QuietHoursEnd)
 
-		if start <= end {
-			if hour >= start && hour < end && event.Priority != NotificationPriorityHigh {
-				return true
-			}
-		} else {
-			if (hour >= start || hour < end) && event.Priority != NotificationPriorityHigh {
-				return true
+		// Only apply quiet hours when both values parse successfully and are in valid range.
+		if errStart == nil && errEnd == nil && start >= 0 && start <= 23 && end >= 0 && end <= 23 {
+			hour := currentTime.Hour()
+			if start <= end {
+				if hour >= start && hour < end && event.Priority != NotificationPriorityHigh {
+					return true
+				}
+			} else {
+				if (hour >= start || hour < end) && event.Priority != NotificationPriorityHigh {
+					return true
+				}
 			}
 		}
 	}

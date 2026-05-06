@@ -38,9 +38,11 @@ describe('Terraform Firebase module', () => {
 
     it('marks api_key as sensitive', () => {
       // api_key output block should contain sensitive = true
+      const apiKeyStart = outputsContent.indexOf('output "api_key"');
+      expect(apiKeyStart).not.toBe(-1);
       const apiKeyBlock = outputsContent.slice(
-        outputsContent.indexOf('output "api_key"'),
-        outputsContent.indexOf('}', outputsContent.indexOf('output "api_key"')) + 1,
+        apiKeyStart,
+        outputsContent.indexOf('}', apiKeyStart) + 1,
       );
       expect(apiKeyBlock).toContain('sensitive');
       expect(apiKeyBlock).toContain('true');

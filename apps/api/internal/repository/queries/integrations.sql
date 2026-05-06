@@ -20,7 +20,7 @@ SELECT * FROM telemetry_readings WHERE hive_id = $1 AND recorded_at >= $2 ORDER 
 -- name: UpsertExternalContext :one
 INSERT INTO external_context (apiary_id, source_type, data, fetched_at, staleness_threshold_hours)
 VALUES ($1, $2, $3, NOW(), $4)
-ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, fetched_at = NOW()
+ON CONFLICT (apiary_id, source_type) DO UPDATE SET data = EXCLUDED.data, fetched_at = NOW()
 RETURNING *;
 
 -- name: GetExternalContext :one

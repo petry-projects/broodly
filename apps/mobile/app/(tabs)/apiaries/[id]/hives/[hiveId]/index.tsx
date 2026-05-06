@@ -24,8 +24,15 @@ export default function HiveDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await deleteHive.mutateAsync(hiveId!);
-            router.back();
+            try {
+              await deleteHive.mutateAsync(hiveId!);
+              router.back();
+            } catch {
+              Alert.alert(
+                'Failed to Delete Hive',
+                'Something went wrong while deleting this hive. Please try again.',
+              );
+            }
           },
         },
       ],
