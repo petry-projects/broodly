@@ -14,7 +14,6 @@ export default function CreateApiaryScreen() {
   const createApiary = useCreateApiary();
   const [name, setName] = useState('');
   const [region, setRegion] = useState('');
-  const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const atLimit = (apiaries?.length ?? 0) >= MAX_APIARIES;
@@ -67,26 +66,12 @@ export default function CreateApiaryScreen() {
         Region *
       </Text>
       <TextInput
-        className="border-2 border-outline-200 rounded-xl px-4 py-3 text-base text-typography-800 mb-4"
+        className="border-2 border-outline-200 rounded-xl px-4 py-3 text-base text-typography-800 mb-6"
         placeholder="e.g., Pacific Northwest, London"
         value={region}
         onChangeText={setRegion}
         accessibilityLabel="Region"
         testID="region-input"
-      />
-
-      <Text size="sm" className="text-typography-600 mb-1 font-medium">
-        Notes
-      </Text>
-      <TextInput
-        className="border-2 border-outline-200 rounded-xl px-4 py-3 text-base text-typography-800 mb-6"
-        placeholder="Optional notes about this location"
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-        numberOfLines={3}
-        accessibilityLabel="Notes"
-        testID="notes-input"
       />
 
       {error && (

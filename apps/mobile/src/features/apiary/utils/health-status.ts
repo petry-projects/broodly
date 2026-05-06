@@ -1,12 +1,12 @@
-import type { HiveStatus } from '@broodly/graphql-types';
+import { HiveStatus } from '@broodly/graphql-types';
 
 export type HealthStatus = 'healthy' | 'attention' | 'warning' | 'critical';
 
-const HIVE_STATUS_TO_HEALTH: Record<string, HealthStatus> = {
-  ACTIVE: 'healthy',
-  INACTIVE: 'attention',
-  SOLD: 'attention',
-  DEAD: 'critical',
+const HIVE_STATUS_TO_HEALTH: Record<HiveStatus, HealthStatus> = {
+  [HiveStatus.Active]: 'healthy',
+  [HiveStatus.Inactive]: 'attention',
+  [HiveStatus.Sold]: 'attention',
+  [HiveStatus.Dead]: 'critical',
 };
 
 export function deriveHiveHealth(status: HiveStatus): HealthStatus {

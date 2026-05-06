@@ -22,6 +22,7 @@ export function useApiaries() {
     queryFn: async () => {
       const result = await client.query(APIARIES_QUERY, {}).toPromise();
       if (result.error) throw new Error(result.error.message);
+      if (!result.data?.apiaries) throw new Error('No data returned for apiaries query');
       return result.data.apiaries as Apiary[];
     },
   });
@@ -35,6 +36,7 @@ export function useApiary(id: string) {
     queryFn: async () => {
       const result = await client.query(APIARY_QUERY, { id }).toPromise();
       if (result.error) throw new Error(result.error.message);
+      if (!result.data?.apiary) throw new Error('No data returned for apiary query');
       return result.data.apiary as Apiary;
     },
     enabled: !!id,
@@ -49,6 +51,7 @@ export function useCreateApiary() {
     mutationFn: async (input: CreateApiaryInput) => {
       const result = await client.mutation(CREATE_APIARY_MUTATION, { input }).toPromise();
       if (result.error) throw new Error(result.error.message);
+      if (!result.data?.createApiary) throw new Error('No data returned from createApiary mutation');
       return result.data.createApiary as Apiary;
     },
     onSuccess: () => {
@@ -65,6 +68,7 @@ export function useUpdateApiary() {
     mutationFn: async ({ id, input }: { id: string; input: UpdateApiaryInput }) => {
       const result = await client.mutation(UPDATE_APIARY_MUTATION, { id, input }).toPromise();
       if (result.error) throw new Error(result.error.message);
+      if (!result.data?.updateApiary) throw new Error('No data returned from updateApiary mutation');
       return result.data.updateApiary as Apiary;
     },
     onSuccess: (_data, variables) => {
@@ -82,6 +86,7 @@ export function useDeleteApiary() {
     mutationFn: async (id: string) => {
       const result = await client.mutation(DELETE_APIARY_MUTATION, { id }).toPromise();
       if (result.error) throw new Error(result.error.message);
+      if (result.data?.deleteApiary == null) throw new Error('No data returned from deleteApiary mutation');
       return result.data.deleteApiary as boolean;
     },
     onSuccess: () => {
