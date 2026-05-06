@@ -33,8 +33,8 @@ jest.mock('../src/features/apiary/hooks/use-apiaries', () => ({
 // Mock planning hooks (used by plan/index.tsx)
 jest.mock('../src/features/planning/hooks/use-weekly-queue', () => ({
   useWeeklyQueue: () => ({ data: undefined, isLoading: true, refetch: jest.fn(), isRefetching: false }),
-  useCompleteTask: () => ({ mutateAsync: jest.fn() }),
-  useDismissTask: () => ({ mutateAsync: jest.fn() }),
+  useCompleteTask: () => ({ mutate: jest.fn() }),
+  useDeferTask: () => ({ mutate: jest.fn() }),
 }));
 
 // Mock auth store (used by homepage)

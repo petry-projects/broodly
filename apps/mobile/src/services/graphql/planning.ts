@@ -2,55 +2,22 @@ import { gql } from 'urql';
 
 export const WEEKLY_QUEUE_QUERY = gql`
   query WeeklyQueue {
-    weeklyQueue {
-      apiaryId
-      apiaryName
-      tasks {
+    tasks(status: PENDING, limit: 50) {
+      id
+      title
+      hive {
         id
-        title
-        hiveId
-        hiveName
-        priority
-        dueDate
-        status
-        isOverdue
-        catchUpGuidance
-        requiredMaterials
-        recommendedAction
-      }
-    }
-  }
-`;
-
-export const HOMEPAGE_CONTEXT_QUERY = gql`
-  query HomepageContext {
-    homepageContext {
-      weather {
-        summary
-        temperature
-        conditions
-        updatedAt
-      }
-      bloomStatus {
-        phase
-        description
-        updatedAt
-      }
-      seasonalPhase {
-        season
-        weekInSeason
-        riskSignals {
-          type
-          severity
-          description
+        name
+        apiary {
+          id
+          name
         }
       }
-      regionalScaleWeight {
-        averageDailyChange
-        unit
-        regionName
-        updatedAt
-      }
+      priority
+      dueDate
+      status
+      isOverdue
+      catchUpGuidance
     }
   }
 `;
@@ -66,8 +33,8 @@ export const COMPLETE_TASK_MUTATION = gql`
 `;
 
 export const DEFER_TASK_MUTATION = gql`
-  mutation DeferTask($id: UUID!, $reason: String, $newDueDate: DateTime!) {
-    deferTask(id: $id, reason: $reason, newDueDate: $newDueDate) {
+  mutation DeferTask($id: UUID!, $input: DeferTaskInput) {
+    deferTask(id: $id, input: $input) {
       id
       status
       dueDate
@@ -75,15 +42,9 @@ export const DEFER_TASK_MUTATION = gql`
   }
 `;
 
-export const DISMISS_TASK_MUTATION = gql`
-  mutation DismissTask($id: UUID!, $reason: String) {
-    dismissTask(id: $id, reason: $reason) {
-      id
-      status
-    }
-  }
-`;
-
+// NOTE: seasonalCalendar is not yet implemented in the backend schema.
+// This query is scaffolding for Story 10.5 and will fail validation until
+// the backend adds the seasonalCalendar field to the Query type.
 export const SEASONAL_CALENDAR_QUERY = gql`
   query SeasonalCalendar($region: String!) {
     seasonalCalendar(region: $region) {

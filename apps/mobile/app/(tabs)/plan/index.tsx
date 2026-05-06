@@ -7,7 +7,7 @@ import { Button, ButtonText } from '../../../components/ui/button';
 import {
   useWeeklyQueue,
   useCompleteTask,
-  useDismissTask,
+  useDeferTask,
   type QueueTask,
   type ApiaryQueue,
 } from '../../../src/features/planning/hooks/use-weekly-queue';
@@ -17,10 +17,9 @@ function MaterialsChecklist({ queues }: { queues: ApiaryQueue[] }) {
   const materials: Array<{ material: string; context: string }> = [];
   for (const q of queues) {
     for (const task of q.tasks) {
-      if (task.requiredMaterials) {
-        for (const mat of task.requiredMaterials) {
-          materials.push({ material: mat, context: `${task.hiveName} — ${task.title}` });
-        }
+      // catchUpGuidance surfaces material hints when tasks are overdue
+      if (task.isOverdue && task.catchUpGuidance) {
+        materials.push({ material: task.catchUpGuidance, context: `${task.hiveName} — ${task.title}` });
       }
     }
   }
@@ -28,9 +27,9 @@ function MaterialsChecklist({ queues }: { queues: ApiaryQueue[] }) {
 
   return (
     <View className="bg-background-warning rounded-xl p-4 mb-4">
-      <Heading size="lg" className="mb-2">Required Materials</Heading>
-      {materials.map((m, i) => (
-        <View key={i} className="flex-row items-start gap-2 mb-1">
+      <Heading size="lg" className="mb-2">Catch-up Guidance</Heading>
+      {materials.map((m) => (
+        <View key={`${m.material}-${m.context}`} className="flex-row items-start gap-2 mb-1">
           <Ionicons name="cube-outline" size={14} color={ICON_COLORS.muted} />
           <View className="flex-1">
             <Text size="sm" className="font-medium">{m.material}</Text>
@@ -76,8 +75,8 @@ function TaskRow({ task, onComplete, onDismiss }: { task: QueueTask; onComplete:
           action="secondary"
           variant="link"
           onPress={onDismiss}
-          accessibilityLabel={`Dismiss '${task.title}'`}
-          testID={`dismiss-${task.id}`}
+          accessibilityLabel={`Defer '${task.title}' for later`}
+          testID={`defer-${task.id}`}
         >
           <ButtonText>Not now</ButtonText>
         </Button>
@@ -89,7 +88,7 @@ function TaskRow({ task, onComplete, onDismiss }: { task: QueueTask; onComplete:
 function ApiarySection({ queue }: { queue: ApiaryQueue }) {
   const [expanded, setExpanded] = useState(true);
   const completeTask = useCompleteTask();
-  const dismissTask = useDismissTask();
+  const deferTask = useDeferTask();
 
   return (
     <View className="mb-4">
@@ -115,8 +114,17 @@ function ApiarySection({ queue }: { queue: ApiaryQueue }) {
           <TaskRow
             key={task.id}
             task={task}
-            onComplete={() => completeTask.mutateAsync(task.id)}
-            onDismiss={() => dismissTask.mutateAsync({ id: task.id })}
+            onComplete={() =>
+              completeTask.mutate(task.id, {
+                onError: (err) => console.error('Failed to complete task:', err.message),
+              })
+            }
+            onDismiss={() =>
+              deferTask.mutate(
+                { id: task.id, reason: 'not now' },
+                { onError: (err) => console.error('Failed to defer task:', err.message) }
+              )
+            }
           />
         ))}
     </View>
@@ -124,12 +132,23 @@ function ApiarySection({ queue }: { queue: ApiaryQueue }) {
 }
 
 export default function PlanScreen() {
-  const { data: queues, isLoading, refetch, isRefetching } = useWeeklyQueue();
+  const { data: queues, isLoading, isError, refetch, isRefetching } = useWeeklyQueue();
 
   if (isLoading) {
     return (
       <View className="flex-1 bg-background-0 justify-center items-center">
         <Text size="md" className="text-typography-500">Loading your plan...</Text>
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View className="flex-1 bg-background-0 justify-center items-center px-6">
+        <Ionicons name="cloud-offline-outline" size={48} color={ICON_COLORS.muted} />
+        <Text size="md" className="text-typography-500 mt-4 text-center">
+          Couldn't load your plan. Pull down to try again.
+        </Text>
       </View>
     );
   }
@@ -144,7 +163,7 @@ export default function PlanScreen() {
 
       {queues && <MaterialsChecklist queues={queues} />}
 
-      {(!queues || queues.length === 0) ? (
+      {!queues || queues.length === 0 ? (
         <View className="items-center py-12">
           <Ionicons name="checkmark-done-circle-outline" size={48} color={ICON_COLORS.muted} />
           <Text size="md" className="text-typography-400 mt-4 text-center">
