@@ -40,30 +40,36 @@ func hex(b []byte) string {
 
 func stringToUUID(s string) pgtype.UUID {
 	var u pgtype.UUID
-	// Simple hex parse, strip dashes
+	// Strip dashes and validate exact length
 	clean := strings.ReplaceAll(s, "-", "")
 	if len(clean) != 32 {
 		return u
 	}
+	// Validate all characters are valid hex before marking as Valid
 	for i := 0; i < 16; i++ {
-		hi := hexVal(clean[i*2])
-		lo := hexVal(clean[i*2+1])
+		hi, ok1 := strictHexVal(clean[i*2])
+		lo, ok2 := strictHexVal(clean[i*2+1])
+		if !ok1 || !ok2 {
+			return pgtype.UUID{}
+		}
 		u.Bytes[i] = hi<<4 | lo
 	}
 	u.Valid = true
 	return u
 }
 
-func hexVal(c byte) byte {
+// strictHexVal converts a hex character to its numeric value,
+// returning false if the character is not a valid hex digit.
+func strictHexVal(c byte) (byte, bool) {
 	switch {
 	case c >= '0' && c <= '9':
-		return c - '0'
+		return c - '0', true
 	case c >= 'a' && c <= 'f':
-		return c - 'a' + 10
+		return c - 'a' + 10, true
 	case c >= 'A' && c <= 'F':
-		return c - 'A' + 10
+		return c - 'A' + 10, true
 	default:
-		return 0
+		return 0, false
 	}
 }
 
@@ -98,8 +104,11 @@ func apiaryToModel(a repository.Apiary) *model.Apiary {
 		Region:          a.Region,
 		ElevationOffset: a.ElevationOffset,
 		BloomOffset:     int(a.BloomOffset),
-		CreatedAt:       timestampToTime(a.CreatedAt),
-		UpdatedAt:       timestampToTime(a.UpdatedAt),
+		// Hives is initialized to an empty slice; populate via a field resolver or
+		// dataloader when nested hive data is required.
+		Hives:     []*model.Hive{},
+		CreatedAt: timestampToTime(a.CreatedAt),
+		UpdatedAt: timestampToTime(a.UpdatedAt),
 	}
 }
 
@@ -112,9 +121,12 @@ func derefString(s *string) string {
 
 func hiveToModel(h repository.Hive) *model.Hive {
 	return &model.Hive{
-		ID:        uuidToString(h.ID),
-		Name:      h.Name,
-		Type:      model.HiveType(strings.ToUpper(h.Type)),
+		ID:   uuidToString(h.ID),
+		Name: h.Name,
+		Type: model.HiveType(strings.ToUpper(h.Type)),
+		// Apiary is a non-null field in the schema (apiary: Apiary!).
+		// Populate via a field resolver or dataloader when the nested apiary is required.
+		Apiary:    nil,
 		Status:    model.HiveStatus(strings.ToUpper(h.Status)),
 		Notes:     h.Notes,
 		CreatedAt: timestampToTime(h.CreatedAt),
@@ -124,12 +136,16 @@ func hiveToModel(h repository.Hive) *model.Hive {
 
 func inspectionToModel(i repository.Inspection) *model.Inspection {
 	m := &model.Inspection{
-		ID:        uuidToString(i.ID),
-		Type:      model.InspectionType(strings.ToUpper(i.Type)),
-		Status:    model.InspectionStatus(strings.ToUpper(i.Status)),
-		StartedAt: timestampToTime(i.StartedAt),
-		Notes:     i.Notes,
-		CreatedAt: timestampToTime(i.CreatedAt),
+		ID:   uuidToString(i.ID),
+		Type: model.InspectionType(strings.ToUpper(i.Type)),
+		// Hive is a non-null field in the schema (hive: Hive!).
+		// Populate via a field resolver or dataloader when the nested hive is required.
+		Hive:         nil,
+		Status:       model.InspectionStatus(strings.ToUpper(i.Status)),
+		StartedAt:    timestampToTime(i.StartedAt),
+		Notes:        i.Notes,
+		CreatedAt:    timestampToTime(i.CreatedAt),
+		Observations: []*model.Observation{},
 	}
 	if i.CompletedAt.Valid {
 		t := i.CompletedAt.Time
@@ -143,7 +159,13 @@ func observationToModel(o repository.Observation) *model.Observation {
 		ID:              uuidToString(o.ID),
 		SequenceOrder:   int(o.SequenceOrder),
 		ObservationType: model.ObservationType(strings.ToUpper(o.ObservationType)),
-		CreatedAt:       timestampToTime(o.CreatedAt),
+		// Inspection is a non-null field in the schema (inspection: Inspection!).
+		// Populate via a field resolver or dataloader when the parent inspection is required.
+		Inspection: nil,
+		// Media is initialized to an empty slice; populate via a field resolver or
+		// dataloader when attached media is required.
+		Media:     []*model.Media{},
+		CreatedAt: timestampToTime(o.CreatedAt),
 	}
 	if o.RawVoiceUrl.Valid {
 		m.RawVoiceURL = &o.RawVoiceUrl.String

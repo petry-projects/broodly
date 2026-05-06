@@ -36,6 +36,15 @@ func (s *PlanningService) ListTasks(ctx context.Context, userID pgtype.UUID, sta
 	})
 }
 
+// ListTasksByHive returns tasks for a specific hive with pagination.
+func (s *PlanningService) ListTasksByHive(ctx context.Context, hiveID pgtype.UUID, limit, offset int32) ([]repository.Task, error) {
+	return s.queries.ListTasksByHive(ctx, repository.ListTasksByHiveParams{
+		HiveID: hiveID,
+		Limit:  limit,
+		Offset: offset,
+	})
+}
+
 // DeferTask updates a task to deferred status with an optional reason.
 func (s *PlanningService) DeferTask(ctx context.Context, id, userID pgtype.UUID, reason *string) (repository.Task, error) {
 	task, err := s.queries.GetTaskByIDAndUser(ctx, repository.GetTaskByIDAndUserParams{

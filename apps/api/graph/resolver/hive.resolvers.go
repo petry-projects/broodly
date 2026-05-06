@@ -26,8 +26,15 @@ func (r *mutationResolver) CreateHive(ctx context.Context, input model.CreateHiv
 		return nil, domain.ValidationError(ctx, "hive name is required")
 	}
 
+	// Verify the target apiary belongs to the authenticated user before creating a hive in it.
+	apiaryID := stringToUUID(input.ApiaryID)
+	_, err = r.ApiaryService.GetByID(ctx, apiaryID, userID)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+
 	hive, err := r.HiveService.Create(ctx, userID, repository.CreateHiveParams{
-		ApiaryID: stringToUUID(input.ApiaryID),
+		ApiaryID: apiaryID,
 		Name:     input.Name,
 		Type:     strings.ToLower(string(input.Type)),
 		Status:   "active",
@@ -109,6 +116,18 @@ func (r *mutationResolver) DeleteHive(ctx context.Context, id string) (bool, err
 
 // Hives is the resolver for the hives field.
 func (r *queryResolver) Hives(ctx context.Context, apiaryID string) ([]*model.Hive, error) {
+	uid, err := auth.UserIDFromContext(ctx)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+	userID := stringToUUID(uid)
+
+	// Verify the requested apiary belongs to the authenticated user.
+	_, err = r.ApiaryService.GetByID(ctx, stringToUUID(apiaryID), userID)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+
 	hives, err := r.HiveService.List(ctx, stringToUUID(apiaryID))
 	if err != nil {
 		return nil, err
@@ -123,7 +142,13 @@ func (r *queryResolver) Hives(ctx context.Context, apiaryID string) ([]*model.Hi
 
 // Hive is the resolver for the hive field.
 func (r *queryResolver) Hive(ctx context.Context, id string) (*model.Hive, error) {
-	hive, err := r.HiveService.GetByID(ctx, stringToUUID(id))
+	uid, err := auth.UserIDFromContext(ctx)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+	userID := stringToUUID(uid)
+
+	hive, err := r.HiveService.GetByIDAndUser(ctx, stringToUUID(id), userID)
 	if err != nil {
 		return nil, domain.NotFoundError(ctx, "hive")
 	}

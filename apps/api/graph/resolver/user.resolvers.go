@@ -13,5 +13,5 @@ import (
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: Me - me"))
+	return nil, fmt.Errorf("not implemented: Me - me")
 }
