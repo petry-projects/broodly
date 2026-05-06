@@ -16,6 +16,16 @@ import (
 
 const testProjectID = "broodly-test"
 
+// mustGenerateRSAKey generates an RSA private key or fatals the test.
+func mustGenerateRSAKey(t *testing.T) *rsa.PrivateKey {
+	t.Helper()
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("rsa.GenerateKey failed: %v", err)
+	}
+	return privateKey
+}
+
 // testKeyCache creates a KeyCache pre-loaded with the given key.
 func testKeyCache(t *testing.T, kid string, key *rsa.PublicKey) *KeyCache {
 	t.Helper()
@@ -50,7 +60,7 @@ func validClaims() jwt.MapClaims {
 }
 
 func TestMiddleware_MissingHeader(t *testing.T) {
-	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	privateKey := mustGenerateRSAKey(t)
 	kc := testKeyCache(t, "kid1", &privateKey.PublicKey)
 	mw := Middleware(testProjectID, kc)
 
@@ -68,8 +78,11 @@ func TestMiddleware_MissingHeader(t *testing.T) {
 
 	var resp gqlErrorResponse
 	_ = json.Unmarshal(w.Body.Bytes(), &resp)
-	if len(resp.Errors) == 0 || resp.Errors[0].Extensions.Code != "UNAUTHENTICATED" {
-		t.Errorf("expected UNAUTHENTICATED error code")
+	if len(resp.Errors) == 0 {
+		t.Fatalf("expected at least one error in response")
+	}
+	if resp.Errors[0].Extensions.Code != "UNAUTHENTICATED" {
+		t.Errorf("expected UNAUTHENTICATED error code, got %q", resp.Errors[0].Extensions.Code)
 	}
 	if resp.Errors[0].Message != "Missing authorization token" {
 		t.Errorf("expected 'Missing authorization token', got %q", resp.Errors[0].Message)
@@ -77,7 +90,7 @@ func TestMiddleware_MissingHeader(t *testing.T) {
 }
 
 func TestMiddleware_EmptyBearerToken(t *testing.T) {
-	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	privateKey := mustGenerateRSAKey(t)
 	kc := testKeyCache(t, "kid1", &privateKey.PublicKey)
 	mw := Middleware(testProjectID, kc)
 
@@ -96,7 +109,7 @@ func TestMiddleware_EmptyBearerToken(t *testing.T) {
 }
 
 func TestMiddleware_ExpiredToken(t *testing.T) {
-	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	privateKey := mustGenerateRSAKey(t)
 	kc := testKeyCache(t, "kid1", &privateKey.PublicKey)
 	mw := Middleware(testProjectID, kc)
 
@@ -119,13 +132,16 @@ func TestMiddleware_ExpiredToken(t *testing.T) {
 
 	var resp gqlErrorResponse
 	_ = json.Unmarshal(w.Body.Bytes(), &resp)
-	if len(resp.Errors) == 0 || resp.Errors[0].Message != "Token expired" {
+	if len(resp.Errors) == 0 {
+		t.Fatalf("expected at least one error in response")
+	}
+	if resp.Errors[0].Message != "Token expired" {
 		t.Errorf("expected 'Token expired' message, got %q", resp.Errors[0].Message)
 	}
 }
 
 func TestMiddleware_MalformedToken(t *testing.T) {
-	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	privateKey := mustGenerateRSAKey(t)
 	kc := testKeyCache(t, "kid1", &privateKey.PublicKey)
 	mw := Middleware(testProjectID, kc)
 
@@ -144,14 +160,17 @@ func TestMiddleware_MalformedToken(t *testing.T) {
 
 	var resp gqlErrorResponse
 	_ = json.Unmarshal(w.Body.Bytes(), &resp)
-	if len(resp.Errors) == 0 || resp.Errors[0].Message != "Invalid token" {
+	if len(resp.Errors) == 0 {
+		t.Fatalf("expected at least one error in response")
+	}
+	if resp.Errors[0].Message != "Invalid token" {
 		t.Errorf("expected 'Invalid token' message, got %q", resp.Errors[0].Message)
 	}
 }
 
 func TestMiddleware_WrongSigningKey(t *testing.T) {
-	correctKey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	wrongKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	correctKey := mustGenerateRSAKey(t)
+	wrongKey := mustGenerateRSAKey(t)
 	kc := testKeyCache(t, "kid1", &correctKey.PublicKey)
 	mw := Middleware(testProjectID, kc)
 
@@ -173,7 +192,7 @@ func TestMiddleware_WrongSigningKey(t *testing.T) {
 }
 
 func TestMiddleware_ValidToken(t *testing.T) {
-	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	privateKey := mustGenerateRSAKey(t)
 	kc := testKeyCache(t, "kid1", &privateKey.PublicKey)
 	mw := Middleware(testProjectID, kc)
 
@@ -207,7 +226,7 @@ func TestMiddleware_ValidToken(t *testing.T) {
 }
 
 func TestMiddleware_ValidToken_MissingEmail(t *testing.T) {
-	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	privateKey := mustGenerateRSAKey(t)
 	kc := testKeyCache(t, "kid1", &privateKey.PublicKey)
 	mw := Middleware(testProjectID, kc)
 
@@ -234,8 +253,38 @@ func TestMiddleware_ValidToken_MissingEmail(t *testing.T) {
 	}
 }
 
+func TestMiddleware_EmptyRoleClaim(t *testing.T) {
+	privateKey := mustGenerateRSAKey(t)
+	kc := testKeyCache(t, "kid1", &privateKey.PublicKey)
+	mw := Middleware(testProjectID, kc)
+
+	// Token with no role claim (typical for Firebase users without custom claims)
+	claims := validClaims()
+	delete(claims, "role")
+	tokenStr := signTestToken(t, privateKey, "kid1", claims)
+
+	var capturedRole string
+	handler := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedRole = RoleFromContext(r.Context())
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	req := httptest.NewRequest(http.MethodGet, "/graphql", nil)
+	req.Header.Set("Authorization", "Bearer "+tokenStr)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+
+	// Token is valid — user authenticates but gets no permissions
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200 for valid token with no role claim, got %d", w.Code)
+	}
+	if capturedRole != "" {
+		t.Errorf("expected empty role (no permissions), got %q", capturedRole)
+	}
+}
+
 func TestMiddleware_Integration_ChiRouter(t *testing.T) {
-	privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+	privateKey := mustGenerateRSAKey(t)
 	kc := testKeyCache(t, "kid1", &privateKey.PublicKey)
 
 	r := chi.NewRouter()

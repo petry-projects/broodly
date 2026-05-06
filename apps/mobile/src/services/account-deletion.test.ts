@@ -35,10 +35,10 @@ describe('deleteAccount', () => {
     expect(useAuthStore.getState().user).toBeNull();
   });
 
-  it('throws specific message for auth/requires-recent-login', async () => {
+  it('throws mapped error for auth/requires-recent-login', async () => {
     mockDelete.mockRejectedValue({ code: 'auth/requires-recent-login' });
 
-    await expect(deleteAccount()).rejects.toThrow('Please sign in again before deleting your account.');
+    await expect(deleteAccount()).rejects.toThrow('Mapped: auth/requires-recent-login');
   });
 
   it('throws mapped error for other failures', async () => {

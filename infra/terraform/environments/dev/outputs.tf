@@ -68,3 +68,18 @@ output "firebase_project_id" {
   description = "Firebase project ID"
   value       = module.firebase.project_id
 }
+
+output "firebase_storage_bucket" {
+  description = "Firebase storage bucket (for EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET)"
+  value       = module.firebase.storage_bucket
+}
+
+output "firebase_messaging_sender_id" {
+  description = "Firebase messaging sender ID (for EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID)"
+  value       = module.firebase.messaging_sender_id
+}
+
+output "firebase_app_id" {
+  description = "Firebase app ID (for EXPO_PUBLIC_FIREBASE_APP_ID)"
+  value       = module.firebase.app_id
+}

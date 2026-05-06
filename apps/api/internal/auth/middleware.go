@@ -23,7 +23,7 @@ func Middleware(projectID string, keyCache *KeyCache) func(http.Handler) http.Ha
 				return
 			}
 
-			claims, err := ValidateToken(tokenString, projectID, keyCache)
+			claims, err := ValidateToken(r.Context(), tokenString, projectID, keyCache)
 			if err != nil {
 				authErr, ok := err.(*AuthError)
 				if !ok {
@@ -34,12 +34,9 @@ func Middleware(projectID string, keyCache *KeyCache) func(http.Handler) http.Ha
 				return
 			}
 
-			role := claims.Role
-			if role == "" {
-				role = "owner"
-			}
-
-			ctx := WithAuthContext(r.Context(), claims.Subject, claims.Email, role)
+			// Use role claim as-is; an empty role gets no permissions via RequirePermission.
+			// Do NOT default to "owner" — that grants highest privilege to all unclaimed tokens.
+			ctx := WithAuthContext(r.Context(), claims.Subject, claims.Email, claims.Role)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

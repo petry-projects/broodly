@@ -13,9 +13,6 @@ export async function deleteAccount(): Promise<void> {
     useAuthStore.getState().clearUser();
   } catch (error) {
     const code = (error as { code?: string }).code ?? '';
-    if (code === 'auth/requires-recent-login') {
-      throw new Error('Please sign in again before deleting your account.');
-    }
     throw new Error(mapFirebaseError(code));
   }
 }

@@ -9,6 +9,7 @@ const FIREBASE_ERROR_MAP: Record<string, string> = {
   'auth/invalid-credential': 'Invalid credentials. Please try again.',
   'auth/user-disabled': 'This account has been disabled. Please contact support.',
   'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
+  'auth/requires-recent-login': 'Please sign in again before deleting your account.',
 };
 
 export function mapFirebaseError(code: string): string {
@@ -40,7 +41,11 @@ export async function signInWithApple(appleIdToken: string, nonce: string) {
 }
 
 export async function signOut(): Promise<void> {
-  await auth().signOut();
+  try {
+    await auth().signOut();
+  } catch (error) {
+    handleFirebaseError(error);
+  }
 }
 
 export async function getIdToken(forceRefresh = false): Promise<string | null> {

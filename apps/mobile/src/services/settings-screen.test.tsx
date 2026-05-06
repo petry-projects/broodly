@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { useAuthStore } from '../store/auth-store';
 
 jest.mock('./account', () => ({
@@ -48,7 +48,9 @@ describe('SettingsScreen', () => {
     const saveBtn = screen.getByTestId('save-button');
     expect(saveBtn.props.accessibilityState?.disabled).toBe(true);
 
-    resolvePromise!();
+    await act(async () => {
+      resolvePromise!();
+    });
   });
 
   it('shows success message on successful update', async () => {
