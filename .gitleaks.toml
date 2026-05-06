@@ -7,13 +7,20 @@ useDefault = true
 [allowlist]
 description = "False-positive suppressions"
 paths = [
-  # _bmad/ contains BMAD planning artifacts, knowledge files, and configuration
-  # manifests.  The files-manifest.csv stores SHA-256 hashes of tracked files
-  # which gitleaks misidentifies as high-entropy API keys.  Test knowledge files
-  # may contain truncated placeholder tokens for documentation purposes.
-  # None of these paths contain real credentials.
-  '''(^|/)_bmad/''',
-  # _bmad-output/ contains generated planning artifacts and documentation.
-  # These files may reference example tokens or hashes for illustration only.
-  '''(^|/)_bmad-output/''',
+  # BMAD config manifests store SHA-256 file-integrity checksums in CSV
+  # columns; these 64-char hex values are flagged as high-entropy secrets.
+  # Only *-manifest.csv files inside _bmad/_config/ are excluded — all other
+  # CSV files in the repository remain fully scanned.
+  '''(^|/)_bmad/_config/[^/]+-manifest\.csv''',
+
+  # BMAD knowledge files (Markdown only) may reference truncated placeholder
+  # tokens for documentation purposes.  Non-Markdown file types within _bmad/
+  # (YAML, JSON, Groovy) remain fully scanned.
+  '''(^|/)_bmad/.*\.md''',
+
+  # Generated planning-output Markdown docs may reference example tokens or
+  # hashes for illustration.  HTML wireframe/prototype files may contain
+  # data-URI-encoded assets that trigger entropy rules.
+  # Non-Markdown/HTML file types within _bmad-output/ remain fully scanned.
+  '''(^|/)_bmad-output/.*\.(md|html)''',
 ]
