@@ -35,10 +35,10 @@ describe('createQueryClient', () => {
     expect(defaults.queries?.gcTime).toBe(24 * 60 * 60 * 1000);
   });
 
-  it('configures retry to 3 for queries', () => {
+  it('disables retry for queries (urql retryExchange handles network retries)', () => {
     const client = createQueryClient();
     const defaults = client.getDefaultOptions();
-    expect(defaults.queries?.retry).toBe(3);
+    expect(defaults.queries?.retry).toBe(false);
   });
 
   it('disables retry for mutations', () => {

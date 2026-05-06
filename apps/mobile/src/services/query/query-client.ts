@@ -23,7 +23,8 @@ export const queryPersister = createSyncStoragePersister({
  * Singleton QueryClient with cache-first defaults.
  * staleTime: 5min — data considered fresh for 5 minutes.
  * gcTime: 24h — cached data retained for 24 hours.
- * retry: 3 — retry transient failures with exponential backoff.
+ * retry: false — urql retryExchange already handles network retries;
+ *   enabling TanStack retry too would stack up to 9 attempts per request.
  */
 export function createQueryClient(): QueryClient {
   return new QueryClient({
@@ -31,7 +32,7 @@ export function createQueryClient(): QueryClient {
       queries: {
         staleTime: STALE_TIME,
         gcTime: GC_TIME,
-        retry: 3,
+        retry: false,
         refetchOnWindowFocus: false,
       },
       mutations: {
