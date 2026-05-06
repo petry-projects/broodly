@@ -23,7 +23,7 @@ import { startConnectivityListener } from './connectivity-listener';
 const NetInfoMock = jest.requireMock('@react-native-community/netinfo');
 
 beforeEach(() => {
-  useConnectivityStore.setState({ isOnline: true, lastOnlineAt: null });
+  useConnectivityStore.setState({ isOnline: true, lastOfflineAt: null });
 });
 
 describe('Connectivity listener', () => {
@@ -38,7 +38,7 @@ describe('Connectivity listener', () => {
     NetInfoMock.__simulateChange(false);
 
     expect(useConnectivityStore.getState().isOnline).toBe(false);
-    expect(useConnectivityStore.getState().lastOnlineAt).not.toBeNull();
+    expect(useConnectivityStore.getState().lastOfflineAt).not.toBeNull();
     unsubscribe();
   });
 
