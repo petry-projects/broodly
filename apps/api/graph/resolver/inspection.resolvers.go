@@ -90,6 +90,11 @@ func (r *mutationResolver) CompleteInspection(ctx context.Context, id string) (*
 
 	insp, err := r.InspectionService.Complete(ctx, inspID, userID)
 	if err != nil {
+		// If the inspection was committed (valid ID), only the event publish failed.
+		// The completion is persisted — still return success so the client isn't misled.
+		if insp.ID.Valid {
+			return inspectionToModel(insp), nil
+		}
 		if domErr, ok := err.(*domain.DomainError); ok {
 			return nil, domain.ToGraphQLError(ctx, domErr)
 		}
@@ -100,14 +105,25 @@ func (r *mutationResolver) CompleteInspection(ctx context.Context, id string) (*
 
 // AddObservation is the resolver for the addObservation field.
 func (r *mutationResolver) AddObservation(ctx context.Context, input model.AddObservationInput) (*model.Observation, error) {
-	_, err := auth.UserIDFromContext(ctx)
+	uid, err := auth.UserIDFromContext(ctx)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+	userID := stringToUUID(uid)
+	inspID := stringToUUID(input.InspectionID)
+
+	// Verify the inspection belongs to the authenticated user.
+	_, err = r.InspectionService.GetByIDAndUser(ctx, inspID, userID)
 	if err != nil {
 		return nil, domain.ForbiddenError(ctx)
 	}
 
 	var structuredData []byte
 	if input.StructuredData != nil {
-		structuredData, _ = json.Marshal(input.StructuredData)
+		structuredData, err = json.Marshal(input.StructuredData)
+		if err != nil {
+			return nil, domain.ValidationError(ctx, "structuredData contains non-serializable values")
+		}
 	}
 	var rawVoice pgtype.Text
 	if input.RawVoiceURL != nil {
@@ -123,7 +139,7 @@ func (r *mutationResolver) AddObservation(ctx context.Context, input model.AddOb
 	}
 
 	obs, err := r.InspectionService.AddObservation(ctx, repository.CreateObservationParams{
-		InspectionID:            stringToUUID(input.InspectionID),
+		InspectionID:            inspID,
 		ObservationType:         strings.ToLower(string(input.ObservationType)),
 		StructuredData:          structuredData,
 		RawVoiceUrl:             rawVoice,
@@ -142,11 +158,16 @@ func (r *queryResolver) Inspections(ctx context.Context, hiveID *string, limit *
 	if err != nil {
 		return nil, domain.ForbiddenError(ctx)
 	}
+	userID := stringToUUID(uid)
 
+	const maxLimit = int32(100)
 	l := int32(20)
 	o := int32(0)
 	if limit != nil {
 		l = int32(*limit)
+		if l > maxLimit {
+			l = maxLimit
+		}
 	}
 	if offset != nil {
 		o = int32(*offset)
@@ -154,9 +175,14 @@ func (r *queryResolver) Inspections(ctx context.Context, hiveID *string, limit *
 
 	var inspections []repository.Inspection
 	if hiveID != nil {
+		// Verify the hive belongs to the caller before listing its inspections.
+		_, err = r.HiveService.GetByIDAndUser(ctx, stringToUUID(*hiveID), userID)
+		if err != nil {
+			return nil, domain.ForbiddenError(ctx)
+		}
 		inspections, err = r.InspectionService.ListByHive(ctx, stringToUUID(*hiveID), l, o)
 	} else {
-		inspections, err = r.InspectionService.ListByUser(ctx, stringToUUID(uid), l, o)
+		inspections, err = r.InspectionService.ListByUser(ctx, userID, l, o)
 	}
 	if err != nil {
 		return nil, err
@@ -171,7 +197,13 @@ func (r *queryResolver) Inspections(ctx context.Context, hiveID *string, limit *
 
 // Inspection is the resolver for the inspection field.
 func (r *queryResolver) Inspection(ctx context.Context, id string) (*model.Inspection, error) {
-	insp, err := r.InspectionService.GetByID(ctx, stringToUUID(id))
+	uid, err := auth.UserIDFromContext(ctx)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+	userID := stringToUUID(uid)
+
+	insp, err := r.InspectionService.GetByIDAndUser(ctx, stringToUUID(id), userID)
 	if err != nil {
 		return nil, domain.NotFoundError(ctx, "inspection")
 	}

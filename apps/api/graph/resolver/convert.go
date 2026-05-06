@@ -46,24 +46,30 @@ func stringToUUID(s string) pgtype.UUID {
 		return u
 	}
 	for i := 0; i < 16; i++ {
-		hi := hexVal(clean[i*2])
-		lo := hexVal(clean[i*2+1])
+		hi, ok := hexVal(clean[i*2])
+		if !ok {
+			return u // return invalid UUID on non-hex character
+		}
+		lo, ok := hexVal(clean[i*2+1])
+		if !ok {
+			return u
+		}
 		u.Bytes[i] = hi<<4 | lo
 	}
 	u.Valid = true
 	return u
 }
 
-func hexVal(c byte) byte {
+func hexVal(c byte) (byte, bool) {
 	switch {
 	case c >= '0' && c <= '9':
-		return c - '0'
+		return c - '0', true
 	case c >= 'a' && c <= 'f':
-		return c - 'a' + 10
+		return c - 'a' + 10, true
 	case c >= 'A' && c <= 'F':
-		return c - 'A' + 10
+		return c - 'A' + 10, true
 	default:
-		return 0
+		return 0, false
 	}
 }
 
@@ -98,6 +104,7 @@ func apiaryToModel(a repository.Apiary) *model.Apiary {
 		Region:          a.Region,
 		ElevationOffset: a.ElevationOffset,
 		BloomOffset:     int(a.BloomOffset),
+		Hives:           []*model.Hive{}, // populated by field resolver / dataloader
 		CreatedAt:       timestampToTime(a.CreatedAt),
 		UpdatedAt:       timestampToTime(a.UpdatedAt),
 	}
@@ -113,6 +120,7 @@ func derefString(s *string) string {
 func hiveToModel(h repository.Hive) *model.Hive {
 	return &model.Hive{
 		ID:        uuidToString(h.ID),
+		Apiary:    &model.Apiary{ID: uuidToString(h.ApiaryID)}, // ID only; populated by field resolver / dataloader
 		Name:      h.Name,
 		Type:      model.HiveType(strings.ToUpper(h.Type)),
 		Status:    model.HiveStatus(strings.ToUpper(h.Status)),
@@ -124,12 +132,14 @@ func hiveToModel(h repository.Hive) *model.Hive {
 
 func inspectionToModel(i repository.Inspection) *model.Inspection {
 	m := &model.Inspection{
-		ID:        uuidToString(i.ID),
-		Type:      model.InspectionType(strings.ToUpper(i.Type)),
-		Status:    model.InspectionStatus(strings.ToUpper(i.Status)),
-		StartedAt: timestampToTime(i.StartedAt),
-		Notes:     i.Notes,
-		CreatedAt: timestampToTime(i.CreatedAt),
+		ID:           uuidToString(i.ID),
+		Hive:         &model.Hive{ID: uuidToString(i.HiveID)}, // ID only; populated by field resolver / dataloader
+		Type:         model.InspectionType(strings.ToUpper(i.Type)),
+		Status:       model.InspectionStatus(strings.ToUpper(i.Status)),
+		Observations: []*model.Observation{}, // populated by field resolver / dataloader
+		StartedAt:    timestampToTime(i.StartedAt),
+		Notes:        i.Notes,
+		CreatedAt:    timestampToTime(i.CreatedAt),
 	}
 	if i.CompletedAt.Valid {
 		t := i.CompletedAt.Time
@@ -141,8 +151,10 @@ func inspectionToModel(i repository.Inspection) *model.Inspection {
 func observationToModel(o repository.Observation) *model.Observation {
 	m := &model.Observation{
 		ID:              uuidToString(o.ID),
+		Inspection:      &model.Inspection{ID: uuidToString(o.InspectionID)}, // ID only; populated by field resolver / dataloader
 		SequenceOrder:   int(o.SequenceOrder),
 		ObservationType: model.ObservationType(strings.ToUpper(o.ObservationType)),
+		Media:           []*model.Media{}, // populated by field resolver / dataloader
 		CreatedAt:       timestampToTime(o.CreatedAt),
 	}
 	if o.RawVoiceUrl.Valid {
@@ -173,6 +185,7 @@ func timePtrVal(t time.Time, valid bool) *time.Time {
 func taskToModel(t repository.Task) *model.Task {
 	m := &model.Task{
 		ID:              uuidToStringR(t.ID),
+		Hive:            &model.Hive{ID: uuidToString(t.HiveID)}, // ID only; populated by field resolver / dataloader
 		Title:           t.Title,
 		Priority:        model.TaskPriority(strings.ToUpper(t.Priority)),
 		Status:          model.TaskStatus(strings.ToUpper(t.Status)),

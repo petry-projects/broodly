@@ -103,13 +103,17 @@ func (s *ExportService) assembleData(ctx context.Context, userID pgtype.UUID) (*
 		return nil, err
 	}
 
+	// Batch-load all hives in a single query instead of one query per apiary.
 	var allHives []repository.Hive
-	for _, a := range apiaries {
-		hives, err := s.queries.ListHivesByApiary(ctx, a.ID)
+	if len(apiaries) > 0 {
+		apiaryIDs := make([]pgtype.UUID, len(apiaries))
+		for i, a := range apiaries {
+			apiaryIDs[i] = a.ID
+		}
+		allHives, err = s.queries.ListHivesByApiaryIDs(ctx, apiaryIDs)
 		if err != nil {
 			return nil, err
 		}
-		allHives = append(allHives, hives...)
 	}
 
 	inspections, err := s.queries.ListInspectionsByUser(ctx, repository.ListInspectionsByUserParams{
@@ -205,6 +209,58 @@ func (s *ExportService) serializeCSV(data *exportData) ([]byte, error) {
 	_ = w.Write([]string{"ID", "HiveID", "Type", "Status", "StartedAt"})
 	for _, i := range data.Inspections {
 		_ = w.Write([]string{uuidToString(i.ID), uuidToString(i.HiveID), i.Type, i.Status, i.StartedAt.Time.Format(time.RFC3339)})
+	}
+	_ = w.Write([]string{""})
+
+	// Observations section
+	_ = w.Write([]string{"--- OBSERVATIONS ---"})
+	_ = w.Write([]string{"ID", "InspectionID", "SequenceOrder", "ObservationType", "Transcription"})
+	for _, o := range data.Observations {
+		transcription := ""
+		if o.Transcription.Valid {
+			transcription = o.Transcription.String
+		}
+		_ = w.Write([]string{
+			uuidToString(o.ID),
+			uuidToString(o.InspectionID),
+			fmt.Sprintf("%d", o.SequenceOrder),
+			o.ObservationType,
+			transcription,
+		})
+	}
+	_ = w.Write([]string{""})
+
+	// Recommendations section
+	_ = w.Write([]string{"--- RECOMMENDATIONS ---"})
+	_ = w.Write([]string{"ID", "HiveID", "Action", "Rationale", "ConfidenceLevel", "FallbackAction"})
+	for _, rec := range data.Recommendations {
+		_ = w.Write([]string{
+			uuidToString(rec.ID),
+			uuidToString(rec.HiveID),
+			rec.Action,
+			rec.Rationale,
+			fmt.Sprintf("%.2f", rec.ConfidenceLevel),
+			rec.FallbackAction,
+		})
+	}
+	_ = w.Write([]string{""})
+
+	// Tasks section
+	_ = w.Write([]string{"--- TASKS ---"})
+	_ = w.Write([]string{"ID", "HiveID", "Title", "Priority", "Status", "DueDate"})
+	for _, t := range data.Tasks {
+		dueDate := ""
+		if t.DueDate.Valid {
+			dueDate = t.DueDate.Time.Format("2006-01-02")
+		}
+		_ = w.Write([]string{
+			uuidToString(t.ID),
+			uuidToString(t.HiveID),
+			t.Title,
+			t.Priority,
+			t.Status,
+			dueDate,
+		})
 	}
 
 	w.Flush()
