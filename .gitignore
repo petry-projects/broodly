@@ -23,6 +23,7 @@ apps/mobile/web-build/
 # Go
 apps/api/bin/
 apps/api/tmp/
+apps/api/server
 *.exe
 *.test
 *.out
@@ -58,6 +59,7 @@ terraform.rc
 # Test
 coverage/
 *.lcov
+test-results/
 
 # Misc
 *.log
