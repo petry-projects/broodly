@@ -28,7 +28,7 @@ test.describe('App Smoke Tests', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // Filter out known non-blocking warnings
     const criticalErrors = errors.filter(

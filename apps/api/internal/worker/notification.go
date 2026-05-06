@@ -59,8 +59,12 @@ func (d *NotificationDispatcher) ShouldSuppress(
 
 	if prefs.QuietHoursStart != "" && prefs.QuietHoursEnd != "" {
 		hour := currentTime.Hour()
-		start, _ := parseHour(prefs.QuietHoursStart)
-		end, _ := parseHour(prefs.QuietHoursEnd)
+		start, errStart := parseHour(prefs.QuietHoursStart)
+		end, errEnd := parseHour(prefs.QuietHoursEnd)
+		// Treat invalid/out-of-range quiet hour config as "no quiet hours"
+		if errStart != nil || errEnd != nil {
+			return false
+		}
 
 		if start <= end {
 			if hour >= start && hour < end && event.Priority != NotificationPriorityHigh {
@@ -101,9 +105,9 @@ func (d *NotificationDispatcher) ShouldEscalate(
 
 	switch event.Priority {
 	case NotificationPriorityHigh:
-		return unacknowledgedDuration > 2*time.Hour
+		return unacknowledgedDuration >= 2*time.Hour
 	case NotificationPriorityNormal:
-		return unacknowledgedDuration > 24*time.Hour
+		return unacknowledgedDuration >= 24*time.Hour
 	default:
 		return false
 	}
@@ -111,6 +115,12 @@ func (d *NotificationDispatcher) ShouldEscalate(
 
 func parseHour(s string) (int, error) {
 	var h int
-	_, err := fmt.Sscanf(s, "%d", &h)
-	return h, err
+	n, err := fmt.Sscanf(s, "%d", &h)
+	if err != nil || n != 1 {
+		return 0, fmt.Errorf("invalid hour %q: must be an integer", s)
+	}
+	if h < 0 || h > 23 {
+		return 0, fmt.Errorf("hour %d out of range [0, 23]", h)
+	}
+	return h, nil
 }

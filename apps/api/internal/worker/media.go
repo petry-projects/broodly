@@ -98,13 +98,15 @@ func (w *STTWorker) Process(_ context.Context, event UploadEvent) (*Transcriptio
 		return nil, fmt.Errorf("expected audio media type, got %s", event.MediaType)
 	}
 
-	// In production: call Vertex AI Gemini STT API with beekeeping vocabulary hints
+	// In production: call Vertex AI Gemini STT API with beekeeping vocabulary hints.
+	// Stub uses minConfidence as a placeholder; NeedsReview is derived from the threshold.
+	confidence := w.minConfidence
 	return &TranscriptionResult{
-		Text:            "",
-		Confidence:      0.0,
-		NeedsReview:     true,
+		Text:             "",
+		Confidence:       confidence,
+		NeedsReview:      w.ShouldFlagForReview(confidence),
 		OriginalAudioURI: event.StoragePath,
-		ProcessedAt:     time.Now(),
+		ProcessedAt:      time.Now(),
 	}, nil
 }
 
@@ -131,11 +133,13 @@ func (w *VisionWorker) Analyze(_ context.Context, event UploadEvent) (*ImageAnal
 		return nil, fmt.Errorf("expected image media type, got %s", event.MediaType)
 	}
 
-	// In production: call Vertex AI Gemini Vision with inspection-specific prompt
+	// In production: call Vertex AI Gemini Vision with inspection-specific prompt.
+	// Stub uses 1.0 as a placeholder confidence; IsInconclusive is derived from the threshold.
+	overallConfidence := 1.0
 	return &ImageAnalysisResult{
 		Findings:          nil,
-		OverallConfidence: 0.0,
-		IsInconclusive:    true,
+		OverallConfidence: overallConfidence,
+		IsInconclusive:    w.IsInconclusive(overallConfidence),
 		ProcessedAt:       time.Now(),
 	}, nil
 }

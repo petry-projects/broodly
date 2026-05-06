@@ -6,7 +6,7 @@ test.describe('Web Platform Compatibility', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState('networkidle');
 
     const importMetaErrors = errors.filter((e) => e.includes('import.meta'));
     expect(importMetaErrors).toEqual([]);
@@ -17,7 +17,7 @@ test.describe('Web Platform Compatibility', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     // These modules should be blocked by Metro resolver for web
     const nativeLeaks = errors.filter(
@@ -33,7 +33,7 @@ test.describe('Web Platform Compatibility', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
 
     const hydrationErrors = errors.filter((e) => e.includes('Hydration'));
     expect(hydrationErrors).toEqual([]);
