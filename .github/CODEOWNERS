@@ -1,5 +1,9 @@
 # CODEOWNERS
 # Standard: use the @petry-projects/org-leads team for all code owner
 # assignments. See petry-projects/.github standards/codeowners-standard.md
+#
+# The `*` catch-all ensures every file has an owner so that
+# `require_code_owner_review` applies to all paths. Per the org standard,
+# @petry-projects/org-leads must be the first (and only required) owner.
 
 * @petry-projects/org-leads
