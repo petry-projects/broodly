@@ -17,7 +17,7 @@ interface StalenessResult {
  */
 export function useStaleness(dataUpdatedAt: number | undefined): StalenessResult {
   return useMemo(() => {
-    if (!dataUpdatedAt) {
+    if (dataUpdatedAt == null) {
       return { level: 'fresh' as const, label: '', isStale: false };
     }
     const date = new Date(dataUpdatedAt);

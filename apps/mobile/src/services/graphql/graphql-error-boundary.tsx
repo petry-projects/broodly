@@ -14,8 +14,12 @@ interface State {
 }
 
 /**
- * Error boundary for GraphQL query errors.
- * Renders a user-friendly error state with retry action.
+ * General React error boundary for catching render-time exceptions in children.
+ * Renders a user-friendly error state with a retry action that resets the boundary.
+ *
+ * Note: React Query does not surface query failures to error boundaries by default.
+ * To catch React Query errors here, configure `throwOnError: true` in query options
+ * or set it globally on the QueryClient defaults.
  */
 export class GraphQLErrorBoundary extends Component<Props, State> {
   state: State = { error: null };
