@@ -50,12 +50,12 @@ development_status:
   4-5-data-export-resolvers: review
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-expo-router-navigation-shell: ready-for-dev
-  5-2-apollo-client-and-graphql-codegen: ready-for-dev
-  5-3-zustand-stores-and-tanstack-query: ready-for-dev
-  5-4-auth-screens-and-protected-routes: ready-for-dev
-  5-5-offline-indicator-and-staleness-ux: ready-for-dev
+  epic-5: done
+  5-1-expo-router-navigation-shell: done
+  5-2-apollo-client-and-graphql-codegen: done
+  5-3-zustand-stores-and-tanstack-query: done
+  5-4-auth-screens-and-protected-routes: done
+  5-5-offline-indicator-and-staleness-ux: done
   epic-5-retrospective: optional
 
   epic-6: backlog
