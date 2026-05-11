@@ -10,6 +10,8 @@ import {
   useAccessAuditLog,
 } from '../../../src/features/collaborator/hooks/use-collaborators';
 
+// Advisory client-side format check only. The server enforces valid email independently.
+// This guard prevents obvious user input errors before the network round-trip.
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -21,6 +23,7 @@ export default function CollaboratorsScreen() {
   const revoke = useRevokeCollaborator();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [revokeError, setRevokeError] = useState<string | null>(null);
 
   async function handleInvite() {
     if (!isValidEmail(email.trim())) {
@@ -45,7 +48,13 @@ export default function CollaboratorsScreen() {
         {
           text: 'Revoke',
           style: 'destructive',
-          onPress: () => revoke.mutateAsync(collaboratorId),
+          onPress: async () => {
+            try {
+              await revoke.mutateAsync(collaboratorId);
+            } catch (err) {
+              setRevokeError(err instanceof Error ? err.message : 'Failed to revoke access.');
+            }
+          },
         },
       ],
     );
@@ -96,6 +105,11 @@ export default function CollaboratorsScreen() {
           </View>
           {emailError && (
             <Text size="sm" className="text-error-600 mb-4" testID="email-error">{emailError}</Text>
+          )}
+          {revokeError && (
+            <View className="bg-background-error rounded-lg p-3 mb-4" accessibilityRole="alert" testID="revoke-error">
+              <Text size="sm" className="text-error-600">{revokeError}</Text>
+            </View>
           )}
         </View>
       }

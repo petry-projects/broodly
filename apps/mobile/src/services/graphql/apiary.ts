@@ -14,6 +14,7 @@ export const APIARIES_QUERY = gql`
         id
         name
         status
+        type
       }
       createdAt
       updatedAt
@@ -35,6 +36,7 @@ export const APIARY_QUERY = gql`
         id
         name
         status
+        type
       }
       createdAt
       updatedAt
