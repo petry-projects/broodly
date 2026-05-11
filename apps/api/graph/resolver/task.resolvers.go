@@ -64,10 +64,14 @@ func (r *queryResolver) Tasks(ctx context.Context, apiaryID *string, hiveID *str
 	}
 	userID := stringToUUID(uid)
 
+	const maxLimit = int32(100)
 	l := int32(20)
 	o := int32(0)
 	if limit != nil {
 		l = int32(*limit)
+		if l > maxLimit {
+			l = maxLimit
+		}
 	}
 	if offset != nil {
 		o = int32(*offset)
@@ -79,13 +83,32 @@ func (r *queryResolver) Tasks(ctx context.Context, apiaryID *string, hiveID *str
 		statusFilter = &s
 	}
 
-	tasks, err := r.PlanningService.ListTasks(ctx, userID, statusFilter, l, o)
+	if hiveID != nil {
+		// Verify hive ownership before listing its tasks.
+		_, err = r.HiveService.GetByIDAndUser(ctx, stringToUUID(*hiveID), userID)
+		if err != nil {
+			return nil, domain.ForbiddenError(ctx)
+		}
+		hiveTasks, err := r.PlanningService.ListTasksByHive(ctx, stringToUUID(*hiveID), l, o)
+		if err != nil {
+			return nil, err
+		}
+		result := make([]*model.Task, len(hiveTasks))
+		for i, t := range hiveTasks {
+			result[i] = taskToModel(t)
+		}
+		return result, nil
+	}
+
+	// apiaryID filtering is not yet implemented (no ListTasksByApiary query exists).
+	// Falls back to user-scoped listing; apiaryID is intentionally ignored for now.
+	userTasks, err := r.PlanningService.ListTasks(ctx, userID, statusFilter, l, o)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]*model.Task, len(tasks))
-	for i, t := range tasks {
+	result := make([]*model.Task, len(userTasks))
+	for i, t := range userTasks {
 		result[i] = taskToModel(t)
 	}
 	return result, nil

@@ -31,6 +31,10 @@ func (m *mockExportQuerier) ListHivesByApiary(ctx context.Context, apiaryID pgty
 	return m.hives, nil
 }
 
+func (m *mockExportQuerier) ListHivesByApiaryIDs(ctx context.Context, apiaryIDs []pgtype.UUID) ([]repository.Hive, error) {
+	return m.hives, nil
+}
+
 func (m *mockExportQuerier) ListInspectionsByUser(ctx context.Context, arg repository.ListInspectionsByUserParams) ([]repository.Inspection, error) {
 	return m.inspections, nil
 }

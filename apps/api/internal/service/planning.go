@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/broodly/api/internal/domain"
 	"github.com/broodly/api/internal/repository"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -36,13 +38,26 @@ func (s *PlanningService) ListTasks(ctx context.Context, userID pgtype.UUID, sta
 	})
 }
 
+// ListTasksByHive returns tasks for a specific hive with pagination.
+// Callers must verify hive ownership before calling this method.
+func (s *PlanningService) ListTasksByHive(ctx context.Context, hiveID pgtype.UUID, limit, offset int32) ([]repository.Task, error) {
+	return s.queries.ListTasksByHive(ctx, repository.ListTasksByHiveParams{
+		HiveID: hiveID,
+		Limit:  limit,
+		Offset: offset,
+	})
+}
+
 // DeferTask updates a task to deferred status with an optional reason.
 func (s *PlanningService) DeferTask(ctx context.Context, id, userID pgtype.UUID, reason *string) (repository.Task, error) {
 	task, err := s.queries.GetTaskByIDAndUser(ctx, repository.GetTaskByIDAndUserParams{
 		ID: id, UserID: userID,
 	})
 	if err != nil {
-		return repository.Task{}, &domain.DomainError{Code: domain.ErrCodeNotFound, Message: "task not found"}
+		if errors.Is(err, pgx.ErrNoRows) {
+			return repository.Task{}, &domain.DomainError{Code: domain.ErrCodeNotFound, Message: "task not found"}
+		}
+		return repository.Task{}, err
 	}
 	if task.Status == "completed" || task.Status == "dismissed" {
 		return repository.Task{}, &domain.DomainError{Code: domain.ErrCodeValidation, Message: "cannot defer a completed or dismissed task"}
@@ -66,7 +81,10 @@ func (s *PlanningService) CompleteTask(ctx context.Context, id, userID pgtype.UU
 		ID: id, UserID: userID,
 	})
 	if err != nil {
-		return repository.Task{}, &domain.DomainError{Code: domain.ErrCodeNotFound, Message: "task not found"}
+		if errors.Is(err, pgx.ErrNoRows) {
+			return repository.Task{}, &domain.DomainError{Code: domain.ErrCodeNotFound, Message: "task not found"}
+		}
+		return repository.Task{}, err
 	}
 
 	return s.queries.UpdateTaskStatus(ctx, repository.UpdateTaskStatusParams{

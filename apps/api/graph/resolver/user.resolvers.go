@@ -12,6 +12,7 @@ import (
 )
 
 // Me is the resolver for the me field.
+// TODO: implement once user profile service is wired up.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: Me - me"))
+	return nil, fmt.Errorf("not implemented: Me - me")
 }

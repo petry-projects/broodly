@@ -6,12 +6,18 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/broodly/api/graph/model"
+	"github.com/broodly/api/internal/auth"
+	"github.com/broodly/api/internal/domain"
 )
 
 // Recommendations is the resolver for the recommendations field.
+// TODO: implement full recommendation resolver once RecommendationService is wired up.
 func (r *queryResolver) Recommendations(ctx context.Context, hiveID *string, limit *int, offset *int) ([]*model.Recommendation, error) {
-	panic(fmt.Errorf("not implemented: Recommendations - recommendations"))
+	_, err := auth.UserIDFromContext(ctx)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+	return []*model.Recommendation{}, nil
 }

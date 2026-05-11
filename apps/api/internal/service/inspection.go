@@ -92,13 +92,19 @@ func (s *InspectionService) Complete(ctx context.Context, id, userID pgtype.UUID
 		return repository.Inspection{}, err
 	}
 
-	// Publish event for async recommendation generation
+	// Publish event for async recommendation generation.
+	// The inspection is already persisted; a publish failure does not roll it back,
+	// but we surface the error so the caller can log or handle it.
 	evt := event.NewEvent("inspection.completed.v1", uuidToString(userID), map[string]any{
 		"inspectionId": uuidToString(id),
 		"hiveId":       uuidToString(insp.HiveID),
 		"type":         insp.Type,
 	})
-	_ = s.publisher.Publish(ctx, inspectionEventsTopic, evt)
+	if err := s.publisher.Publish(ctx, inspectionEventsTopic, evt); err != nil {
+		// Return the completed inspection alongside the publish error so the resolver
+		// can decide whether to surface it to the client or treat it as a soft failure.
+		return completed, err
+	}
 
 	return completed, nil
 }
@@ -122,9 +128,16 @@ func (s *InspectionService) AddObservation(ctx context.Context, params repositor
 	return s.queries.CreateObservation(ctx, params)
 }
 
-// GetByID returns an inspection by ID.
+// GetByID returns an inspection by ID (no ownership check — use GetByIDAndUser for user-facing queries).
 func (s *InspectionService) GetByID(ctx context.Context, id pgtype.UUID) (repository.Inspection, error) {
 	return s.queries.GetInspectionByID(ctx, id)
+}
+
+// GetByIDAndUser returns an inspection by ID with user ownership verification.
+func (s *InspectionService) GetByIDAndUser(ctx context.Context, id, userID pgtype.UUID) (repository.Inspection, error) {
+	return s.queries.GetInspectionByIDAndUser(ctx, repository.GetInspectionByIDAndUserParams{
+		ID: id, UserID: userID,
+	})
 }
 
 // ListByHive returns inspections for a hive with optional pagination.
