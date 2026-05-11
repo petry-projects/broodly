@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, TextInput, ActivityIndicator } from 'react-native';
+import { Button, ButtonText } from '../../components/ui/button';
+import { Text } from '../../components/ui/text';
 import { useAuthStore } from '../store/auth-store';
 import { updateDisplayName } from './account';
 
@@ -25,44 +27,44 @@ export function SettingsScreen() {
   };
 
   return (
-    <View style={{ flex: 1, padding: 24 }} testID="settings-screen">
-      <Text style={{ fontSize: 14, marginBottom: 4 }}>Display Name</Text>
+    <View className="flex-1 p-6" testID="settings-screen">
+      <Text size="sm" className="mb-1">Display Name</Text>
       <TextInput
         testID="display-name-input"
         value={name}
         onChangeText={setName}
-        style={{ borderWidth: 1, borderColor: '#E5E7EB', padding: 12, borderRadius: 8, fontSize: 16, marginBottom: 16 }}
+        className="border border-outline-200 p-3 rounded-lg text-base mb-4"
       />
 
-      <Text style={{ fontSize: 14, marginBottom: 4 }}>Email</Text>
-      <Text testID="email-display" style={{ fontSize: 16, color: '#6B7280', marginBottom: 16 }}>
+      <Text size="sm" className="mb-1">Email</Text>
+      <Text testID="email-display" size="md" className="text-typography-500 mb-4">
         {user?.email ?? ''}
       </Text>
 
-      <TouchableOpacity
+      <Button
         testID="save-button"
+        action="primary"
+        variant="solid"
+        size="xl"
         onPress={handleSave}
         disabled={saving}
-        accessibilityState={{ disabled: saving }}
-        accessibilityRole="button"
         accessibilityLabel="Save display name"
-        style={{ minHeight: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: '#D4880F', borderRadius: 8 }}
       >
         {saving ? (
-          <ActivityIndicator testID="save-spinner" color="#fff" />
+          <ActivityIndicator testID="save-spinner" color="white" />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: '600', fontSize: 16 }}>Save</Text>
+          <ButtonText>Save</ButtonText>
         )}
-      </TouchableOpacity>
+      </Button>
 
       {successMessage && (
-        <Text testID="success-message" style={{ color: '#2D7A3A', marginTop: 12 }}>
+        <Text testID="success-message" size="md" className="text-success-600 mt-3">
           {successMessage}
         </Text>
       )}
 
       {errorMessage && (
-        <Text testID="error-message" style={{ color: '#A63D2F', marginTop: 12 }}>
+        <Text testID="error-message" size="md" className="text-error-600 mt-3">
           {errorMessage}
         </Text>
       )}

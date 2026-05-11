@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, ActivityIndicator, Platform } from 'react-native';
+import { Button, ButtonText } from '../../components/ui/button';
+import { Text } from '../../components/ui/text';
 import { useAuthStore } from '../store/auth-store';
 
 export function SignInScreen() {
@@ -8,39 +10,41 @@ export function SignInScreen() {
 
   return (
     <View
-      style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}
+      className="flex-1 justify-center items-center p-6"
       testID="sign-in-screen"
     >
       {isLoading && <ActivityIndicator testID="auth-loading-spinner" size="large" />}
 
       {error && (
-        <Text style={{ color: '#A63D2F', marginBottom: 16 }} testID="auth-error-message">
+        <Text size="md" className="text-error-600 mb-4" testID="auth-error-message">
           {error}
         </Text>
       )}
 
-      <TouchableOpacity
+      <Button
         testID="google-sign-in-button"
+        action="primary"
+        variant="solid"
+        size="xl"
         disabled={isLoading}
-        accessibilityState={{ disabled: isLoading }}
-        accessibilityRole="button"
         accessibilityLabel="Sign in with Google"
-        style={{ marginBottom: 16, minHeight: 48, minWidth: 280, alignItems: 'center', justifyContent: 'center' }}
+        className="mb-4 min-w-[280px]"
       >
-        <Text>Sign in with Google</Text>
-      </TouchableOpacity>
+        <ButtonText>Sign in with Google</ButtonText>
+      </Button>
 
       {Platform.OS === 'ios' && (
-        <TouchableOpacity
+        <Button
           testID="apple-sign-in-button"
+          action="primary"
+          variant="solid"
+          size="xl"
           disabled={isLoading}
-          accessibilityState={{ disabled: isLoading }}
-          accessibilityRole="button"
           accessibilityLabel="Sign in with Apple"
-          style={{ minHeight: 48, minWidth: 280, alignItems: 'center', justifyContent: 'center' }}
+          className="min-w-[280px]"
         >
-          <Text>Sign in with Apple</Text>
-        </TouchableOpacity>
+          <ButtonText>Sign in with Apple</ButtonText>
+        </Button>
       )}
     </View>
   );

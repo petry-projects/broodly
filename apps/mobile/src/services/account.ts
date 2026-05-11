@@ -12,7 +12,7 @@ export async function updateDisplayName(name: string): Promise<void> {
     await currentUser.updateProfile({ displayName: name });
     const state = useAuthStore.getState();
     if (state.user) {
-      useAuthStore.getState().setUser({ ...state.user, displayName: name });
+      state.setUser({ ...state.user, displayName: name });
     }
   } catch (error) {
     const code = (error as { code?: string }).code ?? '';

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
@@ -15,7 +16,13 @@ import (
 	"time"
 )
 
-const defaultGoogleCertsURL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+const (
+	defaultGoogleCertsURL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+
+	// staleFallbackWindow is the grace period after cache expiry during which stale
+	// keys may be used if a refresh fails. After this window, stale keys are rejected.
+	staleFallbackWindow = 5 * time.Minute
+)
 
 // KeyCache fetches and caches Google's public keys for Firebase token verification.
 type KeyCache struct {
@@ -41,45 +48,47 @@ func NewKeyCache(certsURL string, client *http.Client) *KeyCache {
 }
 
 // GetKey returns the RSA public key for the given key ID, fetching/refreshing as needed.
-func (kc *KeyCache) GetKey(kid string) (*rsa.PublicKey, error) {
+// A warm-cache miss (kid not found but cache not expired) triggers one refresh to handle
+// cert rotation without waiting for TTL expiry.
+func (kc *KeyCache) GetKey(ctx context.Context, kid string) (*rsa.PublicKey, error) {
 	kc.mu.RLock()
 	if kc.keys != nil && time.Now().Before(kc.expiry) {
-		key, ok := kc.keys[kid]
-		kc.mu.RUnlock()
-		if ok {
+		if key, ok := kc.keys[kid]; ok {
+			kc.mu.RUnlock()
 			return key, nil
 		}
-		return nil, fmt.Errorf("key ID %q not found in cache", kid)
+		// kid not found in warm cache — fall through to refresh for cert rotation handling
 	}
 	kc.mu.RUnlock()
 
-	return kc.refreshAndGet(kid)
+	return kc.refreshAndGet(ctx, kid)
 }
 
-func (kc *KeyCache) refreshAndGet(kid string) (*rsa.PublicKey, error) {
+func (kc *KeyCache) refreshAndGet(ctx context.Context, kid string) (*rsa.PublicKey, error) {
 	kc.mu.Lock()
 	defer kc.mu.Unlock()
 
 	// Double-check after acquiring write lock
 	if kc.keys != nil && time.Now().Before(kc.expiry) {
-		key, ok := kc.keys[kid]
-		if ok {
+		if key, ok := kc.keys[kid]; ok {
 			return key, nil
 		}
-		return nil, fmt.Errorf("key ID %q not found in cache", kid)
+		// kid still not found — proceed with forced refresh
 	}
 
-	keys, expiry, err := kc.fetchKeys()
+	keys, expiry, err := kc.fetchKeys(ctx)
 	if err != nil {
-		// If we have stale keys, use them as fallback
-		if kc.keys != nil {
+		// Use stale keys as fallback only within the bounded grace window.
+		// After staleFallbackWindow, reject to ensure revoked keys stop being trusted.
+		if kc.keys != nil && time.Now().Before(kc.expiry.Add(staleFallbackWindow)) {
 			slog.Warn("failed to refresh keys, using stale cache", "error", err)
-			key, ok := kc.keys[kid]
-			if ok {
+			if key, ok := kc.keys[kid]; ok {
 				return key, nil
 			}
+		} else if kc.keys != nil {
+			slog.Error("stale key fallback window exceeded, rejecting request", "error", err)
 		}
-		return nil, fmt.Errorf("failed to fetch public keys: %w", err)
+		return nil, ErrKeyFetchFailed
 	}
 
 	kc.keys = keys
@@ -88,13 +97,18 @@ func (kc *KeyCache) refreshAndGet(kid string) (*rsa.PublicKey, error) {
 
 	key, ok := keys[kid]
 	if !ok {
-		return nil, fmt.Errorf("key ID %q not found in cache", kid)
+		return nil, fmt.Errorf("key ID %q not found after refresh", kid)
 	}
 	return key, nil
 }
 
-func (kc *KeyCache) fetchKeys() (map[string]*rsa.PublicKey, time.Time, error) {
-	resp, err := kc.client.Get(kc.certsURL)
+func (kc *KeyCache) fetchKeys(ctx context.Context) (map[string]*rsa.PublicKey, time.Time, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, kc.certsURL, nil)
+	if err != nil {
+		return nil, time.Time{}, fmt.Errorf("creating request: %w", err)
+	}
+
+	resp, err := kc.client.Do(req)
 	if err != nil {
 		return nil, time.Time{}, fmt.Errorf("HTTP request failed: %w", err)
 	}

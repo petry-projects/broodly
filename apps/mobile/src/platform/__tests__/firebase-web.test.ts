@@ -26,6 +26,15 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockGetApps.mockReturnValue([]);
   process.env = { ...originalEnv };
+  // Explicitly clear all Firebase env vars so CI-injected values don't bleed between tests.
+  delete process.env.EXPO_PUBLIC_FIREBASE_USE_EMULATOR;
+  delete process.env.EXPO_PUBLIC_FIREBASE_EMULATOR_HOST;
+  delete process.env.EXPO_PUBLIC_FIREBASE_API_KEY;
+  delete process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN;
+  delete process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID;
+  delete process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET;
+  delete process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
+  delete process.env.EXPO_PUBLIC_FIREBASE_APP_ID;
 });
 
 afterAll(() => {

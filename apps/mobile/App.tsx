@@ -1,5 +1,6 @@
 import './global.css';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { subscribeToAuthState } from './src/services/auth-listener';
 import { ScrollView, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GluestackUIProvider } from './components/ui/gluestack-ui-provider';
@@ -121,6 +122,11 @@ function SmokeTestScreen() {
 }
 
 export default function App() {
+  useEffect(() => {
+    const unsubscribe = subscribeToAuthState();
+    return unsubscribe;
+  }, []);
+
   return (
     <GluestackUIProvider mode="light">
       <SmokeTestScreen />

@@ -1,13 +1,13 @@
 import { useAuthStore } from '../store/auth-store';
 
-// Capture the onAuthStateChanged callback
-let authStateCallback: ((user: unknown) => void) | null = null;
+// Capture the onAuthStateChanged callback — typed as async to match the actual implementation.
+let authStateCallback: ((user: unknown) => Promise<void>) | null = null;
 const mockUnsubscribe = jest.fn();
 const mockGetIdToken = jest.fn();
 
 jest.mock('@react-native-firebase/auth', () => {
   const auth = jest.fn(() => ({
-    onAuthStateChanged: jest.fn((callback: (user: unknown) => void) => {
+    onAuthStateChanged: jest.fn((callback: (user: unknown) => Promise<void>) => {
       authStateCallback = callback;
       return mockUnsubscribe;
     }),

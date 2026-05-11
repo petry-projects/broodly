@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -66,7 +67,7 @@ func TestKeyCache_FetchAndCache(t *testing.T) {
 	kc := NewKeyCache(server.URL, server.Client())
 
 	// First call fetches
-	key1, err := kc.GetKey("test-kid-1")
+	key1, err := kc.GetKey(context.Background(), "test-kid-1")
 	if err != nil {
 		t.Fatalf("first GetKey failed: %v", err)
 	}
@@ -78,7 +79,7 @@ func TestKeyCache_FetchAndCache(t *testing.T) {
 	}
 
 	// Second call uses cache
-	key2, err := kc.GetKey("test-kid-1")
+	key2, err := kc.GetKey(context.Background(), "test-kid-1")
 	if err != nil {
 		t.Fatalf("second GetKey failed: %v", err)
 	}
@@ -99,7 +100,7 @@ func TestKeyCache_ExpiryRefreshes(t *testing.T) {
 	kc := NewKeyCache(server.URL, server.Client())
 
 	// Fetch once
-	_, err := kc.GetKey("test-kid-1")
+	_, err := kc.GetKey(context.Background(), "test-kid-1")
 	if err != nil {
 		t.Fatalf("first GetKey failed: %v", err)
 	}
@@ -110,7 +111,7 @@ func TestKeyCache_ExpiryRefreshes(t *testing.T) {
 	kc.mu.Unlock()
 
 	// Should re-fetch
-	_, err = kc.GetKey("test-kid-1")
+	_, err = kc.GetKey(context.Background(), "test-kid-1")
 	if err != nil {
 		t.Fatalf("GetKey after expiry failed: %v", err)
 	}
@@ -132,7 +133,7 @@ func TestKeyCache_ConcurrentAccess(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, err := kc.GetKey("test-kid-1")
+			_, err := kc.GetKey(context.Background(), "test-kid-1")
 			if err != nil {
 				t.Errorf("concurrent GetKey failed: %v", err)
 			}
@@ -167,18 +168,18 @@ func TestKeyCache_StaleKeyFallback(t *testing.T) {
 	kc := NewKeyCache(server.URL, server.Client())
 
 	// First fetch succeeds
-	_, err := kc.GetKey("test-kid-1")
+	_, err := kc.GetKey(context.Background(), "test-kid-1")
 	if err != nil {
 		t.Fatalf("first GetKey failed: %v", err)
 	}
 
-	// Force expiry
+	// Force expiry (within staleFallbackWindow)
 	kc.mu.Lock()
 	kc.expiry = time.Now().Add(-1 * time.Second)
 	kc.mu.Unlock()
 
-	// Second fetch fails but stale keys should work
-	key, err := kc.GetKey("test-kid-1")
+	// Second fetch fails but stale keys should work (within staleFallbackWindow)
+	key, err := kc.GetKey(context.Background(), "test-kid-1")
 	if err != nil {
 		t.Fatalf("expected stale key fallback, got error: %v", err)
 	}
@@ -194,8 +195,56 @@ func TestKeyCache_UnknownKid(t *testing.T) {
 
 	kc := NewKeyCache(server.URL, server.Client())
 
-	_, err := kc.GetKey("unknown-kid")
+	_, err := kc.GetKey(context.Background(), "unknown-kid")
 	if err == nil {
 		t.Fatal("expected error for unknown kid")
+	}
+}
+
+func TestKeyCache_WarmCacheMissTriggersRefresh(t *testing.T) {
+	cert1PEM, _ := generateTestCert(t)
+	cert2PEM, _ := generateTestCert(t)
+
+	callCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		var certs map[string]string
+		if callCount == 1 {
+			// First fetch: only test-kid-1
+			certs = map[string]string{"test-kid-1": cert1PEM}
+		} else {
+			// Second fetch (rotation): both kids
+			certs = map[string]string{
+				"test-kid-1":   cert1PEM,
+				"rotated-kid":  cert2PEM,
+			}
+		}
+		certsJSON, _ := json.Marshal(certs)
+		w.Header().Set("Cache-Control", "public, max-age=3600")
+		_, _ = w.Write(certsJSON)
+	}))
+	defer server.Close()
+
+	kc := NewKeyCache(server.URL, server.Client())
+
+	// Warm the cache with test-kid-1
+	_, err := kc.GetKey(context.Background(), "test-kid-1")
+	if err != nil {
+		t.Fatalf("first GetKey failed: %v", err)
+	}
+	if callCount != 1 {
+		t.Fatalf("expected 1 fetch, got %d", callCount)
+	}
+
+	// Request rotated-kid — should trigger one refresh even though cache is warm
+	key, err := kc.GetKey(context.Background(), "rotated-kid")
+	if err != nil {
+		t.Fatalf("expected rotated-kid to be found after refresh, got error: %v", err)
+	}
+	if key == nil {
+		t.Fatal("expected non-nil key for rotated-kid")
+	}
+	if callCount != 2 {
+		t.Errorf("expected 2 fetches (warm-cache miss triggers refresh), got %d", callCount)
 	}
 }
