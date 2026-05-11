@@ -5,7 +5,6 @@ import { Heading } from '../../components/ui/heading';
 import { Text } from '../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner, ButtonIcon } from '../../components/ui/button';
 import { useAuthStore } from '../../src/store/auth-store';
-import { mapFirebaseError } from '../../src/services/auth/error-messages';
 
 export default function SignInScreen() {
   const [error, setError] = useState<string | null>(null);
@@ -16,15 +15,18 @@ export default function SignInScreen() {
     setError(null);
     setLoading(true);
     try {
-      // Google Sign-In flow — requires native module at runtime
+      // TODO: retrieve googleIdToken from @react-native-google-signin
+      // Native SDK not yet integrated — guard against empty-credential Firebase call
+      const googleIdToken = '';
+      if (!googleIdToken) {
+        setError('Google sign-in is not yet available in this build.');
+        return;
+      }
       const { signInWithGoogle } = await import('../../src/services/auth');
-      // In production, googleIdToken comes from @react-native-google-signin
-      // Placeholder: actual OAuth token retrieval is wired in the native integration
-      const googleIdToken = ''; // replaced by native Google Sign-In SDK
       await signInWithGoogle(googleIdToken);
     } catch (err) {
-      const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
+      // auth service maps Firebase error codes before re-throwing as plain Error
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -34,14 +36,19 @@ export default function SignInScreen() {
     setError(null);
     setLoading(true);
     try {
-      const { signInWithApple } = await import('../../src/services/auth');
-      // In production, token + nonce come from expo-apple-authentication
+      // TODO: retrieve token + nonce from expo-apple-authentication
+      // Native SDK not yet integrated — guard against empty-credential Firebase call
       const appleIdToken = '';
       const nonce = '';
+      if (!appleIdToken) {
+        setError('Sign in with Apple is not yet available in this build.');
+        return;
+      }
+      const { signInWithApple } = await import('../../src/services/auth');
       await signInWithApple(appleIdToken, nonce);
     } catch (err) {
-      const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
+      // auth service maps Firebase error codes before re-throwing as plain Error
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -31,7 +31,7 @@ describe('StalenessIndicator', () => {
 
   it('renders warning badge for data 36 hours old', () => {
     render(<StalenessIndicator dataUpdatedAt={hoursAgo(36)} />);
-    expect(screen.getByText(/Data is 1 day ago old/)).toBeTruthy();
+    expect(screen.getByText(/Last updated 1 day ago/)).toBeTruthy();
   });
 
   it('renders critical alert for data 80 hours old', () => {
@@ -46,7 +46,7 @@ describe('StalenessIndicator', () => {
 
   it('has accessibility label for warning tier', () => {
     render(<StalenessIndicator dataUpdatedAt={hoursAgo(36)} />);
-    expect(screen.getByLabelText(/Warning: data is/)).toBeTruthy();
+    expect(screen.getByLabelText(/Warning: last updated/)).toBeTruthy();
   });
 
   it('has accessibility label for critical tier', () => {
