@@ -4,27 +4,66 @@ import {
   WEEKLY_QUEUE_QUERY,
   COMPLETE_TASK_MUTATION,
   DEFER_TASK_MUTATION,
-  DISMISS_TASK_MUTATION,
 } from '../../../services/graphql/planning';
+
+export type TaskPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
 export interface QueueTask {
   id: string;
   title: string;
   hiveId: string;
   hiveName: string;
-  priority: number;
-  dueDate: string;
+  priority: TaskPriority;
+  dueDate: string | null;
   status: string;
   isOverdue: boolean;
   catchUpGuidance: string | null;
-  requiredMaterials: string[] | null;
-  recommendedAction: string | null;
 }
 
 export interface ApiaryQueue {
   apiaryId: string;
   apiaryName: string;
   tasks: QueueTask[];
+}
+
+interface RawTask {
+  id: string;
+  title: string;
+  hive: {
+    id: string;
+    name: string;
+    apiary: {
+      id: string;
+      name: string;
+    };
+  };
+  priority: TaskPriority;
+  dueDate: string | null;
+  status: string;
+  isOverdue: boolean;
+  catchUpGuidance: string | null;
+}
+
+export function groupByApiary(tasks: RawTask[]): ApiaryQueue[] {
+  const map = new Map<string, ApiaryQueue>();
+  for (const task of tasks) {
+    const { id: apiaryId, name: apiaryName } = task.hive.apiary;
+    if (!map.has(apiaryId)) {
+      map.set(apiaryId, { apiaryId, apiaryName, tasks: [] });
+    }
+    map.get(apiaryId)!.tasks.push({
+      id: task.id,
+      title: task.title,
+      hiveId: task.hive.id,
+      hiveName: task.hive.name,
+      priority: task.priority,
+      dueDate: task.dueDate ?? null,
+      status: task.status,
+      isOverdue: task.isOverdue,
+      catchUpGuidance: task.catchUpGuidance ?? null,
+    });
+  }
+  return Array.from(map.values());
 }
 
 const QUEUE_KEYS = {
@@ -39,7 +78,7 @@ export function useWeeklyQueue() {
     queryFn: async () => {
       const result = await client.query(WEEKLY_QUEUE_QUERY, {}).toPromise();
       if (result.error) throw new Error(result.error.message);
-      return result.data.weeklyQueue as ApiaryQueue[];
+      return groupByApiary(result.data.tasks as RawTask[]);
     },
   });
 }
@@ -65,26 +104,12 @@ export function useDeferTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, reason, newDueDate }: { id: string; reason?: string; newDueDate: string }) => {
-      const result = await client.mutation(DEFER_TASK_MUTATION, { id, reason, newDueDate }).toPromise();
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
+      const result = await client
+        .mutation(DEFER_TASK_MUTATION, { id, input: { reason } })
+        .toPromise();
       if (result.error) throw new Error(result.error.message);
       return result.data.deferTask;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUEUE_KEYS.weekly });
-    },
-  });
-}
-
-export function useDismissTask() {
-  const client = useClient();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
-      const result = await client.mutation(DISMISS_TASK_MUTATION, { id, reason }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.dismissTask;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUEUE_KEYS.weekly });

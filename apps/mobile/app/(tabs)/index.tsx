@@ -51,23 +51,23 @@ export default function HomeScreen() {
         Here's what matters today
       </Text>
 
-      {/* Context cards */}
+      {/* Context cards — live data wired in Story 10.4 */}
       <ContextCard
         icon="partly-sunny-outline"
         title="Weather"
-        value="Loading weather..."
+        value="Weather data coming soon"
         bgClass="bg-background-info"
       />
       <ContextCard
         icon="flower-outline"
         title="Bloom Status"
-        value="Loading bloom data..."
+        value="Bloom tracking coming soon"
         bgClass="bg-background-success"
       />
       <ContextCard
         icon="calendar-outline"
         title="Seasonal Phase"
-        value="Loading seasonal data..."
+        value="Seasonal context coming soon"
         bgClass="bg-background-warning"
       />
 
