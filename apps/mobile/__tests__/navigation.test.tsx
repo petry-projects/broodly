@@ -1,0 +1,164 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react-native';
+
+/**
+ * Navigation shell tests for Story 5.1.
+ *
+ * Expo Router renders via file-system conventions so we cannot unit-test
+ * the real navigator in Jest. Instead we verify:
+ *   1. Each screen stub renders its expected content.
+ *   2. The tabs layout module exports a default component.
+ *   3. The route file structure matches the spec (filesystem test).
+ *
+ * Full integration (deep links, tab switching, stack pop) is validated
+ * manually on iOS/Android/web per AC #3, #5, #6.
+ */
+
+// Mock @gluestack-ui/core modules to avoid react-dom@18 / React 19 conflict
+jest.mock('@gluestack-ui/core/overlay/creator', () => {
+  const ReactMock = require('react');
+  return {
+    OverlayProvider: ({ children }: { children: React.ReactNode }) =>
+      ReactMock.createElement(ReactMock.Fragment, null, children),
+  };
+});
+jest.mock('@gluestack-ui/core/toast/creator', () => {
+  const ReactMock = require('react');
+  return {
+    ToastProvider: ({ children }: { children: React.ReactNode }) =>
+      ReactMock.createElement(ReactMock.Fragment, null, children),
+  };
+});
+jest.mock('@gluestack-ui/core/button/creator', () => {
+  const ReactMock = require('react');
+  const { Text, View, ActivityIndicator } = require('react-native');
+  function createButton({ Root }: { Root: React.ComponentType<unknown> }) {
+    const Btn = Root as unknown as Record<string, unknown>;
+    Btn.Text = ReactMock.forwardRef(function MockButtonText(
+      props: Record<string, unknown>,
+      ref: unknown
+    ) {
+      return ReactMock.createElement(Text, { ...props, ref });
+    });
+    Btn.Group = View;
+    Btn.Spinner = ActivityIndicator;
+    Btn.Icon = View;
+    return Btn;
+  }
+  return { createButton };
+});
+jest.mock('@gluestack-ui/core/icon/creator', () => {
+  const { View } = require('react-native');
+  return { PrimitiveIcon: View, UIIcon: View };
+});
+
+// Screen stubs ----------------------------------------------------------
+
+describe('Screen stubs render correctly', () => {
+  it('Home screen renders title', () => {
+    const HomeScreen =
+      require('../app/(tabs)/index').default;
+    render(<HomeScreen />);
+    expect(screen.getByText('Home')).toBeTruthy();
+  });
+
+  it('Apiaries list screen renders title', () => {
+    const ApiariesScreen =
+      require('../app/(tabs)/apiaries/index').default;
+    render(<ApiariesScreen />);
+    expect(screen.getByText('Apiaries')).toBeTruthy();
+  });
+
+  it('Plan screen renders title', () => {
+    const PlanScreen =
+      require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Plan')).toBeTruthy();
+  });
+
+  it('Settings screen renders title', () => {
+    const SettingsScreen =
+      require('../app/(tabs)/settings/index').default;
+    render(<SettingsScreen />);
+    expect(screen.getByText('Settings')).toBeTruthy();
+  });
+
+  it('Sign-in screen renders title', () => {
+    const SignInScreen =
+      require('../app/(auth)/sign-in').default;
+    render(<SignInScreen />);
+    expect(screen.getByText('Welcome to Broodly')).toBeTruthy();
+  });
+});
+
+// Apiary detail stub with route param -----------------------------------
+
+jest.mock('expo-router', () => ({
+  Tabs: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Stack: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Slot: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useLocalSearchParams: () => ({ id: 'test-apiary-123' }),
+}));
+
+describe('Apiary detail screen', () => {
+  it('renders apiary id from route params', () => {
+    const ApiaryDetailScreen =
+      require('../app/(tabs)/apiaries/[id]').default;
+    render(<ApiaryDetailScreen />);
+    expect(screen.getByText('Apiary Detail')).toBeTruthy();
+    expect(screen.getByText(/test-apiary-123/)).toBeTruthy();
+  });
+});
+
+// Layout modules export default components ------------------------------
+
+describe('Layout modules export correctly', () => {
+  it('root layout exports a default component', () => {
+    const RootLayout = require('../app/_layout').default;
+    expect(typeof RootLayout).toBe('function');
+  });
+
+  it('tabs layout exports a default component', () => {
+    const TabsLayout =
+      require('../app/(tabs)/_layout').default;
+    expect(typeof TabsLayout).toBe('function');
+  });
+
+  it('apiaries stack layout exports a default component', () => {
+    const ApiariesLayout =
+      require('../app/(tabs)/apiaries/_layout').default;
+    expect(typeof ApiariesLayout).toBe('function');
+  });
+
+  it('auth layout exports a default component', () => {
+    const AuthLayout =
+      require('../app/(auth)/_layout').default;
+    expect(typeof AuthLayout).toBe('function');
+  });
+});
+
+// Route file structure matches spec (AC #1) -----------------------------
+
+describe('Route file structure', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const appDir = path.resolve(__dirname, '../app');
+
+  const expectedFiles = [
+    '_layout.tsx',
+    '(tabs)/_layout.tsx',
+    '(tabs)/index.tsx',
+    '(tabs)/apiaries/_layout.tsx',
+    '(tabs)/apiaries/index.tsx',
+    '(tabs)/apiaries/[id].tsx',
+    '(tabs)/plan/index.tsx',
+    '(tabs)/settings/index.tsx',
+    '(auth)/_layout.tsx',
+    '(auth)/sign-in.tsx',
+  ];
+
+  it.each(expectedFiles)('app/%s exists', (file) => {
+    const filePath = path.join(appDir, file);
+    expect(fs.existsSync(filePath)).toBe(true);
+  });
+});

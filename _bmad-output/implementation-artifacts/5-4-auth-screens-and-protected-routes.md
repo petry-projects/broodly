@@ -1,6 +1,6 @@
 # Story 5.4: Auth Screens and Protected Routes
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -107,5 +107,21 @@ so that I have a smooth and secure entry into the app.
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
+
 ### Completion Notes List
+- Created polished sign-in screen with Google + Apple (iOS) buttons, loading states, error display
+- Created Firebase error message mapper with all specified error codes + fallback
+- Created AuthGuard component for route protection (extracted for testability)
+- AuthGuard: loading spinner → unauthenticated redirect to sign-in → authenticated redirect to tabs
+- Wired AuthGuard into root layout wrapping Slot
+- Auth service (signInWithGoogle, signInWithApple, signOut) already existed from Epic 2
+- 14 new tests: error message mapping (9), auth guard behavior (5)
+
 ### File List
+- apps/mobile/app/(auth)/sign-in.tsx — Sign-in screen with Google/Apple buttons
+- apps/mobile/src/services/auth/error-messages.ts — Firebase error code mapper
+- apps/mobile/src/services/auth/error-messages.test.ts — 9 tests
+- apps/mobile/src/services/auth/auth-guard.tsx — Route protection component
+- apps/mobile/__tests__/auth-guard.test.tsx — 5 tests
+- apps/mobile/app/_layout.tsx — Updated with AuthGuard

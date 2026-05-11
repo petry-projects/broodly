@@ -1,6 +1,6 @@
 # Story 5.3: Zustand Stores — Auth, UI, and Connectivity
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -162,5 +162,29 @@ so that cross-cutting client state is centralized, testable, and survives app re
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
+
 ### Completion Notes List
+- Auth store already existed from Epic 2 — retained as-is (matches spec)
+- Created connectivity store with isOnline/lastOnlineAt state
+- Created UI store with MMKV persistence (onboardingComplete, activeApiaryId)
+- Created MMKV storage adapter implementing Zustand StateStorage interface
+- Created NetInfo connectivity listener that syncs to connectivity store
+- Created OfflineBanner component: Sky Blue info banner with cloud-offline icon, a11y label
+- Wired connectivity listener and offline banner into root layout
+- Created store barrel export (src/store/index.ts)
+- Installed @react-native-community/netinfo
+- 21 new tests: connectivity store (6), UI store (6), connectivity listener (4), offline banner (5)
+
 ### File List
+- apps/mobile/src/store/connectivity-store.ts — Connectivity Zustand store
+- apps/mobile/src/store/connectivity-store.test.ts — 6 tests
+- apps/mobile/src/store/ui-store.ts — UI preferences store with MMKV persistence
+- apps/mobile/src/store/ui-store.test.ts — 6 tests
+- apps/mobile/src/store/mmkv-storage.ts — Zustand StateStorage adapter for MMKV
+- apps/mobile/src/store/index.ts — Store barrel export
+- apps/mobile/src/services/connectivity/connectivity-listener.ts — NetInfo listener
+- apps/mobile/src/services/connectivity/connectivity-listener.test.ts — 4 tests
+- apps/mobile/src/features/connectivity/components/OfflineBanner/index.tsx — Offline banner
+- apps/mobile/src/features/connectivity/components/OfflineBanner/OfflineBanner.test.tsx — 5 tests
+- apps/mobile/app/_layout.tsx — Updated with connectivity listener + offline banner
