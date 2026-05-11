@@ -11,6 +11,7 @@ import (
 	"github.com/broodly/api/graph/model"
 	"github.com/broodly/api/internal/auth"
 	"github.com/broodly/api/internal/domain"
+	"github.com/broodly/api/internal/repository"
 )
 
 // DeferTask is the resolver for the deferTask field.
@@ -79,7 +80,39 @@ func (r *queryResolver) Tasks(ctx context.Context, apiaryID *string, hiveID *str
 		statusFilter = &s
 	}
 
-	tasks, err := r.PlanningService.ListTasks(ctx, userID, statusFilter, l, o)
+	var tasks []repository.Task
+	switch {
+	case hiveID != nil:
+		// Verify ownership of the hive before filtering tasks.
+		_, err = r.HiveService.GetByIDAndUser(ctx, stringToUUID(*hiveID), userID)
+		if err != nil {
+			return nil, domain.ForbiddenError(ctx)
+		}
+		tasks, err = r.PlanningService.ListTasksByHive(ctx, stringToUUID(*hiveID), l, o)
+
+	case apiaryID != nil:
+		// Verify ownership of the apiary, then collect tasks across all its hives.
+		// Note: this performs N+1 DB calls proportional to hive count; consider a
+		// dedicated ListTasksByApiary query if this becomes a bottleneck.
+		_, err = r.ApiaryService.GetByID(ctx, stringToUUID(*apiaryID), userID)
+		if err != nil {
+			return nil, domain.ForbiddenError(ctx)
+		}
+		hives, hivesErr := r.HiveService.List(ctx, stringToUUID(*apiaryID))
+		if hivesErr != nil {
+			return nil, hivesErr
+		}
+		for _, h := range hives {
+			hiveTasks, hivesErr := r.PlanningService.ListTasksByHive(ctx, h.ID, l, 0)
+			if hivesErr != nil {
+				return nil, hivesErr
+			}
+			tasks = append(tasks, hiveTasks...)
+		}
+
+	default:
+		tasks, err = r.PlanningService.ListTasks(ctx, userID, statusFilter, l, o)
+	}
 	if err != nil {
 		return nil, err
 	}

@@ -206,6 +206,59 @@ func (s *ExportService) serializeCSV(data *exportData) ([]byte, error) {
 	for _, i := range data.Inspections {
 		_ = w.Write([]string{uuidToString(i.ID), uuidToString(i.HiveID), i.Type, i.Status, i.StartedAt.Time.Format(time.RFC3339)})
 	}
+	_ = w.Write([]string{""})
+
+	// Observations section
+	_ = w.Write([]string{"--- OBSERVATIONS ---"})
+	_ = w.Write([]string{"ID", "InspectionID", "Type", "SequenceOrder", "Transcription"})
+	for _, o := range data.Observations {
+		transcription := ""
+		if o.Transcription.Valid {
+			transcription = o.Transcription.String
+		}
+		_ = w.Write([]string{
+			uuidToString(o.ID),
+			uuidToString(o.InspectionID),
+			o.ObservationType,
+			fmt.Sprintf("%d", o.SequenceOrder),
+			transcription,
+		})
+	}
+	_ = w.Write([]string{""})
+
+	// Recommendations section
+	_ = w.Write([]string{"--- RECOMMENDATIONS ---"})
+	_ = w.Write([]string{"ID", "HiveID", "Action", "Rationale", "ConfidenceLevel", "ConfidenceType", "FallbackAction"})
+	for _, rec := range data.Recommendations {
+		_ = w.Write([]string{
+			uuidToString(rec.ID),
+			uuidToString(rec.HiveID),
+			rec.Action,
+			rec.Rationale,
+			fmt.Sprintf("%.2f", rec.ConfidenceLevel),
+			rec.ConfidenceType,
+			rec.FallbackAction,
+		})
+	}
+	_ = w.Write([]string{""})
+
+	// Tasks section
+	_ = w.Write([]string{"--- TASKS ---"})
+	_ = w.Write([]string{"ID", "HiveID", "Title", "Priority", "Status", "DueDate"})
+	for _, t := range data.Tasks {
+		dueDate := ""
+		if t.DueDate.Valid {
+			dueDate = t.DueDate.Time.Format(time.RFC3339)
+		}
+		_ = w.Write([]string{
+			uuidToString(t.ID),
+			uuidToString(t.HiveID),
+			t.Title,
+			t.Priority,
+			t.Status,
+			dueDate,
+		})
+	}
 
 	w.Flush()
 	return buf.Bytes(), w.Error()

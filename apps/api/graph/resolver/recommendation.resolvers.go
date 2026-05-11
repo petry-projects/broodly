@@ -6,12 +6,11 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/broodly/api/graph/model"
 )
 
 // Recommendations is the resolver for the recommendations field.
 func (r *queryResolver) Recommendations(ctx context.Context, hiveID *string, limit *int, offset *int) ([]*model.Recommendation, error) {
-	panic(fmt.Errorf("not implemented: Recommendations - recommendations"))
+	return []*model.Recommendation{}, nil
 }

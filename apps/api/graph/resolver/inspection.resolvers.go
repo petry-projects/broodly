@@ -100,7 +100,13 @@ func (r *mutationResolver) CompleteInspection(ctx context.Context, id string) (*
 
 // AddObservation is the resolver for the addObservation field.
 func (r *mutationResolver) AddObservation(ctx context.Context, input model.AddObservationInput) (*model.Observation, error) {
-	_, err := auth.UserIDFromContext(ctx)
+	uid, err := auth.UserIDFromContext(ctx)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+
+	// Verify the target inspection belongs to the authenticated user.
+	_, err = r.InspectionService.GetByIDAndUser(ctx, stringToUUID(input.InspectionID), stringToUUID(uid))
 	if err != nil {
 		return nil, domain.ForbiddenError(ctx)
 	}
@@ -154,6 +160,11 @@ func (r *queryResolver) Inspections(ctx context.Context, hiveID *string, limit *
 
 	var inspections []repository.Inspection
 	if hiveID != nil {
+		// Verify the requested hive belongs to the authenticated user before listing.
+		_, err = r.HiveService.GetByIDAndUser(ctx, stringToUUID(*hiveID), stringToUUID(uid))
+		if err != nil {
+			return nil, domain.ForbiddenError(ctx)
+		}
 		inspections, err = r.InspectionService.ListByHive(ctx, stringToUUID(*hiveID), l, o)
 	} else {
 		inspections, err = r.InspectionService.ListByUser(ctx, stringToUUID(uid), l, o)
@@ -171,7 +182,12 @@ func (r *queryResolver) Inspections(ctx context.Context, hiveID *string, limit *
 
 // Inspection is the resolver for the inspection field.
 func (r *queryResolver) Inspection(ctx context.Context, id string) (*model.Inspection, error) {
-	insp, err := r.InspectionService.GetByID(ctx, stringToUUID(id))
+	uid, err := auth.UserIDFromContext(ctx)
+	if err != nil {
+		return nil, domain.ForbiddenError(ctx)
+	}
+
+	insp, err := r.InspectionService.GetByIDAndUser(ctx, stringToUUID(id), stringToUUID(uid))
 	if err != nil {
 		return nil, domain.NotFoundError(ctx, "inspection")
 	}

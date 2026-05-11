@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 
 	"github.com/broodly/api/internal/domain"
 	"github.com/broodly/api/internal/event"
@@ -92,13 +93,17 @@ func (s *InspectionService) Complete(ctx context.Context, id, userID pgtype.UUID
 		return repository.Inspection{}, err
 	}
 
-	// Publish event for async recommendation generation
+	// Publish event for async recommendation generation.
+	// A publish failure does not invalidate the completed inspection — the event
+	// should be retried by the caller or an async recovery mechanism.
 	evt := event.NewEvent("inspection.completed.v1", uuidToString(userID), map[string]any{
 		"inspectionId": uuidToString(id),
 		"hiveId":       uuidToString(insp.HiveID),
 		"type":         insp.Type,
 	})
-	_ = s.publisher.Publish(ctx, inspectionEventsTopic, evt)
+	if pubErr := s.publisher.Publish(ctx, inspectionEventsTopic, evt); pubErr != nil {
+		log.Printf("inspection.Complete: failed to publish event for inspection %s: %v", uuidToString(id), pubErr)
+	}
 
 	return completed, nil
 }
@@ -122,9 +127,18 @@ func (s *InspectionService) AddObservation(ctx context.Context, params repositor
 	return s.queries.CreateObservation(ctx, params)
 }
 
-// GetByID returns an inspection by ID.
+// GetByID returns an inspection by ID (no ownership check; use GetByIDAndUser for auth-gated access).
 func (s *InspectionService) GetByID(ctx context.Context, id pgtype.UUID) (repository.Inspection, error) {
 	return s.queries.GetInspectionByID(ctx, id)
+}
+
+// GetByIDAndUser returns an inspection by ID with ownership verification.
+// Returns an error if the inspection does not exist or does not belong to userID.
+func (s *InspectionService) GetByIDAndUser(ctx context.Context, id, userID pgtype.UUID) (repository.Inspection, error) {
+	return s.queries.GetInspectionByIDAndUser(ctx, repository.GetInspectionByIDAndUserParams{
+		ID:     id,
+		UserID: userID,
+	})
 }
 
 // ListByHive returns inspections for a hive with optional pagination.
