@@ -5,46 +5,21 @@ import { Heading } from '../../components/ui/heading';
 import { Text } from '../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner, ButtonIcon } from '../../components/ui/button';
 import { useAuthStore } from '../../src/store/auth-store';
-import { mapFirebaseError } from '../../src/services/auth/error-messages';
 
 export default function SignInScreen() {
   const [error, setError] = useState<string | null>(null);
   const isLoading = useAuthStore((s) => s.isLoading);
-  const setLoading = useAuthStore((s) => s.setLoading);
 
-  async function handleGoogleSignIn() {
-    setError(null);
-    setLoading(true);
-    try {
-      // Google Sign-In flow — requires native module at runtime
-      const { signInWithGoogle } = await import('../../src/services/auth');
-      // In production, googleIdToken comes from @react-native-google-signin
-      // Placeholder: actual OAuth token retrieval is wired in the native integration
-      const googleIdToken = ''; // replaced by native Google Sign-In SDK
-      await signInWithGoogle(googleIdToken);
-    } catch (err) {
-      const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
-    } finally {
-      setLoading(false);
-    }
+  function handleGoogleSignIn() {
+    // Native Google Sign-In is not yet wired (@react-native-google-signin required).
+    // Show a clear placeholder instead of attempting auth with empty OAuth tokens.
+    setError('Google sign-in is not yet available in this version of the app.');
   }
 
-  async function handleAppleSignIn() {
-    setError(null);
-    setLoading(true);
-    try {
-      const { signInWithApple } = await import('../../src/services/auth');
-      // In production, token + nonce come from expo-apple-authentication
-      const appleIdToken = '';
-      const nonce = '';
-      await signInWithApple(appleIdToken, nonce);
-    } catch (err) {
-      const code = (err as { code?: string }).code ?? '';
-      setError(mapFirebaseError(code));
-    } finally {
-      setLoading(false);
-    }
+  function handleAppleSignIn() {
+    // Native Apple Sign-In is not yet wired (expo-apple-authentication required).
+    // Show a clear placeholder instead of attempting auth with empty OAuth tokens.
+    setError('Apple sign-in is not yet available in this version of the app.');
   }
 
   return (

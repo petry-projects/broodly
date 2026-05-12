@@ -4,7 +4,7 @@ import { useConnectivityStore } from '../../../../store/connectivity-store';
 import { OfflineBanner } from './index';
 
 beforeEach(() => {
-  useConnectivityStore.setState({ isOnline: true, lastOnlineAt: null });
+  useConnectivityStore.setState({ isOnline: true, lastOfflineAt: null });
 });
 
 describe('OfflineBanner', () => {
