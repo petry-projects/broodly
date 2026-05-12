@@ -1,5 +1,5 @@
 import type { InspectionPrompt, InspectionType, Observation } from '../types';
-import { getPromptsForType } from '../constants/prompt-tree';
+import { getPromptsForType, ALL_PROMPTS } from '../constants/prompt-tree';
 
 export function getPromptSequence(
   type: InspectionType,
@@ -16,9 +16,11 @@ export function getPromptSequence(
     if (obs && prompt.options) {
       const selected = prompt.options.find((o) => o.id === obs.value);
       if (selected?.nextPromptOverride) {
-        const branchPrompt = basePrompts.find((p) => p.id === selected.nextPromptOverride);
-        if (branchPrompt && !result.includes(branchPrompt)) {
-          // Insert branch prompt after current
+        // Look up the branch target from ALL_PROMPTS so that prompts that are
+        // not in the type-filtered base sequence (e.g. swarm_risk in quick mode)
+        // can still be inserted when explicitly triggered.
+        const branchPrompt = ALL_PROMPTS.find((p) => p.id === selected.nextPromptOverride);
+        if (branchPrompt && !result.some((p) => p.id === branchPrompt.id)) {
           result.push(branchPrompt);
         }
       }

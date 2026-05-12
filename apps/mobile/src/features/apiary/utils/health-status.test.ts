@@ -1,20 +1,21 @@
+import { HiveStatus } from '@broodly/graphql-types';
 import { deriveApiaryHealth, deriveHiveHealth, HEALTH_BADGE_CONFIG } from './health-status';
 
 describe('deriveHiveHealth', () => {
   it('maps ACTIVE to healthy', () => {
-    expect(deriveHiveHealth('ACTIVE')).toBe('healthy');
+    expect(deriveHiveHealth(HiveStatus.Active)).toBe('healthy');
   });
 
   it('maps INACTIVE to attention', () => {
-    expect(deriveHiveHealth('INACTIVE')).toBe('attention');
+    expect(deriveHiveHealth(HiveStatus.Inactive)).toBe('attention');
   });
 
   it('maps DEAD to critical', () => {
-    expect(deriveHiveHealth('DEAD')).toBe('critical');
+    expect(deriveHiveHealth(HiveStatus.Dead)).toBe('critical');
   });
 
   it('maps SOLD to attention', () => {
-    expect(deriveHiveHealth('SOLD')).toBe('attention');
+    expect(deriveHiveHealth(HiveStatus.Sold)).toBe('attention');
   });
 });
 
@@ -24,15 +25,15 @@ describe('deriveApiaryHealth', () => {
   });
 
   it('returns healthy when all hives are ACTIVE', () => {
-    expect(deriveApiaryHealth(['ACTIVE', 'ACTIVE'])).toBe('healthy');
+    expect(deriveApiaryHealth([HiveStatus.Active, HiveStatus.Active])).toBe('healthy');
   });
 
   it('returns worst-case status: critical if any DEAD', () => {
-    expect(deriveApiaryHealth(['ACTIVE', 'DEAD', 'ACTIVE'])).toBe('critical');
+    expect(deriveApiaryHealth([HiveStatus.Active, HiveStatus.Dead, HiveStatus.Active])).toBe('critical');
   });
 
   it('returns attention if mixed ACTIVE and INACTIVE', () => {
-    expect(deriveApiaryHealth(['ACTIVE', 'INACTIVE'])).toBe('attention');
+    expect(deriveApiaryHealth([HiveStatus.Active, HiveStatus.Inactive])).toBe('attention');
   });
 });
 
