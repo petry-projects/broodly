@@ -1,10 +1,31 @@
 import type { InspectionPrompt } from '../types';
 
+// Branch-only prompts are not included in any base inspection sequence.
+// The step engine inserts them dynamically when a nextPromptOverride triggers.
+const BRANCH_PROMPTS: InspectionPrompt[] = [
+  {
+    id: 'swarm_risk',
+    title: 'Swarm Risk Assessment',
+    description:
+      'Swarm cells were found. How crowded is the hive? Are there eggs in the cells? This helps determine urgency.',
+    compactLabel: 'Swarm risk details',
+    observationType: 'swarm_risk',
+    options: [
+      { id: 'capped', label: 'Cells are capped — swarm imminent', classification: 'urgent' },
+      { id: 'uncapped_eggs', label: 'Uncapped with eggs/larvae', classification: 'cautionary' },
+      { id: 'empty_cups', label: 'Empty queen cups only', classification: 'normal' },
+    ],
+    isRequired: false,
+    quickMode: false,
+  },
+];
+
 export const FULL_INSPECTION_PROMPTS: InspectionPrompt[] = [
   {
     id: 'entrance',
     title: 'Entrance Assessment',
-    description: 'Observe the hive entrance. What do you see? Look for normal flight patterns, dead bees, unusual activity, or signs of robbing.',
+    description:
+      'Observe the hive entrance. What do you see? Look for normal flight patterns, dead bees, unusual activity, or signs of robbing.',
     compactLabel: 'Entrance activity',
     observationType: 'entrance_assessment',
     options: [
@@ -19,7 +40,8 @@ export const FULL_INSPECTION_PROMPTS: InspectionPrompt[] = [
   {
     id: 'brood_pattern',
     title: 'Brood Inspection',
-    description: 'Pull a brood frame and examine the pattern. A good pattern is solid and compact. Spotty or empty patches may indicate problems.',
+    description:
+      'Pull a brood frame and examine the pattern. A good pattern is solid and compact. Spotty or empty patches may indicate problems.',
     compactLabel: 'Brood pattern',
     observationType: 'brood_inspection',
     options: [
@@ -33,35 +55,28 @@ export const FULL_INSPECTION_PROMPTS: InspectionPrompt[] = [
   {
     id: 'queen_cells',
     title: 'Queen Cell Check',
-    description: 'Look along the bottom of frames and comb edges for queen cells. Swarm cells hang from the bottom; supersedure cells are on the face.',
+    description:
+      'Look along the bottom of frames and comb edges for queen cells. Swarm cells hang from the bottom; supersedure cells are on the face.',
     compactLabel: 'Queen cells',
     observationType: 'queen_cell_check',
     options: [
       { id: 'none', label: 'No queen cells', classification: 'normal' },
       { id: 'supersedure', label: 'Supersedure cells (face of comb)', classification: 'cautionary' },
-      { id: 'swarm', label: 'Swarm cells (bottom of frame)', classification: 'urgent', nextPromptOverride: 'swarm_risk' },
+      {
+        id: 'swarm',
+        label: 'Swarm cells (bottom of frame)',
+        classification: 'urgent',
+        nextPromptOverride: 'swarm_risk',
+      },
     ],
     isRequired: true,
     quickMode: true,
   },
   {
-    id: 'swarm_risk',
-    title: 'Swarm Risk Assessment',
-    description: 'Swarm cells were found. How crowded is the hive? Are there eggs in the cells? This helps determine urgency.',
-    compactLabel: 'Swarm risk details',
-    observationType: 'swarm_risk',
-    options: [
-      { id: 'capped', label: 'Cells are capped — swarm imminent', classification: 'urgent' },
-      { id: 'uncapped_eggs', label: 'Uncapped with eggs/larvae', classification: 'cautionary' },
-      { id: 'empty_cups', label: 'Empty queen cups only', classification: 'normal' },
-    ],
-    isRequired: false,
-    quickMode: false,
-  },
-  {
     id: 'stores',
     title: 'Stores Assessment',
-    description: 'Check honey and pollen stores. Are frames heavy? Is there capped honey? Adequate pollen reserves?',
+    description:
+      'Check honey and pollen stores. Are frames heavy? Is there capped honey? Adequate pollen reserves?',
     compactLabel: 'Stores level',
     observationType: 'stores_assessment',
     options: [
@@ -76,7 +91,8 @@ export const FULL_INSPECTION_PROMPTS: InspectionPrompt[] = [
   {
     id: 'pest_disease',
     title: 'Pest & Disease Check',
-    description: 'Look for signs of varroa mites, small hive beetles, wax moths, or disease symptoms like foulbrood.',
+    description:
+      'Look for signs of varroa mites, small hive beetles, wax moths, or disease symptoms like foulbrood.',
     compactLabel: 'Pests/disease',
     observationType: 'pest_disease',
     options: [
@@ -91,7 +107,8 @@ export const FULL_INSPECTION_PROMPTS: InspectionPrompt[] = [
   {
     id: 'colony_assessment',
     title: 'Overall Colony Assessment',
-    description: 'Based on everything you have observed, how would you rate the overall health of this colony?',
+    description:
+      'Based on everything you have observed, how would you rate the overall health of this colony?',
     compactLabel: 'Overall health',
     observationType: 'colony_assessment',
     options: [
@@ -105,13 +122,18 @@ export const FULL_INSPECTION_PROMPTS: InspectionPrompt[] = [
   {
     id: 'action_planning',
     title: 'Action Planning',
-    description: 'Based on your observations, what actions do you plan to take? You can also note any supplies needed for your next visit.',
+    description:
+      'Based on your observations, what actions do you plan to take? You can also note any supplies needed for your next visit.',
     compactLabel: 'Next actions',
     observationType: 'action_planning',
     isRequired: true,
     quickMode: true,
   },
 ];
+
+// Full lookup table including branch-only prompts — used by the step engine
+// to resolve nextPromptOverride targets that are not in the base sequence.
+export const ALL_PROMPTS: InspectionPrompt[] = [...FULL_INSPECTION_PROMPTS, ...BRANCH_PROMPTS];
 
 export function getPromptsForType(type: 'full' | 'quick'): InspectionPrompt[] {
   if (type === 'quick') {

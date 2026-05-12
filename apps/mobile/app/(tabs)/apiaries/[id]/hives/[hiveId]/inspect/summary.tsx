@@ -6,14 +6,8 @@ import { Heading } from '../../../../../../../components/ui/heading';
 import { Text } from '../../../../../../../components/ui/text';
 import { Button, ButtonText, ButtonSpinner } from '../../../../../../../components/ui/button';
 import { useInspectionStore } from '../../../../../../../src/store/inspection-store';
+import { CLASSIFICATION_STYLES } from '../../../../../../../src/features/inspection/constants/classification';
 import { ICON_COLORS } from '../../../../../../../src/theme/colors';
-import type { ObservationClassification } from '../../../../../../../src/features/inspection/types';
-
-const CLASSIFICATION_CONFIG: Record<ObservationClassification, { bg: string; text: string; icon: string; label: string }> = {
-  normal: { bg: 'bg-success-100', text: 'text-success-700', icon: 'checkmark-circle', label: 'Normal' },
-  cautionary: { bg: 'bg-warning-100', text: 'text-warning-700', icon: 'alert-circle', label: 'Cautionary' },
-  urgent: { bg: 'bg-error-100', text: 'text-error-700', icon: 'warning', label: 'Urgent' },
-};
 
 export default function InspectionSummaryScreen() {
   const router = useRouter();
@@ -74,7 +68,7 @@ export default function InspectionSummaryScreen() {
       <Heading size="lg" className="mb-3">Observations</Heading>
       <View className="gap-2 mb-6">
         {store.observations.map((obs) => {
-          const config = CLASSIFICATION_CONFIG[obs.classification];
+          const config = CLASSIFICATION_STYLES[obs.classification];
           return (
             <View
               key={obs.id}

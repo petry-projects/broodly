@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Pressable, TextInput, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,15 +6,13 @@ import { Heading } from '../../../../../../../components/ui/heading';
 import { Text } from '../../../../../../../components/ui/text';
 import { Button, ButtonText } from '../../../../../../../components/ui/button';
 import { useInspectionStore } from '../../../../../../../src/store/inspection-store';
-import { getPromptSequence, getNextPromptIndex } from '../../../../../../../src/features/inspection/services/step-engine';
+import {
+  getPromptSequence,
+  getNextPromptIndex,
+} from '../../../../../../../src/features/inspection/services/step-engine';
+import { CLASSIFICATION_STYLES } from '../../../../../../../src/features/inspection/constants/classification';
 import { ICON_COLORS } from '../../../../../../../src/theme/colors';
-import type { ObservationClassification } from '../../../../../../../src/features/inspection/types';
-
-const CLASSIFICATION_STYLES: Record<ObservationClassification, { bg: string; text: string; icon: string }> = {
-  normal: { bg: 'bg-success-100', text: 'text-success-700', icon: 'checkmark-circle' },
-  cautionary: { bg: 'bg-warning-100', text: 'text-warning-700', icon: 'alert-circle' },
-  urgent: { bg: 'bg-error-100', text: 'text-error-700', icon: 'warning' },
-};
+import type { ObservationClassification, Observation } from '../../../../../../../src/features/inspection/types';
 
 export default function InspectionStepScreen() {
   const router = useRouter();
@@ -30,9 +28,16 @@ export default function InspectionStepScreen() {
   const currentPrompt = prompts[store.currentPromptIndex];
   const totalSteps = prompts.length;
 
+  // Navigate to summary when all steps are complete.
+  // Using useEffect avoids calling router during render which can cause
+  // React warnings or double-navigation in strict mode.
+  useEffect(() => {
+    if (!currentPrompt) {
+      router.replace(`/(tabs)/apiaries/${apiaryId}/hives/${hiveId}/inspect/summary`);
+    }
+  }, [currentPrompt, router, apiaryId, hiveId]);
+
   if (!currentPrompt) {
-    // All steps complete — navigate to summary
-    router.replace(`/(tabs)/apiaries/${apiaryId}/hives/${hiveId}/inspect/summary`);
     return null;
   }
 
@@ -43,16 +48,25 @@ export default function InspectionStepScreen() {
     const classification: ObservationClassification =
       currentPrompt.options?.find((o) => o.id === selectedOption)?.classification ?? 'normal';
 
-    store.addObservation({
+    const newObservation: Observation = {
       id: `obs-${Date.now()}`,
       promptId: currentPrompt.id,
       observationType: currentPrompt.observationType,
       value,
       classification,
       createdAt: new Date().toISOString(),
-    });
+    };
 
-    const nextIndex = getNextPromptIndex(store.currentPromptIndex, prompts);
+    store.addObservation(newObservation);
+
+    // Re-compute the prompt sequence with the new observation included before
+    // calculating the next index. The memoised `prompts` is stale here because
+    // store.observations has not yet reflected the addObservation dispatch.
+    const updatedPrompts = getPromptSequence(
+      store.type ?? 'full',
+      [...store.observations, newObservation],
+    );
+    const nextIndex = getNextPromptIndex(store.currentPromptIndex, updatedPrompts);
     if (nextIndex !== null) {
       store.setPromptIndex(nextIndex);
       setSelectedOption(null);

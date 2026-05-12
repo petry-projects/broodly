@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Heading } from '../../../../../../components/ui/heading';
@@ -13,6 +13,7 @@ export default function HiveDetailScreen() {
   const { id: apiaryId, hiveId } = useLocalSearchParams<{ id: string; hiveId: string }>();
   const { data: hive, isLoading } = useHive(hiveId!);
   const deleteHive = useDeleteHive();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function handleDelete() {
     Alert.alert(
@@ -24,8 +25,12 @@ export default function HiveDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await deleteHive.mutateAsync(hiveId!);
-            router.back();
+            try {
+              await deleteHive.mutateAsync(hiveId!);
+              router.back();
+            } catch (err) {
+              setDeleteError(err instanceof Error ? err.message : 'Failed to delete hive.');
+            }
           },
         },
       ],
@@ -57,6 +62,12 @@ export default function HiveDetailScreen() {
       {hive.notes && (
         <View className="bg-background-50 rounded-xl p-4 mb-6">
           <Text size="sm" className="text-typography-600">{hive.notes}</Text>
+        </View>
+      )}
+
+      {deleteError && (
+        <View className="bg-background-error rounded-lg p-3 mb-4" accessibilityRole="alert">
+          <Text size="sm" className="text-error-600">{deleteError}</Text>
         </View>
       )}
 

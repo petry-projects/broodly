@@ -13,7 +13,7 @@ import {
 export default function EditApiaryScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: apiary, isLoading } = useApiary(id!);
+  const { data: apiary, isLoading, isError } = useApiary(id!);
   const updateApiary = useUpdateApiary();
   const deleteApiary = useDeleteApiary();
   const [name, setName] = useState('');
@@ -67,6 +67,19 @@ export default function EditApiaryScreen() {
     return (
       <View className="flex-1 bg-background-0 justify-center items-center">
         <Text size="md" className="text-typography-500">Loading...</Text>
+      </View>
+    );
+  }
+
+  if (isError || !apiary) {
+    return (
+      <View className="flex-1 bg-background-0 justify-center items-center px-6">
+        <Text size="md" className="text-error-600 text-center mb-4">
+          Failed to load apiary. Please go back and try again.
+        </Text>
+        <Button action="secondary" variant="outline" size="xl" onPress={() => router.back()} accessibilityLabel="Go back">
+          <ButtonText>Go Back</ButtonText>
+        </Button>
       </View>
     );
   }
