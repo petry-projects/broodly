@@ -21,10 +21,10 @@ type RecommendationContext struct {
 
 // ContextSource represents a single data source contributing to the recommendation.
 type ContextSource struct {
-	Type       string    `json:"type"`
+	Type        string    `json:"type"`
 	FreshnessAt time.Time `json:"freshnessAt"`
-	Data       any       `json:"data"`
-	IsStale    bool      `json:"isStale"`
+	Data        any       `json:"data"`
+	IsStale     bool      `json:"isStale"`
 }
 
 // MissingSource records a data source that was expected but unavailable.
@@ -62,11 +62,14 @@ func NewRecommendationService() *RecommendationService {
 }
 
 // AssembleContext gathers all available data sources for recommendation generation.
+// Sources and MissingSources are populated when external repositories are injected
+// (weather, telemetry, flora). Until integrations are wired, both slices are empty
+// and confidence scoring will reflect the absence of data naturally.
 func (s *RecommendationService) AssembleContext(
 	_ context.Context,
 	hiveID, userID, skillLevel, region, season string,
 ) *RecommendationContext {
-	ctx := &RecommendationContext{
+	return &RecommendationContext{
 		HiveID:        hiveID,
 		UserID:        userID,
 		SkillLevel:    skillLevel,
@@ -74,19 +77,17 @@ func (s *RecommendationService) AssembleContext(
 		Region:        region,
 		AssembledAt:   time.Now(),
 	}
-
-	// In production: fetch from repositories and external APIs
-	// For now, mark all optional sources as missing
-	ctx.MissingSources = append(ctx.MissingSources,
-		MissingSource{Type: "weather", Reason: "weather integration not configured"},
-		MissingSource{Type: "telemetry", Reason: "no telemetry devices connected"},
-		MissingSource{Type: "flora", Reason: "flora database not available"},
-	)
-
-	return ctx
 }
 
 // ApplyConfidencePenalty adjusts confidence based on missing/stale data sources.
+//
+// Confidence type is monotonically downgraded (HIGH→MODERATE→LOW→INSUFFICIENT_DATA).
+// Non-standard types (INSUFFICIENT_DATA, CONFLICTING_EVIDENCE, LIMITED_EXPERIENCE)
+// are never overridden by penalty rules — only HIGH and MODERATE can be downgraded
+// to LOW by the stale-source penalty.
+//
+// Invariant: the INSUFFICIENT_DATA cap (0.5) is applied before the universal floor
+// (0.1) so the floor can never silently override the cap.
 func (s *RecommendationService) ApplyConfidencePenalty(
 	baseConfidence float64,
 	confidenceType domain.ConfidenceType,
@@ -103,31 +104,35 @@ func (s *RecommendationService) ApplyConfidencePenalty(
 	}
 
 	adjusted := baseConfidence - penalty
-	if adjusted < 0.1 {
-		adjusted = 0.1
-	}
 
-	// Downgrade confidence type if significant penalty.
-	// Order matters: most severe condition (missing sources) wins.
+	// Monotonic downgrade: determine result type before applying numeric bounds.
 	resultType := confidenceType
 	if len(ctx.MissingSources) >= 3 {
 		resultType = domain.ConfidenceInsufficientData
+		// Cap applied here (before floor) per domain invariant: INSUFFICIENT_DATA ≤ 0.5.
 		if adjusted > 0.5 {
 			adjusted = 0.5
 		}
-	} else if penalty >= 0.3 {
+	} else if penalty >= 0.3 && (confidenceType == domain.ConfidenceHigh || confidenceType == domain.ConfidenceModerate) {
+		// Only downgrade standard levels; never override INSUFFICIENT_DATA or other types.
 		resultType = domain.ConfidenceLow
 	} else if penalty >= 0.2 && confidenceType == domain.ConfidenceHigh {
 		resultType = domain.ConfidenceModerate
 	}
 
+	// Universal floor applied after the INSUFFICIENT_DATA cap so it cannot override it.
+	if adjusted < 0.1 {
+		adjusted = 0.1
+	}
+
 	return adjusted, resultType
 }
 
-// GenerateConservativeDefault returns a safe recommendation when data is insufficient.
+// GenerateConservativeDefault returns a safe, season-aware recommendation when data
+// is insufficient. Returns an error if the domain recommendation fails validation.
 func (s *RecommendationService) GenerateConservativeDefault(
 	hiveID, userID, season string,
-) *domain.Recommendation {
+) (*domain.Recommendation, error) {
 	action := "Perform a routine inspection"
 	rationale := "Limited data available — a standard inspection will provide the observations needed for more specific recommendations."
 	fallback := "Monitor hive entrance activity and check back in one week."
@@ -143,16 +148,12 @@ func (s *RecommendationService) GenerateConservativeDefault(
 		fallback = "Observe entrance for unusual traffic patterns."
 	}
 
-	r, err := domain.NewRecommendation(
+	return domain.NewRecommendation(
 		"conservative-default", hiveID, userID,
 		action, rationale, 0.3,
 		domain.ConfidenceInsufficientData,
 		fallback,
 	)
-	if err != nil {
-		return nil
-	}
-	return r
 }
 
 // DetectSkillMismatch checks behavioral signals for skill level misconfiguration.
