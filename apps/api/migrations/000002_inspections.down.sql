@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS media;
+DROP TABLE IF EXISTS observations;
+DROP TABLE IF EXISTS inspections;
