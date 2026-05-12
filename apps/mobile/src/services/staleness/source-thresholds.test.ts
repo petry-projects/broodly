@@ -54,6 +54,20 @@ describe('getSourceStalenessLevel', () => {
       expect(getSourceStalenessLevel('telemetry', hoursAgo(3), now)).toBe('critical');
     });
   });
+
+  describe('scale (6h threshold)', () => {
+    it('returns fresh for scale 5h old', () => {
+      expect(getSourceStalenessLevel('scale', hoursAgo(5), now)).toBe('fresh');
+    });
+
+    it('returns warning for scale 7h old', () => {
+      expect(getSourceStalenessLevel('scale', hoursAgo(7), now)).toBe('warning');
+    });
+
+    it('returns critical for scale 13h old', () => {
+      expect(getSourceStalenessLevel('scale', hoursAgo(13), now)).toBe('critical');
+    });
+  });
 });
 
 describe('getSourceThreshold', () => {
@@ -67,5 +81,9 @@ describe('getSourceThreshold', () => {
 
   it('returns 1h for telemetry', () => {
     expect(getSourceThreshold('telemetry')).toBe(60 * 60 * 1000);
+  });
+
+  it('returns 6h for scale', () => {
+    expect(getSourceThreshold('scale')).toBe(6 * 60 * 60 * 1000);
   });
 });

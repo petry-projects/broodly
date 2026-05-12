@@ -40,10 +40,10 @@ export function StalenessIndicator({ dataUpdatedAt }: StalenessIndicatorProps) {
       <View
         className="flex-row items-center bg-background-warning rounded px-2 py-1"
         accessibilityRole="alert"
-        accessibilityLabel={`Warning: data is ${label} old`}
+        accessibilityLabel={`Warning: data last updated ${label}`}
       >
         <Text size="xs" className="text-warning-600 font-medium">
-          ⚠ Data is {label} old
+          ⚠ Data last updated {label}
         </Text>
       </View>
     );

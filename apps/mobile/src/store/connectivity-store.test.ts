@@ -4,7 +4,7 @@ beforeEach(() => {
   // Reset to default state
   useConnectivityStore.setState({
     isOnline: true,
-    lastOnlineAt: null,
+    lastOfflineAt: null,
   });
 });
 
@@ -13,8 +13,8 @@ describe('Connectivity store', () => {
     expect(useConnectivityStore.getState().isOnline).toBe(true);
   });
 
-  it('initializes with lastOnlineAt: null', () => {
-    expect(useConnectivityStore.getState().lastOnlineAt).toBeNull();
+  it('initializes with lastOfflineAt: null', () => {
+    expect(useConnectivityStore.getState().lastOfflineAt).toBeNull();
   });
 
   it('setOffline sets isOnline to false', () => {
@@ -22,15 +22,15 @@ describe('Connectivity store', () => {
     expect(useConnectivityStore.getState().isOnline).toBe(false);
   });
 
-  it('setOffline records lastOnlineAt timestamp', () => {
+  it('setOffline records lastOfflineAt timestamp', () => {
     const before = new Date();
     useConnectivityStore.getState().setOffline();
     const after = new Date();
 
-    const lastOnlineAt = useConnectivityStore.getState().lastOnlineAt;
-    expect(lastOnlineAt).not.toBeNull();
-    expect(lastOnlineAt!.getTime()).toBeGreaterThanOrEqual(before.getTime());
-    expect(lastOnlineAt!.getTime()).toBeLessThanOrEqual(after.getTime());
+    const lastOfflineAt = useConnectivityStore.getState().lastOfflineAt;
+    expect(lastOfflineAt).not.toBeNull();
+    expect(lastOfflineAt!.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    expect(lastOfflineAt!.getTime()).toBeLessThanOrEqual(after.getTime());
   });
 
   it('setOnline sets isOnline to true', () => {
@@ -47,6 +47,6 @@ describe('Connectivity store', () => {
     useConnectivityStore.getState().setOffline();
 
     expect(useConnectivityStore.getState().isOnline).toBe(false);
-    expect(useConnectivityStore.getState().lastOnlineAt).not.toBeNull();
+    expect(useConnectivityStore.getState().lastOfflineAt).not.toBeNull();
   });
 });

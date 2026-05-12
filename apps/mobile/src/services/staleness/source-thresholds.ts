@@ -1,11 +1,12 @@
 import type { StalenessLevel } from './staleness-utils';
 
-export type DataSource = 'weather' | 'flora' | 'telemetry';
+export type DataSource = 'weather' | 'flora' | 'telemetry' | 'scale';
 
 const SOURCE_THRESHOLDS: Record<DataSource, number> = {
   weather: 24 * 60 * 60 * 1000, // 24 hours
   flora: 7 * 24 * 60 * 60 * 1000, // 7 days
-  telemetry: 60 * 60 * 1000, // 1 hour (default)
+  telemetry: 60 * 60 * 1000, // 1 hour
+  scale: 6 * 60 * 60 * 1000, // 6 hours
 };
 
 /**
