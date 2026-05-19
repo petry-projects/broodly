@@ -1,21 +1,5 @@
 # CODEOWNERS
-# This file defines code owners for automatic review requests.
-# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# Standard: use the @petry-projects/org-leads team for all code owner
+# assignments. See petry-projects/.github standards/codeowners-standard.md
 
-# Default owner for all files
-* @don-petry
-
-# Mobile app
-/apps/mobile/ @don-petry
-
-# API server
-/apps/api/ @don-petry
-
-# Shared packages
-/packages/ @don-petry
-
-# Infrastructure
-/infra/ @don-petry
-
-# CI/CD and GitHub configuration
-/.github/ @don-petry
+* @petry-projects/org-leads
