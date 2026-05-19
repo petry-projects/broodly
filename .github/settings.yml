@@ -11,6 +11,7 @@
 #                                       claude-code / claude, TypeScript, Go
 
 repository:
+  has_wiki: false
   has_discussions: true
   delete_branch_on_merge: true
   allow_squash_merge: true
