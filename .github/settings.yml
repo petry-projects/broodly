@@ -16,6 +16,10 @@ repository:
   squash_merge_commit_title: PR_TITLE
   squash_merge_commit_message: COMMIT_MESSAGES
 
+security_and_analysis:
+  dependabot_security_updates:
+    status: enabled
+
 labels:
   - name: security
     color: "e4e669"
