@@ -19,6 +19,10 @@ repository:
     secret_scanning_ai_detection:
       status: enabled
 
+security_and_analysis:
+  dependabot_security_updates:
+    status: enabled
+
 labels:
   - name: security
     color: "e4e669"
