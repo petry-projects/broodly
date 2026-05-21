@@ -4,6 +4,11 @@
 # This file brings the repository into compliance with the
 # petry-projects organization standards:
 # https://github.com/petry-projects/.github/blob/main/standards/github-settings.md
+#
+# Rulesets (managed via GitHub API, not probot/settings):
+#   - pr-quality      (id: 14592511) — squash-only, 1 required review, thread resolution
+#   - code-quality    (id: 15055268) — required checks: SonarCloud, CodeQL,
+#                                       claude-code / claude, TypeScript, Go
 
 repository:
   has_wiki: false
