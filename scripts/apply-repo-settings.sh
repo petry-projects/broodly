@@ -6,8 +6,8 @@
 #
 # Settings managed:
 #   check-suite preferences — disables auto-trigger for the Claude GitHub App (ID 1236702)
-#     so that it no longer creates a perpetually-queued check suite on every push,
-#     which would otherwise block auto-merge indefinitely.
+#     and CodeRabbit (ID 347564) so that they no longer create perpetually-queued check
+#     suites on every push, which would otherwise block auto-merge indefinitely.
 #
 # Usage:
 #   GH_TOKEN=<admin-token> ./scripts/apply-repo-settings.sh [<repo>] [--dry-run] [--force]
@@ -74,22 +74,29 @@ fi
 # ---------------------------------------------------------------------------
 # check-suite preferences
 #
-# Disable auto-trigger for the Claude GitHub App (ID 1236702).
+# Disable auto-trigger for the Claude GitHub App (ID 1236702) and
+# CodeRabbit (ID 347564).
 #
 # When auto-trigger is enabled, GitHub creates a queued check suite on every
-# push. Because Claude does not complete these suites on its own, they remain
-# in "queued" state permanently and block auto-merge on every PR.
+# push. Because these apps do not complete check suites on their own, they
+# remain in "queued" state permanently and block auto-merge on every PR.
 #
-# The App ID was obtained via:
+# App IDs obtained via:
 #   gh api /apps/claude --jq '.id'
+#   gh api /apps/coderabbitai --jq '.id'
 # ---------------------------------------------------------------------------
 CLAUDE_APP_ID=1236702
+CODERABBIT_APP_ID=347564
 
 CHECK_SUITE_PAYLOAD=$(cat <<PAYLOAD
 {
   "auto_trigger_checks": [
     {
       "app_id": ${CLAUDE_APP_ID},
+      "setting": false
+    },
+    {
+      "app_id": ${CODERABBIT_APP_ID},
       "setting": false
     }
   ]
@@ -104,7 +111,7 @@ if [ "$DRY_RUN" = true ]; then
   echo "$CHECK_SUITE_PAYLOAD" | jq '.'
 else
   echo "$CHECK_SUITE_PAYLOAD" | gh api -X PATCH "repos/$ORG/$REPO/check-suite/preferences" --input - > /dev/null
-  ok "check-suite auto-trigger disabled for Claude app (ID=$CLAUDE_APP_ID)"
+  ok "check-suite auto-trigger disabled for Claude (ID=$CLAUDE_APP_ID) and CodeRabbit (ID=$CODERABBIT_APP_ID)"
 fi
 
 ok "Done — repository settings applied to $ORG/$REPO"
