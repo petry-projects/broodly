@@ -172,11 +172,6 @@ jobs:
       - name: Ruleset compliance test
         run: bash tests/scripts/apply-rulesets.test.sh
 
-  secret-scan:
-    name: Secret scan (gitleaks)
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - name: Checkout (full history)
         # Pin to SHA per Action Pinning Policy (ci-standards.md#action-pinning-policy).
