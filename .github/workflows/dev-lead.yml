@@ -49,7 +49,7 @@ concurrency:
 
 jobs:
   dev-lead:
-    uses: petry-projects/.github-private/.github/workflows/dev-lead-reusable.yml@main
+    uses: petry-projects/.github-private/.github/workflows/dev-lead-reusable.yml@6610e8a03fc4d568946f45a02ea23bf3e858de3f
     secrets: inherit
     permissions:
       contents: write
