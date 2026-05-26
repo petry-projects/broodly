@@ -1,0 +1,43 @@
+# Apply Repository Settings
+#
+# Runs scripts/apply-repo-settings.sh to patch GitHub check-suite preferences
+# and keep them compliant with the org standard:
+#   https://github.com/petry-projects/.github/blob/main/standards/github-settings.md
+#
+# Specifically, this disables the CodeRabbit (ID 347564) and Claude (ID 1236702)
+# auto-trigger check-suite settings that would otherwise permanently queue check
+# suites on every push and block auto-merge indefinitely.
+#
+# Triggers:
+#   push to main — re-applies settings whenever the script itself changes
+#   schedule     — weekly re-apply so settings cannot drift out of compliance
+#
+# Required secret: GH_ADMIN_PAT — classic PAT with repo scope (administration:write)
+# set at the repo or org level.
+
+name: Apply Repository Settings
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/apply-repo-settings.sh'
+      - '.github/workflows/apply-repo-settings.yml'
+  schedule:
+    - cron: '0 2 * * 1'  # Monday 02:00 UTC — ahead of weekly compliance audit
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apply-settings:
+    name: Apply Repository Settings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Apply check-suite preferences
+        env:
+          GH_TOKEN: ${{ secrets.GH_ADMIN_PAT }}
+        run: bash scripts/apply-repo-settings.sh broodly --force
