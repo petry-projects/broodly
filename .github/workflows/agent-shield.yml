@@ -1,22 +1,10 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# SOURCE OF TRUTH: petry-projects/.github/standards/workflows/agent-shield.yml
-# Standard:        petry-projects/.github/standards/agent-standards.md
-# Reusable:        petry-projects/.github/.github/workflows/agent-shield-reusable.yml
+# This file is a THIN CALLER STUB. The AgentShield CLI scan and the
+# org-specific structural checks live in the reusable workflow above.
 #
-# AGENTS — READ BEFORE EDITING:
-#   • This file is a THIN CALLER STUB. The AgentShield CLI scan and the
-#     org-specific structural checks live in the reusable workflow above.
-#   • You MAY change: the `with:` inputs (min-severity, agentshield-version,
-#     required-files, org-standards-ref) — only if your repo genuinely needs
-#     a different policy.
-#   • You MUST NOT change: trigger events, the `uses:` line, or the job name
-#     (used as a required status check).
-#   • If you need different behaviour beyond the inputs, open a PR against
-#     the reusable in the central repo.
-# ─────────────────────────────────────────────────────────────────────────────
-#
-# AgentShield — thin caller for the org-level reusable.
-# To adopt: copy this file to .github/workflows/agent-shield.yml in your repo.
+# Agents may adjust input parameters (min-severity, agentshield-version,
+# required-files, org-standards-ref) if their repo has specific needs.
+# Everything else must remain unchanged.
+
 name: AgentShield
 
 on:
@@ -30,4 +18,9 @@ permissions:
 
 jobs:
   agent-shield:
-    uses: petry-projects/.github/.github/workflows/agent-shield-reusable.yml@376a4fcb1117444595e3e702fa450873d0e54310 # v2
+    uses: petry-projects/.github/.github/workflows/agent-shield-reusable.yml@v1
+    with:
+      min-severity: medium
+      agentshield-version: latest
+      required-files: []
+      org-standards-ref: petry-projects/.github/main
