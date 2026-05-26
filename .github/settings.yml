@@ -20,14 +20,13 @@ repository:
   allow_auto_merge: true
   squash_merge_commit_title: PR_TITLE
   squash_merge_commit_message: COMMIT_MESSAGES
-  security_and_analysis:
-    secret_scanning_ai_detection:
-      status: enabled
-    secret_scanning_non_provider_patterns:
-      status: enabled
 
 security_and_analysis:
   dependabot_security_updates:
+    status: enabled
+  secret_scanning_ai_detection:
+    status: enabled
+  secret_scanning_non_provider_patterns:
     status: enabled
 
 labels:
