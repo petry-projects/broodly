@@ -34,6 +34,13 @@ permissions: {}
 
 jobs:
   pr-review-mention:
+    # Guard: only invoke the reusable (and its secrets) for trusted actors.
+    # Without this, Copilot review comments (author_association != OWNER/MEMBER/COLLABORATOR)
+    # trigger GitHub's approval gate on `secrets: inherit`, producing action_required
+    # failures instead of clean skips. Mirrors the trust check inside the reusable.
+    if: |
+      github.event_name == 'pull_request' ||
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     permissions:
       pull-requests: write
     uses: petry-projects/.github/.github/workflows/pr-review-mention-reusable.yml@376a4fcb1117444595e3e702fa450873d0e54310 # v2
