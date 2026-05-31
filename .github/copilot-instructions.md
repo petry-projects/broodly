@@ -14,7 +14,7 @@ Broodly is a field-first beekeeping decision-support app: a single Expo + React 
 | Server State | TanStack React Query (persistent cache) |
 | UI State | Zustand |
 | GraphQL Client | urql or Apollo Client |
-| Backend | Go 1.24 (chi + gqlgen) |
+| Backend | Go 1.24 / toolchain 1.26.2 (chi + gqlgen) |
 | Database | PostgreSQL 16 + pgvector |
 | Auth | Firebase Authentication (Google + Apple Sign-In only) |
 | AI/ML | Vertex AI (Gemini, Embedding 2.0) |
@@ -65,24 +65,28 @@ pnpm --filter mobile typecheck      # TypeScript check (mobile)
 
 # --- API server (Go) ---
 cd apps/api
-go run cmd/server/main.go           # Start API server
-go test ./...                       # Run all Go tests
-go vet ./...                        # Go static analysis
+go run cmd/server/main.go                        # Start API server
+go test ./... -race -coverprofile=coverage.out   # Run all Go tests (matches CI)
+go vet ./...                                     # Go static analysis
+golangci-lint run ./...                          # Lint (matches CI; install: https://golangci-lint.run/welcome/install/)
 
-# --- Monorepo-wide ---
+# --- Monorepo-wide (run from repo root) ---
+cd ../..
 pnpm test                           # Run all JS/TS tests across all packages
 pnpm lint                           # ESLint across all packages
 pnpm typecheck                      # TypeScript check across all packages
 pnpm format                         # Prettier format all files
 pnpm format:check                   # Prettier check (CI-safe, no writes)
 
-# --- Code generation ---
-cd apps/api && go generate ./...    # Regenerate gqlgen resolvers and sqlc queries
+# --- Code generation (run from apps/api) ---
+cd apps/api
+go run github.com/99designs/gqlgen generate   # Regenerate gqlgen resolvers
+sqlc generate                                  # Regenerate sqlc queries
 ```
 
 ## Required Environment Variables
 
-See `apps/mobile/.env.example` and `apps/api/.env.example` for full lists. Key variables:
+Key variables (copy into `apps/mobile/.env` and `apps/api/.env` respectively):
 
 | Variable | Where used | Purpose |
 |---|---|---|
@@ -96,8 +100,8 @@ Never commit `.env` files. Use GCP Secret Manager in deployed environments.
 ## Testing Framework
 
 - **Mobile / packages:** Jest with `@testing-library/react-native`. Tests co-located as `ComponentName/ComponentName.test.tsx`. Run with `pnpm --filter mobile test`.
-- **API:** Standard `go test ./...`. Integration tests require a running PostgreSQL instance; see `docs/runbooks/` for local DB setup.
-- **E2E:** Maestro flows in `tests/e2e/` (run in CI only).
+- **API:** `go test ./... -race -coverprofile=coverage.out` (matches CI). Integration tests require a running PostgreSQL instance (see README or ask in #dev for local DB setup steps).
+- **E2E:** Maestro flows planned under `tests/e2e/` — not yet wired into CI (deferred until 3+ screens exist).
 - TDD is required: write failing tests before implementation. No `.skip()`, no coverage-ignore comments.
 
 ## Repo-Specific Overrides
