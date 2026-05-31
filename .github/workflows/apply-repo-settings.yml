@@ -12,8 +12,8 @@
 #   push to main — re-applies settings whenever the script itself changes
 #   schedule     — weekly re-apply so settings cannot drift out of compliance
 #
-# Required secret: GH_ADMIN_PAT — classic PAT with repo scope (administration:write)
-# set at the repo or org level.
+# Required secret: GH_ADMIN_PAT — fine-grained PAT with the repository
+# "Administration" permission (read and write) set at the repo or org level.
 
 name: Apply Repository Settings
 
@@ -40,4 +40,4 @@ jobs:
       - name: Apply check-suite preferences
         env:
           GH_TOKEN: ${{ secrets.GH_ADMIN_PAT }}
-        run: bash scripts/apply-repo-settings.sh broodly --force
+        run: bash scripts/apply-repo-settings.sh broodly
