@@ -1,6 +1,10 @@
 # Copilot Instructions — broodly
 
-> **Note:** This file applies to the `petry-projects/broodly` repository only. Org-wide rules are in [`petry-projects/.github/copilot-instructions.md`](https://github.com/petry-projects/.github/blob/main/.github/copilot-instructions.md). This file covers only what is specific to broodly.
+> **Note:** This file applies to the `petry-projects/broodly` repository only. Org-wide Copilot
+> rules are in [`petry-projects/.github/copilot-instructions.md`](https://github.com/petry-projects/.github/blob/main/.github/copilot-instructions.md).
+> Comprehensive agent/AI coding standards (including TDD, architecture, and BMAD workflow) are
+> in [`petry-projects/.github/AGENTS.md`](https://github.com/petry-projects/.github/blob/main/AGENTS.md).
+> This file covers only what is specific to broodly.
 
 ## About
 
@@ -31,13 +35,17 @@ packages/
 ## Local Dev Commands
 
 - Install:    `pnpm install`
-- Test (all): `pnpm test`
+- Test (JS/TS): `pnpm test`
+- Test (Go API): `cd apps/api && go test ./...`
 - Lint (all): `pnpm lint`
 - Typecheck:  `pnpm typecheck`
 - Mobile dev: `pnpm --filter mobile start`
-- API dev:    `cd apps/api && go run ./cmd/...`
+- API dev:    `cd apps/api && go run ./cmd/server`
 
-## Required Environment Variables
+## Environment Variables (API server)
+
+These are required when running the Go API server locally; they are not needed for JS/TS
+package development or mobile-only work:
 
 - `FIREBASE_PROJECT_ID`: GCP Firebase project ID
 - `FIREBASE_API_KEY`: Firebase web API key
@@ -46,8 +54,8 @@ packages/
 ## Testing Framework
 
 - Mobile runner: Jest with jest-expo preset; React Testing Library (`@testing-library/react-native`)
-- API runner: `go test ./...` with `golangci-lint run`
-- Coverage thresholds: defined per-package (see each `jest.config.js`)
+- API runner: `cd apps/api && go test ./...` with `golangci-lint run`
+- Coverage thresholds: defined per-package (see each package's `jest.config.js`; mobile config is in `apps/mobile/package.json`)
 - Mutation testing: not configured
 
 ## Repo-Specific Overrides
@@ -60,10 +68,11 @@ packages/
 
 ## Org Standards
 
-See [petry-projects/.github — AGENTS.md](https://github.com/petry-projects/.github/blob/main/AGENTS.md) for org-wide development standards.
+See [petry-projects/.github — AGENTS.md](https://github.com/petry-projects/.github/blob/main/AGENTS.md) for org-wide agent/AI coding standards (TDD, architecture, BMAD workflow).
+See [petry-projects/.github/copilot-instructions.md](https://github.com/petry-projects/.github/blob/main/.github/copilot-instructions.md) for org-wide Copilot instructions.
 
 **Language-specific instructions** (applied automatically by Copilot when you open matching file types):
 
-- [TypeScript / TSX](.github/instructions/typescript.instructions.md) — strict config, branded types, DDD/CQRS patterns, React, pino logging
+- [TypeScript / TSX](.github/instructions/typescript.instructions.md) — strict config, branded types, DDD/CQRS patterns, React Native (`testID`)
 - [JavaScript](.github/instructions/javascript.instructions.md) — style, JSDoc type annotations, error handling
 - [Go](.github/instructions/go.instructions.md) — naming, gofmt, slog logging, error wrapping, concurrency, testing

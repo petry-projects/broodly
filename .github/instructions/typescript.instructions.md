@@ -1,6 +1,8 @@
 ---
 description: TypeScript and TSX development standards for the Petry Projects organization
-applyTo: "**/*.ts,**/*.tsx"
+applyTo:
+  - "**/*.ts"
+  - "**/*.tsx"
 ---
 
 # TypeScript Development Standards
@@ -30,14 +32,17 @@ reason. Fix the underlying type issue instead.
 
 - **Formatter:** Prettier with `singleQuote: true`, `semi: true`, `trailingComma: "all"`,
   `printWidth: 100`, `tabWidth: 2`. Run `prettier --write` before committing.
-- **Linter:** ESLint flat config (`eslint.config.mjs`). Zero warnings, zero errors.
+- **Linter:** ESLint flat config (`eslint.config.js`). Zero warnings, zero errors.
 - **Imports:** Use `import type { ... }` for type-only imports. Organize imports: external
   packages first, then internal modules. No circular imports.
-- **No barrel files.** Avoid `index.ts` re-export files unless the project explicitly requires
-  them — they increase circular dependency risk and slow down bundlers.
+- **Barrel files:** Avoid `index.ts` re-export files in most cases — they increase circular
+  dependency risk and slow down bundlers. Exception: package entry points such as
+  `packages/ui/src/index.ts` that define a package's public API are required and must be
+  maintained.
 - **Naming:** `PascalCase` for types, interfaces, classes, and React components. `camelCase` for
   variables, functions, and methods. `SCREAMING_SNAKE_CASE` for module-level constants.
-  File names match the primary export (`UserRepository.ts`, `OrderSummary.tsx`).
+  File names match the primary export (`UserRepository.ts`). React Native components use the
+  directory-based pattern: `ComponentName/index.tsx` with a co-located `ComponentName.test.tsx`.
 
 ## Type Safety
 
@@ -84,9 +89,9 @@ mutate state.
 
 ## Structured Logging
 
-Use **pino** as the default structured logger. Never use `console.log`, `console.error`, or
-`console.warn` in application code (`console.*` is acceptable only in CLI tools and build
-scripts):
+**Node.js / server-side code:** Use **pino** as the default structured logger (add it as an
+explicit dependency). Never use `console.log`, `console.error`, or `console.warn` in
+application or library code (`console.*` is acceptable only in CLI tools and build scripts):
 
 ```typescript
 import pino from "pino";
@@ -100,6 +105,9 @@ reqLogger.info({ order_id: orderId, amount }, "order placed");
 reqLogger.error({ err, order_id: orderId }, "payment failed");
 ```
 
+**React Native / Expo (mobile):** pino is not available in the RN runtime. Avoid `console.*`
+in production paths; use a lightweight RN-compatible logger or route through the backend.
+
 Never log variables whose names end in `password`, `secret`, `token`, `api_key`, `cookie`, or
 `authorization`.
 
@@ -107,8 +115,9 @@ Never log variables whose names end in `password`, `secret`, `token`, `api_key`,
 
 - Use functional components with hooks exclusively. No class components.
 - Extract business logic into custom hooks or service functions — keep components presentational.
-- Use stable `data-testid` attributes for E2E test selectors; never match on CSS classes, DOM
-  hierarchy, or display text.
+- Use stable `testID` attributes for E2E/RTL selectors in React Native (the `data-testid`
+  attribute is web-only and is not supported by React Native's test renderer); never match on
+  CSS classes, DOM hierarchy, or display text.
 - Props interfaces use `PascalCase`: `interface ButtonProps { ... }`. Co-locate with the
   component file.
 - Do not import React explicitly (JSX transform handles it). Use `React.FC` only if required by

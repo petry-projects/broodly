@@ -81,7 +81,8 @@ logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 logger.InfoContext(ctx, "order placed", "order_id", orderID, "user_id", userID)
 ```
 
-- **Never use the global `log` package** from the standard library.
+- **Prefer `log/slog` over the global `log` package** for all new code. Migrate existing `log`
+  usages to `slog` incrementally — do not introduce new `log` calls.
 - Propagate loggers via `context.Context`. Use `slog.InfoContext(ctx, ...)` so trace/span IDs
   are automatically bridged.
 - In tests, suppress output: `slog.New(slog.NewTextHandler(io.Discard, nil))`.
@@ -113,10 +114,14 @@ logger.InfoContext(ctx, "order placed", "order_id", orderID, "user_id", userID)
   and create fresh readers: `bytes.NewReader(buf)`.
 - Set `req.GetBody` for retryable requests so the transport can recreate the body.
 
-## HTTP Server (net/http)
+## HTTP Server
 
-- Go ≥ 1.22: use the enhanced `net/http` `ServeMux` with method + pattern routing.
-- Go < 1.22: handle methods manually in handlers or use a justified third-party router.
+This repository's API uses **`go-chi/chi` v5** as the router. Write handlers and middleware
+targeting chi's `chi.Router` interface. Do not switch to `net/http` `ServeMux` for API code —
+chi is the established standard here.
+
+For standalone tools or packages outside the API that have no chi dependency, the enhanced
+`net/http` `ServeMux` (Go ≥ 1.22 method + pattern routing) is acceptable.
 
 ## Type Safety
 
@@ -148,7 +153,7 @@ logger.InfoContext(ctx, "order placed", "order_id", orderID, "user_id", userID)
 - `go fmt` — format code (non-negotiable)
 - `go vet` — find suspicious constructs
 - `golangci-lint` — extended linting (replaces deprecated `golint`)
-- `go test ./...` — run all tests
+- `go test ./...` — run all tests (run from the module root, e.g. `cd apps/api && go test ./...`)
 - `go mod tidy` — clean up unused dependencies
 
 Run `golangci-lint run` before committing. Zero warnings, zero errors.

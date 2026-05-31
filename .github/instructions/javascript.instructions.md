@@ -1,6 +1,9 @@
 ---
 description: JavaScript development standards for the Petry Projects organization
-applyTo: "**/*.js,**/*.mjs,**/*.cjs"
+applyTo:
+  - "**/*.js"
+  - "**/*.mjs"
+  - "**/*.cjs"
 ---
 
 # JavaScript Development Standards
@@ -42,7 +45,8 @@ These rules extend the org-level `copilot-instructions.md` and apply to JavaScri
   explicit `.catch()` handler.
 - Never use empty catch blocks (`catch (e) {}`). At minimum, log the error with structured
   fields.
-- Do not use `console.log` in application or library code. Use a structured logger (`pino`).
+- Do not use `console.log` in application or library code. Use a structured logger (`pino` for
+  Node.js server/backend code; add it as an explicit dependency per package).
   `console.*` is acceptable only in CLI scripts and build tooling.
 
 ## Testing
