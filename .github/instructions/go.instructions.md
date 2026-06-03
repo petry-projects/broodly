@@ -83,8 +83,9 @@ logger.InfoContext(ctx, "order placed", "order_id", orderID, "user_id", userID)
 
 - **Prefer `log/slog` over the global `log` package** for all new code. Migrate existing `log`
   usages to `slog` incrementally — do not introduce new `log` calls.
-- Propagate loggers via `context.Context`. Use `slog.InfoContext(ctx, ...)` so trace/span IDs
-  are automatically bridged.
+- Propagate loggers via `context.Context`. Call `logger.InfoContext(ctx, ...)` on the configured
+  `*slog.Logger` instance (not the package-level `slog.InfoContext`) so request-scoped fields
+  and trace/span IDs are included.
 - In tests, suppress output: `slog.New(slog.NewTextHandler(io.Discard, nil))`.
 - Log at the point of handling, not at every layer. Wrap errors with `fmt.Errorf` and log once.
 - Never log variables named `password`, `secret`, `token`, `api_key`, `private_key`,
@@ -156,4 +157,4 @@ For standalone tools or packages outside the API that have no chi dependency, th
 - `go test ./...` — run all tests (run from the module root, e.g. `cd apps/api && go test ./...`)
 - `go mod tidy` — clean up unused dependencies
 
-Run `golangci-lint run` before committing. Zero warnings, zero errors.
+Run `cd apps/api && golangci-lint run` before committing Go changes (the only Go module lives under `apps/api`, matching CI). Zero warnings, zero errors.

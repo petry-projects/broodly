@@ -1,8 +1,6 @@
 ---
 description: TypeScript and TSX development standards for the Petry Projects organization
-applyTo:
-  - "**/*.ts"
-  - "**/*.tsx"
+applyTo: "**/*.ts,**/*.tsx"
 ---
 
 # TypeScript Development Standards
@@ -12,12 +10,21 @@ across all Petry Projects repositories.
 
 ## Compiler Configuration
 
-Always use TypeScript in strict mode. All repositories MUST include these flags (or stricter):
+Always use TypeScript in strict mode. All repositories MUST include at minimum:
 
 ```json
 {
   "compilerOptions": {
-    "strict": true,
+    "strict": true
+  }
+}
+```
+
+The following flags are strongly recommended and should be added when introducing new projects or when the codebase is ready to adopt them (the current broodly repo enables only `strict`):
+
+```json
+{
+  "compilerOptions": {
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true
@@ -120,8 +127,10 @@ Never log variables whose names end in `password`, `secret`, `token`, `api_key`,
   CSS classes, DOM hierarchy, or display text.
 - Props interfaces use `PascalCase`: `interface ButtonProps { ... }`. Co-locate with the
   component file.
-- Do not import React explicitly (JSX transform handles it). Use `React.FC` only if required by
-  the project — prefer plain function declarations.
+- Do not import React solely for JSX — the JSX transform handles it automatically. Do import
+  React when you need React APIs or namespace types (e.g., `React.ComponentProps`,
+  `React.forwardRef`, `React.ReactNode`). Use `React.FC` only if required by the project —
+  prefer plain function declarations.
 
 ## Error Handling
 

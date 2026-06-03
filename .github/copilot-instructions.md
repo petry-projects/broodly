@@ -1,7 +1,7 @@
 # Copilot Instructions — broodly
 
 > **Note:** This file applies to the `petry-projects/broodly` repository only. Org-wide Copilot
-> rules are in [`petry-projects/.github/copilot-instructions.md`](https://github.com/petry-projects/.github/blob/main/.github/copilot-instructions.md).
+> rules are in [`petry-projects/.github/copilot-instructions.md`](https://github.com/petry-projects/.github/blob/main/copilot-instructions.md).
 > Comprehensive agent/AI coding standards (including TDD, architecture, and BMAD workflow) are
 > in [`petry-projects/.github/AGENTS.md`](https://github.com/petry-projects/.github/blob/main/AGENTS.md).
 > This file covers only what is specific to broodly.
@@ -29,7 +29,9 @@ packages/
   domain-types/        # Shared TypeScript domain types
   graphql-types/       # @graphql-codegen generated types (never edit directly)
   test-utils/          # Shared test helpers
-  ui/                  # Shared Gluestack UI components
+  ui/                  # Shared UI components (note: Gluestack-generated components currently
+                       #   live in apps/mobile/components/ui — add react/react-native/gluestack
+                       #   deps to this package before moving components here)
 ```
 
 ## Local Dev Commands
@@ -37,7 +39,8 @@ packages/
 - Install:    `pnpm install`
 - Test (JS/TS): `pnpm test`
 - Test (Go API): `cd apps/api && go test ./...`
-- Lint (all): `pnpm lint`
+- Lint (JS/TS): `pnpm lint`
+- Lint (Go API): `cd apps/api && golangci-lint run`
 - Typecheck:  `pnpm typecheck`
 - Mobile dev: `pnpm --filter mobile start`
 - API dev:    `cd apps/api && go run ./cmd/server`
@@ -48,8 +51,7 @@ These are required when running the Go API server locally; they are not needed f
 package development or mobile-only work:
 
 - `FIREBASE_PROJECT_ID`: GCP Firebase project ID
-- `FIREBASE_API_KEY`: Firebase web API key
-- `CLOUD_SQL_URL`: PostgreSQL connection string (Cloud SQL proxy for local dev)
+- `DATABASE_URL`: PostgreSQL connection string (Cloud SQL proxy for local dev; matches the Cloud Run secret binding)
 
 ## Testing Framework
 
@@ -69,7 +71,7 @@ package development or mobile-only work:
 ## Org Standards
 
 See [petry-projects/.github — AGENTS.md](https://github.com/petry-projects/.github/blob/main/AGENTS.md) for org-wide agent/AI coding standards (TDD, architecture, BMAD workflow).
-See [petry-projects/.github/copilot-instructions.md](https://github.com/petry-projects/.github/blob/main/.github/copilot-instructions.md) for org-wide Copilot instructions.
+See [petry-projects/.github/copilot-instructions.md](https://github.com/petry-projects/.github/blob/main/copilot-instructions.md) for org-wide Copilot instructions.
 
 **Language-specific instructions** (applied automatically by Copilot when you open matching file types):
 
