@@ -69,7 +69,7 @@ function SummaryBar({
               accessibilityState={{ selected: isActive }}
               testID={`filter-${status}`}
             >
-              <Ionicons name={config.icon as 'checkmark-circle'} size={14} />
+              <Ionicons name={config.icon as keyof typeof Ionicons.glyphMap} size={14} />
               <Text size="xs" className={`font-medium ${textClass}`}>
                 {count}
               </Text>
