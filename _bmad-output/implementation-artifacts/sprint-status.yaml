@@ -1,5 +1,5 @@
 # generated: 2026-03-21
-# last_updated: 2026-03-28
+# last_updated: 2026-03-29
 # project: bmad-method
 # project_key: NOKEY
 # tracking_system: file-system
@@ -12,7 +12,7 @@
 # Retrospective: optional ↔ done
 
 generated: 2026-03-21
-last_updated: 2026-03-28
+last_updated: 2026-03-29
 project: bmad-method
 project_key: NOKEY
 tracking_system: file-system
@@ -42,20 +42,20 @@ development_status:
   3-5-audit-event-log-and-pgvector: done
   epic-3-retrospective: optional
 
-  epic-4: backlog
-  4-1-graphql-schema-foundation: ready-for-dev
-  4-2-recommendation-contract-type: ready-for-dev
-  4-3-apiary-hive-resolvers: ready-for-dev
-  4-4-inspection-recommendation-resolvers: ready-for-dev
-  4-5-data-export-resolvers: ready-for-dev
+  epic-4: done
+  4-1-graphql-schema-foundation: review
+  4-2-recommendation-contract-type: review
+  4-3-apiary-hive-resolvers: review
+  4-4-inspection-recommendation-resolvers: review
+  4-5-data-export-resolvers: review
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-expo-router-navigation-shell: ready-for-dev
-  5-2-apollo-client-and-graphql-codegen: ready-for-dev
-  5-3-zustand-stores-and-tanstack-query: ready-for-dev
-  5-4-auth-screens-and-protected-routes: ready-for-dev
-  5-5-offline-indicator-and-staleness-ux: ready-for-dev
+  epic-5: done
+  5-1-expo-router-navigation-shell: done
+  5-2-apollo-client-and-graphql-codegen: done
+  5-3-zustand-stores-and-tanstack-query: done
+  5-4-auth-screens-and-protected-routes: done
+  5-5-offline-indicator-and-staleness-ux: done
   epic-5-retrospective: optional
 
   epic-6: backlog

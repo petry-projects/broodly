@@ -1,0 +1,44 @@
+"""
+Confidence classification for AI-generated recommendations.
+"""
+enum ConfidenceType {
+  HIGH
+  MODERATE
+  LOW
+  INSUFFICIENT_DATA
+  CONFLICTING_EVIDENCE
+  LIMITED_EXPERIENCE
+}
+
+"""
+Structured reference to an evidence source supporting a recommendation.
+"""
+type EvidenceSource {
+  sourceType: String!
+  sourceId: UUID!
+  relevanceScore: Float!
+  summary: String!
+}
+
+"""
+AI-generated recommendation with mandatory contract fields.
+Every recommendation surface must return action + rationale + confidence + fallback.
+"""
+type Recommendation {
+  id: UUID!
+  hive: Hive!
+  action: String!
+  rationale: String!
+  confidenceLevel: Float!
+  confidenceType: ConfidenceType!
+  fallbackAction: String!
+  evidenceContext: JSON
+  evidenceSources: [EvidenceSource!]
+  skillAdaptedExplanation: String!
+  createdAt: DateTime!
+  expiresAt: DateTime
+}
+
+extend type Query {
+  recommendations(hiveId: UUID, limit: Int, offset: Int): [Recommendation!]!
+}

@@ -9,6 +9,12 @@ SELECT * FROM recommendations WHERE id = $1;
 -- name: ListRecommendationsByHive :many
 SELECT * FROM recommendations WHERE hive_id = $1 ORDER BY created_at DESC;
 
+-- name: ListRecommendationsByHivePaginated :many
+SELECT * FROM recommendations WHERE hive_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;
+
+-- name: ListRecommendationsByUser :many
+SELECT * FROM recommendations WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;
+
 -- name: ListActiveRecommendationsByUser :many
 SELECT * FROM recommendations WHERE user_id = $1 AND (expires_at IS NULL OR expires_at > NOW()) ORDER BY created_at DESC;
 
@@ -20,8 +26,20 @@ RETURNING *;
 -- name: GetTaskByID :one
 SELECT * FROM tasks WHERE id = $1;
 
+-- name: GetTaskByIDAndUser :one
+SELECT * FROM tasks WHERE id = $1 AND user_id = $2;
+
 -- name: ListPendingTasksByUser :many
 SELECT * FROM tasks WHERE user_id = $1 AND status = 'pending' ORDER BY due_date NULLS LAST, priority;
+
+-- name: ListTasksByUser :many
+SELECT * FROM tasks WHERE user_id = $1 ORDER BY due_date NULLS LAST, priority LIMIT $2 OFFSET $3;
+
+-- name: ListTasksByUserAndStatus :many
+SELECT * FROM tasks WHERE user_id = $1 AND status = $2 ORDER BY due_date NULLS LAST, priority LIMIT $3 OFFSET $4;
+
+-- name: ListTasksByHive :many
+SELECT * FROM tasks WHERE hive_id = $1 ORDER BY due_date NULLS LAST, priority LIMIT $2 OFFSET $3;
 
 -- name: UpdateTaskStatus :one
 UPDATE tasks SET status = $2, deferred_reason = $3, completed_at = CASE WHEN $2 = 'completed' THEN NOW() ELSE NULL END

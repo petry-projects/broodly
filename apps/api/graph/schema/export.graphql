@@ -1,0 +1,41 @@
+"""
+Export file format.
+"""
+enum ExportFormat {
+  JSON
+  CSV
+}
+
+"""
+Status of an export job.
+"""
+enum ExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+"""
+An export job that generates a downloadable file.
+"""
+type ExportJob {
+  id: UUID!
+  format: ExportFormat!
+  status: ExportStatus!
+  downloadUrl: String
+  createdAt: DateTime!
+  completedAt: DateTime
+}
+
+input ExportDataInput {
+  format: ExportFormat!
+}
+
+extend type Query {
+  exportJobStatus(id: UUID!): ExportJob!
+}
+
+extend type Mutation {
+  exportData(input: ExportDataInput!): ExportJob!
+}

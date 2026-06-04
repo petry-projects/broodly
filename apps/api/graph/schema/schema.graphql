@@ -1,0 +1,20 @@
+"""
+Base schema: custom scalars, error interface, and root type extensions.
+"""
+
+scalar JSON
+scalar DateTime
+scalar UUID
+
+"""
+Standard error extensions returned in GraphQL error responses.
+Every domain error includes a machine-readable code, a human message, and retryability.
+"""
+type ErrorExtensions {
+  code: String!
+  message: String!
+  retryable: Boolean!
+}
+
+type Query
+type Mutation

@@ -1,0 +1,12 @@
+"""
+Immutable audit event for compliance and traceability.
+"""
+type AuditEvent {
+  id: UUID!
+  eventType: String!
+  actorId: UUID!
+  tenantId: UUID!
+  occurredAt: DateTime!
+  payloadVersion: Int!
+  payload: JSON!
+}

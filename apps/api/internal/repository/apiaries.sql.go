@@ -11,10 +11,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countApiariesByUser = `-- name: CountApiariesByUser :one
+SELECT COUNT(*) FROM apiaries WHERE user_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) CountApiariesByUser(ctx context.Context, userID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countApiariesByUser, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createApiary = `-- name: CreateApiary :one
 INSERT INTO apiaries (user_id, name, latitude, longitude, region, elevation_offset, bloom_offset)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, user_id, name, latitude, longitude, region, elevation_offset, bloom_offset, created_at, updated_at
+RETURNING id, user_id, name, latitude, longitude, region, elevation_offset, bloom_offset, created_at, updated_at, deleted_at
 `
 
 type CreateApiaryParams struct {
@@ -49,6 +60,7 @@ func (q *Queries) CreateApiary(ctx context.Context, arg CreateApiaryParams) (Api
 		&i.BloomOffset,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -68,7 +80,7 @@ func (q *Queries) DeleteApiary(ctx context.Context, arg DeleteApiaryParams) erro
 }
 
 const getApiaryByID = `-- name: GetApiaryByID :one
-SELECT id, user_id, name, latitude, longitude, region, elevation_offset, bloom_offset, created_at, updated_at FROM apiaries WHERE id = $1 AND user_id = $2
+SELECT id, user_id, name, latitude, longitude, region, elevation_offset, bloom_offset, created_at, updated_at, deleted_at FROM apiaries WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
 `
 
 type GetApiaryByIDParams struct {
@@ -90,12 +102,13 @@ func (q *Queries) GetApiaryByID(ctx context.Context, arg GetApiaryByIDParams) (A
 		&i.BloomOffset,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const listApiariesByUser = `-- name: ListApiariesByUser :many
-SELECT id, user_id, name, latitude, longitude, region, elevation_offset, bloom_offset, created_at, updated_at FROM apiaries WHERE user_id = $1 ORDER BY name
+SELECT id, user_id, name, latitude, longitude, region, elevation_offset, bloom_offset, created_at, updated_at, deleted_at FROM apiaries WHERE user_id = $1 AND deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListApiariesByUser(ctx context.Context, userID pgtype.UUID) ([]Apiary, error) {
@@ -118,6 +131,7 @@ func (q *Queries) ListApiariesByUser(ctx context.Context, userID pgtype.UUID) ([
 			&i.BloomOffset,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -129,9 +143,23 @@ func (q *Queries) ListApiariesByUser(ctx context.Context, userID pgtype.UUID) ([
 	return items, nil
 }
 
+const softDeleteApiary = `-- name: SoftDeleteApiary :exec
+UPDATE apiaries SET deleted_at = NOW() WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
+`
+
+type SoftDeleteApiaryParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) SoftDeleteApiary(ctx context.Context, arg SoftDeleteApiaryParams) error {
+	_, err := q.db.Exec(ctx, softDeleteApiary, arg.ID, arg.UserID)
+	return err
+}
+
 const updateApiary = `-- name: UpdateApiary :one
 UPDATE apiaries SET name = $2, latitude = $3, longitude = $4, region = $5, elevation_offset = $6, bloom_offset = $7, updated_at = NOW()
-WHERE id = $1 AND user_id = $8 RETURNING id, user_id, name, latitude, longitude, region, elevation_offset, bloom_offset, created_at, updated_at
+WHERE id = $1 AND user_id = $8 AND deleted_at IS NULL RETURNING id, user_id, name, latitude, longitude, region, elevation_offset, bloom_offset, created_at, updated_at, deleted_at
 `
 
 type UpdateApiaryParams struct {
@@ -168,6 +196,7 @@ func (q *Queries) UpdateApiary(ctx context.Context, arg UpdateApiaryParams) (Api
 		&i.BloomOffset,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }

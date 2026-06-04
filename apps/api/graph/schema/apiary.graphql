@@ -1,0 +1,44 @@
+"""
+A beeyard location containing one or more hives.
+"""
+type Apiary {
+  id: UUID!
+  name: String!
+  latitude: Float
+  longitude: Float
+  region: String!
+  elevationOffset: Float!
+  bloomOffset: Int!
+  hives: [Hive!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateApiaryInput {
+  name: String!
+  latitude: Float
+  longitude: Float
+  region: String!
+  elevationOffset: Float
+  bloomOffset: Int
+}
+
+input UpdateApiaryInput {
+  name: String
+  latitude: Float
+  longitude: Float
+  region: String
+  elevationOffset: Float
+  bloomOffset: Int
+}
+
+extend type Query {
+  apiaries: [Apiary!]!
+  apiary(id: UUID!): Apiary!
+}
+
+extend type Mutation {
+  createApiary(input: CreateApiaryInput!): Apiary!
+  updateApiary(id: UUID!, input: UpdateApiaryInput!): Apiary!
+  deleteApiary(id: UUID!): Boolean!
+}

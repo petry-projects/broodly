@@ -16,3 +16,14 @@ resolver:
 
 autobind:
   - "github.com/broodly/api/graph/model"
+
+models:
+  JSON:
+    model:
+      - github.com/99designs/gqlgen/graphql.Map
+  DateTime:
+    model:
+      - github.com/99designs/gqlgen/graphql.Time
+  UUID:
+    model:
+      - github.com/99designs/gqlgen/graphql.String

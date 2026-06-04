@@ -1,0 +1,51 @@
+"""
+Task priority level.
+"""
+enum TaskPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+"""
+Task lifecycle status.
+"""
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DEFERRED
+  DISMISSED
+}
+
+"""
+An actionable task derived from a recommendation.
+"""
+type Task {
+  id: UUID!
+  recommendation: Recommendation
+  hive: Hive!
+  title: String!
+  priority: TaskPriority!
+  status: TaskStatus!
+  dueDate: DateTime
+  deferredReason: String
+  completedAt: DateTime
+  isOverdue: Boolean!
+  catchUpGuidance: String
+  createdAt: DateTime!
+}
+
+input DeferTaskInput {
+  reason: String
+}
+
+extend type Query {
+  tasks(apiaryId: UUID, hiveId: UUID, status: TaskStatus, limit: Int, offset: Int): [Task!]!
+}
+
+extend type Mutation {
+  deferTask(id: UUID!, input: DeferTaskInput): Task!
+  completeTask(id: UUID!): Task!
+}
