@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_numbers:
-        description: 'PR numbers to review (comma-separated)'
+        description: "PR numbers to review (comma-separated)"
         required: false
 
 permissions: {}
@@ -22,4 +22,7 @@ concurrency:
 jobs:
   pr-review:
     uses: petry-projects/.github-private/.github/workflows/pr-review-reusable.yml@main
-    secrets: inherit
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
