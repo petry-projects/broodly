@@ -14,7 +14,7 @@ jobs:
     name: Mark and close stale issues and PRs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@5bef64f19d7facfed25c4b5b9f9d1f22a6521474 # v9.1.0
+      - uses: actions/stale@v9.1.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -27,7 +27,8 @@ jobs:
             unless there is new activity. If this is still relevant, please comment or
             remove the `stale` label.
           close-issue-message: >
-            Closed due to 60+ days of inactivity. Re-open if this is still relevant.
+            Closed after 60 days of inactivity followed by 7 days in stale state (~67 days total).
+            Re-open if this is still relevant.
           exempt-issue-labels: 'pinned,keep-open,security'
 
           # PRs
@@ -39,8 +40,9 @@ jobs:
             there is new activity. If this is still in progress, please push a commit or
             remove the `stale` label.
           close-pr-message: >
-            Closed due to 30+ days of inactivity. Re-open if work resumes.
-          exempt-pr-labels: 'pinned,keep-open'
+            Closed after 30 days of inactivity followed by 7 days in stale state (~37 days total).
+            Re-open if work resumes.
+          exempt-pr-labels: 'pinned,keep-open,security'
           # Epic branches are all DRAFT PRs. Exempting them prevents the stale
           # bot from closing long-lived foundational work. See docs/runbooks/pr-lifecycle-policy.md.
           exempt-draft-pr: true
