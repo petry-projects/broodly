@@ -1,0 +1,14 @@
+title = "gitleaks config"
+
+[extend]
+useDefault = true
+
+# Files under _bmad/ and .claude/skills/ are BMAD framework knowledge bases and
+# workflow templates. They contain example tokens written as test fixtures, not
+# real secrets. Exclude them from the scan to eliminate false positives.
+[allowlist]
+description = "BMAD framework templates and skill knowledge files"
+paths = [
+  '''_bmad/''',
+  '''\.claude/skills/''',
+]
