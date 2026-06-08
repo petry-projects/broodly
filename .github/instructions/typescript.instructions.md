@@ -1,6 +1,6 @@
 ---
 description: TypeScript and TSX development standards for the Petry Projects organization
-applyTo: "**/*.ts,**/*.tsx"
+applyTo: '**/*.ts,**/*.tsx'
 ---
 
 # TypeScript Development Standards
@@ -38,7 +38,7 @@ reason. Fix the underlying type issue instead.
 ## Code Style
 
 - **Formatter:** Prettier with `singleQuote: true`, `semi: true`, `trailingComma: "all"`,
-  `printWidth: 100`, `tabWidth: 2`. Run `prettier --write` before committing.
+  `printWidth: 100`, `tabWidth: 2`. Run `pnpm format` before committing.
 - **Linter:** ESLint flat config (`eslint.config.js`). Zero warnings, zero errors.
 - **Imports:** Use `import type { ... }` for type-only imports. Organize imports: external
   packages first, then internal modules. No circular imports.
@@ -57,8 +57,8 @@ reason. Fix the underlying type issue instead.
 - Use branded types / nominal typing for domain identifiers and value objects:
 
   ```typescript
-  type UserId = string & { readonly __brand: "UserId" };
-  type OrderId = string & { readonly __brand: "OrderId" };
+  type UserId = string & { readonly __brand: 'UserId' };
+  type OrderId = string & { readonly __brand: 'OrderId' };
   ```
 
 - Use discriminated unions instead of optional fields where possible.
@@ -83,13 +83,13 @@ reason. Fix the underlying type issue instead.
 
 ## CQRS Naming Conventions
 
-| Concept | Convention | Examples |
-|---------|-----------|----------|
-| Command | Imperative verb + noun | `PlaceOrder`, `CancelSubscription` |
-| Event | Past-tense verb + noun | `OrderPlaced`, `SubscriptionCancelled` |
-| Query | `Get` / `List` / `Search` + noun | `GetOrderById`, `ListActiveUsers` |
-| Command handler | `Handle(cmd)` or `<Name>Handler` | `PlaceOrderHandler` |
-| Projection | Noun describing the view | `OrderSummaryProjection` |
+| Concept         | Convention                       | Examples                               |
+| --------------- | -------------------------------- | -------------------------------------- |
+| Command         | Imperative verb + noun           | `PlaceOrder`, `CancelSubscription`     |
+| Event           | Past-tense verb + noun           | `OrderPlaced`, `SubscriptionCancelled` |
+| Query           | `Get` / `List` / `Search` + noun | `GetOrderById`, `ListActiveUsers`      |
+| Command handler | `Handle(cmd)` or `<Name>Handler` | `PlaceOrderHandler`                    |
+| Projection      | Noun describing the view         | `OrderSummaryProjection`               |
 
 Commands MUST NOT return domain data — return the new entity ID or void. Queries MUST NOT
 mutate state.
@@ -101,15 +101,15 @@ explicit dependency). Never use `console.log`, `console.error`, or `console.warn
 application or library code (`console.*` is acceptable only in CLI tools and build scripts):
 
 ```typescript
-import pino from "pino";
+import pino from 'pino';
 const logger = pino();
 
 // In Express/Fastify middleware, attach a child logger per request:
 const reqLogger = logger.child({ request_id: req.id, user_id: req.user?.id });
 
 // Log with structured fields, not interpolated strings:
-reqLogger.info({ order_id: orderId, amount }, "order placed");
-reqLogger.error({ err, order_id: orderId }, "payment failed");
+reqLogger.info({ order_id: orderId, amount }, 'order placed');
+reqLogger.error({ err, order_id: orderId }, 'payment failed');
 ```
 
 **React Native / Expo (mobile):** pino is not available in the RN runtime. Avoid `console.*`

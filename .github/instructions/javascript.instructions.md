@@ -1,9 +1,9 @@
 ---
 description: JavaScript development standards for the Petry Projects organization
 applyTo:
-  - "**/*.js"
-  - "**/*.mjs"
-  - "**/*.cjs"
+  - '**/*.js'
+  - '**/*.mjs'
+  - '**/*.cjs'
 ---
 
 # JavaScript Development Standards
@@ -16,7 +16,7 @@ These rules extend the org-level `copilot-instructions.md` and apply to JavaScri
 
 ## Style and Formatting
 
-- **Formatter:** Prettier. Run `prettier --write` before committing.
+- **Formatter:** Prettier. Run `pnpm format` before committing.
 - **Linter:** ESLint. Zero warnings, zero errors.
 - Never use `var`. Use `const` for all bindings that are not reassigned; use `let` only when
   reassignment is required.
