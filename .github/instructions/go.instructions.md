@@ -1,6 +1,6 @@
 ---
 description: Go development standards for the Petry Projects organization, based on Effective Go and Google's Go Style Guide
-applyTo: "**/*.go"
+applyTo: '**/*.go'
 ---
 
 # Go Development Standards
@@ -35,7 +35,7 @@ infrastructure tools, CLI utilities, and backend services in this org.
 - Always format with `gofmt` (or `goimports`). This is non-negotiable.
 - Use `goimports` to manage import blocks automatically.
 - Write comments in English. Document all exported symbols — start with the symbol name.
-  Comment the *why*, not the *what*, unless the logic is complex.
+  Comment the _why_, not the _what_, unless the logic is complex.
 - Avoid emoji in code and comments.
 
 ## Error Handling

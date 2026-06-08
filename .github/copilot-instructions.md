@@ -36,14 +36,14 @@ packages/
 
 ## Local Dev Commands
 
-- Install:    `pnpm install`
+- Install: `pnpm install`
 - Test (JS/TS): `pnpm test`
 - Test (Go API): `cd apps/api && go test ./...`
 - Lint (JS/TS): `pnpm lint`
 - Lint (Go API): `cd apps/api && golangci-lint run`
-- Typecheck:  `pnpm typecheck`
+- Typecheck: `pnpm typecheck`
 - Mobile dev: `pnpm --filter mobile start`
-- API dev:    `cd apps/api && go run ./cmd/server`
+- API dev: `cd apps/api && go run ./cmd/server`
 
 ## Environment Variables (API server)
 
