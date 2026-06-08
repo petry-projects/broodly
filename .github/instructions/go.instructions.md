@@ -151,10 +151,10 @@ For standalone tools or packages outside the API that have no chi dependency, th
 
 ## Tooling
 
-- `go fmt` — format code (non-negotiable)
+- `go fmt ./...` — format code (non-negotiable; run from `apps/api`, e.g. `cd apps/api && go fmt ./...`)
 - `go vet ./...` — find suspicious constructs (run from `apps/api`, e.g. `cd apps/api && go vet ./...`)
 - `golangci-lint` — extended linting (replaces deprecated `golint`)
 - `go test ./...` — run all tests (run from the module root, e.g. `cd apps/api && go test ./...`)
-- `go mod tidy` — clean up unused dependencies
+- `cd apps/api && go mod tidy` — clean up unused dependencies (the only Go module is under `apps/api`)
 
 Run `cd apps/api && golangci-lint run` before committing Go changes (the only Go module lives under `apps/api`, matching CI). Zero warnings, zero errors.
