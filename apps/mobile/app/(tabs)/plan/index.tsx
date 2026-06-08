@@ -114,17 +114,8 @@ function ApiarySection({ queue }: { queue: ApiaryQueue }) {
           <TaskRow
             key={task.id}
             task={task}
-            onComplete={() =>
-              completeTask.mutate(task.id, {
-                onError: (err) => console.error('Failed to complete task:', err.message),
-              })
-            }
-            onDismiss={() =>
-              deferTask.mutate(
-                { id: task.id, reason: 'not now' },
-                { onError: (err) => console.error('Failed to defer task:', err.message) }
-              )
-            }
+            onComplete={() => completeTask.mutate(task.id)}
+            onDismiss={() => deferTask.mutate({ id: task.id, reason: 'not now' })}
           />
         ))}
     </View>
