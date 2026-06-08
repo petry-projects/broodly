@@ -78,6 +78,7 @@ export function useWeeklyQueue() {
     queryFn: async () => {
       const result = await client.query(WEEKLY_QUEUE_QUERY, {}).toPromise();
       if (result.error) throw new Error(result.error.message);
+      if (!result.data) throw new Error('No data returned from weekly queue');
       return groupByApiary(result.data.tasks as RawTask[]);
     },
   });
@@ -91,6 +92,7 @@ export function useCompleteTask() {
     mutationFn: async (id: string) => {
       const result = await client.mutation(COMPLETE_TASK_MUTATION, { id }).toPromise();
       if (result.error) throw new Error(result.error.message);
+      if (!result.data) throw new Error('No data returned from completeTask');
       return result.data.completeTask;
     },
     onSuccess: () => {
@@ -109,6 +111,7 @@ export function useDeferTask() {
         .mutation(DEFER_TASK_MUTATION, { id, input: { reason } })
         .toPromise();
       if (result.error) throw new Error(result.error.message);
+      if (!result.data) throw new Error('No data returned from deferTask');
       return result.data.deferTask;
     },
     onSuccess: () => {
