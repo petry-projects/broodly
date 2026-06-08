@@ -34,3 +34,12 @@ labels:
   - name: security
     color: "e4e669"
     description: Security-related issues and improvements
+  - name: stale
+    color: "ededed"
+    description: No recent activity — will be closed if no action taken
+  - name: pinned
+    color: "0075ca"
+    description: Exempt from automated stale closure
+  - name: keep-open
+    color: "0075ca"
+    description: Exempt from automated stale closure
