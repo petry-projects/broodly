@@ -31,7 +31,7 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Generate TypeScript coverage
         run: pnpm run test -- --coverage --coverageReporters=lcov
