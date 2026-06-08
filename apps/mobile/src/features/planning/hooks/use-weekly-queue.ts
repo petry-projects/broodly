@@ -48,10 +48,12 @@ export function groupByApiary(tasks: RawTask[]): ApiaryQueue[] {
   const map = new Map<string, ApiaryQueue>();
   for (const task of tasks) {
     const { id: apiaryId, name: apiaryName } = task.hive.apiary;
-    if (!map.has(apiaryId)) {
-      map.set(apiaryId, { apiaryId, apiaryName, tasks: [] });
+    let queue = map.get(apiaryId);
+    if (!queue) {
+      queue = { apiaryId, apiaryName, tasks: [] };
+      map.set(apiaryId, queue);
     }
-    map.get(apiaryId)!.tasks.push({
+    queue.tasks.push({
       id: task.id,
       title: task.title,
       hiveId: task.hive.id,
