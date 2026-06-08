@@ -152,7 +152,7 @@ For standalone tools or packages outside the API that have no chi dependency, th
 ## Tooling
 
 - `go fmt` — format code (non-negotiable)
-- `go vet` — find suspicious constructs
+- `go vet ./...` — find suspicious constructs (run from `apps/api`, e.g. `cd apps/api && go vet ./...`)
 - `golangci-lint` — extended linting (replaces deprecated `golint`)
 - `go test ./...` — run all tests (run from the module root, e.g. `cd apps/api && go test ./...`)
 - `go mod tidy` — clean up unused dependencies
