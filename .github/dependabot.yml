@@ -14,14 +14,15 @@ updates:
       # They are already patched via pnpm.overrides in package.json, which forces
       # the lockfile to resolve safe versions. Dependabot's security updater does
       # not understand pnpm.overrides and generates failing update attempts.
-      - dependency-name: "postcss"
-      - dependency-name: "ws"
+      - dependency-name: "@tootallnate/once"
       - dependency-name: "@xmldom/xmldom"
-      - dependency-name: "tmp"
-      - dependency-name: "uuid"
       - dependency-name: "brace-expansion"
       - dependency-name: "lodash"
-      - dependency-name: "@tootallnate/once"
+      - dependency-name: "postcss"
+      - dependency-name: "shell-quote"
+      - dependency-name: "tmp"
+      - dependency-name: "uuid"
+      - dependency-name: "ws"
 
   - package-ecosystem: "gomod"
     directory: "/apps/api"
