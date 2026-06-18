@@ -21,6 +21,10 @@ concurrency:
 
 jobs:
   pr-review:
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
     uses: petry-projects/.github-private/.github/workflows/pr-review-reusable.yml@main
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
