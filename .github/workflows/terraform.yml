@@ -20,7 +20,7 @@ permissions:
 
 concurrency:
   group: terraform-${{ github.ref }}
-  cancel-in-progress: false # Never cancel in-progress applies
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }} # Cancel stale PR plans; never cancel applies on main
 
 jobs:
   terraform:
@@ -41,10 +41,11 @@ jobs:
         env:
           WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           WIF_SA: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
-          if [ -z "${WIF_PROVIDER}" ] || [ -z "${WIF_SA}" ]; then
+          if [ -z "${WIF_PROVIDER}" ] || [ -z "${WIF_SA}" ] || [ -z "${PROJECT_ID}" ]; then
             echo "configured=false" >> "${GITHUB_OUTPUT}"
-            echo "::warning::Skipping Terraform — GCP_WORKLOAD_IDENTITY_PROVIDER or GCP_SERVICE_ACCOUNT not configured. Run the Bootstrap workflow first."
+            echo "::warning::Skipping Terraform — GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT, or GCP_PROJECT_ID not configured. Run the Bootstrap workflow first."
           else
             echo "configured=true" >> "${GITHUB_OUTPUT}"
           fi
@@ -55,7 +56,7 @@ jobs:
       - name: Authenticate to Google Cloud
         if: steps.prereqs.outputs.configured == 'true'
         id: auth
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name == 'pull_request' }} # Fail loudly on push; allow bootstrap-in-progress on PRs
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -82,18 +83,18 @@ jobs:
       - name: Terraform Plan
         if: steps.prereqs.outputs.configured == 'true' && steps.auth.outcome == 'success'
         id: plan
-        run: terraform plan -no-color -out=tfplan
+        run: terraform plan -no-color -out=tfplan 2>&1 | tee /tmp/tfplan.txt; exit ${PIPESTATUS[0]}
         continue-on-error: true
 
       - name: Comment plan on PR
         if: steps.prereqs.outputs.configured == 'true' && steps.auth.outcome == 'success' && github.event_name == 'pull_request'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          TERRAFORM_PLAN: ${{ steps.plan.outputs.stdout }}
           PLAN_OUTCOME: ${{ steps.plan.outcome }}
         with:
           script: |
-            const plan = (process.env.TERRAFORM_PLAN || '').substring(0, 60000);
+            const fs = require('fs');
+            const plan = (fs.existsSync('/tmp/tfplan.txt') ? fs.readFileSync('/tmp/tfplan.txt', 'utf8') : '').substring(0, 60000);
             const body = `### Terraform Plan\n\`\`\`\n${plan}\n\`\`\`\n*Plan: ${process.env.PLAN_OUTCOME}*`;
 
             const { data: comments } = await github.rest.issues.listComments({
