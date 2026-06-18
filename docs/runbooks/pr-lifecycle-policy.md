@@ -13,7 +13,7 @@ The `.github/workflows/stale.yml` workflow runs weekly and applies the following
 |------|-------------|--------------|
 | Issues | 60 days of inactivity | 7 days with `stale` label |
 | Regular PRs | 30 days of inactivity | 7 days with `stale` label |
-| Draft PRs (epic branches) | **Exempt** — not subject to automated stale |
+| Draft PRs (epic branches) | **Exempt** | **Exempt** |
 
 Draft PRs are exempt because epic branches are long-running work-in-progress slices that span
 multiple stories. They must not be auto-closed; see the epic branch policy below.
