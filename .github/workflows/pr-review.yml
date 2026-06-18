@@ -1,68 +1,32 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# PR Review Agent — thin caller for the org-level reusable.
-#
-# All review logic lives in the reusable workflow
-# petry-projects/.github-private/.github/workflows/pr-review.yml (a
-# `workflow_call`-only workflow). This stub fires on this repo's PR events and
-# invokes that reusable, pinned to the `pr-review/stable` channel.
-#
-# AGENTS — READ BEFORE EDITING:
-#   • This is a THIN CALLER STUB. Do not add review logic here.
-#   • The reusable file is `pr-review.yml` — NOT `pr-review-reusable.yml` (that
-#     name does not exist and pointing at it fails the run at compile time).
-#   • You MUST NOT remove the job-level `permissions:` block — a reusable can be
-#     granted no more permission than the calling job, and the reusable's gh API
-#     calls need `pull-requests: write`.
-#   • @mention-triggered reviews are owned by pr-review-mention.yml (org reusable
-#     → repository_dispatch to .github-private), so this stub does NOT listen on
-#     issue_comment / pull_request_review_comment.
-#   • To upgrade, move the `pr-review/stable` channel tag and re-pin the SHA in
-#     the `uses:` line below.
-# ─────────────────────────────────────────────────────────────────────────────
 name: PR Review Agent
 
 on:
-  check_suite:
-    types: [completed]
-  pull_request_review:
-    types: [submitted, dismissed]
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [opened, synchronize, reopened]
+  pull_request_review_comment:
+    types: [created]
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
-      pr_url:
-        description: "Optional: review a single PR URL instead of enumerating"
+      pr_numbers:
+        description: "PR numbers to review (comma-separated)"
         required: false
-        type: string
-      dry_run:
-        description: "If true, never submit reviews or comments"
-        required: false
-        default: "false"
-        type: string
-      force_review:
-        description: "If true, bypass idempotency and re-review at the same head SHA"
-        required: false
-        default: "false"
-        type: string
 
 permissions: {}
 
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number || github.event.issue.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   pr-review:
-    # A reusable can be granted no more than the calling job has; this mirrors
-    # the reusable's own permissions block (contents/pull-requests/checks).
     permissions:
       contents: read
       pull-requests: write
-      checks: read
-    uses: petry-projects/.github-private/.github/workflows/pr-review.yml@29e5974836bf2dbfe02f4ae9911ab2bdd4e6ef5b # pr-review/stable
-    with:
-      # Pin the agent's own script checkout (engine.sh, review-one-pr.sh, …) to
-      # the same channel so scripts run at the pinned version.
-      agent_ref: pr-review/stable
-      # Forward manual/dispatch inputs; empty for event triggers (the reusable
-      # then derives everything from the inherited github.event context).
-      pr_url: ${{ inputs.pr_url || '' }}
-      dry_run: ${{ inputs.dry_run || '' }}
-      force_review: ${{ inputs.force_review || '' }}
-    secrets: inherit
+      issues: read
+    uses: petry-projects/.github-private/.github/workflows/pr-review-reusable.yml@main
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
