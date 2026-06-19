@@ -107,10 +107,10 @@ PAYLOAD
 info "Configuring check-suite preferences for $ORG/$REPO ..."
 
 if [ "$DRY_RUN" = true ]; then
-  skip "DRY_RUN — would PATCH repos/$ORG/$REPO/check-suite/preferences:"
+  skip "DRY_RUN — would PATCH repos/$ORG/$REPO/check-suites/preferences:"
   echo "$CHECK_SUITE_PAYLOAD" | jq '.'
 else
-  echo "$CHECK_SUITE_PAYLOAD" | gh api -X PATCH "repos/$ORG/$REPO/check-suite/preferences" --input - > /dev/null
+  echo "$CHECK_SUITE_PAYLOAD" | gh api -X PATCH "repos/$ORG/$REPO/check-suites/preferences" --input - > /dev/null
   ok "check-suite auto-trigger disabled for Claude (ID=$CLAUDE_APP_ID) and CodeRabbit (ID=$CODERABBIT_APP_ID)"
 fi
 
