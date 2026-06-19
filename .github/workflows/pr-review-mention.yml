@@ -22,4 +22,3 @@
 # To adopt: copy this file to .github/workflows/pr-review-mention.yml in your repo.
 # Requires: GH_PAT_WORKFLOWS org secret (already present in petry-projects org).
     secrets: inherit
-
