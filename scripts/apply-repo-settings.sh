@@ -92,7 +92,6 @@ readonly -a REQUIRED_SA_SETTINGS=(
   secret_scanning_push_protection
   secret_scanning_ai_detection
   secret_scanning_non_provider_patterns
-  dependabot_security_updates
 )
 
 info "Enforcing security_and_analysis settings for $ORG/$REPO ..."
@@ -108,6 +107,32 @@ for sa_key in "${REQUIRED_SA_SETTINGS[@]}"; do
     err "Could not enable security_and_analysis.$sa_key (may require GitHub Advanced Security)"
   fi
 done
+
+# ---------------------------------------------------------------------------
+# Dependabot settings
+#
+# Dependabot alerts and automated security fixes cannot be set via the
+# security_and_analysis PATCH endpoint — doing so returns a 422 error.
+# They each have a dedicated PUT endpoint.
+# ---------------------------------------------------------------------------
+info "Enforcing Dependabot settings for $ORG/$REPO ..."
+
+if [ "$DRY_RUN" = true ]; then
+  skip "DRY_RUN — would PUT repos/$ORG/$REPO/vulnerability-alerts"
+  skip "DRY_RUN — would PUT repos/$ORG/$REPO/automated-security-fixes"
+else
+  if gh api -X PUT "repos/$ORG/$REPO/vulnerability-alerts" > /dev/null; then
+    ok "vulnerability-alerts enabled"
+  else
+    err "Could not enable vulnerability-alerts"
+  fi
+
+  if gh api -X PUT "repos/$ORG/$REPO/automated-security-fixes" > /dev/null; then
+    ok "automated-security-fixes enabled"
+  else
+    err "Could not enable automated-security-fixes"
+  fi
+fi
 
 # ---------------------------------------------------------------------------
 # check-suite preferences

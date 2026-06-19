@@ -18,7 +18,6 @@ REQUIRED_SA_SETTINGS=(
   secret_scanning_push_protection
   secret_scanning_ai_detection
   secret_scanning_non_provider_patterns
-  dependabot_security_updates
 )
 
 fail=0
@@ -57,6 +56,8 @@ for setting in "${REQUIRED_SA_SETTINGS[@]}"; do
 done
 
 assert_contains "enabled" "sets security_and_analysis status to enabled"
+assert_contains "vulnerability-alerts" "enforces vulnerability-alerts"
+assert_contains "automated-security-fixes" "enforces automated-security-fixes"
 
 echo "---"
 if [ "$fail" -eq 0 ]; then
