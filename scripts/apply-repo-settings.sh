@@ -5,6 +5,10 @@
 #   https://github.com/petry-projects/.github/blob/main/standards/github-settings.md
 #
 # Settings managed:
+#   security_and_analysis — enables the required repo-level secret-scanning and
+#     Dependabot settings from the push-protection standard, including
+#     secret_scanning_non_provider_patterns.
+#     https://github.com/petry-projects/.github/blob/main/standards/push-protection.md#required-repo-level-settings
 #   check-suite preferences — disables auto-trigger for the Claude GitHub App (ID 1236702)
 #     and CodeRabbit (ID 347564) so that they no longer create perpetually-queued check
 #     suites on every push, which would otherwise block auto-merge indefinitely.
@@ -68,6 +72,65 @@ if [ "$FORCE" = false ]; then
     err "Current repo ($actual_repo) does not match target ($ORG/$REPO)."
     err "Run with --force to override this safety check."
     exit 1
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# security_and_analysis settings
+#
+# Enforce the required repo-level security features per the push-protection
+# standard. Each must be "enabled". Patching a value that is already enabled is
+# idempotent; a value the plan/license does not permit (e.g. settings that need
+# GitHub Advanced Security) returns an error, which we surface as a warning
+# without aborting the rest of the run.
+#
+# Required set:
+#   https://github.com/petry-projects/.github/blob/main/standards/push-protection.md#required-repo-level-settings
+# ---------------------------------------------------------------------------
+readonly -a REQUIRED_SA_SETTINGS=(
+  secret_scanning
+  secret_scanning_push_protection
+  secret_scanning_ai_detection
+  secret_scanning_non_provider_patterns
+)
+
+info "Enforcing security_and_analysis settings for $ORG/$REPO ..."
+
+for sa_key in "${REQUIRED_SA_SETTINGS[@]}"; do
+  sa_payload=$(jq -n --arg k "$sa_key" '{"security_and_analysis": {($k): {"status": "enabled"}}}')
+  if [ "$DRY_RUN" = true ]; then
+    skip "DRY_RUN — would PATCH repos/$ORG/$REPO security_and_analysis.$sa_key = enabled"
+    echo "$sa_payload" | jq '.'
+  elif echo "$sa_payload" | gh api -X PATCH "repos/$ORG/$REPO" --input - > /dev/null; then
+    ok "security_and_analysis.$sa_key enabled"
+  else
+    err "Could not enable security_and_analysis.$sa_key (may require GitHub Advanced Security)"
+  fi
+done
+
+# ---------------------------------------------------------------------------
+# Dependabot settings
+#
+# Dependabot alerts and automated security fixes cannot be set via the
+# security_and_analysis PATCH endpoint — doing so returns a 422 error.
+# They each have a dedicated PUT endpoint.
+# ---------------------------------------------------------------------------
+info "Enforcing Dependabot settings for $ORG/$REPO ..."
+
+if [ "$DRY_RUN" = true ]; then
+  skip "DRY_RUN — would PUT repos/$ORG/$REPO/vulnerability-alerts"
+  skip "DRY_RUN — would PUT repos/$ORG/$REPO/automated-security-fixes"
+else
+  if gh api -X PUT "repos/$ORG/$REPO/vulnerability-alerts" > /dev/null; then
+    ok "vulnerability-alerts enabled"
+  else
+    err "Could not enable vulnerability-alerts"
+  fi
+
+  if gh api -X PUT "repos/$ORG/$REPO/automated-security-fixes" > /dev/null; then
+    ok "automated-security-fixes enabled"
+  else
+    err "Could not enable automated-security-fixes"
   fi
 fi
 
