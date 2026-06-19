@@ -31,6 +31,14 @@ exit 0
 MOCK
   chmod +x "$BIN_DIR/gh"
 
+  # Mock `jq`: pass stdin through to stdout so dry-run output works without
+  # requiring jq to be installed on the host.
+  cat > "$BIN_DIR/jq" <<MOCK
+#!/usr/bin/env bash
+cat
+MOCK
+  chmod +x "$BIN_DIR/jq"
+
   export PATH="$BIN_DIR:$PATH"
   export GH_TOKEN="test-token"
 }
