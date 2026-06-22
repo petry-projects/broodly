@@ -23,12 +23,15 @@ apps/mobile/web-build/
 # Go
 apps/api/bin/
 apps/api/tmp/
+apps/api/server
 *.exe
 *.test
 *.out
 
 # Terraform
 **/.terraform/
+# Module-level lock files are not used; only root environment lock files matter
+infra/terraform/modules/**/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfplan
@@ -56,6 +59,7 @@ terraform.rc
 # Test
 coverage/
 *.lcov
+test-results/
 
 # Misc
 *.log

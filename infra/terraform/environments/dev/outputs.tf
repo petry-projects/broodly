@@ -48,11 +48,6 @@ output "worker_service_account_email" {
 }
 
 # Firebase outputs
-output "firebase_web_app_id" {
-  description = "Firebase web app ID"
-  value       = module.firebase.web_app_id
-}
-
 output "firebase_api_key" {
   description = "Firebase API key for web app"
   value       = module.firebase.api_key
@@ -67,6 +62,21 @@ output "firebase_auth_domain" {
 output "firebase_project_id" {
   description = "Firebase project ID"
   value       = module.firebase.project_id
+}
+
+output "firebase_storage_bucket" {
+  description = "Firebase storage bucket"
+  value       = module.firebase.storage_bucket
+}
+
+output "firebase_messaging_sender_id" {
+  description = "Firebase messaging sender ID"
+  value       = module.firebase.messaging_sender_id
+}
+
+output "firebase_app_id" {
+  description = "Firebase app ID"
+  value       = module.firebase.app_id
 }
 
 # Cloud Run outputs
