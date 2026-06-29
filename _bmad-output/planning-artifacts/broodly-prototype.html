@@ -1275,6 +1275,34 @@
             </div>
           </div>
 
+          <!-- Required Materials -->
+          <div class="card" style="border-left: 3px solid var(--warning-500); background: var(--warning-50);">
+            <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleAccordion('materials-acc')">
+              <div>
+                <div style="font-size: 15px; font-weight: 700; color: var(--warning-500);">&#x1F4E6; Required Materials</div>
+                <div style="font-size: 13px; color: var(--text-500);">3 items needed for this week's plan</div>
+              </div>
+              <span id="materials-acc-icon" style="font-size: 16px; color: var(--text-400);">&#x25BC;</span>
+            </div>
+            <div id="materials-acc" style="display: none; margin-top: 12px; border-top: 1px solid var(--outline-200); padding-top: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">Oxalic acid vaporizer + strips</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 2</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">1 medium super + frames</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 4</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--primary-500);">
+                <span style="font-size: 14px;">1:1 sugar syrup (1 gallon)</span>
+                <span style="font-size: 12px; color: var(--text-400); margin-left: auto;">Hive 3</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Backyard Apiary Accordion (expanded) -->
           <div>
             <div class="accordion-header" onclick="toggleAccordion('backyard-acc')">
