@@ -71,7 +71,7 @@ jobs:
     if: >-
       github.event_name != 'check_suite'
       || github.event.check_suite.pull_requests[0] != null
-    uses: petry-projects/.github-private/.github/workflows/pr-review.yml@pr-review/stable
+    uses: petry-projects/.github-private/.github/workflows/pr-review.yml@pr-review/stable  # NOSONAR(githubactions:S7637) first-party channel ref
     with:
       agent_ref: pr-review/stable
       pr_url: ${{ inputs.pr_url || github.event.client_payload.pr_url || '' }}
