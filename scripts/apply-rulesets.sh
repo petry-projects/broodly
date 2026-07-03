@@ -47,7 +47,7 @@ for arg in "$@"; do
   esac
 done
 
-if [ -z "${GH_TOKEN:-}" ]; then
+if [[ -z "${GH_TOKEN:-}" ]]; then
   err "GH_TOKEN is required — provide a token with administration:write scope"
   exit 1
 fi
@@ -57,14 +57,14 @@ export GH_TOKEN
 # Safety guard: verify the current git remote matches ORG/REPO.
 # Prevents accidentally targeting the wrong repository when running from a fork
 # or a different checkout that has administration access to petry-projects/broodly.
-if [ "$FORCE" = false ]; then
+if [[ "$FORCE" = false ]]; then
   actual_repo=$(gh repo view --json nameWithOwner -q '.nameWithOwner' 2>/dev/null || true)
-  if [ -z "$actual_repo" ]; then
+  if [[ -z "$actual_repo" ]]; then
     err "Unable to determine current repo (gh repo view failed)."
     err "Run with --force to skip this safety check, or ensure GH_TOKEN has repo read access."
     exit 1
   fi
-  if [ "$actual_repo" != "$ORG/$REPO" ]; then
+  if [[ "$actual_repo" != "$ORG/$REPO" ]]; then
     err "Current repo ($actual_repo) does not match target ($ORG/$REPO)."
     err "Run with --force to override this safety check."
     exit 1
@@ -190,14 +190,14 @@ apply_ruleset() {
   # Guard against duplicate ruleset names: multiple matches would produce a
   # multi-line string that breaks the API URL and causes a confusing failure.
   match_count=$(echo "$existing" | jq -r --arg n "$name" '[.[] | select(.name == $n)] | length')
-  if [ "$match_count" -gt 1 ]; then
+  if [[ "$match_count" -gt 1 ]]; then
     err "Multiple ($match_count) rulesets named '$name' found — resolve duplicates manually before rerunning."
     exit 1
   fi
   existing_id=$(echo "$existing" | jq -r --arg n "$name" 'first(.[] | select(.name == $n) | .id) // empty')
 
-  if [ "$DRY_RUN" = true ]; then
-    if [ -n "$existing_id" ]; then
+  if [[ "$DRY_RUN" = true ]]; then
+    if [[ -n "$existing_id" ]]; then
       skip "DRY_RUN — would UPDATE $name ruleset (id=$existing_id)"
     else
       skip "DRY_RUN — would CREATE $name ruleset"
@@ -206,7 +206,7 @@ apply_ruleset() {
     return 0
   fi
 
-  if [ -n "$existing_id" ]; then
+  if [[ -n "$existing_id" ]]; then
     info "Updating existing $name ruleset (id=$existing_id) ..."
     echo "$payload" | gh api -X PUT "repos/$ORG/$REPO/rulesets/$existing_id" --input - > /dev/null
     ok "$name ruleset updated"

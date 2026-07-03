@@ -51,7 +51,7 @@ for arg in "$@"; do
   esac
 done
 
-if [ -z "${GH_TOKEN:-}" ]; then
+if [[ -z "${GH_TOKEN:-}" ]]; then
   err "GH_TOKEN is required — provide a token with administration:write scope"
   exit 1
 fi
@@ -61,14 +61,14 @@ export GH_TOKEN
 # Safety guard: verify the current git remote matches ORG/REPO.
 # Prevents accidentally targeting the wrong repository when running from a fork
 # or a different checkout that has administration access to petry-projects/broodly.
-if [ "$FORCE" = false ]; then
+if [[ "$FORCE" = false ]]; then
   actual_repo=$(gh repo view --json nameWithOwner -q '.nameWithOwner' 2>/dev/null || true)
-  if [ -z "$actual_repo" ]; then
+  if [[ -z "$actual_repo" ]]; then
     err "Unable to determine current repo (gh repo view failed)."
     err "Run with --force to skip this safety check, or ensure GH_TOKEN has repo read access."
     exit 1
   fi
-  if [ "$actual_repo" != "$ORG/$REPO" ]; then
+  if [[ "$actual_repo" != "$ORG/$REPO" ]]; then
     err "Current repo ($actual_repo) does not match target ($ORG/$REPO)."
     err "Run with --force to override this safety check."
     exit 1
@@ -98,7 +98,7 @@ info "Enforcing security_and_analysis settings for $ORG/$REPO ..."
 
 for sa_key in "${REQUIRED_SA_SETTINGS[@]}"; do
   sa_payload=$(jq -n --arg k "$sa_key" '{"security_and_analysis": {($k): {"status": "enabled"}}}')
-  if [ "$DRY_RUN" = true ]; then
+  if [[ "$DRY_RUN" = true ]]; then
     skip "DRY_RUN — would PATCH repos/$ORG/$REPO security_and_analysis.$sa_key = enabled"
     echo "$sa_payload" | jq '.'
   elif echo "$sa_payload" | gh api -X PATCH "repos/$ORG/$REPO" --input - > /dev/null; then
@@ -117,7 +117,7 @@ done
 # ---------------------------------------------------------------------------
 info "Enforcing Dependabot settings for $ORG/$REPO ..."
 
-if [ "$DRY_RUN" = true ]; then
+if [[ "$DRY_RUN" = true ]]; then
   skip "DRY_RUN — would PUT repos/$ORG/$REPO/vulnerability-alerts"
   skip "DRY_RUN — would PUT repos/$ORG/$REPO/automated-security-fixes"
 else
@@ -169,7 +169,7 @@ PAYLOAD
 
 info "Configuring check-suite preferences for $ORG/$REPO ..."
 
-if [ "$DRY_RUN" = true ]; then
+if [[ "$DRY_RUN" = true ]]; then
   skip "DRY_RUN — would PATCH repos/$ORG/$REPO/check-suites/preferences:"
   echo "$CHECK_SUITE_PAYLOAD" | jq '.'
 else
