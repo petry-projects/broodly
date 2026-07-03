@@ -32,10 +32,9 @@ assert_contains() {
     echo "not ok - ${desc} (output missing: ${needle})"
     fail=1
   fi
-  return 0
 }
 
-if [[ ! -x "$SCRIPT" ]] && [[ ! -f "$SCRIPT" ]]; then
+if [[ ! -x "$SCRIPT" && ! -f "$SCRIPT" ]]; then
   echo "not ok - script not found at ${SCRIPT}"
   exit 1
 fi
