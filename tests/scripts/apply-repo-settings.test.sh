@@ -32,9 +32,10 @@ assert_contains() {
     echo "not ok - ${desc} (output missing: ${needle})"
     fail=1
   fi
+  return 0
 }
 
-if [ ! -x "$SCRIPT" ] && [ ! -f "$SCRIPT" ]; then
+if [[ ! -x "$SCRIPT" ]] && [[ ! -f "$SCRIPT" ]]; then
   echo "not ok - script not found at ${SCRIPT}"
   exit 1
 fi
@@ -44,7 +45,7 @@ fi
 output="$(GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)"
 exit_code=$?
 
-if [ "$exit_code" -ne 0 ]; then
+if [[ "$exit_code" -ne 0 ]]; then
   echo "not ok - script exited non-zero (${exit_code}) in --dry-run --force mode"
   echo "--- output ---"
   printf '%s\n' "$output"
@@ -60,7 +61,7 @@ assert_contains "vulnerability-alerts" "enforces vulnerability-alerts"
 assert_contains "automated-security-fixes" "enforces automated-security-fixes"
 
 echo "---"
-if [ "$fail" -eq 0 ]; then
+if [[ "$fail" -eq 0 ]]; then
   echo "PASS — ${pass_count} assertion(s) passed"
 else
   echo "FAIL — see assertions above"
