@@ -19,7 +19,7 @@ cssInterop(H5, { className: 'style' });
 cssInterop(H6, { className: 'style' });
 
 function createHeadingStyleProps(
-  size: string | undefined,
+  size: VariantProps<typeof headingStyle>['size'],
   isTruncated: boolean | undefined,
   bold: boolean | undefined,
   underline: boolean | undefined,
@@ -185,7 +185,9 @@ const Heading = memo(
           highlight={highlight}
           ref={ref}
           {...props}
-        />
+        >
+          {children}
+        </MappedHeading>
       );
     }
   )
