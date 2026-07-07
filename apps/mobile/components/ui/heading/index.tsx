@@ -124,24 +124,30 @@ const Heading = memo(
       sub,
       italic,
       highlight,
+      children,
+      ...restProps
     } = props;
+
+    const styleProps = {
+      size,
+      isTruncated: isTruncated as boolean,
+      bold: bold as boolean,
+      underline: underline as boolean,
+      strikeThrough: strikeThrough as boolean,
+      sub: sub as boolean,
+      italic: italic as boolean,
+      highlight: highlight as boolean,
+      class: className,
+    };
 
     if (AsComp) {
       return (
         <AsComp
-          className={headingStyle({
-            size,
-            isTruncated: isTruncated as boolean,
-            bold: bold as boolean,
-            underline: underline as boolean,
-            strikeThrough: strikeThrough as boolean,
-            sub: sub as boolean,
-            italic: italic as boolean,
-            highlight: highlight as boolean,
-            class: className,
-          })}
-          {...props}
-        />
+          className={headingStyle(styleProps)}
+          {...restProps}
+        >
+          {children}
+        </AsComp>
       );
     }
 
