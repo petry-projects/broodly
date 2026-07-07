@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text as RNText } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 import { Text } from '../components/ui/text';
 import { Heading } from '../components/ui/heading';
@@ -47,6 +48,16 @@ describe('Gluestack UI Smoke Tests', () => {
     it('renders Heading with 2xl size', () => {
       render(<Heading size="2xl">Section Header 2xl</Heading>);
       expect(screen.getByText('Section Header 2xl')).toBeTruthy();
+    });
+
+    it('renders Heading as a polymorphic component via the `as` prop', () => {
+      render(
+        <Heading as={RNText} testID="polymorphic-heading">
+          Polymorphic Heading
+        </Heading>
+      );
+      expect(screen.getByTestId('polymorphic-heading')).toBeTruthy();
+      expect(screen.getByText('Polymorphic Heading')).toBeTruthy();
     });
   });
 });

@@ -4,10 +4,12 @@ import { headingStyle } from './styles';
 import type { VariantProps } from '@gluestack-ui/nativewind-utils';
 import { cssInterop } from 'nativewind';
 
-type IHeadingProps = VariantProps<typeof headingStyle> &
-  React.ComponentPropsWithoutRef<typeof H1> & {
-    as?: React.ElementType;
-  };
+type IHeadingBaseProps = VariantProps<typeof headingStyle> &
+  React.ComponentPropsWithoutRef<typeof H1>;
+
+type IHeadingProps = IHeadingBaseProps & {
+  as?: React.ElementType;
+};
 
 cssInterop(H1, { className: 'style' });
 cssInterop(H2, { className: 'style' });
@@ -17,7 +19,7 @@ cssInterop(H5, { className: 'style' });
 cssInterop(H6, { className: 'style' });
 
 const MappedHeading = memo(
-  forwardRef<React.ComponentRef<typeof H1>, IHeadingProps>(
+  forwardRef<React.ComponentRef<typeof H1>, IHeadingBaseProps>(
     function MappedHeading(
       {
         size,
@@ -75,15 +77,6 @@ const MappedHeading = memo(
               ref={ref}
             />
           );
-        case 'lg':
-          return (
-            <H4
-              className={headingStyle(styleProps)}
-              {...props}
-              // @ts-expect-error : type issue with ref
-              ref={ref}
-            />
-          );
         case 'md':
           return (
             <H5
@@ -103,6 +96,7 @@ const MappedHeading = memo(
               ref={ref}
             />
           );
+        case 'lg':
         default:
           return (
             <H4
