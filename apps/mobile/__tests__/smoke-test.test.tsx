@@ -14,6 +14,11 @@ import { Text as RNText } from 'react-native';
       expect(screen.getByText('Large Title')).toBeTruthy();
     });
 
+    it('renders Heading with 2xl size', () => {
+      render(<Heading size="2xl">Section Header 2xl</Heading>);
+      expect(screen.getByText('Section Header 2xl')).toBeTruthy();
+    });
+
     it('renders Heading with xl size', () => {
       render(<Heading size="xl">Card Title</Heading>);
       expect(screen.getByText('Card Title')).toBeTruthy();
