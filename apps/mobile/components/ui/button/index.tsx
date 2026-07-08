@@ -336,7 +336,7 @@ const ButtonSpinner = UIButton.Spinner;
 
 type IButtonIcon = React.ComponentPropsWithoutRef<typeof UIButton.Icon> &
   VariantProps<typeof buttonIconStyle> & {
-    className?: string | undefined;
+    className?: string;
     as?: React.ElementType;
     height?: number;
     width?: number;

@@ -10,10 +10,10 @@ import { Heading } from './components/ui/heading';
 function ColorSwatch({
   label,
   className,
-}: {
+}: Readonly<{
   label: string;
   className: string;
-}) {
+}>) {
   return (
     <View className="flex-row items-center gap-2 mb-2">
       <View className={`w-10 h-10 rounded ${className}`} />

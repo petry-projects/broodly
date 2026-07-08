@@ -4,10 +4,12 @@ import { headingStyle } from './styles';
 import type { VariantProps } from '@gluestack-ui/nativewind-utils';
 import { cssInterop } from 'nativewind';
 
-type IHeadingProps = VariantProps<typeof headingStyle> &
-  React.ComponentPropsWithoutRef<typeof H1> & {
-    as?: React.ElementType;
-  };
+type IHeadingBaseProps = VariantProps<typeof headingStyle> &
+  React.ComponentPropsWithoutRef<typeof H1>;
+
+type IHeadingProps = IHeadingBaseProps & {
+  as?: React.ElementType;
+};
 
 cssInterop(H1, { className: 'style' });
 cssInterop(H2, { className: 'style' });
@@ -16,8 +18,32 @@ cssInterop(H4, { className: 'style' });
 cssInterop(H5, { className: 'style' });
 cssInterop(H6, { className: 'style' });
 
+function createHeadingStyleProps(
+  size: VariantProps<typeof headingStyle>['size'],
+  isTruncated: boolean | undefined,
+  bold: boolean | undefined,
+  underline: boolean | undefined,
+  strikeThrough: boolean | undefined,
+  sub: boolean | undefined,
+  italic: boolean | undefined,
+  highlight: boolean | undefined,
+  className: string | undefined
+) {
+  return {
+    size,
+    isTruncated: isTruncated as boolean,
+    bold: bold as boolean,
+    underline: underline as boolean,
+    strikeThrough: strikeThrough as boolean,
+    sub: sub as boolean,
+    italic: italic as boolean,
+    highlight: highlight as boolean,
+    class: className,
+  };
+}
+
 const MappedHeading = memo(
-  forwardRef<React.ComponentRef<typeof H1>, IHeadingProps>(
+  forwardRef<React.ComponentRef<typeof H1>, IHeadingBaseProps>(
     function MappedHeading(
       {
         size,
@@ -33,18 +59,19 @@ const MappedHeading = memo(
       },
       ref
     ) {
-      const styleProps = {
+      const styleProps = createHeadingStyleProps(
         size,
-        isTruncated: isTruncated as boolean,
-        bold: bold as boolean,
-        underline: underline as boolean,
-        strikeThrough: strikeThrough as boolean,
-        sub: sub as boolean,
-        italic: italic as boolean,
-        highlight: highlight as boolean,
-        class: className,
-      };
+        isTruncated,
+        bold,
+        underline,
+        strikeThrough,
+        sub,
+        italic,
+        highlight,
+        className
+      );
 
+      const refProp = ref as React.Ref<any>;
       switch (size) {
         case '5xl':
         case '4xl':
@@ -53,8 +80,7 @@ const MappedHeading = memo(
             <H1
               className={headingStyle(styleProps)}
               {...props}
-              // @ts-expect-error : type issue with ref
-              ref={ref}
+              ref={refProp}
             />
           );
         case '2xl':
@@ -62,8 +88,7 @@ const MappedHeading = memo(
             <H2
               className={headingStyle(styleProps)}
               {...props}
-              // @ts-expect-error : type issue with ref
-              ref={ref}
+              ref={refProp}
             />
           );
         case 'xl':
@@ -71,17 +96,7 @@ const MappedHeading = memo(
             <H3
               className={headingStyle(styleProps)}
               {...props}
-              // @ts-expect-error : type issue with ref
-              ref={ref}
-            />
-          );
-        case 'lg':
-          return (
-            <H4
-              className={headingStyle(styleProps)}
-              {...props}
-              // @ts-expect-error : type issue with ref
-              ref={ref}
+              ref={refProp}
             />
           );
         case 'md':
@@ -89,8 +104,7 @@ const MappedHeading = memo(
             <H5
               className={headingStyle(styleProps)}
               {...props}
-              // @ts-expect-error : type issue with ref
-              ref={ref}
+              ref={refProp}
             />
           );
         case 'sm':
@@ -99,17 +113,16 @@ const MappedHeading = memo(
             <H6
               className={headingStyle(styleProps)}
               {...props}
-              // @ts-expect-error : type issue with ref
-              ref={ref}
+              ref={refProp}
             />
           );
+        case 'lg':
         default:
           return (
             <H4
               className={headingStyle(styleProps)}
               {...props}
-              // @ts-expect-error : type issue with ref
-              ref={ref}
+              ref={refProp}
             />
           );
       }
@@ -118,43 +131,66 @@ const MappedHeading = memo(
 );
 
 const Heading = memo(
-  forwardRef<React.ComponentRef<typeof H1>, IHeadingProps>(function Heading(
-    { className, size = 'lg', as: AsComp, ...props },
-    ref
-  ) {
-    const {
-      isTruncated,
-      bold,
-      underline,
-      strikeThrough,
-      sub,
-      italic,
-      highlight,
-    } = props;
+  forwardRef<React.ComponentRef<typeof H1>, IHeadingProps>(
+    function Heading(
+      {
+        className,
+        size = 'lg',
+        as: AsComp,
+        isTruncated,
+        bold,
+        underline,
+        strikeThrough,
+        sub,
+        italic,
+        highlight,
+        children,
+        ...props
+      },
+      ref
+    ) {
+      const styleProps = createHeadingStyleProps(
+        size,
+        isTruncated,
+        bold,
+        underline,
+        strikeThrough,
+        sub,
+        italic,
+        highlight,
+        className
+      );
 
-    if (AsComp) {
+      if (AsComp) {
+        return (
+          <AsComp
+            className={headingStyle(styleProps)}
+            {...props}
+          >
+            {children}
+          </AsComp>
+        );
+      }
+
       return (
-        <AsComp
-          className={headingStyle({
-            size,
-            isTruncated: isTruncated as boolean,
-            bold: bold as boolean,
-            underline: underline as boolean,
-            strikeThrough: strikeThrough as boolean,
-            sub: sub as boolean,
-            italic: italic as boolean,
-            highlight: highlight as boolean,
-            class: className,
-          })}
+        <MappedHeading
+          className={className}
+          size={size}
+          isTruncated={isTruncated}
+          bold={bold}
+          underline={underline}
+          strikeThrough={strikeThrough}
+          sub={sub}
+          italic={italic}
+          highlight={highlight}
+          ref={ref}
           {...props}
-        />
+        >
+          {children}
+        </MappedHeading>
       );
     }
-
-    return (
-      <MappedHeading className={className} size={size} ref={ref} {...props} />
-    );
-  })
+  )
 );
 
 Heading.displayName = 'Heading';

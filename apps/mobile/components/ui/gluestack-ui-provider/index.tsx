@@ -8,11 +8,11 @@ import { ToastProvider } from '@gluestack-ui/core/toast/creator';
 export function GluestackUIProvider({
   mode = 'light',
   ...props
-}: {
+}: Readonly<{
   mode?: 'light' | 'dark' | 'system';
   children?: React.ReactNode;
   style?: ViewProps['style'];
-}) {
+}>) {
   const colorScheme = mode === 'system' ? 'light' : mode;
 
   return (
