@@ -11,7 +11,7 @@ export function GluestackUIProvider({
 }: Readonly<{
   mode?: 'light' | 'dark' | 'system';
   children?: React.ReactNode;
-  style?: ViewProps['style'];
+  style?: NonNullable<ViewProps['style']>;
 }>) {
   const colorScheme = mode === 'system' ? 'light' : mode;
 
