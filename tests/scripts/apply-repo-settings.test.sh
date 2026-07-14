@@ -32,6 +32,7 @@ assert_contains() {
     echo "not ok - ${desc} (output missing: ${needle})"
     fail=1
   fi
+  return 0
 }
 
 if [[ ! -x "$SCRIPT" && ! -f "$SCRIPT" ]]; then
