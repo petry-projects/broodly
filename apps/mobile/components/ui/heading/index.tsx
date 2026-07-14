@@ -18,17 +18,29 @@ cssInterop(H4, { className: 'style' });
 cssInterop(H5, { className: 'style' });
 cssInterop(H6, { className: 'style' });
 
-function createHeadingStyleProps(
-  size: VariantProps<typeof headingStyle>['size'],
-  isTruncated: boolean | undefined,
-  bold: boolean | undefined,
-  underline: boolean | undefined,
-  strikeThrough: boolean | undefined,
-  sub: boolean | undefined,
-  italic: boolean | undefined,
-  highlight: boolean | undefined,
-  className: string | undefined
-) {
+type HeadingStyleInput = {
+  size: VariantProps<typeof headingStyle>['size'];
+  isTruncated: boolean | undefined;
+  bold: boolean | undefined;
+  underline: boolean | undefined;
+  strikeThrough: boolean | undefined;
+  sub: boolean | undefined;
+  italic: boolean | undefined;
+  highlight: boolean | undefined;
+  className: string | undefined;
+};
+
+function createHeadingStyleProps({
+  size,
+  isTruncated,
+  bold,
+  underline,
+  strikeThrough,
+  sub,
+  italic,
+  highlight,
+  className,
+}: HeadingStyleInput) {
   return {
     size,
     isTruncated: isTruncated as boolean,
@@ -59,7 +71,7 @@ const MappedHeading = memo(
       },
       ref
     ) {
-      const styleProps = createHeadingStyleProps(
+      const styleProps = createHeadingStyleProps({
         size,
         isTruncated,
         bold,
@@ -68,8 +80,8 @@ const MappedHeading = memo(
         sub,
         italic,
         highlight,
-        className
-      );
+        className,
+      });
 
       const refProp = ref as React.Ref<any>;
       switch (size) {
@@ -136,7 +148,7 @@ const Heading = memo(
       {
         className,
         size = 'lg',
-        as: AsComp,
+        as,
         isTruncated,
         bold,
         underline,
@@ -149,7 +161,7 @@ const Heading = memo(
       },
       ref
     ) {
-      const styleProps = createHeadingStyleProps(
+      const styleProps = createHeadingStyleProps({
         size,
         isTruncated,
         bold,
@@ -158,9 +170,10 @@ const Heading = memo(
         sub,
         italic,
         highlight,
-        className
-      );
+        className,
+      });
 
+      const AsComp = as;
       if (AsComp) {
         return (
           <AsComp
