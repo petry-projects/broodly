@@ -28,6 +28,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Generate JS/TS coverage report
         working-directory: apps/mobile
+        # Non-blocking: a failing/flaky mobile test must not sink SonarCloud
+        # analysis. ci.yml is the authoritative test gate; here jest still
+        # writes lcov for the tests that ran, and SonarCloud ingests it and
+        # enforces its own quality gate regardless of this step's exit code.
+        continue-on-error: true
         run: pnpm exec jest --coverage --coverageReporters=lcov --coverageDirectory=coverage
       - name: SonarCloud Scan (attempt 1)
         id: sonar_1
