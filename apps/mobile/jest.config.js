@@ -10,6 +10,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css)$': '<rootDir>/__mocks__/css.js',
   },
+  setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     'app/**/*.{ts,tsx}',
@@ -23,4 +24,5 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text-summary'],
   testEnvironment: 'node',
+  collectCoverage: true,
 };
