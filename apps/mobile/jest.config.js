@@ -18,6 +18,7 @@ module.exports = {
     '!src/**/*.spec.{ts,tsx}',
     '!app/**/*.test.{ts,tsx}',
     '!app/**/*.spec.{ts,tsx}',
+    '!**/__tests__/**',
     '!**/__mocks__/**',
     '!**/node_modules/**',
   ],
