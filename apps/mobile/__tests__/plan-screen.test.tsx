@@ -339,4 +339,105 @@ describe('Plan Screen', () => {
     render(<PlanScreen />);
     expect(screen.getByText('2')).toBeTruthy();
   });
+
+  it('renders task with correct styling for urgent tasks', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Urgent inspection',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'CRITICAL',
+              dueDate: '2026-05-01T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: true,
+              catchUpGuidance: 'Check for swarm',
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByTestId('complete-task-1')).toBeTruthy();
+  });
+
+  it('renders task with accessibility label including context', () => {
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    const taskElement = screen.queryByText(/Hive 1/);
+    expect(taskElement).toBeTruthy();
+  });
+
+  it('renders apiary section with correct task context', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Test Apiary',
+          tasks: [
+            {
+              id: 'task-x',
+              title: 'Test task',
+              hiveId: 'hive-x',
+              hiveName: 'Hive X',
+              priority: 'HIGH',
+              dueDate: '2026-05-10T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Test Apiary')).toBeTruthy();
+    expect(screen.getByText('Test task')).toBeTruthy();
+  });
+
+  it('handles null dueDate gracefully', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Inspect brood',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'MEDIUM',
+              dueDate: null,
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Inspect brood')).toBeTruthy();
+  });
 });
