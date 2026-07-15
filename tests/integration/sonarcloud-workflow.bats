@@ -24,9 +24,9 @@ setup() {
   [ "$status" -eq 0 ]
   [ "$output" -ge 1 ]
 
-  run yq '.jobs.sonarcloud.steps[] | select(.id == "sonar_1") | .if | contains("SONAR_TOKEN")' "$WORKFLOW"
+  run yq '[.jobs.sonarcloud.steps[] | select(.uses | test("SonarSource/sonarqube-scan-action")) | select((.if // "") | contains("SONAR_TOKEN") | not)] | length' "$WORKFLOW"
   [ "$status" -eq 0 ]
-  [ "$output" = "true" ]
+  [ "$output" -eq 0 ]
 }
 
 @test "SonarCloud scan retry/backoff attempts remain intact" {
