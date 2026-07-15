@@ -9,6 +9,9 @@
 # and its retry/backoff logic remain intact.
 
 setup() {
+  if ! command -v yq &>/dev/null; then
+    skip "yq is not installed — install yq (https://github.com/mikefarah/yq) to run these tests"
+  fi
   REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
   WORKFLOW="$REPO_ROOT/.github/workflows/sonarcloud.yml"
 }
