@@ -66,6 +66,27 @@
     ],
     "moduleNameMapper": {
       "\\.(css)$": "<rootDir>/__mocks__/css.js"
-    }
+    },
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "app/**/*.{ts,tsx}",
+      "!**/*.d.ts",
+      "!**/node_modules/**",
+      "!**/dist/**"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/__tests__/",
+      "\\.test\\.",
+      "\\.spec\\."
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html",
+      "json"
+    ],
+    "coverageDirectory": "coverage"
   }
 }
