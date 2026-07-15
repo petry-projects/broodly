@@ -14,6 +14,26 @@ import { render, screen } from '@testing-library/react-native';
  * manually on iOS/Android/web per AC #3, #5, #6.
  */
 
+// Mock expo-router for all screen tests
+jest.mock('expo-router', () => ({
+  Tabs: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Stack: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Slot: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
+  useLocalSearchParams: () => ({ id: 'test-apiary-123' }),
+}));
+
+// Mock apiary hooks (used by apiaries/index.tsx)
+jest.mock('../src/features/apiary/hooks/use-apiaries', () => ({
+  useApiaries: () => ({ data: undefined, isLoading: true, refetch: jest.fn(), isRefetching: false }),
+  useApiary: () => ({ data: undefined, isLoading: true }),
+  useDeleteApiary: () => ({ mutateAsync: jest.fn(), isPending: false }),
+}));
+
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: 'Ionicons',
+}));
+
 // Mock @gluestack-ui/core modules to avoid react-dom@18 / React 19 conflict
 jest.mock('@gluestack-ui/core/overlay/creator', () => {
   const ReactMock = require('react');
@@ -62,11 +82,11 @@ describe('Screen stubs render correctly', () => {
     expect(screen.getByText('Home')).toBeTruthy();
   });
 
-  it('Apiaries list screen renders title', () => {
+  it('Apiaries list screen renders loading state', () => {
     const ApiariesScreen =
       require('../app/(tabs)/apiaries/index').default;
     render(<ApiariesScreen />);
-    expect(screen.getByText('Apiaries')).toBeTruthy();
+    expect(screen.getByText(/loading apiaries/i)).toBeTruthy();
   });
 
   it('Plan screen renders title', () => {
@@ -93,20 +113,12 @@ describe('Screen stubs render correctly', () => {
 
 // Apiary detail stub with route param -----------------------------------
 
-jest.mock('expo-router', () => ({
-  Tabs: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  Stack: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  Slot: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useLocalSearchParams: () => ({ id: 'test-apiary-123' }),
-}));
-
 describe('Apiary detail screen', () => {
-  it('renders apiary id from route params', () => {
+  it('renders loading state with route params', () => {
     const ApiaryDetailScreen =
       require('../app/(tabs)/apiaries/[id]').default;
     render(<ApiaryDetailScreen />);
-    expect(screen.getByText('Apiary Detail')).toBeTruthy();
-    expect(screen.getByText(/test-apiary-123/)).toBeTruthy();
+    expect(screen.getByText('Loading...')).toBeTruthy();
   });
 });
 
