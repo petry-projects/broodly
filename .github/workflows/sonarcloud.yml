@@ -34,8 +34,19 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Generate TypeScript coverage
-        run: pnpm run test -- --coverage --coverageReporters=lcov
-        continue-on-error: true
+        run: pnpm run test -- --coverage --coverageReporters=lcov --coverageReporters=text-summary
+        continue-on-error: false
+
+      - name: Verify coverage file exists
+        run: |
+          if [ -f "apps/mobile/coverage/lcov.info" ]; then
+            echo "✓ Coverage file found"
+            head -5 apps/mobile/coverage/lcov.info
+          else
+            echo "✗ Coverage file NOT found at apps/mobile/coverage/lcov.info"
+            ls -la apps/mobile/coverage/ || echo "Coverage directory does not exist"
+            exit 1
+          fi
 
       - name: SonarCloud Scan
         if: ${{ env.SONAR_TOKEN != '' }}
