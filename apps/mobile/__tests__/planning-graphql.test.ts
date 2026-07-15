@@ -3,7 +3,7 @@ import {
   COMPLETE_TASK_MUTATION,
   DEFER_TASK_MUTATION,
   SEASONAL_CALENDAR_QUERY,
-} from './planning';
+} from '../src/services/graphql/planning';
 
 describe('planning GraphQL documents', () => {
   describe('WEEKLY_QUEUE_QUERY', () => {
