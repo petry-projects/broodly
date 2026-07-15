@@ -1,6 +1,9 @@
 import { groupByApiary } from './use-weekly-queue';
 import type { ApiaryQueue } from './use-weekly-queue';
 
+jest.mock('urql');
+jest.mock('@tanstack/react-query');
+
 function makeTask(overrides: {
   id?: string;
   title?: string;
@@ -143,5 +146,108 @@ describe('groupByApiary', () => {
     expect(typeof result[0].apiaryId).toBe('string');
     expect(typeof result[0].apiaryName).toBe('string');
     expect(Array.isArray(result[0].tasks)).toBe(true);
+  });
+});
+
+describe('useWeeklyQueue hook', () => {
+  const mockQuery = jest.fn();
+  const mockClient = { query: mockQuery };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    const { useClient } = require('urql');
+    useClient.mockReturnValue(mockClient);
+  });
+
+  it('exports a function that can be called', () => {
+    const { useWeeklyQueue } = require('./use-weekly-queue');
+    expect(typeof useWeeklyQueue).toBe('function');
+  });
+
+  it('returns a query with correct query key', () => {
+    const { useWeeklyQueue } = require('./use-weekly-queue');
+    const { useQuery } = require('@tanstack/react-query');
+    const mockQueryResult = { data: null };
+    useQuery.mockReturnValue(mockQueryResult);
+
+    const result = useWeeklyQueue();
+    expect(result).toEqual(mockQueryResult);
+
+    const callArgs = useQuery.mock.calls[0];
+    expect(callArgs[0].queryKey).toEqual(['weekly-queue']);
+  });
+});
+
+describe('useCompleteTask hook', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('exports a function that can be called', () => {
+    const { useCompleteTask } = require('./use-weekly-queue');
+    expect(typeof useCompleteTask).toBe('function');
+  });
+
+  it('returns a mutation', () => {
+    const { useCompleteTask } = require('./use-weekly-queue');
+    const { useMutation } = require('@tanstack/react-query');
+    const mockMutationResult = { mutate: jest.fn() };
+    useMutation.mockReturnValue(mockMutationResult);
+
+    const result = useCompleteTask();
+    expect(result).toEqual(mockMutationResult);
+  });
+
+  it('invalidates weekly-queue query on success', () => {
+    const { useCompleteTask } = require('./use-weekly-queue');
+    const { useMutation, useQueryClient } = require('@tanstack/react-query');
+    const mockInvalidate = jest.fn();
+    const mockQueryClient = { invalidateQueries: mockInvalidate };
+    useQueryClient.mockReturnValue(mockQueryClient);
+
+    useMutation.mockImplementation((config) => {
+      config.onSuccess?.();
+      return { mutate: jest.fn() };
+    });
+
+    useCompleteTask();
+    expect(mockInvalidate).toHaveBeenCalledWith({ queryKey: ['weekly-queue'] });
+  });
+});
+
+describe('useDeferTask hook', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('exports a function that can be called', () => {
+    const { useDeferTask } = require('./use-weekly-queue');
+    expect(typeof useDeferTask).toBe('function');
+  });
+
+  it('returns a mutation', () => {
+    const { useDeferTask } = require('./use-weekly-queue');
+    const { useMutation } = require('@tanstack/react-query');
+    const mockMutationResult = { mutate: jest.fn() };
+    useMutation.mockReturnValue(mockMutationResult);
+
+    const result = useDeferTask();
+    expect(result).toEqual(mockMutationResult);
+  });
+
+  it('invalidates weekly-queue query on success', () => {
+    const { useDeferTask } = require('./use-weekly-queue');
+    const { useMutation, useQueryClient } = require('@tanstack/react-query');
+    const mockInvalidate = jest.fn();
+    const mockQueryClient = { invalidateQueries: mockInvalidate };
+    useQueryClient.mockReturnValue(mockQueryClient);
+
+    useMutation.mockImplementation((config) => {
+      config.onSuccess?.();
+      return { mutate: jest.fn() };
+    });
+
+    useDeferTask();
+    expect(mockInvalidate).toHaveBeenCalledWith({ queryKey: ['weekly-queue'] });
   });
 });
