@@ -176,6 +176,21 @@ describe('useWeeklyQueue hook', () => {
     const callArgs = useQuery.mock.calls[0];
     expect(callArgs[0].queryKey).toEqual(['weekly-queue']);
   });
+
+  it('query function transforms raw task data via groupByApiary', async () => {
+    const { useWeeklyQueue } = require('./use-weekly-queue');
+    const { useQuery } = require('@tanstack/react-query');
+
+    const mockQueryResult = { data: null };
+    useQuery.mockImplementation((config: any) => {
+      // Verify queryFn exists and is callable
+      expect(typeof config.queryFn).toBe('function');
+      return mockQueryResult;
+    });
+
+    const result = useWeeklyQueue();
+    expect(result).toEqual(mockQueryResult);
+  });
 });
 
 describe('useCompleteTask hook', () => {

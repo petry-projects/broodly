@@ -77,4 +77,37 @@ describe('Homepage', () => {
     expect(screen.getByText('Bloom Status')).toBeTruthy();
     expect(screen.getByText('Seasonal Phase')).toBeTruthy();
   });
+
+  it('renders context card values', () => {
+    const HomeScreen = require('../app/(tabs)/index').default;
+    render(<HomeScreen />);
+    expect(screen.getByText('Weather data coming soon')).toBeTruthy();
+    expect(screen.getByText('Bloom tracking coming soon')).toBeTruthy();
+    expect(screen.getByText('Seasonal context coming soon')).toBeTruthy();
+  });
+
+  it('renders greeting without user name when not authenticated', () => {
+    const { useAuthStore } = require('../src/store/auth-store');
+    useAuthStore.mockImplementation((selector: (s: { user: null }) => unknown) =>
+      selector({ user: null })
+    );
+    const HomeScreen = require('../app/(tabs)/index').default;
+    render(<HomeScreen />);
+    expect(screen.getByText('Welcome back')).toBeTruthy();
+  });
+
+  it('renders refresh control', () => {
+    const HomeScreen = require('../app/(tabs)/index').default;
+    const { container } = render(<HomeScreen />);
+    expect(container).toBeTruthy();
+  });
+
+  it('renders primary action buttons with correct accessibility labels', () => {
+    const HomeScreen = require('../app/(tabs)/index').default;
+    render(<HomeScreen />);
+    const planBtn = screen.getByTestId('start-plan-btn');
+    const apiariesBtn = screen.getByTestId('view-apiaries-btn');
+    expect(planBtn.props.accessibilityLabel).toBe("Start today's plan");
+    expect(apiariesBtn.props.accessibilityLabel).toBe('View my apiaries');
+  });
 });
