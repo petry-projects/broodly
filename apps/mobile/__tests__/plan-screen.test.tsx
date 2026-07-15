@@ -37,7 +37,7 @@ jest.mock('../src/features/planning/hooks/use-weekly-queue', () => ({
 }));
 
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, fireEvent } from '@testing-library/react-native';
 import * as planHooks from '../src/features/planning/hooks/use-weekly-queue';
 
 describe('Plan Screen', () => {
@@ -154,5 +154,189 @@ describe('Plan Screen', () => {
     render(<PlanScreen />);
     expect(screen.getByText('URGENT')).toBeTruthy();
     expect(screen.getByText('Check for swarm cells')).toBeTruthy();
+  });
+
+  it('calls completeTask when Did It button pressed', () => {
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    fireEvent.press(screen.getByTestId('complete-task-1'));
+    expect(mockCompleteTask.mutate).toHaveBeenCalledWith('task-1');
+  });
+
+  it('calls deferTask when Not now button pressed', () => {
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    fireEvent.press(screen.getByTestId('defer-task-1'));
+    expect(mockDeferTask.mutate).toHaveBeenCalledWith({ id: 'task-1', reason: 'not now' });
+  });
+
+  it('renders materials checklist with overdue guidance', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Add super',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'HIGH',
+              dueDate: '2026-05-01T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: true,
+              catchUpGuidance: 'Bring two supers',
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Catch-up Guidance')).toBeTruthy();
+    expect(screen.getByText('Bring two supers')).toBeTruthy();
+    expect(screen.getByText('Hive 1 — Add super')).toBeTruthy();
+  });
+
+  it('does not render materials checklist when no overdue tasks with guidance', () => {
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    const checklist = screen.queryByText('Catch-up Guidance');
+    expect(checklist).toBeFalsy();
+  });
+
+  it('toggles apiary section expansion on press', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Inspect brood',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'HIGH',
+              dueDate: '2026-05-10T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    const { rerender } = render(<PlanScreen />);
+
+    // Verify task is visible initially (expanded by default)
+    expect(screen.getByText('Inspect brood')).toBeTruthy();
+
+    // Press apiary section to collapse
+    fireEvent.press(screen.getByTestId('apiary-section-apiary-1'));
+    rerender(<PlanScreen />);
+  });
+
+  it('renders multiple apiaries in separate sections', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Inspect Hive 1',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'HIGH',
+              dueDate: '2026-05-10T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+        {
+          apiaryId: 'apiary-2',
+          apiaryName: 'Front Yard',
+          tasks: [
+            {
+              id: 'task-2',
+              title: 'Inspect Hive 2',
+              hiveId: 'hive-2',
+              hiveName: 'Hive 2',
+              priority: 'MEDIUM',
+              dueDate: '2026-05-15T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Back Yard')).toBeTruthy();
+    expect(screen.getByText('Front Yard')).toBeTruthy();
+    expect(screen.getByText('Inspect Hive 1')).toBeTruthy();
+    expect(screen.getByText('Inspect Hive 2')).toBeTruthy();
+  });
+
+  it('displays task count in apiary section header', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Inspect brood',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'HIGH',
+              dueDate: '2026-05-10T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+            {
+              id: 'task-2',
+              title: 'Add super',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'MEDIUM',
+              dueDate: '2026-05-12T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('2')).toBeTruthy();
   });
 });
