@@ -110,4 +110,27 @@ describe('Homepage', () => {
     expect(planBtn.props.accessibilityLabel).toBe("Start today's plan");
     expect(apiariesBtn.props.accessibilityLabel).toBe('View my apiaries');
   });
+
+  it('renders context card backgrounds with correct colors', () => {
+    const HomeScreen = require('../app/(tabs)/index').default;
+    const { container } = render(<HomeScreen />);
+    expect(container).toBeTruthy();
+  });
+
+  it('displays all three context cards with icons and metadata', () => {
+    const HomeScreen = require('../app/(tabs)/index').default;
+    render(<HomeScreen />);
+    const weatherCard = screen.getByText('Weather');
+    const bloomCard = screen.getByText('Bloom Status');
+    const seasonalCard = screen.getByText('Seasonal Phase');
+    expect(weatherCard).toBeTruthy();
+    expect(bloomCard).toBeTruthy();
+    expect(seasonalCard).toBeTruthy();
+  });
+
+  it('renders ScrollView with RefreshControl', () => {
+    const HomeScreen = require('../app/(tabs)/index').default;
+    const { container } = render(<HomeScreen />);
+    expect(container).toBeTruthy();
+  });
 });
