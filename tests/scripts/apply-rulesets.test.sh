@@ -13,7 +13,7 @@
 #
 # Run: bash tests/scripts/apply-rulesets.test.sh
 
-set -uo pipefail
+set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SCRIPT="${REPO_ROOT}/scripts/apply-rulesets.sh"
@@ -52,11 +52,15 @@ fi
 # an empty list (no existing ruleset → dry-run prints CREATE payloads) without
 # touching the network or requiring real credentials.
 STUB_DIR="$(mktemp -d)"
+if [[ -z "${STUB_DIR:-}" || ! -d "$STUB_DIR" ]]; then
+  echo "not ok - failed to create temporary directory"
+  exit 1
+fi
 trap 'rm -rf "$STUB_DIR"' EXIT
 cat > "$STUB_DIR/gh" <<'STUB'
 #!/usr/bin/env bash
-# Only the GET of existing rulesets is reached in --dry-run mode. Any other
-# `api` call (PUT/POST) drains stdin and succeeds so a broken pipe can't occur.
+# Only the GET of existing rulesets is reached in --dry-run mode. Any `api`
+# call that includes a -X flag (any method) drains stdin and succeeds so a broken pipe can't occur.
 if [[ "$1" == "api" ]]; then
   for arg in "$@"; do
     if [[ "$arg" == "-X" ]]; then
@@ -73,8 +77,8 @@ chmod +x "$STUB_DIR/gh"
 
 # Dummy token satisfies the GH_TOKEN guard; --force skips the repo-identity
 # check; --dry-run prevents any real mutation.
-output="$(PATH="$STUB_DIR:$PATH" GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)"
-exit_code=$?
+exit_code=0
+output="$(PATH="$STUB_DIR:$PATH" GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)" || exit_code=$?
 
 if [[ "$exit_code" -ne 0 ]]; then
   echo "not ok - script exited non-zero (${exit_code}) in --dry-run --force mode"
