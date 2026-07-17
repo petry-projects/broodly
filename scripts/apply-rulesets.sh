@@ -177,9 +177,17 @@ PAYLOAD
 # Apply
 # ---------------------------------------------------------------------------
 info "Fetching existing rulesets for $ORG/$REPO ..."
-if ! existing=$(gh api "repos/$ORG/$REPO/rulesets"); then
-  err "Failed to fetch existing rulesets for $ORG/$REPO — check GH_TOKEN has administration:read scope"
-  exit 1
+if ! existing=$(gh api "repos/$ORG/$REPO/rulesets" 2>/dev/null); then
+  # In dry-run mode the fetch is best-effort: fall back to treating the repo as
+  # having no existing rulesets so the codified payloads can be previewed
+  # offline (without an admin token). Real runs must fail hard on a failed fetch.
+  if [[ "$DRY_RUN" = true ]]; then
+    skip "Could not fetch existing rulesets — previewing payloads as new (create)"
+    existing='[]'
+  else
+    err "Failed to fetch existing rulesets for $ORG/$REPO — check GH_TOKEN has administration:read scope"
+    exit 1
+  fi
 fi
 
 apply_ruleset() {
