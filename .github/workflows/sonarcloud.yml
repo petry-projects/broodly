@@ -32,7 +32,7 @@ jobs:
       - name: SonarCloud Scan (attempt 1)
         id: sonar_1
         if: ${{ env.SONAR_TOKEN != '' }}
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2.0
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
         continue-on-error: true
       - name: Backoff before retry (attempt 2)
         if: ${{ env.SONAR_TOKEN != '' && steps.sonar_1.outcome == 'failure' }}
@@ -40,11 +40,11 @@ jobs:
       - name: SonarCloud Scan (attempt 2)
         id: sonar_2
         if: ${{ env.SONAR_TOKEN != '' && steps.sonar_1.outcome == 'failure' }}
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2.0
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
         continue-on-error: true
       - name: Backoff before retry (attempt 3)
         if: ${{ env.SONAR_TOKEN != '' && steps.sonar_2.outcome == 'failure' }}
         run: sleep 20
       - name: SonarCloud Scan (attempt 3)
         if: ${{ env.SONAR_TOKEN != '' && steps.sonar_2.outcome == 'failure' }}
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2.0
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
