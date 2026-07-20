@@ -15,17 +15,10 @@
     "pnpm": ">=11"
   },
   "packageManager": "pnpm@11.13.0+sha512.88d94724d8f2e6c186744a5584c6e59ecac869ec7ba15e9cb4cd628e8dc7066820b2481d8ee3b51ea8da323a7378068aa58c556a3720d32b7c20a051d088363a",
-  "pnpm": {
-    "overrides": {
-      "brace-expansion": ">=5.1.0",
-      "js-yaml": ">=4.3.0",
-      "shell-quote": ">=1.8.5"
-    }
-  },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.63.0",
-    "@typescript-eslint/parser": "^8.63.0",
-    "eslint": "^10.6.0",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "eslint": "^10.5.0",
     "prettier": "^3.8.4",
     "typescript": "~5.9.3"
   }
