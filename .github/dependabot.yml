@@ -11,12 +11,14 @@ updates:
     ignore:
       # These transitive dependencies are constrained to vulnerable versions by
       # upstream packages that haven't released compatible updates.
-      # They are already patched via pnpm.overrides in package.json, which forces
-      # the lockfile to resolve safe versions. Dependabot's security updater does
-      # not understand pnpm.overrides and generates failing update attempts.
+      # They are already patched via the overrides block in pnpm-workspace.yaml,
+      # which forces the lockfile to resolve safe versions. Dependabot's security
+      # updater does not understand pnpm overrides and generates failing update
+      # attempts.
       - dependency-name: "@tootallnate/once"
       - dependency-name: "@xmldom/xmldom"
       - dependency-name: "brace-expansion"
+      - dependency-name: "js-yaml"
       - dependency-name: "lodash"
       - dependency-name: "postcss"
       - dependency-name: "shell-quote"
