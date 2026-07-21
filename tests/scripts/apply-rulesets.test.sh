@@ -22,7 +22,7 @@ pass_count=0
 
 assert_contains() {
   local needle="$1" desc="$2"
-  if printf '%s' "$output" | grep -q -- "$needle"; then
+  if grep -qF -- "$needle" <<< "$output"; then
     echo "ok - ${desc}"
     pass_count=$((pass_count + 1))
   else
@@ -32,7 +32,7 @@ assert_contains() {
   return 0
 }
 
-if [[ ! -x "$SCRIPT" && ! -f "$SCRIPT" ]]; then
+if [[ ! -f "$SCRIPT" ]]; then
   echo "not ok - script not found at ${SCRIPT}"
   exit 1
 fi

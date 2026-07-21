@@ -176,9 +176,10 @@ PAYLOAD
 # ---------------------------------------------------------------------------
 # Apply
 # ---------------------------------------------------------------------------
-# In --dry-run mode we only echo the payloads, so skip the live API fetch.
-# This keeps dry-run fully offline (no credentials/network needed) and lets it
-# run in CI, matching the behaviour of scripts/apply-repo-settings.sh.
+# In --dry-run mode, skip the live rulesets API fetch and treat existing
+# rulesets as empty. This avoids all `gh api repos/.../rulesets` network calls
+# so the payload output is deterministic. Note: GH_TOKEN is still required by
+# the guard above, and `gh repo view` runs unless --force is also passed.
 if [[ "$DRY_RUN" = true ]]; then
   existing="[]"
 else
