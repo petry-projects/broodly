@@ -8,7 +8,10 @@ type IHeadingBaseProps = VariantProps<typeof headingStyle> &
   React.ComponentPropsWithoutRef<typeof H1>;
 
 type IHeadingProps = IHeadingBaseProps & {
-  as?: React.ElementType;
+  // `as` is read below (`const AsComp = as`) for polymorphic rendering and is exercised by the
+  // heading smoke test. SonarJS S6767 can't trace usage through the required capitalized alias
+  // (a lowercase `as` can't be a JSX tag), so this is a confirmed false positive.
+  as?: React.ElementType; // NOSONAR typescript:S6767 — `as` is used (see above)
 };
 
 cssInterop(H1, { className: 'style' });
