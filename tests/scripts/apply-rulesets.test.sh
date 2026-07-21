@@ -15,7 +15,7 @@
 #
 # Run: bash tests/scripts/apply-rulesets.test.sh
 
-set -uo pipefail
+set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SCRIPT="${REPO_ROOT}/scripts/apply-rulesets.sh"
@@ -25,7 +25,7 @@ pass_count=0
 
 assert_contains() {
   local needle="$1" desc="$2"
-  if printf '%s' "$output" | grep -q -- "$needle"; then
+  if grep -q -- "$needle" <<< "$output"; then
     echo "ok - ${desc}"
     pass_count=$((pass_count + 1))
   else
@@ -45,7 +45,7 @@ fi
 # network call. `--force` skips the repo-identity check so `gh repo view` is
 # never invoked, but it is handled defensively anyway.
 BIN_DIR="$(mktemp -d)"
-trap 'rm -rf "$BIN_DIR"' EXIT
+trap '[[ -n "${BIN_DIR:-}" ]] && rm -rf "$BIN_DIR"' EXIT
 cat > "${BIN_DIR}/gh" <<'MOCK'
 #!/usr/bin/env bash
 if [ "$1" = "api" ]; then
@@ -66,8 +66,8 @@ chmod +x "${BIN_DIR}/gh"
 
 # Dummy token satisfies the GH_TOKEN guard; --force skips the repo-identity
 # check; --dry-run prevents any real mutation.
-output="$(PATH="${BIN_DIR}:${PATH}" GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)"
-exit_code=$?
+exit_code=0
+output="$(PATH="${BIN_DIR}:${PATH}" GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)" || exit_code=$?
 
 if [[ "$exit_code" -ne 0 ]]; then
   echo "not ok - script exited non-zero (${exit_code}) in --dry-run --force mode"
