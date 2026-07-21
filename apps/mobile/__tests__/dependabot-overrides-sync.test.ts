@@ -1,8 +1,6 @@
-// Node built-ins via require: the mobile tsconfig limits `types` to ["jest"],
-// so @types/node globals are unavailable. require() is resolvable in this env.
+// Use require() for Node built-ins so this file works under Jest's module resolver.
 const { readFileSync } = require('fs');
 const { resolve } = require('path');
-declare const __dirname: string;
 
 // Repo root, resolved from apps/mobile/__tests__.
 const REPO_ROOT: string = resolve(__dirname, '../../..');
