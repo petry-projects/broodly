@@ -40,12 +40,18 @@ function parseOverridePackages(): Set<string> {
       if (line.trim() === '') continue;
 
       const trimmed = line.trim();
+      if (trimmed.startsWith('#')) continue;
+
       let key: string;
       if (trimmed.startsWith("'") || trimmed.startsWith('"')) {
         const quote = trimmed[0];
-        key = trimmed.slice(1, trimmed.indexOf(quote, 1));
+        const endQuoteIndex = trimmed.indexOf(quote, 1);
+        if (endQuoteIndex === -1) continue;
+        key = trimmed.slice(1, endQuoteIndex);
       } else {
-        key = trimmed.slice(0, trimmed.indexOf(':'));
+        const colonIndex = trimmed.indexOf(':');
+        if (colonIndex === -1) continue;
+        key = trimmed.slice(0, colonIndex);
       }
       packages.add(overrideKeyToPackageName(key));
     }
@@ -57,9 +63,20 @@ function parseOverridePackages(): Set<string> {
 function parseIgnoredPackages(): Set<string> {
   const text = readFileSync(resolve(REPO_ROOT, '.github/dependabot.yml'), 'utf8');
   const packages = new Set<string>();
+
+  // Scope parsing to the npm ecosystem block to avoid false matches from
+  // gomod, terraform, or other ecosystems that may have their own ignore lists.
+  const npmIndex = text.indexOf('package-ecosystem: "npm"');
+  if (npmIndex === -1) return packages;
+
+  const nextEcosystemIndex = text.indexOf('- package-ecosystem:', npmIndex + 24);
+  const npmBlock = nextEcosystemIndex === -1
+    ? text.slice(npmIndex)
+    : text.slice(npmIndex, nextEcosystemIndex);
+
   const re = /dependency-name:\s*['"]?([^'"\n]+?)['"]?\s*$/gm;
   let match: RegExpExecArray | null;
-  while ((match = re.exec(text)) !== null) {
+  while ((match = re.exec(npmBlock)) !== null) {
     packages.add(match[1].trim());
   }
   return packages;
