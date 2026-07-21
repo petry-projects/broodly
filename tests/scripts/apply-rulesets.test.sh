@@ -43,7 +43,7 @@ fi
 # Stub `gh` on PATH: apply-rulesets.sh fetches existing rulesets via `gh api`
 # before the dry-run branch, so it must run offline. Return an empty ruleset
 # list and drain any piped stdin. Record calls so we can assert no mutation.
-BIN_DIR="$(mktemp -d)"
+BIN_DIR="$(mktemp -d)" || { echo "not ok - failed to create temporary directory"; exit 1; }
 CALL_LOG="${BIN_DIR}/gh-calls.log"
 trap 'rm -rf "$BIN_DIR"' EXIT
 
@@ -56,7 +56,7 @@ if [ "\$1" = "repo" ] && [ "\$2" = "view" ]; then
 fi
 if [ "\$1" = "api" ]; then
   # Drain stdin for any --input - call so the pipe does not break.
-  cat > /dev/null 2>&1 || true
+  [ ! -t 0 ] && cat > /dev/null 2>&1 || true
   # The existing-rulesets fetch expects a JSON array.
   echo "[]"
   exit 0
