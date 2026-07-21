@@ -65,6 +65,23 @@ exit 0
 MOCK
 chmod +x "${BIN_DIR}/gh"
 
+# Stub `jq` on PATH: apply-rulesets.sh uses jq to check existing rulesets and
+# to pretty-print the dry-run payload. The stubbed gh returns [] so length
+# queries must yield 0 and id queries must yield nothing; everything else passes
+# stdin through for the payload pretty-print assertions to work.
+cat > "${BIN_DIR}/jq" <<'MOCK'
+#!/usr/bin/env bash
+args_str="$*"
+if printf '%s' "$args_str" | grep -qF 'length'; then
+  echo "0"
+elif printf '%s' "$args_str" | grep -qF '// empty'; then
+  : # output nothing — signals no existing ruleset id found
+else
+  cat
+fi
+MOCK
+chmod +x "${BIN_DIR}/jq"
+
 export PATH="${BIN_DIR}:${PATH}"
 
 # Dummy token satisfies the GH_TOKEN guard; --force skips the repo-identity
