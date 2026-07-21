@@ -27,7 +27,7 @@ if [ "\$1" = "repo" ] && [ "\$2" = "view" ]; then
   exit 0
 fi
 if [ "\$1" = "api" ]; then
-  cat > /dev/null 2>&1 || true
+  [ ! -t 0 ] && cat > /dev/null 2>&1 || true
   echo "[]"
   exit 0
 fi
