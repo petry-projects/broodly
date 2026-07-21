@@ -176,10 +176,17 @@ PAYLOAD
 # ---------------------------------------------------------------------------
 # Apply
 # ---------------------------------------------------------------------------
-info "Fetching existing rulesets for $ORG/$REPO ..."
-if ! existing=$(gh api "repos/$ORG/$REPO/rulesets"); then
-  err "Failed to fetch existing rulesets for $ORG/$REPO — check GH_TOKEN has administration:read scope"
-  exit 1
+# In --dry-run mode we only echo the payloads, so skip the live API fetch.
+# This keeps dry-run fully offline (no credentials/network needed) and lets it
+# run in CI, matching the behaviour of scripts/apply-repo-settings.sh.
+if [[ "$DRY_RUN" = true ]]; then
+  existing="[]"
+else
+  info "Fetching existing rulesets for $ORG/$REPO ..."
+  if ! existing=$(gh api "repos/$ORG/$REPO/rulesets"); then
+    err "Failed to fetch existing rulesets for $ORG/$REPO — check GH_TOKEN has administration:read scope"
+    exit 1
+  fi
 fi
 
 apply_ruleset() {
