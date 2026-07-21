@@ -9,14 +9,21 @@ updates:
       - "security"
       - "dependencies"
     ignore:
-      # These transitive dependencies are constrained to vulnerable versions by
-      # upstream packages that haven't released compatible updates.
-      # They are already patched via pnpm.overrides in package.json, which forces
-      # the lockfile to resolve safe versions. Dependabot's security updater does
-      # not understand pnpm.overrides and generates failing update attempts.
+      # These transitive dependencies are constrained to safe versions by the
+      # `overrides:` block in pnpm-workspace.yaml, which forces the lockfile to
+      # resolve patched versions. Dependabot's security updater does not
+      # understand pnpm overrides, so it generates failing update attempts
+      # (security_update_not_possible / all_versions_ignored) for these deps.
+      #
+      # This list MUST mirror the override package names in pnpm-workspace.yaml.
+      # The sync is enforced by apps/mobile/__tests__/dependabot-overrides-sync.test.ts.
+      - dependency-name: "@babel/core"
       - dependency-name: "@tootallnate/once"
+      - dependency-name: "@ungap/structured-clone"
       - dependency-name: "@xmldom/xmldom"
       - dependency-name: "brace-expansion"
+      - dependency-name: "form-data"
+      - dependency-name: "js-yaml"
       - dependency-name: "lodash"
       - dependency-name: "postcss"
       - dependency-name: "shell-quote"
