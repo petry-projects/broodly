@@ -70,7 +70,12 @@ assert_contains '"name": "pr-quality"' "emits pr-quality ruleset"
 # Assert specifically within the pr-quality ruleset's pull_request rule so the
 # check cannot be satisfied by the setting appearing in the wrong ruleset.
 _pr_q_json=$(printf '%s\n' "$output" | grep -v '^\[' | jq -s 'map(select(.name == "pr-quality")) | first // empty')
-_dismiss=$(printf '%s\n' "$_pr_q_json" | jq -r '.rules[] | select(.type == "pull_request") | .parameters.dismiss_stale_reviews_on_push // false')
+_dismiss=$(printf '%s\n' "$_pr_q_json" | jq -r '
+  .rules[]
+  | select(.type == "pull_request")
+  | (.parameters.dismiss_stale_reviews_on_push // false)
+  | (type == "boolean" and . == true)
+')
 if [[ "$_dismiss" = "true" ]]; then
   echo "ok - pr-quality pull_request rule sets dismiss_stale_reviews_on_push = true"
   pass_count=$((pass_count + 1))
