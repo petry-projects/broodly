@@ -38,8 +38,22 @@ if [[ ! -f "$SCRIPT" ]]; then
 fi
 
 # Dummy token satisfies the GH_TOKEN guard; --force skips the repo-identity
-# check; --dry-run prevents any real API call.
-output="$(GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)"
+# check; --dry-run prevents any real API call. A mock gh is placed first on
+# PATH and fails on any `gh api` subcommand so a dry-run regression cannot
+# silently make a live API call.
+_mock_bin="$(mktemp -d)"
+trap 'rm -rf "$_mock_bin"' EXIT
+cat > "${_mock_bin}/gh" <<'EOF'
+#!/usr/bin/env bash
+if [[ "${1:-}" == "api" ]]; then
+  echo "unexpected gh api invocation" >&2
+  exit 1
+fi
+exit 0
+EOF
+chmod +x "${_mock_bin}/gh"
+
+output="$(PATH="${_mock_bin}:${PATH}" GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)"
 exit_code=$?
 
 if [[ "$exit_code" -ne 0 ]]; then
@@ -65,15 +79,28 @@ else
   fail=1
 fi
 
-# Remaining standard pr-quality pull_request parameters.
-assert_contains '"required_approving_review_count": 1' \
-  "pr-quality requires 1 approving review"
-assert_contains '"require_code_owner_review": true' \
-  "pr-quality requires code owner review"
-assert_contains '"require_last_push_approval": true' \
-  "pr-quality requires last push approval"
-assert_contains '"required_review_thread_resolution": true' \
-  "pr-quality requires review thread resolution"
+# Remaining standard pr-quality pull_request parameters — checked within the
+# pr-quality ruleset object so a matching field in any other ruleset cannot
+# produce a false pass.
+_pr_q_params=$(printf '%s\n' "$_pr_q_json" | jq -c '.rules[] | select(.type == "pull_request") | .parameters')
+
+_jq_check() {
+  local expr="$1" expected="$2" desc="$3"
+  local actual
+  actual=$(printf '%s\n' "$_pr_q_params" | jq -r "$expr // empty")
+  if [[ "$actual" = "$expected" ]]; then
+    echo "ok - ${desc}"
+    pass_count=$((pass_count + 1))
+  else
+    echo "not ok - ${desc} (expected: ${expected}, got: ${actual:-missing})"
+    fail=1
+  fi
+}
+
+_jq_check '.required_approving_review_count' '1' 'pr-quality requires 1 approving review'
+_jq_check '.require_code_owner_review' 'true' 'pr-quality requires code owner review'
+_jq_check '.require_last_push_approval' 'true' 'pr-quality requires last push approval'
+_jq_check '.required_review_thread_resolution' 'true' 'pr-quality requires review thread resolution'
 
 # code-quality ruleset is also codified.
 assert_contains '"name": "code-quality"' "emits code-quality ruleset"
