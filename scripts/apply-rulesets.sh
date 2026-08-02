@@ -176,10 +176,18 @@ PAYLOAD
 # ---------------------------------------------------------------------------
 # Apply
 # ---------------------------------------------------------------------------
-info "Fetching existing rulesets for $ORG/$REPO ..."
-if ! existing=$(gh api "repos/$ORG/$REPO/rulesets"); then
-  err "Failed to fetch existing rulesets for $ORG/$REPO — check GH_TOKEN has administration:read scope"
-  exit 1
+# In --dry-run mode, skip the live rulesets API fetch and treat existing
+# rulesets as empty. This avoids all `gh api repos/.../rulesets` network calls
+# so the payload output is deterministic. Note: GH_TOKEN is still required by
+# the guard above, and `gh repo view` runs unless --force is also passed.
+if [[ "$DRY_RUN" = true ]]; then
+  existing="[]"
+else
+  info "Fetching existing rulesets for $ORG/$REPO ..."
+  if ! existing=$(gh api "repos/$ORG/$REPO/rulesets"); then
+    err "Failed to fetch existing rulesets for $ORG/$REPO — check GH_TOKEN has administration:read scope"
+    exit 1
+  fi
 fi
 
 apply_ruleset() {
