@@ -162,6 +162,14 @@ jobs:
         working-directory: .
         run: docker build -f apps/api/Dockerfile -t broodly-api:ci apps/api/
 
+  shell-tests:
+    name: Shell Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Ruleset compliance test
+        run: bash tests/scripts/apply-rulesets.test.sh
+
   secret-scan:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
