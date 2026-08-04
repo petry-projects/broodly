@@ -41,7 +41,7 @@ fi
 # check; --dry-run prevents any real API call. A mock gh is placed first on
 # PATH and fails on any `gh api` subcommand so a dry-run regression cannot
 # silently make a live API call.
-_mock_bin="$(mktemp -d)"
+_mock_bin="$(mktemp -d)" || { echo "not ok - mktemp -d failed"; exit 1; }
 trap 'rm -rf "$_mock_bin"' EXIT
 cat > "${_mock_bin}/gh" <<'EOF'
 #!/usr/bin/env bash
