@@ -1,3 +1,4 @@
+/// <reference types="node" />
 // Use require() for Node built-ins so this file works under Jest's module resolver.
 const { readFileSync } = require('fs');
 const { resolve } = require('path');
