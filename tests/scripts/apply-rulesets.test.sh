@@ -100,6 +100,7 @@ _jq_check() {
     echo "not ok - ${desc} (expected: ${expected}, got: ${actual:-missing})"
     fail=1
   fi
+  return 0
 }
 
 _jq_check '.required_approving_review_count' '1' 'pr-quality requires 1 approving review'
