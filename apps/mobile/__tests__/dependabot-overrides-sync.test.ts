@@ -72,7 +72,7 @@ function parseIgnoredPackages(): Set<string> {
     ? text.slice(npmIndex)
     : text.slice(npmIndex, nextEcosystemIndex);
 
-  const re = /dependency-name:\s*['"]?([^'"\n]+?)['"]?\s*$/gm;
+  const re = /^[ \t]*-[ \t]+dependency-name:[ \t]*['"]{0,1}([^'"\n]+?)['"]{0,1}[ \t]*(?:#.*)?$/gm;
   let match: RegExpExecArray | null;
   while ((match = re.exec(npmBlock)) !== null) {
     packages.add(match[1].trim());
