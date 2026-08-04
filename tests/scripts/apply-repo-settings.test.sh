@@ -8,7 +8,7 @@
 #
 # Run: bash tests/scripts/apply-repo-settings.test.sh
 
-set -uo pipefail
+set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SCRIPT="${REPO_ROOT}/scripts/apply-repo-settings.sh"
@@ -42,8 +42,8 @@ fi
 
 # Dummy token satisfies the GH_TOKEN guard; --force skips the repo-identity
 # check; --dry-run prevents any real API call.
-output="$(GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)"
-exit_code=$?
+exit_code=0
+output="$(GH_TOKEN=dummy-token bash "$SCRIPT" --dry-run --force 2>&1)" || exit_code=$?
 
 if [[ "$exit_code" -ne 0 ]]; then
   echo "not ok - script exited non-zero (${exit_code}) in --dry-run --force mode"

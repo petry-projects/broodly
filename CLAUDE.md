@@ -68,9 +68,7 @@ IMPORTANT: Broodly's core differentiator is a zero-tap beeyard experience. Once 
 - Post-session "Evening Review" provides tap-friendly UI for corrections after leaving the field
 - This zero-tap approach is what distinguishes Broodly from every competitor
 
----
-
-## Figma MCP Integration Rules
+## Key Rules
 
 1. **Figma MCP flow** — always run `get_design_context` + `get_screenshot` before implementing any design
 2. **Gluestack UI v3** — use as component foundation, never build custom when a primitive exists

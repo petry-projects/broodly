@@ -12,7 +12,7 @@
 #
 # Run: bash tests/scripts/apply-rulesets.test.sh
 
-set -uo pipefail
+set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SCRIPT="${REPO_ROOT}/scripts/apply-rulesets.sh"
