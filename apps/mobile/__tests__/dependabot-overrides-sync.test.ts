@@ -1,4 +1,7 @@
-/// <reference types="node" />
+// __dirname is provided by Jest's CommonJS environment at runtime but lacks type definitions
+// without @types/node; declare it locally rather than pulling in the full @types/node package.
+declare const __dirname: string;
+
 // Use require() for Node built-ins so this file works under Jest's module resolver.
 const { readFileSync } = require('fs');
 const { resolve } = require('path');
