@@ -26,7 +26,7 @@ assert_contains() {
     echo "ok - ${desc}"
     pass_count=$((pass_count + 1))
   else
-    echo "not ok - ${desc} (expected: ${expected}, got: ${actual})"
+    echo "not ok - ${desc} (output missing: ${needle})"
     fail=1
   fi
   return 0
