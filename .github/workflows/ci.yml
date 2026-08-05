@@ -213,6 +213,9 @@ jobs:
     timeout-minutes: 15
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [go]
+    env:
+      GCP_REGION: ${{ vars.GCP_REGION || 'us-central1' }}
+      ENVIRONMENT: ${{ vars.ENVIRONMENT || 'dev' }}
     permissions:
       contents: read
       id-token: write # Required for Workload Identity Federation
@@ -229,13 +232,13 @@ jobs:
 
       - name: Configure Docker for Artifact Registry
         if: steps.auth.outcome == 'success'
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
 
       - name: Build and push container image
         if: steps.auth.outcome == 'success'
         working-directory: .
         run: |
-          IMAGE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api"
+          IMAGE="${GCP_REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api"
           docker build -f apps/api/Dockerfile \
             -t "${IMAGE}:${{ github.sha }}" \
             -t "${IMAGE}:latest" \
@@ -243,18 +246,13 @@ jobs:
           docker push "${IMAGE}:${{ github.sha }}"
           docker push "${IMAGE}:latest"
 
-      # Service name and region must match Terraform cloud-run module config
-      # in infra/terraform/environments/dev/main.tf
       - name: Deploy to Cloud Run
         if: steps.auth.outcome == 'success'
         working-directory: .
-        env:
-          CLOUD_RUN_SERVICE: broodly-api-dev
-          CLOUD_RUN_REGION: us-central1
         run: |
-          gcloud run deploy "${CLOUD_RUN_SERVICE}" \
-            --image "us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}" \
-            --region "${CLOUD_RUN_REGION}" \
+          gcloud run deploy "broodly-api-${ENVIRONMENT}" \
+            --image "${GCP_REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/broodly/api:${{ github.sha }}" \
+            --region "${GCP_REGION}" \
             --project "${{ secrets.GCP_PROJECT_ID }}" \
             --quiet
 
