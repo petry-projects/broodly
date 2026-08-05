@@ -33,11 +33,12 @@ if [[ ! -d "$WORKFLOWS_DIR" ]]; then
   exit 1
 fi
 
-# A top-level trigger key: `on:`, quoted "on":/'on':, or YAML's boolean
-# coercion `true:` (bare `on` parses to true). Anchored at column 0.
-TRIGGER_RE='^(on|"on"|'\''on'\''|true)[[:space:]]*:'
+# A top-level trigger key: `on:`, quoted "on":/'on':. Anchored at column 0.
+TRIGGER_RE='^(on|"on"|'\''on'\'')[[:space:]]*:'
 # A top-level jobs key at column 0.
 JOBS_RE='^jobs[[:space:]]*:'
+# A job definition: at least 2 spaces, then word, then colon (direct child of jobs).
+JOB_DEF_RE='^  [a-zA-Z_][a-zA-Z0-9_-]*[[:space:]]*:'
 
 invalid=0
 checked=0
@@ -52,6 +53,12 @@ for wf in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
   missing=()
   grep -Eq "$TRIGGER_RE" "$wf" || missing+=("on: trigger")
   grep -Eq "$JOBS_RE" "$wf" || missing+=("jobs:")
+  # If jobs: exists, verify it contains at least one indented line (job definition).
+  if grep -Eq "$JOBS_RE" "$wf"; then
+    if ! awk '/^jobs/{found=1; next} found && /^  /{has_jobs=1} found && /^[^ ]/{exit} END{exit !has_jobs}' "$wf"; then
+      missing+=("job definitions under jobs:")
+    fi
+  fi
 
   if [[ ${#missing[@]} -gt 0 ]]; then
     missing_list="$(IFS='|'; echo "${missing[*]}")"

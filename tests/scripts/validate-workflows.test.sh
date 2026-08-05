@@ -27,14 +27,15 @@ fi
 
 # Scratch dir for fixtures; cleaned up on exit.
 _tmp="$(mktemp -d)"
-trap 'rm -rf "$_tmp"' EXIT
+trap '[[ -n "${_tmp:-}" ]] && rm -rf "$_tmp"' EXIT
 
 # run_validator <dir> -> sets `output` and `rc`
 run_validator() {
-  set +e
-  output="$(bash "$SCRIPT" "$1" 2>&1)"
-  rc=$?
-  set -e
+  if output="$(bash "$SCRIPT" "$1" 2>&1)"; then
+    rc=0
+  else
+    rc=$?
+  fi
 }
 
 assert_rc() {
@@ -135,7 +136,37 @@ YML
 run_validator "$_quoted_dir"
 assert_rc 0 'accepts a quoted "on": trigger key'
 
-# --- Fixture 6: empty directory (nothing to validate) -------------------------
+# --- Fixture 6: true: key is not a valid trigger --------------------------------
+_true_dir="${_tmp}/true-trigger"
+mkdir -p "$_true_dir"
+cat > "${_true_dir}/invalid-trigger.yml" << 'YML'
+name: Invalid Trigger
+true:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
+YML
+run_validator "$_true_dir"
+assert_rc 1 'rejects true: as an invalid trigger (only on: is valid)'
+
+# --- Fixture 7: jobs: block with no job definitions ----------------------------
+_empty_jobs_dir="${_tmp}/empty-jobs"
+mkdir -p "$_empty_jobs_dir"
+cat > "${_empty_jobs_dir}/no-jobs-defined.yml" << 'YML'
+name: No Jobs Defined
+on:
+  push:
+    branches: [main]
+jobs:
+YML
+run_validator "$_empty_jobs_dir"
+assert_rc 1 "fails when jobs: block is empty (no job definitions)"
+
+# --- Fixture 8: empty directory (nothing to validate) -------------------------
 _empty_dir="${_tmp}/empty"
 mkdir -p "$_empty_dir"
 run_validator "$_empty_dir"
