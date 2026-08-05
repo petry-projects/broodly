@@ -27,15 +27,12 @@ fi
 
 # Scratch dir for fixtures; cleaned up on exit.
 _tmp="$(mktemp -d)"
-trap '[[ -n "${_tmp:-}" ]] && rm -rf "$_tmp"' EXIT
+trap '[[ -d "$_tmp" ]] && rm -rf "$_tmp"' EXIT
 
 # run_validator <dir> -> sets `output` and `rc`
 run_validator() {
-  if output="$(bash "$SCRIPT" "$1" 2>&1)"; then
-    rc=0
-  else
-    rc=$?
-  fi
+  rc=0
+  output="$(bash "$SCRIPT" "$1" 2>&1)" || rc=$?
 }
 
 assert_rc() {
