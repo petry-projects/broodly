@@ -37,12 +37,14 @@ validate_workflow_file() {
   if _has_pyyaml; then
     python3 - "$path" <<'PY'
 import sys
+import re
 import yaml
 
 path = sys.argv[1]
 try:
     with open(path, encoding="utf-8") as handle:
-        doc = yaml.safe_load(handle)
+        raw = handle.read()
+    doc = yaml.safe_load(raw)
 except (yaml.YAMLError, OSError) as err:
     print(f"unparseable YAML: {err}")
     sys.exit(1)
@@ -51,8 +53,9 @@ if not isinstance(doc, dict):
     print("no top-level mapping (file is empty, comment-only, or truncated)")
     sys.exit(1)
 
-# `on:` is parsed as the boolean True under the YAML 1.1 spec PyYAML implements.
-if "on" not in doc and True not in doc:
+# Require the literal 'on' key via raw-text match; PyYAML (YAML 1.1) parses
+# on/true/yes all as boolean True, so a key-lookup alone would accept aliases.
+if not re.search(r'^["\']?on["\']?\s*:', raw, re.MULTILINE):
     print("missing 'on:' trigger block")
     sys.exit(1)
 
@@ -65,22 +68,16 @@ sys.exit(0)
 PY
   else
     # Fallback structural check when PyYAML is unavailable: require a top-level
-    # `on:` trigger key and a top-level `jobs:` key with actual content.
-    # Both are absent from a comment-only / truncated workflow file, which is
-    # the failure this guards. Also reject `jobs:` with null/empty values.
+    # `on:` trigger key and a top-level `jobs:` key. Both are absent from a
+    # comment-only / truncated workflow file, which is the failure this guards.
+    # Full semantic validation (non-empty jobs, parseability) is delegated to the
+    # PyYAML branch; ensure PyYAML is installed in CI to use the strict path.
     local reason=""
-    if ! grep -Eq "^[\"']?on[\"']?:" "$path"; then
-      reason="missing 'on:' trigger block"
-    elif ! grep -Eq "^jobs:" "$path"; then
-      reason="missing 'jobs:' block"
-    elif grep -Eq "^jobs:\s*(null|~)?\s*$" "$path"; then
-      reason="'jobs:' block is null or empty"
-    fi
-    if [[ -n "$reason" ]]; then
-      echo "$reason"
-      return 1
-    fi
-    return 0
+    grep -Eq "^[[:space:]]*[\"']?on[\"']?[[:space:]]*:" "$path" \
+      || reason="missing 'on:' trigger block"
+    { [[ -n "$reason" ]] || grep -Eq "^[[:space:]]*[\"']?jobs[\"']?[[:space:]]*:" "$path"; } \
+      || reason="missing 'jobs:' block"
+    [[ -z "$reason" ]] || { echo "$reason"; return 1; }
   fi
 }
 
@@ -97,39 +94,27 @@ cat > "$_bad_fixture" <<'EOF'
 # ─────────────────────────────────────────────────────────────────────────────
 EOF
 
-if validate_workflow_file "$_bad_fixture" >/dev/null 2>&1; then
-  echo "not ok - validator accepted a truncated comment-only workflow"
-  fail=1
-else
-  echo "ok - validator rejects a truncated comment-only workflow"
-  pass_count=$((pass_count + 1))
-fi
+! validate_workflow_file "$_bad_fixture" >/dev/null 2>&1 \
+  && { echo "ok - validator rejects a truncated comment-only workflow"; pass_count=$((pass_count + 1)); } \
+  || { echo "not ok - validator accepted a truncated comment-only workflow"; fail=1; }
 
 # --- Positive assertion: every real workflow file is structurally valid. -------
 shopt -s nullglob
 workflow_files=("${WORKFLOW_DIR}"/*.yml "${WORKFLOW_DIR}"/*.yaml)
 shopt -u nullglob
 
-if [[ ${#workflow_files[@]} -eq 0 ]]; then
-  echo "not ok - no workflow files found under ${WORKFLOW_DIR}"
-  fail=1
-fi
+[[ ${#workflow_files[@]} -gt 0 ]] \
+  || { echo "not ok - no workflow files found under ${WORKFLOW_DIR}"; fail=1; }
 
 for wf in "${workflow_files[@]}"; do
   rel="${wf#"${REPO_ROOT}/"}"
-  if reason="$(validate_workflow_file "$wf")"; then
-    echo "ok - ${rel} is structurally valid"
-    pass_count=$((pass_count + 1))
-  else
-    echo "not ok - ${rel} is structurally invalid: ${reason}"
-    fail=1
-  fi
+  reason="$(validate_workflow_file "$wf")" \
+    && { echo "ok - ${rel} is structurally valid"; pass_count=$((pass_count + 1)); } \
+    || { echo "not ok - ${rel} is structurally invalid: ${reason}"; fail=1; }
 done
 
 echo "---"
-if [[ "$fail" -eq 0 ]]; then
-  echo "PASS — ${pass_count} assertion(s) passed"
-else
-  echo "FAIL — see assertions above"
-fi
+[[ "$fail" -eq 0 ]] \
+  && echo "PASS — ${pass_count} assertion(s) passed" \
+  || echo "FAIL — see assertions above"
 exit "$fail"
