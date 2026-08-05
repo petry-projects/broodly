@@ -171,6 +171,8 @@ jobs:
           persist-credentials: false
       - name: Ruleset compliance test
         run: bash tests/scripts/apply-rulesets.test.sh
+      - name: Workflow integrity test
+        run: bash tests/scripts/workflow-integrity.test.sh
 
   secret-scan:
     name: Secret scan (gitleaks)
