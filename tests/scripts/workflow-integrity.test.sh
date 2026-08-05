@@ -65,13 +65,16 @@ sys.exit(0)
 PY
   else
     # Fallback structural check when PyYAML is unavailable: require a top-level
-    # `on:` trigger key and a top-level `jobs:` key. Both are absent from a
-    # comment-only / truncated workflow file, which is the failure this guards.
+    # `on:` trigger key and a top-level `jobs:` key with actual content.
+    # Both are absent from a comment-only / truncated workflow file, which is
+    # the failure this guards. Also reject `jobs:` with null/empty values.
     local reason=""
     if ! grep -Eq "^[\"']?on[\"']?:" "$path"; then
       reason="missing 'on:' trigger block"
     elif ! grep -Eq "^jobs:" "$path"; then
       reason="missing 'jobs:' block"
+    elif grep -Eq "^jobs:\s*(null|~)?\s*$" "$path"; then
+      reason="'jobs:' block is null or empty"
     fi
     if [[ -n "$reason" ]]; then
       echo "$reason"
@@ -85,7 +88,7 @@ PY
 # This mirrors the exact corruption behind issue #469 and proves the validator
 # does not pass trivially.
 _fixture_dir="$(mktemp -d)"
-trap 'rm -rf "$_fixture_dir"' EXIT
+trap '[[ -n "${_fixture_dir:-}" ]] && rm -rf "$_fixture_dir"' EXIT
 _bad_fixture="${_fixture_dir}/truncated.yml"
 cat > "$_bad_fixture" <<'EOF'
 # ─────────────────────────────────────────────────────────────────────────────
