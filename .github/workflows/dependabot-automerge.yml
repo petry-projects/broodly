@@ -21,3 +21,19 @@
 # Required org/repo secrets (inherited):
 #   APP_ID         — GitHub App ID with contents:write and pull-requests:write
 #   APP_PRIVATE_KEY — GitHub App private key
+name: Dependabot auto-merge
+
+on:
+  pull_request_target:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  dependabot-automerge:
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: petry-projects/.github/.github/workflows/dependabot-automerge-reusable.yml@dependabot-automerge/v2-stable  # NOSONAR(githubactions:S7637) first-party channel ref
+    secrets: inherit  # NOSONAR(githubactions:S7635) first-party trusted reusable

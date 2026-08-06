@@ -182,6 +182,11 @@ jobs:
       - name: Dependabot auto-merge contract test
         run: bash tests/scripts/dependabot-automerge-contract.test.sh
 
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout (full history)
         # Pin to SHA per Action Pinning Policy (ci-standards.md#action-pinning-policy).
