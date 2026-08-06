@@ -179,6 +179,8 @@ jobs:
         run: bash scripts/validate-workflows.sh
       - name: Workflow validator test
         run: bash tests/scripts/validate-workflows.test.sh
+      - name: Dependabot auto-merge contract test
+        run: bash tests/scripts/dependabot-automerge-contract.test.sh
 
     steps:
       - name: Checkout (full history)
