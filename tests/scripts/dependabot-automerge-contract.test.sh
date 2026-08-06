@@ -35,29 +35,64 @@ check_contract() {
 
   [[ -f "$path" ]] || { echo "file not found: ${path}"; return 1; }
 
-  # Trigger must be pull_request_target (as a top-level key under on:).
-  grep -Eq "^[[:space:]]+pull_request_target[[:space:]]*:" "$path" \
-    || { echo "missing 'pull_request_target' trigger"; return 1; }
+  # Parse YAML structurally so that a matching entry nested under an unrelated
+  # mapping cannot satisfy the invariants (grep-over-whole-file false positives).
+  python3 - "$path" 2>&1 <<'PYEOF'
+import sys, re
+try:
+    import yaml
+except ImportError:
+    print("PyYAML not available; install with: pip install pyyaml")
+    sys.exit(1)
 
-  # Must call the org reusable dependabot-automerge workflow.
-  grep -Eq "^[[:space:]]*uses:[[:space:]]*petry-projects/\.github/\.github/workflows/dependabot-automerge-reusable\.yml@" "$path" \
-    || { echo "missing org reusable 'uses:' reference"; return 1; }
+try:
+    with open(sys.argv[1]) as f:
+        wf = yaml.safe_load(f)
+except Exception as e:
+    print(f"invalid YAML: {e}")
+    sys.exit(1)
 
-  # Must forward secrets to the reusable.
-  grep -Eq "^[[:space:]]*secrets:[[:space:]]*inherit\b" "$path" \
-    || { echo "missing 'secrets: inherit'"; return 1; }
+if not isinstance(wf, dict):
+    print("not a YAML mapping")
+    sys.exit(1)
 
-  # Must declare a *job-level* permissions: block (the reusable is granted no
-  # more than the calling job has). Require leading indentation so the top-level
-  # `permissions: {}` at column 0 does not satisfy this on its own.
-  grep -Eq "^[[:space:]]+permissions:" "$path" \
-    || { echo "missing job-level 'permissions:' block"; return 1; }
+# PyYAML (YAML 1.1) maps the bare word "on" to Python True.
+on_block = wf.get("on") or wf.get(True) or {}
+if not isinstance(on_block, dict) or "pull_request_target" not in on_block:
+    print("missing 'pull_request_target' trigger")
+    sys.exit(1)
 
-  return 0
+jobs = wf.get("jobs") or {}
+da_job = None
+for job in jobs.values():
+    if isinstance(job, dict):
+        uses_val = job.get("uses", "")
+        if isinstance(uses_val, str) and re.match(
+            r'petry-projects/\.github/\.github/workflows/dependabot-automerge-reusable\.yml@',
+            uses_val,
+        ):
+            da_job = job
+            break
+
+if da_job is None:
+    print("missing org reusable 'uses:' reference")
+    sys.exit(1)
+
+if da_job.get("secrets") != "inherit":
+    print("missing 'secrets: inherit'")
+    sys.exit(1)
+
+if "permissions" not in da_job:
+    print("missing job-level 'permissions:' block")
+    sys.exit(1)
+PYEOF
 }
 
 # --- Positive assertion: the real stub satisfies the contract. -----------------
-if reason="$(check_contract "$STUB")"; then
+reason=""
+exit_code=0
+reason="$(check_contract "$STUB")" || exit_code=$?
+if [[ $exit_code -eq 0 ]]; then
   echo "ok - dependabot-automerge.yml satisfies its locked contract"
   pass_count=$((pass_count + 1))
 else
@@ -95,7 +130,7 @@ fi
 # 3) Job-level permissions: block removed (only the top-level `permissions: {}`
 #    at column 0 remains) — must still be rejected.
 _f_perms="${_fixture_dir}/no-job-permissions.yml"
-grep -Ev "^[[:space:]]+permissions:" "$STUB" > "$_f_perms"
+grep -Ev '^[[:space:]]+permissions:' "$STUB" > "$_f_perms"
 if ! check_contract "$_f_perms" >/dev/null 2>&1; then
   echo "ok - rejects a stub with the job-level 'permissions:' block removed"
   pass_count=$((pass_count + 1))
@@ -112,6 +147,17 @@ if ! check_contract "$_f4" >/dev/null 2>&1; then
   pass_count=$((pass_count + 1))
 else
   echo "not ok - accepted a comment-only truncated stub"
+  fail=1
+fi
+
+# 5) uses: reference removed — contract must reject even when the job exists.
+_f5="${_fixture_dir}/no-uses.yml"
+grep -v 'uses:' "$STUB" > "$_f5"
+if ! check_contract "$_f5" >/dev/null 2>&1; then
+  echo "ok - rejects a stub with the org reusable 'uses:' reference removed"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - accepted a stub without the org reusable 'uses:' reference"
   fail=1
 fi
 
