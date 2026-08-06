@@ -37,8 +37,6 @@ fi
 TRIGGER_RE='^(on|"on"|'\''on'\'')[[:space:]]*:'
 # A top-level jobs key at column 0.
 JOBS_RE='^jobs[[:space:]]*:'
-# A job definition: at least 2 spaces, then word, then colon (direct child of jobs).
-JOB_DEF_RE='^  [a-zA-Z_][a-zA-Z0-9_-]*[[:space:]]*:'
 
 invalid=0
 checked=0
