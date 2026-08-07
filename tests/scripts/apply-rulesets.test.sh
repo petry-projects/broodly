@@ -2,9 +2,11 @@
 # Test: scripts/apply-rulesets.sh codifies the pr-quality and code-quality
 # rulesets required by the org github-settings standard.
 #
-# Focus: the pr-quality `pull_request` rule must set
-# dismiss_stale_reviews_on_push = true (compliance check
-# ruleset-drift-pr-quality-dismiss_stale_reviews_on_push).
+# Focus: the pr-quality `pull_request` rule must set the compliance-critical
+# boolean parameters to true — dismiss_stale_reviews_on_push (compliance check
+# ruleset-drift-pr-quality-dismiss_stale_reviews_on_push) and
+# require_code_owner_review (ruleset-drift-pr-quality-require_code_owner_review).
+# These are asserted as strict booleans so a string "true" cannot pass.
 #
 # Runs the script in --dry-run --force mode so no real GitHub API calls are
 # made and the repo-identity safety check is skipped. Asserts the dry-run
@@ -84,6 +86,23 @@ else
   fail=1
 fi
 
+# The compliance-critical parameter for #480: a code owner review must be
+# required. Asserted as a strict boolean within the pr-quality ruleset so a
+# string "true" or the setting appearing in another ruleset cannot pass.
+_code_owner=$(jq -r '
+  .rules[]
+  | select(.type == "pull_request")
+  | (.parameters.require_code_owner_review // false)
+  | (type == "boolean" and . == true)
+' <<< "$_pr_q_json")
+if [[ "$_code_owner" = "true" ]]; then
+  echo "ok - pr-quality pull_request rule sets require_code_owner_review = true"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - pr-quality pull_request rule: require_code_owner_review not true (got: ${_code_owner:-missing})"
+  fail=1
+fi
+
 # Remaining standard pr-quality pull_request parameters — checked within the
 # pr-quality ruleset object so a matching field in any other ruleset cannot
 # produce a false pass.
@@ -104,7 +123,6 @@ _jq_check() {
 }
 
 _jq_check '.required_approving_review_count' '1' 'pr-quality requires 1 approving review'
-_jq_check '.require_code_owner_review' 'true' 'pr-quality requires code owner review'
 _jq_check '.require_last_push_approval' 'true' 'pr-quality requires last push approval'
 _jq_check '.required_review_thread_resolution' 'true' 'pr-quality requires review thread resolution'
 
