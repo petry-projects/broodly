@@ -141,10 +141,8 @@ assert_contains '"name": "code-quality"' "emits code-quality ruleset"
 # Runs the script with a mock gh on PATH; never aborts the harness under set -e.
 # Populates globals: _rs_out (combined output) and _rs_exit (exit code).
 run_script() {
-  set +e
-  _rs_out="$(PATH="${_mock_bin}:${PATH}" GH_TOKEN=dummy-token bash "$SCRIPT" "$@" 2>&1)"
-  _rs_exit=$?
-  set -e
+  _rs_exit=0
+  _rs_out="$(PATH="${_mock_bin}:${PATH}" GH_TOKEN=dummy-token bash "$SCRIPT" "$@" 2>&1)" || _rs_exit=$?
 }
 
 # --repo <owner/repo> (space form) is accepted and still emits the pr-quality ruleset.
@@ -164,13 +162,13 @@ else
   echo "not ok - --repo run missing pr-quality ruleset"
   fail=1
 fi
-_repo_pr_q=$(printf '%s\n' "$_rs_out" | grep -v '^\[' | jq -s 'map(select(.name == "pr-quality")) | first // empty')
-_repo_dismiss=$(printf '%s\n' "$_repo_pr_q" | jq -r '
+_repo_pr_q=$(grep -v '^\[' <<< "$_rs_out" | jq -s 'map(select(.name == "pr-quality")) | first // empty')
+_repo_dismiss=$(jq -r '
   .rules[]
   | select(.type == "pull_request")
   | (.parameters.dismiss_stale_reviews_on_push // false)
   | (type == "boolean" and . == true)
-')
+' <<< "$_repo_pr_q")
 if [[ "$_repo_dismiss" = "true" ]]; then
   echo "ok - --repo run still sets dismiss_stale_reviews_on_push = true"
   pass_count=$((pass_count + 1))
@@ -186,6 +184,16 @@ if [[ "$_rs_exit" -eq 0 ]]; then
   pass_count=$((pass_count + 1))
 else
   echo "not ok - --repo=<owner/repo> should exit 0 (got: ${_rs_exit})"
+  fail=1
+fi
+
+# --repo= (equals form with empty value) is rejected.
+run_script --repo= --dry-run --force
+if [[ "$_rs_exit" -ne 0 ]]; then
+  echo "ok - rejects --repo= (equals form with empty value)"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo= (empty equals form) should exit non-zero"
   fail=1
 fi
 

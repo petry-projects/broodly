@@ -42,7 +42,10 @@ while [[ $# -gt 0 ]]; do
     --repo)
       if [[ $# -lt 2 ]]; then err "--repo requires a value (<owner>/<repo>)"; exit 1; fi
       REPO_ARG="$2"; shift 2 ;;
-    --repo=*)  REPO_ARG="${1#*=}"; shift ;;
+    --repo=*)
+      REPO_ARG="${1#*=}"
+      if [[ -z "$REPO_ARG" ]]; then err "--repo= requires a non-empty value (<owner>/<repo>)"; exit 1; fi
+      shift ;;
     -h|--help)
       echo "Usage: $0 [--repo <owner>/<repo>] [--dry-run] [--force]"
       echo "  --repo   Target repository (default: $ORG/$REPO); must match the checkout unless --force"
@@ -82,7 +85,7 @@ if [[ "$FORCE" = false ]]; then
     err "Run with --force to skip this safety check, or ensure GH_TOKEN has repo read access."
     exit 1
   fi
-  if [[ "$actual_repo" != "$ORG/$REPO" ]]; then
+  if [[ "${actual_repo,,}" != "${ORG,,}/${REPO,,}" ]]; then
     err "Current repo ($actual_repo) does not match target ($ORG/$REPO)."
     err "Run with --force to override this safety check."
     exit 1
