@@ -34,18 +34,36 @@ ok()    { echo "[OK]    $*"; }
 err()   { echo "[ERROR] $*" >&2; }
 skip()  { echo "[SKIP]  $*"; }
 
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run) DRY_RUN=true ;;
-    --force)   FORCE=true ;;
+REPO_ARG=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY_RUN=true; shift ;;
+    --force)   FORCE=true; shift ;;
+    --repo)
+      if [[ $# -lt 2 ]]; then err "--repo requires a value (<owner>/<repo>)"; exit 1; fi
+      REPO_ARG="$2"; shift 2 ;;
+    --repo=*)  REPO_ARG="${1#*=}"; shift ;;
     -h|--help)
-      echo "Usage: $0 [--dry-run] [--force]"
+      echo "Usage: $0 [--repo <owner>/<repo>] [--dry-run] [--force]"
+      echo "  --repo   Target repository (default: $ORG/$REPO); must match the checkout unless --force"
       echo "  --force  Skip repo-identity safety check (use when running from a fork or CI)"
       exit 0
       ;;
-    *) err "Unknown flag: $arg"; exit 1 ;;
+    *) err "Unknown flag: $1"; exit 1 ;;
   esac
 done
+
+# Resolve --repo into ORG/REPO. The value must be a well-formed <owner>/<repo>
+# (exactly one slash, non-empty parts). The repo-identity guard below still
+# validates that the resolved target matches the current checkout unless --force.
+if [[ -n "$REPO_ARG" ]]; then
+  if [[ "$REPO_ARG" != */* || "$REPO_ARG" == */*/* || "${REPO_ARG%%/*}" == "" || "${REPO_ARG##*/}" == "" ]]; then
+    err "Invalid --repo value: '$REPO_ARG' (expected <owner>/<repo>)"
+    exit 1
+  fi
+  ORG="${REPO_ARG%%/*}"
+  REPO="${REPO_ARG##*/}"
+fi
 
 if [[ -z "${GH_TOKEN:-}" ]]; then
   err "GH_TOKEN is required — provide a token with administration:write scope"
