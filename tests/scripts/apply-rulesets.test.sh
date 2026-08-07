@@ -89,12 +89,12 @@ fi
 # The compliance-critical parameter for #480: a code owner review must be
 # required. Asserted as a strict boolean within the pr-quality ruleset so a
 # string "true" or the setting appearing in another ruleset cannot pass.
-_code_owner=$(printf '%s\n' "$_pr_q_json" | jq -r '
+_code_owner=$(jq -r '
   .rules[]
   | select(.type == "pull_request")
   | (.parameters.require_code_owner_review // false)
   | (type == "boolean" and . == true)
-')
+' <<< "$_pr_q_json")
 if [[ "$_code_owner" = "true" ]]; then
   echo "ok - pr-quality pull_request rule sets require_code_owner_review = true"
   pass_count=$((pass_count + 1))
