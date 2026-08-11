@@ -16,3 +16,14 @@ overrides:
   '@tootallnate/once@<3.0.1': '>=3.0.1'
   '@ungap/structured-clone@<1.3.1': '>=1.3.1'
   shell-quote: '>=1.8.5'
+  nanoid: '>=3.3.17 <4'
+
+# image-size <= 2.0.2 has two high-severity DoS advisories (ICNS and JXL/HEIF
+# parsers). The patched version (>= 2.0.3) has not been published to npm yet.
+# Metro (React Native bundler) pins image-size@1.2.1 which falls in the
+# affected range. These are suppressed until image-size 2.0.3+ is available.
+# Re-evaluate when: https://github.com/image-size/image-size/releases shows >= 2.0.3
+audit:
+  ignore:
+    - GHSA-w3rx-r6r6-pgpr
+    - GHSA-5p2g-fcmc-qvqq

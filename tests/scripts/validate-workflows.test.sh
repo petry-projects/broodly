@@ -31,8 +31,9 @@ trap '[[ -d "$_tmp" ]] && rm -rf "$_tmp"' EXIT
 
 # run_validator <dir> -> sets `output` and `rc`
 run_validator() {
+  local dir="$1"
   rc=0
-  output="$(bash "$SCRIPT" "$1" 2>&1)" || rc=$?
+  output="$(bash "$SCRIPT" "$dir" 2>&1)" || rc=$?
 }
 
 assert_rc() {
@@ -163,7 +164,53 @@ YML
 run_validator "$_empty_jobs_dir"
 assert_rc 1 "fails when jobs: block is empty (no job definitions)"
 
-# --- Fixture 8: empty directory (nothing to validate) -------------------------
+# --- Fixture 8: jobs: block containing only indented comments -----------------
+_comment_jobs_dir="${_tmp}/comment-jobs"
+mkdir -p "$_comment_jobs_dir"
+cat > "${_comment_jobs_dir}/comment-only-jobs.yml" << 'YML'
+name: Comment Jobs
+on:
+  push:
+    branches: [main]
+jobs:
+  # This is just a comment, not a job definition
+YML
+run_validator "$_comment_jobs_dir"
+assert_rc 1 "fails when jobs: block contains only comments (no real job definitions)"
+
+# --- Fixture 9: over-indented comment only under jobs: (must fail) ------------
+_deep_comment_jobs_dir="${_tmp}/deep-comment-jobs"
+mkdir -p "$_deep_comment_jobs_dir"
+cat > "${_deep_comment_jobs_dir}/deep-comment-only-jobs.yml" << 'YML'
+name: Deep Comment Jobs
+on:
+  push:
+    branches: [main]
+jobs:
+    # only a comment indented more than two spaces
+YML
+run_validator "$_deep_comment_jobs_dir"
+assert_rc 1 "fails when jobs: block contains only over-indented comments (no real job definitions)"
+
+# --- Fixture 10: column-0 banner comment between jobs: and first job (must pass) ---
+_banner_comment_dir="${_tmp}/banner-comment"
+mkdir -p "$_banner_comment_dir"
+cat > "${_banner_comment_dir}/banner-comment.yml" << 'YML'
+name: Banner Comment
+on:
+  push:
+    branches: [main]
+jobs:
+# ── banner comment at column 0 ──
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
+YML
+run_validator "$_banner_comment_dir"
+assert_rc 0 "passes when a column-0 banner comment appears between jobs: and the first job"
+
+# --- Fixture 11: empty directory (nothing to validate) ------------------------
 _empty_dir="${_tmp}/empty"
 mkdir -p "$_empty_dir"
 run_validator "$_empty_dir"
