@@ -31,8 +31,9 @@ trap '[[ -d "$_tmp" ]] && rm -rf "$_tmp"' EXIT
 
 # run_validator <dir> -> sets `output` and `rc`
 run_validator() {
+  local dir="$1"
   rc=0
-  output="$(bash "$SCRIPT" "$1" 2>&1)" || rc=$?
+  output="$(bash "$SCRIPT" "$dir" 2>&1)" || rc=$?
 }
 
 assert_rc() {
