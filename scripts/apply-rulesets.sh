@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
     --dry-run) DRY_RUN=true; shift ;;
     --force)   FORCE=true; shift ;;
     --repo)
-      if [[ $# -lt 2 ]]; then err "--repo requires a value (<owner>/<repo>)"; exit 1; fi
+      if [[ $# -lt 2 || -z "${2:-}" ]]; then err "--repo requires a value (<owner>/<repo>)"; exit 1; fi
       REPO_ARG="$2"; shift 2 ;;
     --repo=*)
       REPO_ARG="${1#*=}"

@@ -217,6 +217,16 @@ else
   fail=1
 fi
 
+# --repo "" (space form with empty value) is rejected.
+run_script --repo "" --dry-run --force
+if [[ "$_rs_exit" -ne 0 ]]; then
+  echo "ok - rejects --repo \"\" (space form with empty value)"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo \"\" (empty space form) should exit non-zero"
+  fail=1
+fi
+
 echo "---"
 if [[ "$fail" -eq 0 ]]; then
   echo "PASS — ${pass_count} assertion(s) passed"
