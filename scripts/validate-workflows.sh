@@ -52,7 +52,7 @@ for wf in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
   grep -Eq "$TRIGGER_RE" "$wf" || missing+=("on: trigger")
   grep -Eq "$JOBS_RE" "$wf" || missing+=("jobs:")
   # If jobs: exists, verify it contains at least one indented line (job definition).
-  if grep -Eq "$JOBS_RE" "$wf" && ! awk '/^jobs/{found=1; next} found && /^  /{has_jobs=1} found && /^[^ ]/{exit} END{exit !has_jobs}' "$wf"; then
+  if grep -Eq "$JOBS_RE" "$wf" && ! awk '/^jobs/{found=1; next} found && /^  [^#]/{has_jobs=1} found && /^[^ ]/{exit} END{exit !has_jobs}' "$wf"; then
     missing+=("job definitions under jobs:")
   fi
 

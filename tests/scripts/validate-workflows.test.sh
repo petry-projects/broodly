@@ -164,7 +164,21 @@ YML
 run_validator "$_empty_jobs_dir"
 assert_rc 1 "fails when jobs: block is empty (no job definitions)"
 
-# --- Fixture 8: empty directory (nothing to validate) -------------------------
+# --- Fixture 8: jobs: block containing only indented comments -----------------
+_comment_jobs_dir="${_tmp}/comment-jobs"
+mkdir -p "$_comment_jobs_dir"
+cat > "${_comment_jobs_dir}/comment-only-jobs.yml" << 'YML'
+name: Comment Jobs
+on:
+  push:
+    branches: [main]
+jobs:
+  # This is just a comment, not a job definition
+YML
+run_validator "$_comment_jobs_dir"
+assert_rc 1 "fails when jobs: block contains only comments (no real job definitions)"
+
+# --- Fixture 9: empty directory (nothing to validate) -------------------------
 _empty_dir="${_tmp}/empty"
 mkdir -p "$_empty_dir"
 run_validator "$_empty_dir"
