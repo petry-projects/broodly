@@ -3,9 +3,10 @@
 #
 # These tests stub the `gh` CLI so the script can run without network access or
 # real credentials, and assert that the codified pr-quality ruleset payload
-# matches the org standard — in particular require_last_push_approval: true,
-# which the compliance audit
-# (ruleset-drift-pr-quality-require_last_push_approval) checks against live
+# matches the org standard — in particular require_last_push_approval: true and
+# require_code_owner_review: true, which the compliance audit
+# (ruleset-drift-pr-quality-require_last_push_approval and
+# ruleset-drift-pr-quality-require_code_owner_review) checks against live
 # GitHub state. This test locks the repo's codified mirror so it cannot drift.
 
 setup() {
@@ -66,6 +67,18 @@ MOCK
   run bash "$SCRIPT" --dry-run --force
   [ "$status" -eq 0 ]
   ! echo "$output" | grep -qF '"require_last_push_approval": false'
+}
+
+@test "pr-quality ruleset codifies require_code_owner_review: true" {
+  run bash "$SCRIPT" --dry-run --force
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qF '"require_code_owner_review": true'
+}
+
+@test "pr-quality ruleset never codifies require_code_owner_review: false" {
+  run bash "$SCRIPT" --dry-run --force
+  [ "$status" -eq 0 ]
+  ! echo "$output" | grep -qF '"require_code_owner_review": false'
 }
 
 @test "pr-quality ruleset codifies the required review parameters" {
