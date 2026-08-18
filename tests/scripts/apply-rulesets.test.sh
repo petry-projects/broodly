@@ -129,6 +129,104 @@ _jq_check '.required_review_thread_resolution' 'true' 'pr-quality requires revie
 # code-quality ruleset is also codified.
 assert_contains '"name": "code-quality"' "emits code-quality ruleset"
 
+# ---------------------------------------------------------------------------
+# --repo flag support
+#
+# The compliance remediation for this repo documents running:
+#   scripts/apply-rulesets.sh --repo petry-projects/broodly
+# so the script must accept a --repo <owner/repo> argument (and --repo=<owner/repo>)
+# without breaking, still codifying the pr-quality ruleset. Malformed or missing
+# values must be rejected.
+# ---------------------------------------------------------------------------
+# Runs the script with a mock gh on PATH; never aborts the harness under set -e.
+# Populates globals: _rs_out (combined output) and _rs_exit (exit code).
+run_script() {
+  _rs_exit=0
+  _rs_out="$(PATH="${_mock_bin}:${PATH}" GH_TOKEN=dummy-token bash "$SCRIPT" "$@" 2>&1)" || _rs_exit=$?
+}
+
+# --repo <owner/repo> (space form) is accepted and still emits the pr-quality ruleset.
+run_script --repo petry-projects/broodly --dry-run --force
+if [[ "$_rs_exit" -eq 0 ]]; then
+  echo "ok - accepts --repo <owner/repo> (space form)"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo <owner/repo> should exit 0 (got: ${_rs_exit})"
+  printf '%s\n' "$_rs_out"
+  fail=1
+fi
+if grep -qF -- '"name": "pr-quality"' <<< "$_rs_out"; then
+  echo "ok - --repo run still emits pr-quality ruleset"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo run missing pr-quality ruleset"
+  fail=1
+fi
+_repo_pr_q=$(grep -v '^\[' <<< "$_rs_out" | jq -s 'map(select(.name == "pr-quality")) | first // empty')
+_repo_dismiss=$(jq -r '
+  .rules[]
+  | select(.type == "pull_request")
+  | (.parameters.dismiss_stale_reviews_on_push // false)
+  | (type == "boolean" and . == true)
+' <<< "$_repo_pr_q")
+if [[ "$_repo_dismiss" = "true" ]]; then
+  echo "ok - --repo run still sets dismiss_stale_reviews_on_push = true"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo run: dismiss_stale_reviews_on_push not true (got: ${_repo_dismiss:-missing})"
+  fail=1
+fi
+
+# --repo=<owner/repo> (equals form) is accepted.
+run_script --repo=petry-projects/broodly --dry-run --force
+if [[ "$_rs_exit" -eq 0 ]]; then
+  echo "ok - accepts --repo=<owner/repo> (equals form)"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo=<owner/repo> should exit 0 (got: ${_rs_exit})"
+  fail=1
+fi
+
+# --repo= (equals form with empty value) is rejected.
+run_script --repo= --dry-run --force
+if [[ "$_rs_exit" -ne 0 ]]; then
+  echo "ok - rejects --repo= (equals form with empty value)"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo= (empty equals form) should exit non-zero"
+  fail=1
+fi
+
+# Malformed --repo value (no slash) is rejected.
+run_script --repo bogus --dry-run --force
+if [[ "$_rs_exit" -ne 0 ]]; then
+  echo "ok - rejects malformed --repo value (no slash)"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - malformed --repo value should exit non-zero"
+  fail=1
+fi
+
+# --repo with no value is rejected.
+run_script --repo
+if [[ "$_rs_exit" -ne 0 ]]; then
+  echo "ok - rejects --repo with no value"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo with no value should exit non-zero"
+  fail=1
+fi
+
+# --repo "" (space form with empty value) is rejected.
+run_script --repo "" --dry-run --force
+if [[ "$_rs_exit" -ne 0 ]]; then
+  echo "ok - rejects --repo \"\" (space form with empty value)"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - --repo \"\" (empty space form) should exit non-zero"
+  fail=1
+fi
+
 echo "---"
 if [[ "$fail" -eq 0 ]]; then
   echo "PASS — ${pass_count} assertion(s) passed"
