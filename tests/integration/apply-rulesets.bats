@@ -43,9 +43,9 @@ MOCK
   cat > "$BIN_DIR/jq" <<'MOCK'
 #!/usr/bin/env bash
 args_str="$*"
-if printf '%s' "$args_str" | grep -qF 'length'; then
+if grep -qF 'length' <<< "$args_str"; then
   echo "0"
-elif printf '%s' "$args_str" | grep -qF '// empty'; then
+elif grep -qF '// empty' <<< "$args_str"; then
   : # output nothing — signals no existing ruleset id found
 else
   cat
@@ -60,34 +60,34 @@ MOCK
 @test "pr-quality ruleset codifies require_last_push_approval: true" {
   run bash "$SCRIPT" --dry-run --force
   [ "$status" -eq 0 ]
-  echo "$output" | grep -qF '"require_last_push_approval": true'
+  grep -qF '"require_last_push_approval": true' <<< "$output"
 }
 
 @test "pr-quality ruleset never codifies require_last_push_approval: false" {
   run bash "$SCRIPT" --dry-run --force
   [ "$status" -eq 0 ]
-  ! echo "$output" | grep -qF '"require_last_push_approval": false'
+  ! grep -qF '"require_last_push_approval": false' <<< "$output"
 }
 
 @test "pr-quality ruleset codifies require_code_owner_review: true" {
   run bash "$SCRIPT" --dry-run --force
   [ "$status" -eq 0 ]
-  echo "$output" | grep -qF '"require_code_owner_review": true'
+  grep -qF '"require_code_owner_review": true' <<< "$output"
 }
 
 @test "pr-quality ruleset never codifies require_code_owner_review: false" {
   run bash "$SCRIPT" --dry-run --force
   [ "$status" -eq 0 ]
-  ! echo "$output" | grep -qF '"require_code_owner_review": false'
+  ! grep -qF '"require_code_owner_review": false' <<< "$output"
 }
 
 @test "pr-quality ruleset codifies the required review parameters" {
   run bash "$SCRIPT" --dry-run --force
   [ "$status" -eq 0 ]
-  echo "$output" | grep -qF '"required_approving_review_count": 1'
-  echo "$output" | grep -qF '"dismiss_stale_reviews_on_push": true'
-  echo "$output" | grep -qF '"require_code_owner_review": true'
-  echo "$output" | grep -qF '"required_review_thread_resolution": true'
+  grep -qF '"required_approving_review_count": 1' <<< "$output"
+  grep -qF '"dismiss_stale_reviews_on_push": true' <<< "$output"
+  grep -qF '"require_code_owner_review": true' <<< "$output"
+  grep -qF '"required_review_thread_resolution": true' <<< "$output"
 }
 
 @test "dry-run makes no mutating (POST/PUT) API call" {
