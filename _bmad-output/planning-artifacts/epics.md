@@ -567,61 +567,6 @@
 - [ ] Add hive FAB or button
 **Tech Notes:** Breadcrumb: use `<Text size="sm">` with chevron separators. Apiary > Hive navigation per CLAUDE.md.
 **Note (FR31a):** The hive detail screen (navigated to from this hive list) shall include an 'Activity Log' view showing a reverse chronological list of all actions logged for the hive, including inspections, treatments, observations, and system events. Each entry shows date, action type, summary, and any associated media. This may be implemented as a sub-story or tab within the hive detail view.
-
-### Story 7.3: Create and Edit Apiary with Microclimate Adjustments
-
-**As a** user, **I want** to create and edit apiaries including microclimate adjustments, **so that** seasonal guidance is tuned to my specific location.
-**FRs:** FR3, FR11a, FR8a, FR8b
-**TDD Requirements:**
-- Test: Create apiary mutation succeeds with name and region.
-- Test: Edit apiary updates name, location, and microclimate offsets.
-- Test: Microclimate elevation offset adjusts seasonal context.
-- Test: Creating apiary in new region triggers regional baseline reset message (FR8b).
-- Test: 5-apiary limit enforced with user-friendly error.
-**Acceptance Criteria:**
-- [ ] Form: name, location (map pin or address), notes
-- [ ] Microclimate adjustments: elevation offset, bloom timing offset (FR11a)
-- [ ] Region change detection with informational message (FR8b)
-- [ ] Device location divergence prompt (FR8a)
-- [ ] Validation and error states
-**Tech Notes:** Microclimate offsets stored on apiary record. Used by recommendation engine to adjust seasonal timing.
-
-### Story 7.4: Create and Edit Hive
-
-**As a** user, **I want** to create and edit hives within an apiary, **so that** I can track each colony individually.
-**FRs:** FR4
-**TDD Requirements:**
-- Test: Create hive mutation succeeds with name, type, and apiary ID.
-- Test: Edit hive updates name, type, status, and notes.
-- Test: 100-hive-per-account limit enforced.
-- Test: Hive name uniqueness within apiary enforced.
-**Acceptance Criteria:**
-- [ ] Form: name, type (Langstroth, Top Bar, Warre, Other), status, notes
-- [ ] Type selector with icons/descriptions
-- [ ] Linked to parent apiary
-- [ ] Validation errors for duplicate names, limit exceeded
-**Tech Notes:** Hive types from domain research. Status field for manual health override.
-
-### Story 7.5: Delete Apiary/Hive with Confirmation
-
-**As a** user, **I want** to delete an apiary or hive with a confirmation step, **so that** I do not accidentally lose data.
-**FRs:** FR3, FR4
-**TDD Requirements:**
-- Test: Delete apiary shows confirmation modal (irreversible warning).
-- Test: Confirming delete soft-deletes apiary and all child hives.
-- Test: Delete hive shows confirmation and soft-deletes.
-- Test: Cancelled delete does not modify data.
-**Acceptance Criteria:**
-- [ ] Confirmation dialog using `<AlertDialog>` for irreversible delete
-- [ ] Soft-delete preserves data for recovery period
-- [ ] Cascade: apiary delete soft-deletes all hives
-- [ ] Success toast after deletion
-**Tech Notes:** Use `<Button action="negative">` for delete trigger. Full modal per CLAUDE.md (irreversible operations only).
-
-### Story 7.6: Collaborator Management — Grant and Revoke Access
-
-**As an** account owner, **I want** to invite collaborators with read-only access, revoke their access, and view a history of all permission changes, **so that** I can share visibility without giving edit control and maintain governance.
-**FRs:** FR5, FR5a, FR6, FR7
 **TDD Requirements:**
 - Test: Invite collaborator by email creates pending invitation.
 - Test: Accepting invitation grants read-only access to all apiaries.
@@ -629,13 +574,6 @@
 - Test: Access change creates audit event (FR7).
 - Test: Collaborator cannot mutate data (integration test).
 - Test: Access history log displays all permission changes with timestamps (FR5a).
-**Acceptance Criteria:**
-- [ ] Collaborator management screen in settings
-- [ ] Invite by email with pending/accepted status
-- [ ] Revoke access button with confirmation
-- [ ] Auditable access history log showing all collaborator permission changes with timestamps (FR5a)
-- [ ] Collaborator sees read-only view of shared apiaries
-**Tech Notes:** Collaborator role set as Firebase custom claim. Audit events written to audit_events table. Access history log reads from audit_events filtered by collaborator permission change events.
 
 ---
 
@@ -838,117 +776,6 @@
 - [ ] Low-confidence transcriptions flagged for attention
 - [ ] Review can be completed across multiple sittings (state persisted)
 
----
-
-## Epic 9: Recommendation Engine
-
-**Goal:** The backend recommendation service generates context-aware, explainable next-best-action recommendations using history, seasonal context, telemetry, and AI inference.
-**FRs:** FR12, FR14, FR18, FR20, FR21, FR22, FR23, FR24, FR35, FR38, FR47, FR48, FR48b, FR52, FR54, FR54a, FR54b, FR54c
-
-### Story 9.1: Recommendation Service — Core Context Assembly
-
-**As a** system, **I want** to assemble the full context for recommendation generation (user history, seasonal phase, regional baselines, hive state, telemetry), **so that** recommendations are grounded in all available evidence.
-**FRs:** FR12, FR35
-**TDD Requirements:**
-- Test: Context assembly includes user's last 3 inspections for the hive.
-- Test: Context assembly includes regional seasonal phase for user's location.
-- Test: Context assembly includes active telemetry readings if available.
-- Test: Missing context sources are flagged with reason in assembly output.
-- Test: Skill level included in context for guidance depth adaptation.
-**Acceptance Criteria:**
-- [ ] Go service function: `AssembleRecommendationContext(hiveID, userID) -> RecommendationContext`
-- [ ] Sources assembled: inspection history, hive state, seasonal phase, weather, flora, telemetry, skill level
-- [ ] Each source tagged with freshness timestamp
-- [ ] Missing/stale sources flagged per FR48b thresholds
-- [ ] Context cached in Redis for repeated access during session
-**Tech Notes:** Redis pre-computation per architecture doc. Rolling window: current season + prior season for history.
-
-### Story 9.2: Recommendation Scoring via Gemini
-
-**As a** system, **I want** to score and rank recommended actions using Gemini AI with the assembled context, **so that** users get the most impactful next action.
-**FRs:** FR14, FR21, FR22, FR23, FR24
-**TDD Requirements:**
-- Test: Scoring returns action, rationale, confidence, and fallback for every recommendation.
-- Test: Confidence is downgraded when contributing context sources are stale (FR48b).
-- Test: High-priority actions (pest treatment, starvation risk) rank above routine maintenance.
-- Test: Fallback action differs from primary action and is safe/conservative.
-- Test: Scoring respects treatment legality for user's jurisdiction (FR12a, FR12b).
-- Test: Limited regional baseline coverage returns `LIMITED_EXPERIENCE` confidence type (FR54c).
-**Acceptance Criteria:**
-- [ ] Gemini API call with structured prompt including full context
-- [ ] Response parsed into Recommendation type: action, rationale, confidence, confidenceType, fallback
-- [ ] Confidence penalties applied for stale sources
-- [ ] Treatment legality checked against jurisdiction registry
-- [ ] `LIMITED_EXPERIENCE` confidence when regional data is sparse
-**Tech Notes:** Vertex AI Gemini. Structured prompt template in Go. Rate limit Gemini calls. Cache recommendations with TTL.
-
-### Story 9.3: Confidence Calibration and Evidence Tracing
-
-**As a** system, **I want** every recommendation to include traceable evidence context, **so that** support can replay decisions and users understand the basis.
-**FRs:** FR50, FR51, FR53, FR54a, FR54b
-**TDD Requirements:**
-- Test: Recommendation record includes evidence_context JSONB with all source references.
-- Test: Confidence type correctly distinguishes insufficient data from conflicting evidence (FR54a).
-- Test: User negative outcome feedback links to recommendation record (FR54b).
-- Test: Audit event created for every recommendation generation.
-- Test: Support query can retrieve full recommendation + evidence + user actions chain.
-**Acceptance Criteria:**
-- [ ] Evidence context stored: source IDs, freshness, contribution weight
-- [ ] Two distinct low-confidence paths: "Not enough information" vs "Mixed signals"
-- [ ] User feedback mutation: report negative outcome linked to recommendation
-- [ ] Audit event: recommendation_generated with full payload
-- [ ] Support query: recommendation history with evidence and user actions
-**Tech Notes:** Audit events are append-only. Evidence context is the foundation for trust recovery (edge case in PRD).
-
-### Story 9.4: Degraded Mode and Conservative Defaults
-
-**As a** system, **I want** to provide safe recommendations when integrations are unavailable or data is stale, **so that** users always get actionable guidance even in degraded conditions.
-**FRs:** FR9, FR48, FR48b, FR48c, FR52
-**TDD Requirements:**
-- Test: Missing weather data triggers conservative seasonal defaults.
-- Test: Missing telemetry uses history-only recommendations with confidence downgrade.
-- Test: Completely missing localization blocks recommendations with clear message (FR9).
-- Test: Recovery guidance generated after missed/delayed actions (FR52).
-- Test: Staleness thresholds configurable per data category.
-**Acceptance Criteria:**
-- [ ] Graceful degradation: always return a recommendation, even if conservative
-- [ ] Confidence explicitly downgraded with degraded source identified
-- [ ] No recommendations when region/season context unavailable (FR9) — show "Complete profile" CTA
-- [ ] Recovery guidance for overdue tasks
-- [ ] Staleness thresholds: weather 24h, flora 7d, telemetry configurable
-**Tech Notes:** Conservative defaults from regional baselines. Recovery guidance is a special recommendation type.
-
-### Story 9.5: Skill-Level Mismatch Detection
-
-**As a** system, **I want** to detect when a user's behavior suggests their skill level is misconfigured, **so that** I can suggest a profile adjustment.
-**FRs:** FR2d
-**TDD Requirements:**
-- Test: "Experienced" user frequently viewing educational explanations triggers mismatch signal.
-- Test: "Newbie" user consistently dismissing guided steps triggers mismatch signal.
-- Test: Mismatch detection suggests profile adjustment, does not auto-change.
-- Test: Detection requires sustained pattern (not single instance).
-**Acceptance Criteria:**
-- [ ] Behavioral signal tracking: education view rate, guided step dismissal rate
-- [ ] Mismatch threshold: 5+ signals in 2-week window
-- [ ] Gentle suggestion: "Your experience setting might need updating" card
-- [ ] One-tap adjustment from suggestion card
-**Tech Notes:** Signals tracked as lightweight counters in user profile. Evaluated weekly or on inspection completion.
-
----
-
-## Epic 10: Planning & Weekly Queue
-
-**Goal:** Users see a prioritized weekly action queue and seasonal planning calendar. Actions can be completed, deferred, or dismissed with priority rebalancing.
-**FRs:** FR13, FR14, FR15, FR16, FR16b, FR17, FR18
-
-### Story 10.1: Happy Context Homepage
-
-**As a** user, **I want** a home screen that shows my current context (weather, bloom, seasonal phase, regional scale data) and clear CTAs, **so that** I know what matters today without digging.
-**FRs:** FR10, FR10a, FR11, FR11c, FR13, FR17
-**TDD Requirements:**
-- Test: Homepage renders HomepageContextCards for weather, bloom, and seasonal signals.
-- Test: Homepage renders regional hive scale weight average card with daily weight change and freshness timestamp (FR10a).
-- Test: Regional nectar flow indicator displays alongside weather and bloom data (FR11c).
 - Test: Two primary CTAs render: "View My Apiaries" and "Start Today's Plan".
 - Test: Risk-themed seasonal signals (swarm, starvation, pest, queen) display when relevant (FR17).
 - Test: Homepage loads within 2 seconds (NFR1 — performance test).
@@ -956,37 +783,6 @@
 - [ ] HomepageContextCards: weather, bloom status, seasonal phase
 - [ ] Regional scale weight card: average daily weight change for user's area with freshness timestamp (FR10a)
 - [ ] Regional nectar flow indicator sourced from beecounted.org or equivalent (FR11c)
-- [ ] Primary CTAs: "View My Apiaries" (outline), "Start Today's Plan" (solid primary)
-- [ ] Seasonal risk signals with appropriate status badges
-- [ ] Skill-adaptive greeting and tone
-- [ ] Cache-first loading for instant display
-**Tech Notes:** Context cards use `<Card variant="filled">` with semantic backgrounds. CTAs per button hierarchy in CLAUDE.md. Regional scale data sourced from beecounted.org API with graceful degradation if unavailable.
-**Note (FR12b2):** The homepage shall include a 'Live Mode Briefing' option that verbally summarizes all current context via TTS (weather, bloom, scale weight trends, pending actions, alerts) for a hands-free morning briefing. This is a voice-driven entry point, not a card — consider a "Brief me" button or voice command.
-**Note (FR46a):** When the user has configured weight telemetry access, the homepage shall display a 'Your Hives' scale weight card showing per-hive weight trends from the user's own connected sensors, in addition to the regional average card.
-
-### Story 10.2: Weekly Action Queue by Apiary
-
-**As a** user, **I want** a prioritized weekly action queue grouped by apiary with a materials checklist, **so that** I can plan my week efficiently and ensure I have everything I need.
-**FRs:** FR13, FR13a, FR14, FR16
-**TDD Requirements:**
-- Test: Queue renders tasks grouped by apiary using ApiaryAccordionQueue.
-- Test: Tasks ordered by priority (urgency x impact) within each apiary.
-- Test: Overdue tasks highlighted inline within their apiary/hive context with URGENT badge and warning styling, not as a separate card (FR16).
-- Test: Required Materials checklist renders before the action queue when materials are needed (FR13a).
-- Test: Required Materials section is hidden when no materials are needed (FR13a).
-- Test: Each material item links to the specific hive/action requiring it (FR13a).
-- Test: Queue exceeding 20 items per apiary uses pagination (NFR17b).
-- Test: Progressive loading: first apiary in <2s, rest loaded in background (NFR17c).
-**Acceptance Criteria:**
-- [ ] Required Materials checklist displayed before action queue when applicable (FR13a)
-- [ ] Materials linked to specific hive/action (e.g., "Apivar strips — Hive 3 mite treatment")
-- [ ] Materials section hidden when no materials needed
-- [ ] ApiaryAccordionQueue component with expandable apiary sections
-- [ ] Tasks show: title, hive, priority badge, due date, recommended action
-- [ ] Overdue tasks highlighted inline within their apiary/hive context with URGENT badge and warning styling (not as a separate negative card at the top). Catch-up guidance shown inline with the overdue item. Weekly plan maintains a constructive tone (FR16).
-- [ ] Pagination/grouping for large queues
-- [ ] Pull-to-refresh to recalculate priorities
-**Tech Notes:** Accordion per CLAUDE.md. Priority computation from recommendation engine. Background loading for large accounts. Materials derived from planned actions — each action type maps to a known set of required materials/equipment.
 
 ### Story 10.3: Task Actions — Complete, Defer, Dismiss
 
@@ -1285,14 +1081,6 @@
 | FR25 | 8.1 |
 | FR25b | 4.3, 8.6 |
 | FR25c | 8.2 |
-| FR26 | 8.2 |
-| FR27 | 3.2, 4.3, 8.3, 11.1 |
-| FR28 | 3.2, 4.3, 8.4, 11.1 |
-| FR29 | 3.2, 8.3, 11.2 |
-| FR30 | 3.2, 8.6 |
-| FR30a | 8.3, 11.2 |
-| FR30b | 8.3, 11.2 |
-| FR30c | 8.9 |
 | FR31 | 3.1, 3.2 |
 | FR32 | 4.5 |
 | FR33 | 4.5 |
@@ -1305,11 +1093,6 @@
 | FR40 | 3.5, 12.3 |
 | FR40a | 12.3 |
 | FR40b | 12.3 |
-| FR41 | 12.4 |
-| FR42 | 3.5, 12.3 |
-| FR43 | 12.1, 12.2 |
-| FR44 | 3.4 |
-| FR44a | 3.4 |
 | FR45 | 3.4 |
 | FR46 | 3.4 |
 | FR47 | 9.2 |

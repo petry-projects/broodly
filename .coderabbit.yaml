@@ -11,12 +11,6 @@ reviews:
     - "!_bmad/**"
     - "!_bmad-output/**"
     - "!.claude/**"
-  path_instructions:
-    - path: "**/*.md"
-      instructions: >
-        Focus on documentation quality: clear structure, correct Markdown
-        syntax, consistent formatting, accurate cross-references, and
-        proper heading hierarchy. Flag broken links or ambiguous instructions.
     - path: "**/*.yml"
       instructions: >
         Focus on YAML best practices: correct indentation, valid syntax,
