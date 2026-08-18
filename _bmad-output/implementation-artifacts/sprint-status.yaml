@@ -5,14 +5,6 @@
 # tracking_system: file-system
 # story_location: {project-root}/_bmad-output/implementation-artifacts
 # sprint: 1 — Epic 1: Project Scaffolding & Monorepo Setup
-
-# STATUS DEFINITIONS:
-# Epic: backlog → in-progress → done
-# Story: backlog → ready-for-dev → in-progress → review → done
-# Retrospective: optional ↔ done
-
-generated: 2026-03-21
-last_updated: 2026-03-28
 project: bmad-method
 project_key: NOKEY
 tracking_system: file-system
