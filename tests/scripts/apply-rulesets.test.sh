@@ -4,8 +4,9 @@
 #
 # Focus: the pr-quality `pull_request` rule must set the compliance-critical
 # boolean parameters to true — dismiss_stale_reviews_on_push (compliance check
-# ruleset-drift-pr-quality-dismiss_stale_reviews_on_push) and
-# require_code_owner_review (ruleset-drift-pr-quality-require_code_owner_review).
+# ruleset-drift-pr-quality-dismiss_stale_reviews_on_push),
+# require_code_owner_review (ruleset-drift-pr-quality-require_code_owner_review)
+# and require_last_push_approval (ruleset-drift-pr-quality-require_last_push_approval).
 # These are asserted as strict booleans so a string "true" cannot pass.
 #
 # Runs the script in --dry-run --force mode so no real GitHub API calls are
@@ -103,6 +104,24 @@ else
   fail=1
 fi
 
+# The compliance-critical parameter for #512: approval must be re-requested
+# after the most recent push (require_last_push_approval). Asserted as a strict
+# boolean within the pr-quality ruleset so a string "true" or the setting
+# appearing in another ruleset cannot pass.
+_last_push=$(jq -r '
+  .rules[]
+  | select(.type == "pull_request")
+  | (.parameters.require_last_push_approval // false)
+  | (type == "boolean" and . == true)
+' <<< "$_pr_q_json")
+if [[ "$_last_push" = "true" ]]; then
+  echo "ok - pr-quality pull_request rule sets require_last_push_approval = true"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - pr-quality pull_request rule: require_last_push_approval not true (got: ${_last_push:-missing})"
+  fail=1
+fi
+
 # Remaining standard pr-quality pull_request parameters — checked within the
 # pr-quality ruleset object so a matching field in any other ruleset cannot
 # produce a false pass.
@@ -123,7 +142,6 @@ _jq_check() {
 }
 
 _jq_check '.required_approving_review_count' '1' 'pr-quality requires 1 approving review'
-_jq_check '.require_last_push_approval' 'true' 'pr-quality requires last push approval'
 _jq_check '.required_review_thread_resolution' 'true' 'pr-quality requires review thread resolution'
 
 # code-quality ruleset is also codified.
