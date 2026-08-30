@@ -1,6 +1,5 @@
+module broodly
+
 go 1.24
 
 toolchain go1.26.2
-
-use .
-use ./apps/api
