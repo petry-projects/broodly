@@ -1,6 +1,6 @@
 module github.com/broodly/api
 
-go 1.24
+go 1.26
 
 // Force toolchain to a Go version that includes the fixes for
 // GO-2026-4866, GO-2026-4870, GO-2026-4946, GO-2026-4947, GO-2026-4971,
