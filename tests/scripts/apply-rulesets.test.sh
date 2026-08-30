@@ -4,8 +4,9 @@
 #
 # Focus: the pr-quality `pull_request` rule must set the compliance-critical
 # boolean parameters to true — dismiss_stale_reviews_on_push (compliance check
-# ruleset-drift-pr-quality-dismiss_stale_reviews_on_push) and
-# require_code_owner_review (ruleset-drift-pr-quality-require_code_owner_review).
+# ruleset-drift-pr-quality-dismiss_stale_reviews_on_push),
+# require_code_owner_review (ruleset-drift-pr-quality-require_code_owner_review)
+# and require_last_push_approval (ruleset-drift-pr-quality-require_last_push_approval).
 # These are asserted as strict booleans so a string "true" cannot pass.
 #
 # Runs the script in --dry-run --force mode so no real GitHub API calls are
@@ -72,12 +73,17 @@ assert_contains '"name": "pr-quality"' "emits pr-quality ruleset"
 # Assert specifically within the pr-quality ruleset's pull_request rule so the
 # check cannot be satisfied by the setting appearing in the wrong ruleset.
 _pr_q_json=$(printf '%s\n' "$output" | grep -v '^\[' | jq -s 'map(select(.name == "pr-quality")) | first // empty')
-_dismiss=$(printf '%s\n' "$_pr_q_json" | jq -r '
-  .rules[]
+# Default to an object with an empty rules array so the boolean asserts below
+# feed jq valid JSON and fall through to their descriptive `not ok` branch
+# instead of aborting under `set -e` when the pr-quality ruleset is absent.
+[[ -n "$_pr_q_json" ]] || _pr_q_json='{"rules":[]}'
+_dismiss_ec=0
+_dismiss=$(jq -r '
+  .rules?[]?
   | select(.type == "pull_request")
   | (.parameters.dismiss_stale_reviews_on_push // false)
   | (type == "boolean" and . == true)
-')
+' <<< "$_pr_q_json") || _dismiss_ec=$?
 if [[ "$_dismiss" = "true" ]]; then
   echo "ok - pr-quality pull_request rule sets dismiss_stale_reviews_on_push = true"
   pass_count=$((pass_count + 1))
@@ -89,17 +95,37 @@ fi
 # The compliance-critical parameter for #480: a code owner review must be
 # required. Asserted as a strict boolean within the pr-quality ruleset so a
 # string "true" or the setting appearing in another ruleset cannot pass.
+_code_owner_ec=0
 _code_owner=$(jq -r '
-  .rules[]
+  .rules?[]?
   | select(.type == "pull_request")
   | (.parameters.require_code_owner_review // false)
   | (type == "boolean" and . == true)
-' <<< "$_pr_q_json")
+' <<< "$_pr_q_json") || _code_owner_ec=$?
 if [[ "$_code_owner" = "true" ]]; then
   echo "ok - pr-quality pull_request rule sets require_code_owner_review = true"
   pass_count=$((pass_count + 1))
 else
   echo "not ok - pr-quality pull_request rule: require_code_owner_review not true (got: ${_code_owner:-missing})"
+  fail=1
+fi
+
+# The compliance-critical parameter for #512: approval must be re-requested
+# after the most recent push (require_last_push_approval). Asserted as a strict
+# boolean within the pr-quality ruleset so a string "true" or the setting
+# appearing in another ruleset cannot pass.
+_last_push_ec=0
+_last_push=$(jq -r '
+  .rules?[]?
+  | select(.type == "pull_request")
+  | (.parameters.require_last_push_approval // false)
+  | (type == "boolean" and . == true)
+' <<< "$_pr_q_json") || _last_push_ec=$?
+if [[ "$_last_push" = "true" ]]; then
+  echo "ok - pr-quality pull_request rule sets require_last_push_approval = true"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - pr-quality pull_request rule: require_last_push_approval not true (got: ${_last_push:-missing})"
   fail=1
 fi
 
@@ -123,7 +149,6 @@ _jq_check() {
 }
 
 _jq_check '.required_approving_review_count' '1' 'pr-quality requires 1 approving review'
-_jq_check '.require_last_push_approval' 'true' 'pr-quality requires last push approval'
 _jq_check '.required_review_thread_resolution' 'true' 'pr-quality requires review thread resolution'
 
 # code-quality ruleset is also codified.
@@ -163,8 +188,9 @@ else
   fail=1
 fi
 _repo_pr_q=$(grep -v '^\[' <<< "$_rs_out" | jq -s 'map(select(.name == "pr-quality")) | first // empty')
+[[ -n "$_repo_pr_q" ]] || _repo_pr_q='{"rules":[]}'
 _repo_dismiss=$(jq -r '
-  .rules[]
+  .rules?[]?
   | select(.type == "pull_request")
   | (.parameters.dismiss_stale_reviews_on_push // false)
   | (type == "boolean" and . == true)
