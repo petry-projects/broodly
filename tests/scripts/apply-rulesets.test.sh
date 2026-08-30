@@ -73,10 +73,10 @@ assert_contains '"name": "pr-quality"' "emits pr-quality ruleset"
 # Assert specifically within the pr-quality ruleset's pull_request rule so the
 # check cannot be satisfied by the setting appearing in the wrong ruleset.
 _pr_q_json=$(printf '%s\n' "$output" | grep -v '^\[' | jq -s 'map(select(.name == "pr-quality")) | first // empty')
-# Default to an empty object so the boolean asserts below feed jq valid JSON and
-# fall through to their descriptive `not ok` branch instead of aborting under
-# `set -e` when the pr-quality ruleset is absent (empty `_pr_q_json`).
-[[ -n "$_pr_q_json" ]] || _pr_q_json='{}'
+# Default to an object with an empty rules array so the boolean asserts below
+# feed jq valid JSON and fall through to their descriptive `not ok` branch
+# instead of aborting under `set -e` when the pr-quality ruleset is absent.
+[[ -n "$_pr_q_json" ]] || _pr_q_json='{"rules":[]}'
 _dismiss_ec=0
 _dismiss=$(jq -r '
   .rules?[]?
@@ -188,8 +188,9 @@ else
   fail=1
 fi
 _repo_pr_q=$(grep -v '^\[' <<< "$_rs_out" | jq -s 'map(select(.name == "pr-quality")) | first // empty')
+[[ -n "$_repo_pr_q" ]] || _repo_pr_q='{"rules":[]}'
 _repo_dismiss=$(jq -r '
-  .rules[]
+  .rules?[]?
   | select(.type == "pull_request")
   | (.parameters.dismiss_stale_reviews_on_push // false)
   | (type == "boolean" and . == true)
