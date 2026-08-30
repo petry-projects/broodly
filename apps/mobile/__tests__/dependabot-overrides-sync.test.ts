@@ -85,8 +85,13 @@ function parseIgnoredPackages(): Set<string> {
 }
 
 describe('Dependabot ignore list stays in sync with pnpm overrides', () => {
-  const overridePackages = parseOverridePackages();
-  const ignoredPackages = parseIgnoredPackages();
+  let overridePackages: Set<string>;
+  let ignoredPackages: Set<string>;
+
+  beforeAll(() => {
+    overridePackages = parseOverridePackages();
+    ignoredPackages = parseIgnoredPackages();
+  });
 
   it('parses a non-empty override set', () => {
     expect(overridePackages.size).toBeGreaterThan(0);
