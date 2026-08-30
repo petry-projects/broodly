@@ -6,7 +6,8 @@
 # https://github.com/petry-projects/.github/blob/main/standards/github-settings.md
 #
 # Rulesets (managed via GitHub API, not probot/settings):
-#   - pr-quality      (id: 14592511) — squash-only, 1 required review, thread resolution
+#   - pr-quality      (id: 14592511) — squash-only, 1 required review, code-owner
+#                                       review, last-push approval, thread resolution
 #   - code-quality    (id: 15055268) — required checks: SonarCloud, CodeQL,
 #                                       claude-code / claude, TypeScript, Go
 
