@@ -171,6 +171,13 @@ jobs:
           persist-credentials: false
       - name: Ruleset compliance test
         run: bash tests/scripts/apply-rulesets.test.sh
+      - name: Install bats
+        run: sudo apt-get update && sudo apt-get install -y bats
+      - name: Ruleset codified-mirror integration tests (bats)
+        # Enforces the codified pr-quality ruleset lock — including
+        # require_code_owner_review: true (ruleset-drift-pr-quality-require_code_owner_review)
+        # — so the mirror in scripts/apply-rulesets.sh cannot silently drift.
+        run: bats tests/integration/
       - name: Install PyYAML for workflow integrity test
         run: python3 -m pip install --disable-pip-version-check --no-cache-dir 'PyYAML==6.0.2'
       - name: Workflow integrity test
