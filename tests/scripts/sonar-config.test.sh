@@ -24,6 +24,59 @@ PROPERTIES_FILE="${REPO_ROOT}/sonar-project.properties"
 fail=0
 pass_count=0
 
+# _sonar_property_value <path> <key>
+# Extracts the logical value for <key> from a java.util.Properties file exactly
+# as SonarScanner's parser would. Honors all java.util.Properties forms: '=',
+# ':' and whitespace key/value separators, '#'/'!' comment lines, and backslash
+# line-continuations (a physical line ending in an odd number of backslashes is
+# joined with the next, whose leading whitespace is discarded). Last assignment
+# wins. Prints the raw value ('' if the key is absent). Parsing the logical
+# property first is what stops a wildcard hidden in a colon/whitespace/continued
+# form from bypassing the guard.
+_sonar_property_value() {
+  local path="$1" key="$2"
+  awk -v target="$key" '
+    function trailing_bs(s,   i, c) {
+      c = 0; i = length(s)
+      while (i >= 1 && substr(s, i, 1) == "\\") { c++; i-- }
+      return c
+    }
+    function is_ws(ch) { return (ch == " " || ch == "\t" || ch == "\f") }
+    function process(line,   i, ch, k, v, n) {
+      sub(/^[ \t\f]+/, "", line)
+      if (line == "" || substr(line, 1, 1) == "#" || substr(line, 1, 1) == "!") return
+      n = length(line); i = 1; k = ""
+      while (i <= n) {
+        ch = substr(line, i, 1)
+        if (ch == "\\") { k = k substr(line, i + 1, 1); i += 2; continue }
+        if (ch == "=" || ch == ":" || is_ws(ch)) break
+        k = k ch; i++
+      }
+      while (i <= n && is_ws(substr(line, i, 1))) i++
+      if (i <= n && (substr(line, i, 1) == "=" || substr(line, i, 1) == ":")) {
+        i++
+        while (i <= n && is_ws(substr(line, i, 1))) i++
+      }
+      v = substr(line, i)
+      if (k == target) value = v
+    }
+    BEGIN { buf = ""; cont = 0; value = "" }
+    {
+      line = $0
+      if (cont) sub(/^[ \t\f]+/, "", line)
+      if (trailing_bs(line) % 2 == 1) {
+        buf = buf substr(line, 1, length(line) - 1)
+        cont = 1
+        next
+      }
+      buf = buf line
+      process(buf)
+      buf = ""; cont = 0
+    }
+    END { if (buf != "") process(buf); printf "%s", value }
+  ' "$path"
+}
+
 # validate_sonar_properties <path>
 # Prints a human-readable reason and returns non-zero when the file sets a
 # sonar.sources or sonar.tests value containing a '*' wildcard.
@@ -35,15 +88,11 @@ validate_sonar_properties() {
   fi
 
   local reason=""
-  local key
+  local key value
   for key in "sonar.sources" "sonar.tests"; do
-    # Extract the raw value for the key (last assignment wins, matching the
-    # java.util.Properties semantics the scanner uses). Ignore commented lines.
-    local value
-    value="$(grep -E "^[[:space:]]*${key//./\\.}[[:space:]]*[:=][[:space:]]*" "$path" 2>/dev/null \
-      | grep -vE "^[[:space:]]*#" \
-      | tail -n1 \
-      | sed -E "s/^[[:space:]]*${key//./\\.}[[:space:]]*[:=][[:space:]]*//")" || true
+    # Resolve the logical property value (all java.util.Properties separator and
+    # continuation forms, last-assignment-wins) before checking for a wildcard.
+    value="$(_sonar_property_value "$path" "$key")"
     if [[ "$value" == *"*"* ]]; then
       reason="${key} contains an unsupported wildcard: '${value}'"
       break
@@ -79,6 +128,41 @@ EOF
 ! validate_sonar_properties "$_bad_sources" >/dev/null 2>&1 \
   && { echo "ok - validator rejects a wildcard sonar.sources"; pass_count=$((pass_count + 1)); } \
   || { echo "not ok - validator accepted a wildcard sonar.sources"; fail=1; }
+
+# --- Negative assertions: alternate java.util.Properties forms are covered. ----
+# A wildcard must be caught regardless of the separator (':' or whitespace) or
+# whether the value is spread across backslash-continuation lines — these are the
+# forms a naive single-line '=' match would let slip past the guard.
+_bad_colon="${_fixture_dir}/bad-colon.properties"
+cat > "$_bad_colon" <<'EOF'
+sonar.projectKey=petry-projects_broodly
+sonar.tests:apps/**/__tests__
+EOF
+
+! validate_sonar_properties "$_bad_colon" >/dev/null 2>&1 \
+  && { echo "ok - validator rejects a wildcard sonar.tests with ':' separator"; pass_count=$((pass_count + 1)); } \
+  || { echo "not ok - validator accepted a wildcard sonar.tests with ':' separator"; fail=1; }
+
+_bad_ws="${_fixture_dir}/bad-whitespace.properties"
+cat > "$_bad_ws" <<'EOF'
+sonar.projectKey=petry-projects_broodly
+sonar.sources apps/*
+EOF
+
+! validate_sonar_properties "$_bad_ws" >/dev/null 2>&1 \
+  && { echo "ok - validator rejects a wildcard sonar.sources with whitespace separator"; pass_count=$((pass_count + 1)); } \
+  || { echo "not ok - validator accepted a wildcard sonar.sources with whitespace separator"; fail=1; }
+
+_bad_cont="${_fixture_dir}/bad-continuation.properties"
+cat > "$_bad_cont" <<'EOF'
+sonar.projectKey=petry-projects_broodly
+sonar.tests=\
+  apps/**/__tests__
+EOF
+
+! validate_sonar_properties "$_bad_cont" >/dev/null 2>&1 \
+  && { echo "ok - validator rejects a wildcard sonar.tests across a line continuation"; pass_count=$((pass_count + 1)); } \
+  || { echo "not ok - validator accepted a wildcard sonar.tests across a line continuation"; fail=1; }
 
 # --- Negative control: wildcards in sonar.exclusions are allowed. --------------
 # SonarCloud permits wildcards in the filter properties; the guard must not flag
