@@ -184,6 +184,10 @@ jobs:
         run: bash tests/scripts/workflow-integrity.test.sh
       - name: Workflow manifest validation
         run: bash scripts/validate-workflows.sh
+      - name: SonarCloud config guard
+        # Rejects '*'/'**' wildcards in sonar.sources / sonar.tests, which
+        # SonarCloud fails deterministically on (Fleet Monitor #533).
+        run: bash tests/scripts/sonar-config.test.sh
       - name: Workflow validator test
         run: bash tests/scripts/validate-workflows.test.sh
       - name: Dependabot auto-merge contract test
