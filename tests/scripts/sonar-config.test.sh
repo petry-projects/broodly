@@ -40,10 +40,10 @@ validate_sonar_properties() {
     # Extract the raw value for the key (last assignment wins, matching the
     # java.util.Properties semantics the scanner uses). Ignore commented lines.
     local value
-    value="$(grep -E "^[[:space:]]*${key//./\\.}[[:space:]]*=" "$path" 2>/dev/null \
+    value="$(grep -E "^[[:space:]]*${key//./\\.}[[:space:]]*[:=][[:space:]]*" "$path" 2>/dev/null \
       | grep -vE "^[[:space:]]*#" \
       | tail -n1 \
-      | sed -E "s/^[[:space:]]*${key//./\\.}[[:space:]]*=[[:space:]]*//")" || true
+      | sed -E "s/^[[:space:]]*${key//./\\.}[[:space:]]*[:=][[:space:]]*//")" || true
     if [[ "$value" == *"*"* ]]; then
       reason="${key} contains an unsupported wildcard: '${value}'"
       break
@@ -56,7 +56,7 @@ validate_sonar_properties() {
 # --- Negative assertions: wildcard sonar.sources / sonar.tests are rejected. ---
 # These mirror the exact corruption behind issue #533 and prove the validator
 # does not pass trivially.
-_fixture_dir="$(mktemp -d)"
+_fixture_dir="$(mktemp -d)" || { echo "Failed to create temporary directory" >&2; exit 1; }
 trap '[[ -n "${_fixture_dir:-}" ]] && rm -rf "$_fixture_dir"' EXIT
 
 _bad_tests="${_fixture_dir}/bad-tests.properties"
