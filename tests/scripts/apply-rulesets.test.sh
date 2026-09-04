@@ -173,8 +173,9 @@ _expected_pr_params=$(jq -cS '.' <<'EXPECTED'
 }
 EXPECTED
 )
-_actual_pr_params=$(printf '%s\n' "$_pr_q_params" | jq -cS '.')
-if [[ "$_actual_pr_params" = "$_expected_pr_params" ]]; then
+_actual_pr_params_ec=0
+_actual_pr_params=$(jq -cS '.' <<<"$_pr_q_params") || _actual_pr_params_ec=$?
+if [[ "$_actual_pr_params_ec" -eq 0 && "$_actual_pr_params" = "$_expected_pr_params" ]]; then
   echo "ok - pr-quality pull_request .parameters matches org-standard snapshot"
   pass_count=$((pass_count + 1))
 else
