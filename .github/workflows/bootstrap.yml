@@ -1,0 +1,274 @@
+name: Bootstrap GCP Infrastructure
+
+# One-time workflow to create foundational GCP resources that Terraform and
+# CI/CD depend on. After successful bootstrap, WIF replaces the service
+# account key for all subsequent workflows.
+#
+# Prerequisites (manual, one-time):
+#   1. Create a GCP project and enable billing
+#   2. Create a service account with Owner role
+#   3. Create a JSON key and add it as GitHub secret: GCP_SERVICE_ACCOUNT
+#
+# After bootstrap completes, GCP_SERVICE_ACCOUNT is overwritten with the
+# WIF service account email — the JSON key is no longer needed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: "GCP project ID"
+        required: true
+      region:
+        description: "GCP region"
+        required: true
+        default: "us-central1"
+      google_sign_in_client_id:
+        description: "Google OAuth client ID (leave empty on first run, set on phase 2)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    name: Bootstrap GCP
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@62cf5bd3e4211a0a0b51f2c6d6a37129d828611d # v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a # v2
+
+      - name: Enable required APIs
+        run: |
+          gcloud services enable \
+            cloudresourcemanager.googleapis.com \
+            iam.googleapis.com \
+            iamcredentials.googleapis.com \
+            storage.googleapis.com \
+            artifactregistry.googleapis.com \
+            run.googleapis.com \
+            sqladmin.googleapis.com \
+            secretmanager.googleapis.com \
+            firebase.googleapis.com \
+            identitytoolkit.googleapis.com \
+            pubsub.googleapis.com \
+            aiplatform.googleapis.com \
+            --project="${{ inputs.project_id }}"
+
+      - name: Create Terraform state bucket
+        run: |
+          BUCKET="broodly-terraform-state"
+          if gcloud storage buckets describe "gs://${BUCKET}" --project="${{ inputs.project_id }}" > /dev/null 2>&1; then
+            echo "State bucket gs://${BUCKET} already exists"
+          else
+            gcloud storage buckets create "gs://${BUCKET}" \
+              --project="${{ inputs.project_id }}" \
+              --location="${{ inputs.region }}" \
+              --uniform-bucket-level-access \
+              --public-access-prevention
+            echo "Created state bucket gs://${BUCKET}"
+          fi
+
+          # Enable versioning for state file safety
+          gcloud storage buckets update "gs://${BUCKET}" --versioning
+
+      - name: Create Artifact Registry repository
+        run: |
+          REPO="broodly"
+          if gcloud artifacts repositories describe "${REPO}" \
+              --project="${{ inputs.project_id }}" \
+              --location="${{ inputs.region }}" > /dev/null 2>&1; then
+            echo "Artifact Registry repo ${REPO} already exists"
+          else
+            gcloud artifacts repositories create "${REPO}" \
+              --project="${{ inputs.project_id }}" \
+              --location="${{ inputs.region }}" \
+              --repository-format=docker \
+              --description="Broodly container images"
+            echo "Created Artifact Registry repo ${REPO}"
+          fi
+
+      - name: Set up Workload Identity Federation
+        id: wif
+        run: |
+          PROJECT_ID="${{ inputs.project_id }}"
+          PROJECT_NUMBER=$(gcloud projects describe "${PROJECT_ID}" --format="value(projectNumber)")
+          POOL_NAME="github-actions"
+          PROVIDER_NAME="github"
+          SA_NAME="github-actions-ci"
+          SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+          REPO="${{ github.repository }}"
+
+          # Create CI service account (if not exists)
+          if gcloud iam service-accounts describe "${SA_EMAIL}" --project="${PROJECT_ID}" > /dev/null 2>&1; then
+            echo "Service account ${SA_EMAIL} already exists"
+          else
+            gcloud iam service-accounts create "${SA_NAME}" \
+              --project="${PROJECT_ID}" \
+              --display-name="GitHub Actions CI/CD"
+          fi
+
+          # Grant necessary roles to CI service account
+          for role in \
+            roles/run.admin \
+            roles/artifactregistry.writer \
+            roles/iam.serviceAccountUser \
+            roles/storage.admin \
+            roles/firebase.admin \
+            roles/secretmanager.admin \
+            roles/cloudsql.admin \
+            roles/pubsub.admin; do
+            gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+              --member="serviceAccount:${SA_EMAIL}" \
+              --role="${role}" \
+              --condition=None \
+              --quiet 2>/dev/null || true
+          done
+
+          # Create WIF pool (if not exists)
+          if gcloud iam workload-identity-pools describe "${POOL_NAME}" \
+              --project="${PROJECT_ID}" \
+              --location="global" > /dev/null 2>&1; then
+            echo "WIF pool ${POOL_NAME} already exists"
+          else
+            gcloud iam workload-identity-pools create "${POOL_NAME}" \
+              --project="${PROJECT_ID}" \
+              --location="global" \
+              --display-name="GitHub Actions"
+          fi
+
+          # Create WIF provider (if not exists)
+          if gcloud iam workload-identity-pools providers describe "${PROVIDER_NAME}" \
+              --project="${PROJECT_ID}" \
+              --location="global" \
+              --workload-identity-pool="${POOL_NAME}" > /dev/null 2>&1; then
+            echo "WIF provider ${PROVIDER_NAME} already exists"
+          else
+            gcloud iam workload-identity-pools providers create-oidc "${PROVIDER_NAME}" \
+              --project="${PROJECT_ID}" \
+              --location="global" \
+              --workload-identity-pool="${POOL_NAME}" \
+              --display-name="GitHub" \
+              --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
+              --issuer-uri="https://token.actions.githubusercontent.com"
+          fi
+
+          # Allow GitHub repo to impersonate the CI service account
+          WIF_PROVIDER="projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${POOL_NAME}/providers/${PROVIDER_NAME}"
+          gcloud iam service-accounts add-iam-policy-binding "${SA_EMAIL}" \
+            --project="${PROJECT_ID}" \
+            --role="roles/iam.workloadIdentityUser" \
+            --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${POOL_NAME}/attribute.repository/${REPO}" \
+            --quiet
+
+          # Output values for GitHub secrets
+          echo "wif_provider=${WIF_PROVIDER}" >> "$GITHUB_OUTPUT"
+          echo "service_account=${SA_EMAIL}" >> "$GITHUB_OUTPUT"
+          echo ""
+          echo "============================================"
+          echo "  Workload Identity Federation configured"
+          echo "============================================"
+          echo "  Provider: ${WIF_PROVIDER}"
+          echo "  Service Account: ${SA_EMAIL}"
+          echo ""
+
+      - name: Set GitHub secrets via gh CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Set the WIF secrets that deploy-api and terraform jobs need.
+          # GCP_SERVICE_ACCOUNT is overwritten: JSON key → WIF SA email.
+          gh secret set GCP_PROJECT_ID --body "${{ inputs.project_id }}"
+          gh secret set GCP_WORKLOAD_IDENTITY_PROVIDER --body "${{ steps.wif.outputs.wif_provider }}"
+          gh secret set GCP_SERVICE_ACCOUNT --body "${{ steps.wif.outputs.service_account }}"
+
+          echo ""
+          echo "============================================"
+          echo "  GitHub secrets configured"
+          echo "============================================"
+          echo "  GCP_PROJECT_ID"
+          echo "  GCP_WORKLOAD_IDENTITY_PROVIDER"
+          echo "  GCP_SERVICE_ACCOUNT (overwritten with WIF SA email)"
+          echo ""
+          echo "All future workflows use Workload Identity Federation."
+          echo "The original JSON key in GCP_SERVICE_ACCOUNT has been replaced."
+
+      - name: Run Terraform init and apply
+        run: |
+          cd infra/terraform/environments/dev
+
+          # Write tfvars — includes google_sign_in_client_id when provided
+          {
+            printf 'project_id  = "%s"\n' "${{ inputs.project_id }}"
+            printf 'region      = "%s"\n' "${{ inputs.region }}"
+            printf 'environment = "dev"\n'
+            if [ -n "${{ inputs.google_sign_in_client_id }}" ]; then
+              printf 'google_sign_in_client_id = "%s"\n' "${{ inputs.google_sign_in_client_id }}"
+            fi
+          } > terraform.tfvars
+
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Export Firebase config to GitHub secrets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd infra/terraform/environments/dev
+
+          set_secret() {
+            local tf_output="$1"
+            local secret_name="$2"
+            local value
+            value=$(terraform output -raw "${tf_output}" 2>/dev/null) || value=""
+            if [ -n "${value}" ]; then
+              gh secret set "${secret_name}" --body "${value}"
+              echo "  SET   ${secret_name}"
+            else
+              echo "  SKIP  ${secret_name} (empty)"
+            fi
+          }
+
+          echo "Setting Firebase secrets..."
+          set_secret "firebase_api_key" "EXPO_PUBLIC_FIREBASE_API_KEY"
+          set_secret "firebase_auth_domain" "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN"
+          set_secret "firebase_project_id" "EXPO_PUBLIC_FIREBASE_PROJECT_ID"
+          set_secret "firebase_storage_bucket" "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET"
+          set_secret "firebase_messaging_sender_id" "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"
+          set_secret "firebase_app_id" "EXPO_PUBLIC_FIREBASE_APP_ID"
+
+          # Cloud Run URL for API
+          set_secret "cloud_run_url" "EXPO_PUBLIC_API_URL"
+
+          echo ""
+          echo "Bootstrap complete! All secrets are configured."
+
+      - name: Summary
+        run: |
+          echo "## Bootstrap Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Resources Created" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GCS state bucket: \`broodly-terraform-state\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Artifact Registry: \`broodly\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Workload Identity Federation pool + provider" >> "$GITHUB_STEP_SUMMARY"
+          echo "- CI service account: \`github-actions-ci@${{ inputs.project_id }}.iam.gserviceaccount.com\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- All Terraform-managed resources (Cloud SQL, Firebase, Cloud Run, etc.)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### GitHub Secrets Set" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`GCP_PROJECT_ID\`, \`GCP_WORKLOAD_IDENTITY_PROVIDER\`, \`GCP_SERVICE_ACCOUNT\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`EXPO_PUBLIC_FIREBASE_*\` (6 secrets)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`EXPO_PUBLIC_API_URL\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Next Steps" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. **Delete the bootstrap service account** in GCP Console (no longer needed)" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. Enable Google Sign-In in Firebase Console → Authentication → Sign-in method" >> "$GITHUB_STEP_SUMMARY"
+          echo "3. Retrieve the auto-created OAuth client ID from GCP Console → Credentials" >> "$GITHUB_STEP_SUMMARY"
+          echo "4. Re-run this workflow with \`google_sign_in_client_id\` to complete auth setup" >> "$GITHUB_STEP_SUMMARY"

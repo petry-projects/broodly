@@ -1,6 +1,19 @@
+# -----------------------------------------------------------------------------
+# Cloud Run Service
+# -----------------------------------------------------------------------------
+# Deploys the API container to Cloud Run. CI pushes new revisions via
+# `gcloud run deploy`; Terraform manages the service definition, scaling,
+# IAM, and environment configuration.
+# -----------------------------------------------------------------------------
+
 resource "google_cloud_run_v2_service" "api" {
   name     = var.service_name
   location = var.region
+
+  labels = {
+    environment = var.environment
+    managed-by  = "terraform"
+  }
 
   template {
     service_account = var.service_account_email
@@ -50,12 +63,18 @@ resource "google_cloud_run_v2_service" "api" {
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
     percent = 100
   }
+
+  lifecycle {
+    # CI deploys new images via gcloud; don't revert to the Terraform-specified tag
+    ignore_changes = [template[0].containers[0].image]
+  }
 }
 
 # SECURITY: Allow unauthenticated HTTP access to Cloud Run.
-# This is intentional — the Go API validates Firebase ID tokens in its own
-# auth middleware (internal/auth/middleware.go). Cloud Run's built-in IAM
-# auth is bypassed because mobile/web clients send Bearer tokens directly.
+# Only enable this for services that enforce authentication at the application
+# layer (e.g., validating Firebase ID tokens on every request) or that are
+# intentionally public. Cloud Run's built-in IAM auth is bypassed so that
+# mobile/web clients can send Bearer tokens directly to the service.
 # Removing this binding would block all client traffic.
 resource "google_cloud_run_v2_service_iam_member" "public" { # NOSONAR — intentional, see comment above
   count    = var.allow_unauthenticated ? 1 : 0
