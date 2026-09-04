@@ -151,6 +151,39 @@ _jq_check() {
 _jq_check '.required_approving_review_count' '1' 'pr-quality requires 1 approving review'
 _jq_check '.required_review_thread_resolution' 'true' 'pr-quality requires review thread resolution'
 
+# ---------------------------------------------------------------------------
+# Canonical snapshot lock (#540)
+#
+# The piecemeal per-parameter checks above catch a single flipped boolean, but
+# a reformat that drops a key, renames it, or adds an unexpected one could slip
+# through. This asserts the pr-quality pull_request rule's *entire* .parameters
+# object equals the org-standard set byte-for-byte (keys sorted), so ANY drift
+# in the codified mirror — including require_code_owner_review regressing from
+# true (compliance check ruleset-drift-pr-quality-require_code_owner_review) —
+# fails loudly. Comparison is on canonicalised JSON so key order and formatting
+# are irrelevant; only the value set matters.
+# ---------------------------------------------------------------------------
+_expected_pr_params=$(jq -cS '.' <<'EXPECTED'
+{
+  "required_approving_review_count": 1,
+  "dismiss_stale_reviews_on_push": true,
+  "require_code_owner_review": true,
+  "require_last_push_approval": true,
+  "required_review_thread_resolution": true
+}
+EXPECTED
+)
+_actual_pr_params=$(printf '%s\n' "$_pr_q_params" | jq -cS '.')
+if [[ "$_actual_pr_params" = "$_expected_pr_params" ]]; then
+  echo "ok - pr-quality pull_request .parameters matches org-standard snapshot"
+  pass_count=$((pass_count + 1))
+else
+  echo "not ok - pr-quality pull_request .parameters drifted from org-standard snapshot"
+  echo "    expected: ${_expected_pr_params}"
+  echo "    actual:   ${_actual_pr_params}"
+  fail=1
+fi
+
 # code-quality ruleset is also codified.
 assert_contains '"name": "code-quality"' "emits code-quality ruleset"
 
