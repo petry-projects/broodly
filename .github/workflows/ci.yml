@@ -60,12 +60,12 @@ jobs:
         with:
           working-directory: apps/api
           # Pin golangci-lint to a release built with Go >= 1.27 so it
-          # can read the toolchain pin in apps/api/go.mod (go1.27.2).
+          # can read the toolchain pin in apps/api/go.mod (go1.27.1).
           # The action's default is built with Go 1.24 and refuses with:
           #   "the Go language version (go1.24) used to build
           #    golangci-lint is lower than the targeted Go version
-          #    (1.27.2)"
-          version: v2.11.4
+          #    (1.27.1)"
+          version: v2.13.2
 
       - name: Test
         run: go test ./... -race -coverprofile=coverage.out
