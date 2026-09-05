@@ -48,10 +48,9 @@ pass_count=0
 compat_check() {
   local build_go="$1" target_go="$2"
   local build_major build_minor target_major target_minor
-  build_major="${build_go%%.*}"
-  build_minor="${build_go##*.}"
-  target_major="${target_go%%.*}"
-  target_minor="${target_go##*.}"
+  # Robust parsing: handles both "1.26" and "1.26.2" formats
+  IFS=. read -r build_major build_minor _ <<<"$build_go"
+  IFS=. read -r target_major target_minor _ <<<"$target_go"
 
   if (( target_major > build_major )) \
     || { (( target_major == build_major )) && (( target_minor > build_minor )); }; then
