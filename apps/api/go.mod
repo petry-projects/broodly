@@ -10,4 +10,4 @@ go 1.24
 // because no language features above that are used.
 toolchain go1.26.6
 
-require github.com/go-chi/chi/v5 v5.3.0
+require github.com/go-chi/chi/v5 v5.3.2
