@@ -65,6 +65,11 @@ jobs:
           #   "the Go language version (go1.24) used to build
           #    golangci-lint is lower than the targeted Go version
           #    (1.26.2)"
+          # golangci-build-go: 1.26  (Go version this release is built with;
+          # must be >= apps/api/go.mod toolchain — enforced by
+          # tests/scripts/golangci-toolchain-compat.test.sh. When bumping the
+          # version below, update this marker to the new release's build Go,
+          # shown by `golangci-lint version` as "built with goX.Y".)
           version: v2.11.4
 
       - name: Test
@@ -183,6 +188,8 @@ jobs:
         run: python3 -m pip install --disable-pip-version-check --no-cache-dir 'PyYAML==6.0.2'
       - name: Workflow integrity test
         run: bash tests/scripts/workflow-integrity.test.sh
+      - name: golangci-lint / go.mod toolchain compatibility test
+        run: bash tests/scripts/golangci-toolchain-compat.test.sh
       - name: Workflow manifest validation
         run: bash scripts/validate-workflows.sh
       - name: Workflow validator test
