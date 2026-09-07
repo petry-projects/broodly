@@ -12,7 +12,7 @@ Broodly is a field-first beekeeping decision-support app — a pnpm monorepo wit
 
 ## Tech Stack
 
-- **Runtime:** Node.js ≥ 20 (mobile/packages) · Go 1.24 / toolchain go1.26.2 (API)
+- **Runtime:** Node.js ≥ 20 (mobile/packages) · Go 1.24 / toolchain go1.26.6 (API)
 - **Framework:** Expo SDK 55 · React Native 0.83 · React 19 · Gluestack UI v3 · NativeWind v4
 - **Testing:** Jest with jest-expo preset (mobile) · React Testing Library for Native · `go test ./...` (API)
 - **Linting:** ESLint ^10 + Prettier ^3 (root workspace) · `golangci-lint` (Go)
@@ -66,7 +66,7 @@ package development or mobile-only work:
 
 **Cross-package imports** — use workspace package names (`@broodly/domain-types`, `@broodly/ui`) declared in `package.json` workspaces; never use relative paths across package boundaries.
 
-**Go module** — the API module is `github.com/broodly/api` with toolchain pinned to go1.26.2 for crypto/tls security fixes; the `go` directive stays at 1.24.
+**Go module** — the API module is `github.com/broodly/api` with toolchain pinned to go1.26.6 for crypto/tls, crypto/x509, net, net/textproto, and encoding/asn1 stdlib security fixes; the `go` directive stays at 1.24.
 
 ## Org Standards
 

@@ -65,10 +65,26 @@ compat_check() {
 }
 
 # extract_build_go <ci_workflow_path>
-# Prints the major.minor Go version recorded by the golangci-build-go marker.
+# Prints the major.minor Go version recorded by the golangci-build-go marker,
+# scoped to the golangci/golangci-lint-action step. Isolating the step first
+# binds the marker to the pinned `version:` release it documents; a stray marker
+# elsewhere in ci.yml (or one that has drifted away from the pin) can no longer
+# satisfy the guard. The marker is only trusted when the step also carries a
+# `version:` pin, so the two are always read together.
 extract_build_go() {
-  local path="$1" value
-  value="$(grep -oE '#[[:space:]]*golangci-build-go:[[:space:]]*[0-9]+\.[0-9]+' "$path" \
+  local path="$1" block value
+  # Isolate the golangci-lint-action step: from its `uses:` line to the start of
+  # the next step (a 6-space-indented `- ` list item at the same level).
+  block="$(awk '
+    /^      - / { if (in_step) exit }
+    /uses:[[:space:]]*golangci\/golangci-lint-action/ { in_step = 1 }
+    in_step { print }
+  ' "$path")"
+  # Require the pinned version: line in the same step so the marker is bound to
+  # the release it describes rather than read from anywhere in the file.
+  grep -qE '^[[:space:]]*version:[[:space:]]*v?[0-9]' <<<"$block" || return 0
+  value="$(printf '%s\n' "$block" \
+    | grep -oE '#[[:space:]]*golangci-build-go:[[:space:]]*[0-9]+\.[0-9]+' \
     | head -n1 | grep -oE '[0-9]+\.[0-9]+' || true)"
   printf '%s' "$value"
 }
