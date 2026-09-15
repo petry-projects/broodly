@@ -10,7 +10,7 @@ overrides:
   brace-expansion: '>=5.0.8'
   ws: '>=8.21.0'
   form-data: '>=4.0.6'
-  js-yaml: '>=4.3.1'
+  js-yaml: '>=4.3.2'
   '@babel/core': ^7.29.6
   lodash@>=4.0.0 <=4.17.23: '>=4.18.0'
   tmp: '>=0.2.6'
@@ -3317,8 +3317,8 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@4.3.1:
-    resolution: {integrity: sha512-CY6crGq313MX8GkwvB7tzgp99vjQxY1++5y10/BKN/GUfHqWaOGQMNZkBvqSzsZKWk/ijwHlWzzkLulsGHhjWQ==}
+  js-yaml@5.4.2:
+    resolution: {integrity: sha512-m+aqu+LwO1O6sIopafj8HUVl5aawITwZQe/yHpMCKjaWBaA/d07B/QdMb3529REftiU+RMMHL3Vlsw3hON7vWg==}
     hasBin: true
 
   jsc-safe-url@0.2.4:
@@ -5961,7 +5961,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.29.0
       chalk: 4.1.2
-      js-yaml: 4.3.1
+      js-yaml: 5.4.2
 
   '@formatjs/ecma402-abstract@2.3.6':
     dependencies:
@@ -6061,7 +6061,7 @@ snapshots:
       camelcase: 5.3.1
       find-up: 4.1.0
       get-package-type: 0.1.0
-      js-yaml: 4.3.1
+      js-yaml: 5.4.2
       resolve-from: 5.0.0
 
   '@istanbuljs/schema@0.1.3': {}
@@ -9343,7 +9343,7 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@4.3.1:
+  js-yaml@5.4.2:
     dependencies:
       argparse: 2.0.1
 
