@@ -43,6 +43,7 @@ If a rule in this file conflicts with the org standards, this file takes precede
 
 #### Go (API Server)
 
+- **Workspace structure** — The repo uses Go 1.24 workspace mode with `go.work` at the root. The root `go.mod` defines tooling support for workspace-wide scans (e.g., `govulncheck`); it is not an application module. The `apps/api` module contains the actual API service. Both modules are listed in `go.work`'s `use` directive to form the workspace.
 - **Domain-first structure** — Business logic lives in `internal/domain/` with zero infrastructure imports. Services in `internal/service/` orchestrate domain logic. Repositories in `internal/repository/` implement persistence via sqlc.
 - **sqlc for all queries** — No hand-written SQL in Go code. All queries defined in `.sql` files and generated via sqlc. Use transactions through the repository layer.
 - **Error handling** — Return typed domain errors from services. Map to GraphQL errors in resolvers. Never expose internal error details to clients.
