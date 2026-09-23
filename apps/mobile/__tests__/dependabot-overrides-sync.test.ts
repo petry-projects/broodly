@@ -37,12 +37,13 @@ function parseOverridePackages(): Set<string> {
       continue;
     }
     if (inOverrides) {
-      // Block ends at the next top-level (non-indented, non-empty) key.
-      if (line.trim() !== '' && !/^\s/.test(line)) break;
       if (line.trim() === '') continue;
 
       const trimmed = line.trim();
       if (trimmed.startsWith('#')) continue;
+
+      // Block ends at the next top-level (non-indented, non-empty) key.
+      if (trimmed !== '' && !/^\s/.test(line)) break;
 
       let key: string;
       if (trimmed.startsWith("'") || trimmed.startsWith('"')) {

@@ -417,6 +417,7 @@ apps/mobile/web-build/
 apps/api/bin/
 apps/api/tmp/
 apps/api/server
+apps/api/worker
 *.exe
 *.test
 *.out
