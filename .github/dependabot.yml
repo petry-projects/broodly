@@ -18,15 +18,18 @@ updates:
       # This list MUST mirror the override package names in pnpm-workspace.yaml.
       # The sync is enforced by apps/mobile/__tests__/dependabot-overrides-sync.test.ts.
       - dependency-name: "@babel/core"
+      - dependency-name: "@humanfs/node"
       - dependency-name: "@tootallnate/once"
       - dependency-name: "@ungap/structured-clone"
       - dependency-name: "@xmldom/xmldom"
       - dependency-name: "brace-expansion"
+      - dependency-name: "browserslist"
       - dependency-name: "form-data"
       - dependency-name: "js-yaml"
       - dependency-name: "lodash"
       - dependency-name: "nanoid"
       - dependency-name: "postcss"
+      - dependency-name: "postcss-selector-parser"
       - dependency-name: "shell-quote"
       - dependency-name: "tmp"
       - dependency-name: "uuid"
