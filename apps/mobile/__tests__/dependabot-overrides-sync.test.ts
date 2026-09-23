@@ -102,6 +102,8 @@ describe('Dependabot ignore list stays in sync with pnpm overrides', () => {
     // Dependabot cannot process pnpm overrides, so every override-pinned
     // dependency must be ignored or its security-update job fails
     // (security_update_not_possible / all_versions_ignored).
+    // NOTE: This test compares package names only; version ranges are not validated.
+    // Manually verify that override minimum versions stay at or above patched advisory thresholds.
     const missing = [...overridePackages].filter((p) => !ignoredPackages.has(p)).sort();
     expect(missing).toEqual([]);
   });
