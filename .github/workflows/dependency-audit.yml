@@ -6,7 +6,7 @@
 # in golang.org/x/tools SSA builder. This implementation uses govulncheck v1.2.0+
 # which resolves the incompatibility. This override can be removed once the
 # central repo is updated.
-name: Dependency audit
+name: dependency-audit
 
 on:
   pull_request:
