@@ -70,12 +70,7 @@ resource "github_repository_ruleset" "code_quality" {
       }
 
       required_check {
-        context        = "Dependency audit / pnpm audit"
-        integration_id = 15368
-      }
-
-      required_check {
-        context        = "Dependency audit / govulncheck"
+        context        = "dependency-audit / Detect ecosystems"
         integration_id = 15368
       }
     }
