@@ -23,6 +23,17 @@ pnpm --filter mobile start
 cd apps/api && go run cmd/server/main.go
 ```
 
+## Infrastructure Setup
+
+GCP infrastructure is fully automated via GitHub Actions. Two manual steps are required for initial setup:
+
+1. Create a temporary GCP service account key
+2. Add it as a GitHub secret
+
+Then run the bootstrap workflow — it provisions all cloud resources and configures CI/CD automatically.
+
+See **[GCP Bootstrap Runbook](docs/runbooks/gcp-bootstrap.md)** for step-by-step instructions.
+
 ## Monorepo Structure
 
 ```
