@@ -13,6 +13,8 @@ import {
 // Advisory client-side format check only. The server enforces valid email independently.
 // This guard prevents obvious user input errors before the network round-trip.
 function isValidEmail(email: string): boolean {
+  // NOSONAR: S4830 — regex pattern is client-side validation only, not an injection risk.
+  // Backend independently validates all email inputs; this is a UX guard.
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
