@@ -66,6 +66,16 @@ beforeEach(() => {
   useConnectivityStore.setState({ isOnline: true, lastOnlineAt: null });
 });
 
+const createObservation = (overrides: Record<string, unknown> = {}) => ({
+  id: 'obs-1',
+  promptId: 'entrance',
+  observationType: 'entrance_assessment',
+  value: 'normal',
+  classification: 'normal',
+  createdAt: new Date().toISOString(),
+  ...overrides,
+});
+
 // ─── inspect/index.tsx ────────────────────────────────────────────────────────
 
 describe('InspectionEntryScreen', () => {
@@ -234,23 +244,16 @@ describe('InspectionStepScreen', () => {
   it('inserts swarm_risk after queen_cells when swarm option selected', () => {
     startFullInspection();
     // Advance to queen_cells (index 2): entrance → brood_pattern → queen_cells
-    useInspectionStore.getState().addObservation({
-      id: 'obs-entrance',
-      promptId: 'entrance',
-      observationType: 'entrance_assessment',
-      value: 'normal',
-      classification: 'normal',
-      createdAt: new Date().toISOString(),
-    });
+    useInspectionStore.getState().addObservation(createObservation({ id: 'obs-entrance' }));
     useInspectionStore.getState().setPromptIndex(1);
-    useInspectionStore.getState().addObservation({
-      id: 'obs-brood',
-      promptId: 'brood_pattern',
-      observationType: 'brood_inspection',
-      value: 'solid',
-      classification: 'normal',
-      createdAt: new Date().toISOString(),
-    });
+    useInspectionStore.getState().addObservation(
+      createObservation({
+        id: 'obs-brood',
+        promptId: 'brood_pattern',
+        observationType: 'brood_inspection',
+        value: 'solid',
+      }),
+    );
     useInspectionStore.getState().setPromptIndex(2);
 
     renderScreen();
@@ -295,22 +298,16 @@ describe('InspectionSummaryScreen', () => {
       hiveName: 'Hive 1',
       type: 'full',
     });
-    useInspectionStore.getState().addObservation({
-      id: 'obs-1',
-      promptId: 'entrance',
-      observationType: 'entrance_assessment',
-      value: 'normal',
-      classification: 'normal',
-      createdAt: new Date().toISOString(),
-    });
-    useInspectionStore.getState().addObservation({
-      id: 'obs-2',
-      promptId: 'brood_pattern',
-      observationType: 'brood_inspection',
-      value: 'spotty',
-      classification: 'cautionary',
-      createdAt: new Date().toISOString(),
-    });
+    useInspectionStore.getState().addObservation(createObservation({ id: 'obs-1' }));
+    useInspectionStore.getState().addObservation(
+      createObservation({
+        id: 'obs-2',
+        promptId: 'brood_pattern',
+        observationType: 'brood_inspection',
+        value: 'spotty',
+        classification: 'cautionary',
+      }),
+    );
   }
 
   function renderScreen() {
@@ -357,14 +354,13 @@ describe('InspectionSummaryScreen', () => {
       hiveName: 'Hive 1',
       type: 'full',
     });
-    useInspectionStore.getState().addObservation({
-      id: 'obs-urgent',
-      promptId: 'entrance',
-      observationType: 'entrance_assessment',
-      value: 'dead_bees',
-      classification: 'urgent',
-      createdAt: new Date().toISOString(),
-    });
+    useInspectionStore.getState().addObservation(
+      createObservation({
+        id: 'obs-urgent',
+        value: 'dead_bees',
+        classification: 'urgent',
+      }),
+    );
     renderScreen();
     expect(screen.queryByText(/Nice work/)).toBeNull();
   });
