@@ -34,11 +34,13 @@ overrides:
 # and the lockfile regenerated.
 # Re-evaluate when: npm view node-forge version shows >= 1.4.1
 #
-# braces <= 3.0.3 has a high-severity DoS vulnerability through deeply nested patterns.
-# The fix (>= 3.0.4) has not been published to npm yet. This is a transitive dependency
-# through @expo/html-elements > react-native > metro > micromatch > braces.
-# Suppressed until braces 3.0.4+ is released.
-# Re-evaluate when: https://github.com/micromatch/braces/releases shows >= 3.0.4
+# braces <= 3.0.3 (GHSA-vfj7-8cjw-p6xm, stack-exhaustion DoS through deeply
+# nested patterns) reaches us transitively via metro (React Native bundler) ->
+# micromatch -> braces, a build-time path only. The patched version (>= 3.0.4)
+# is not yet published to npm (registry latest is 3.0.3), so no override can
+# resolve it. Suppressed until the patch lands, at which point an override can
+# be added and the lockfile regenerated.
+# Re-evaluate when: npm view braces version shows >= 3.0.4
 audit:
   ignore:
     - GHSA-w3rx-r6r6-pgpr
