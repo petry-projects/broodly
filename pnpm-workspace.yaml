@@ -35,11 +35,12 @@ overrides:
 # Re-evaluate when: npm view node-forge version shows >= 1.4.1
 #
 # braces <= 3.0.3 (GHSA-vfj7-8cjw-p6xm, stack-exhaustion DoS through deeply
-# nested patterns) reaches us transitively via metro (React Native bundler) ->
-# micromatch -> braces, a build-time path only. The patched version (>= 3.0.4)
-# is not yet published to npm (registry latest is 3.0.3), so no override can
-# resolve it. Suppressed until the patch lands, at which point an override can
-# be added and the lockfile regenerated.
+# nested patterns) reaches us transitively through multiple build-time tools:
+# metro (React Native bundler) -> micromatch -> braces, chokidar@3.6.0 directly,
+# and micromatch from fast-glob/jest/tailwindcss. All paths are build-time only.
+# The patched version (>= 3.0.4) is not yet published to npm (registry latest is
+# 3.0.3), so no override can resolve it. Suppressed until the patch lands, at
+# which point an override can be added and the lockfile regenerated.
 # Re-evaluate when: npm view braces version shows >= 3.0.4
 audit:
   ignore:
