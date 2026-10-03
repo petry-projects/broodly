@@ -20,7 +20,6 @@ overrides:
   browserslist: '>=4.28.7'
   '@humanfs/node': '>=0.16.8'
   postcss-selector-parser: '>=6.1.3 <7'
-  node-forge: '>=1.4.1'
 
 # image-size <= 2.0.2 has two high-severity DoS advisories (ICNS and JXL/HEIF
 # parsers). The patched version (>= 2.0.3) has not been published to npm yet.
@@ -30,10 +29,9 @@ overrides:
 #
 # node-forge <= 1.4.0 (GHSA-86w9-cpqp-85rv, RSA PKCS#1 v1.5 signature
 # verification bypass) reaches us transitively via expo/@expo/cli. The patched
-# version (>= 1.4.1) is not yet published to npm (registry latest is 1.4.0), so
-# the `node-forge: '>=1.4.1'` override above cannot resolve and currently falls
-# back to 1.4.0. Suppressed until the patch lands, at which point the override
-# will bump it and this entry should be removed.
+# version (>= 1.4.1) is not yet published to npm (registry latest is 1.4.0).
+# Suppressed until the patch lands, at which point an override can be added
+# and the lockfile regenerated.
 # Re-evaluate when: npm view node-forge version shows >= 1.4.1
 #
 # braces <= 3.0.3 has a high-severity DoS vulnerability through deeply nested patterns.
