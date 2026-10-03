@@ -62,7 +62,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
 
       - name: SonarCloud GitHub Action
-        uses: sonarsource/sonarcloud-github-action@e44bd5e9b6c5049c5f3b6cecdd53d216b5dc27a6 # v2.1.1
+        uses: sonarsource/sonarcloud-github-action@v2.1.1
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
