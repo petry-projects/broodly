@@ -16,8 +16,6 @@ jobs:
       pull-requests: read
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      EXPO_PUBLIC_FIREBASE_USE_EMULATOR: 'true'
-      EXPO_PUBLIC_FIREBASE_PROJECT_ID: broodly-dev
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
