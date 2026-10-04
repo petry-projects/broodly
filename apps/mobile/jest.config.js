@@ -10,7 +10,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css)$': '<rootDir>/__mocks__/css.js',
   },
-  setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     'app/**/*.{ts,tsx}',
