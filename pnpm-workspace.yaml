@@ -27,16 +27,21 @@ overrides:
 # affected range. These are suppressed until image-size 2.0.3+ is available.
 # Re-evaluate when: https://github.com/image-size/image-size/releases shows >= 2.0.3
 #
-# node-forge <= 1.4.0 has a high-severity RSA signature verification vulnerability.
-# The fix (>= 1.4.1) has not been published to npm yet. Expo depends on node-forge
-# for code signing. This is suppressed until node-forge 1.4.1+ is released.
-# Re-evaluate when: https://github.com/digitalbazaar/forge/releases shows >= 1.4.1
+# node-forge <= 1.4.0 (GHSA-86w9-cpqp-85rv, RSA PKCS#1 v1.5 signature
+# verification bypass) reaches us transitively via expo/@expo/cli. The patched
+# version (>= 1.4.1) is not yet published to npm (registry latest is 1.4.0).
+# Suppressed until the patch lands, at which point an override can be added
+# and the lockfile regenerated.
+# Re-evaluate when: npm view node-forge version shows >= 1.4.1
 #
-# braces <= 3.0.3 has a high-severity DoS vulnerability through deeply nested patterns.
-# The fix (>= 3.0.4) has not been published to npm yet. This is a transitive dependency
-# through @expo/html-elements > react-native > metro > micromatch > braces.
-# Suppressed until braces 3.0.4+ is released.
-# Re-evaluate when: https://github.com/micromatch/braces/releases shows >= 3.0.4
+# braces <= 3.0.3 (GHSA-vfj7-8cjw-p6xm, stack-exhaustion DoS through deeply
+# nested patterns) reaches us transitively through multiple build-time tools:
+# metro (React Native bundler) -> micromatch -> braces, chokidar@3.6.0 directly,
+# and micromatch from fast-glob/jest/tailwindcss. All paths are build-time only.
+# The patched version (>= 3.0.4) is not yet published to npm (registry latest is
+# 3.0.3), so no override can resolve it. Suppressed until the patch lands, at
+# which point an override can be added and the lockfile regenerated.
+# Re-evaluate when: npm view braces version shows >= 3.0.4
 audit:
   ignore:
     - GHSA-w3rx-r6r6-pgpr

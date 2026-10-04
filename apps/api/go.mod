@@ -7,7 +7,7 @@ go 1.24
 // GO-2026-5037, GO-2026-5039, GO-2026-5856, GO-2026-5972, GO-2026-6089,
 // GO-2026-6090 and other stdlib security fixes. The `go` directive stays at
 // 1.24 to indicate minimum source compatibility; the toolchain directive
-// ensures all builds use 1.26.6, which fixes these vulnerabilities.
-toolchain go1.26.6
+// ensures all builds use 1.27.1, which includes these vulnerability fixes.
+toolchain go1.27.1
 
 require github.com/go-chi/chi/v5 v5.3.2
