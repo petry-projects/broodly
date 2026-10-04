@@ -57,6 +57,11 @@ jobs:
         working-directory: apps/api
         run: go test -short -race -coverprofile=coverage.out -timeout=5m ./...
 
+      - uses: actions/setup-java@48e57e5a4d9a29cf5bbb80c0a5efb67a5ba0be41 # v4
+        with:
+          java-version: 21
+          distribution: temurin
+
       - name: SonarCloud Scan
         if: ${{ env.SONAR_TOKEN != '' }}
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6

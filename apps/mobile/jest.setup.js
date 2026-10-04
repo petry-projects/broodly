@@ -1,1 +1,1 @@
-import '@testing-library/jest-native';
+require('@testing-library/jest-native');
