@@ -11,25 +11,59 @@ jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      EXPO_PUBLIC_FIREBASE_USE_EMULATOR: "true"
+      EXPO_PUBLIC_FIREBASE_PROJECT_ID: broodly-dev
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
+
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Generate TypeScript coverage
+        run: pnpm run test -- --coverage --coverageReporters=lcov --coverageReporters=text-summary
+        continue-on-error: false
+
+      - name: Verify coverage file exists
+        run: |
+          if [ -f "apps/mobile/coverage/lcov.info" ]; then
+            echo "✓ Coverage file found"
+            head -5 apps/mobile/coverage/lcov.info
+          else
+            echo "✗ Coverage file NOT found at apps/mobile/coverage/lcov.info"
+            ls -la apps/mobile/coverage/ || echo "Coverage directory does not exist"
+            exit 1
+          fi
 
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version-file: apps/api/go.mod
           cache-dependency-path: apps/api/go.sum
 
-      - name: Generate Go coverage for SonarCloud
+      - name: Generate Go coverage
         working-directory: apps/api
-        run: go test -coverprofile=coverage.out ./...
+        run: go test -short -race -coverprofile=coverage.out -timeout=5m ./...
 
       - name: SonarCloud Scan
         if: ${{ env.SONAR_TOKEN != '' }}
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
+
+      - name: SonarCloud GitHub Action
+        uses: sonarsource/sonarcloud-github-action@v2.1.1
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
