@@ -38,11 +38,11 @@ func EmailFromContext(ctx context.Context) string {
 	return email
 }
 
-// RoleFromContext extracts the role from the context, defaulting to "owner".
+// RoleFromContext extracts the role from the context, returning empty string if not found.
 func RoleFromContext(ctx context.Context) string {
 	role, ok := ctx.Value(roleKey).(string)
 	if !ok || role == "" {
-		return "owner"
+		return ""
 	}
 	return role
 }

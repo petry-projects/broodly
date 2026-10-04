@@ -134,3 +134,25 @@ func TestRequirePermission_Support_DeniedWrite(t *testing.T) {
 		t.Errorf("expected 403, got %d", w.Code)
 	}
 }
+
+func TestRequirePermission_NoAuthContext(t *testing.T) {
+	ctx := context.Background()
+	req := httptest.NewRequest(http.MethodGet, "/test", nil).WithContext(ctx)
+	w := httptest.NewRecorder()
+
+	handler := RequirePermission(ReadHive)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Error("handler should NOT be called when auth context is missing")
+	}))
+
+	handler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusForbidden {
+		t.Errorf("expected 403 when no auth context, got %d", w.Code)
+	}
+
+	var resp gqlErrorResponse
+	_ = json.Unmarshal(w.Body.Bytes(), &resp)
+	if len(resp.Errors) == 0 || resp.Errors[0].Extensions.Code != "FORBIDDEN" {
+		t.Error("expected FORBIDDEN error code for missing auth context")
+	}
+}
