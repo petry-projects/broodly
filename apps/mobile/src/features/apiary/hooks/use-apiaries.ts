@@ -21,7 +21,7 @@ export function useApiaries() {
     queryKey: APIARY_KEYS.all,
     queryFn: async () => {
       const result = await client.query(APIARIES_QUERY, {}).toPromise();
-      if (result.error) throw new Error(result.error.message);
+      if (result.error) throw new Error('Failed to fetch apiaries');
       if (!result.data?.apiaries) throw new Error('No data returned for apiaries query');
       return result.data.apiaries as Apiary[];
     },
@@ -35,7 +35,7 @@ export function useApiary(id: string) {
     queryKey: APIARY_KEYS.detail(id),
     queryFn: async () => {
       const result = await client.query(APIARY_QUERY, { id }).toPromise();
-      if (result.error) throw new Error(result.error.message);
+      if (result.error) throw new Error('Failed to fetch apiary');
       if (!result.data?.apiary) throw new Error('No data returned for apiary query');
       return result.data.apiary as Apiary;
     },
@@ -50,7 +50,7 @@ export function useCreateApiary() {
   return useMutation({
     mutationFn: async (input: CreateApiaryInput) => {
       const result = await client.mutation(CREATE_APIARY_MUTATION, { input }).toPromise();
-      if (result.error) throw new Error(result.error.message);
+      if (result.error) throw new Error('Failed to create apiary');
       if (!result.data?.createApiary) throw new Error('No data returned from createApiary mutation');
       return result.data.createApiary as Apiary;
     },
@@ -67,7 +67,7 @@ export function useUpdateApiary() {
   return useMutation({
     mutationFn: async ({ id, input }: { id: string; input: UpdateApiaryInput }) => {
       const result = await client.mutation(UPDATE_APIARY_MUTATION, { id, input }).toPromise();
-      if (result.error) throw new Error(result.error.message);
+      if (result.error) throw new Error('Failed to update apiary');
       if (!result.data?.updateApiary) throw new Error('No data returned from updateApiary mutation');
       return result.data.updateApiary as Apiary;
     },
@@ -85,8 +85,10 @@ export function useDeleteApiary() {
   return useMutation({
     mutationFn: async (id: string) => {
       const result = await client.mutation(DELETE_APIARY_MUTATION, { id }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      if (result.data?.deleteApiary == null) throw new Error('No data returned from deleteApiary mutation');
+      if (result.error) throw new Error('Failed to delete apiary');
+      if (result.data?.deleteApiary === null || result.data?.deleteApiary === undefined) {
+        throw new Error('No data returned from deleteApiary mutation');
+      }
       return result.data.deleteApiary as boolean;
     },
     onSuccess: () => {
