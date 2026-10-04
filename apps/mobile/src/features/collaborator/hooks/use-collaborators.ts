@@ -6,6 +6,7 @@ import {
   REVOKE_COLLABORATOR_MUTATION,
   ACCESS_AUDIT_LOG_QUERY,
 } from '../../../services/graphql/collaborator';
+import { throwIfGraphQLError, assertData } from '../../../services/graphql/query-utils';
 
 interface Collaborator {
   id: string;
@@ -35,8 +36,8 @@ export function useCollaborators() {
     queryKey: COLLAB_KEYS.all,
     queryFn: async () => {
       const result = await client.query(COLLABORATORS_QUERY, {}).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.collaborators as Collaborator[];
+      throwIfGraphQLError(result, 'Collaborators query');
+      return assertData(result, 'collaborators', 'Collaborators query') as Collaborator[];
     },
   });
 }
@@ -48,8 +49,8 @@ export function useInviteCollaborator() {
   return useMutation({
     mutationFn: async (email: string) => {
       const result = await client.mutation(INVITE_COLLABORATOR_MUTATION, { email }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.inviteCollaborator as Collaborator;
+      throwIfGraphQLError(result, 'InviteCollaborator mutation');
+      return assertData(result, 'inviteCollaborator', 'InviteCollaborator mutation') as Collaborator;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: COLLAB_KEYS.all });
@@ -65,8 +66,8 @@ export function useRevokeCollaborator() {
   return useMutation({
     mutationFn: async (collaboratorId: string) => {
       const result = await client.mutation(REVOKE_COLLABORATOR_MUTATION, { collaboratorId }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.revokeCollaborator as boolean;
+      throwIfGraphQLError(result, 'RevokeCollaborator mutation');
+      return assertData(result, 'revokeCollaborator', 'RevokeCollaborator mutation') as boolean;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: COLLAB_KEYS.all });
@@ -82,8 +83,8 @@ export function useAccessAuditLog() {
     queryKey: COLLAB_KEYS.audit,
     queryFn: async () => {
       const result = await client.query(ACCESS_AUDIT_LOG_QUERY, {}).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.accessAuditLog as AuditEntry[];
+      throwIfGraphQLError(result, 'AccessAuditLog query');
+      return assertData(result, 'accessAuditLog', 'AccessAuditLog query') as AuditEntry[];
     },
   });
 }

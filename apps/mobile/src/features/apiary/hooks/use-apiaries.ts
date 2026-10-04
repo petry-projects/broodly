@@ -7,6 +7,7 @@ import {
   UPDATE_APIARY_MUTATION,
   DELETE_APIARY_MUTATION,
 } from '../../../services/graphql/apiary';
+import { throwIfGraphQLError, assertData } from '../../../services/graphql/query-utils';
 import type { Apiary, CreateApiaryInput, UpdateApiaryInput } from '@broodly/graphql-types';
 
 const APIARY_KEYS = {
@@ -21,9 +22,8 @@ export function useApiaries() {
     queryKey: APIARY_KEYS.all,
     queryFn: async () => {
       const result = await client.query(APIARIES_QUERY, {}).toPromise();
-      if (result.error) throw new Error('Failed to fetch apiaries');
-      if (!result.data?.apiaries) throw new Error('No data returned for apiaries query');
-      return result.data.apiaries as Apiary[];
+      throwIfGraphQLError(result, 'Apiaries query');
+      return assertData(result, 'apiaries', 'Apiaries query') as Apiary[];
     },
   });
 }
@@ -35,9 +35,8 @@ export function useApiary(id: string) {
     queryKey: APIARY_KEYS.detail(id),
     queryFn: async () => {
       const result = await client.query(APIARY_QUERY, { id }).toPromise();
-      if (result.error) throw new Error('Failed to fetch apiary');
-      if (!result.data?.apiary) throw new Error('No data returned for apiary query');
-      return result.data.apiary as Apiary;
+      throwIfGraphQLError(result, 'Apiary query');
+      return assertData(result, 'apiary', 'Apiary query') as Apiary;
     },
     enabled: !!id,
   });
@@ -50,9 +49,8 @@ export function useCreateApiary() {
   return useMutation({
     mutationFn: async (input: CreateApiaryInput) => {
       const result = await client.mutation(CREATE_APIARY_MUTATION, { input }).toPromise();
-      if (result.error) throw new Error('Failed to create apiary');
-      if (!result.data?.createApiary) throw new Error('No data returned from createApiary mutation');
-      return result.data.createApiary as Apiary;
+      throwIfGraphQLError(result, 'CreateApiary mutation');
+      return assertData(result, 'createApiary', 'CreateApiary mutation') as Apiary;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APIARY_KEYS.all });
@@ -67,9 +65,8 @@ export function useUpdateApiary() {
   return useMutation({
     mutationFn: async ({ id, input }: { id: string; input: UpdateApiaryInput }) => {
       const result = await client.mutation(UPDATE_APIARY_MUTATION, { id, input }).toPromise();
-      if (result.error) throw new Error('Failed to update apiary');
-      if (!result.data?.updateApiary) throw new Error('No data returned from updateApiary mutation');
-      return result.data.updateApiary as Apiary;
+      throwIfGraphQLError(result, 'UpdateApiary mutation');
+      return assertData(result, 'updateApiary', 'UpdateApiary mutation') as Apiary;
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: APIARY_KEYS.all });
@@ -85,11 +82,8 @@ export function useDeleteApiary() {
   return useMutation({
     mutationFn: async (id: string) => {
       const result = await client.mutation(DELETE_APIARY_MUTATION, { id }).toPromise();
-      if (result.error) throw new Error('Failed to delete apiary');
-      if (result.data?.deleteApiary === null || result.data?.deleteApiary === undefined) {
-        throw new Error('No data returned from deleteApiary mutation');
-      }
-      return result.data.deleteApiary as boolean;
+      throwIfGraphQLError(result, 'DeleteApiary mutation');
+      return assertData(result, 'deleteApiary', 'DeleteApiary mutation') as boolean;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APIARY_KEYS.all });

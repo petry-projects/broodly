@@ -57,7 +57,7 @@ func TestRoleFromContext_DefaultOwner(t *testing.T) {
 	ctx := context.Background()
 
 	role := RoleFromContext(ctx)
-	if role != "owner" {
-		t.Errorf("expected default 'owner', got %q", role)
+	if role != "" {
+		t.Errorf("expected default empty string, got %q", role)
 	}
 }

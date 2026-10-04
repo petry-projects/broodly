@@ -7,6 +7,7 @@ import {
   UPDATE_HIVE_MUTATION,
   DELETE_HIVE_MUTATION,
 } from '../../../services/graphql/hive';
+import { throwIfGraphQLError, assertData } from '../../../services/graphql/query-utils';
 import type { Hive, CreateHiveInput, UpdateHiveInput } from '@broodly/graphql-types';
 
 const HIVE_KEYS = {
@@ -21,8 +22,8 @@ export function useHives(apiaryId: string) {
     queryKey: HIVE_KEYS.byApiary(apiaryId),
     queryFn: async () => {
       const result = await client.query(HIVES_QUERY, { apiaryId }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.hives as Hive[];
+      throwIfGraphQLError(result, 'Hives query');
+      return assertData(result, 'hives', 'Hives query') as Hive[];
     },
     enabled: !!apiaryId,
   });
@@ -35,8 +36,8 @@ export function useHive(id: string) {
     queryKey: HIVE_KEYS.detail(id),
     queryFn: async () => {
       const result = await client.query(HIVE_QUERY, { id }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.hive as Hive;
+      throwIfGraphQLError(result, 'Hive query');
+      return assertData(result, 'hive', 'Hive query') as Hive;
     },
     enabled: !!id,
   });
@@ -49,8 +50,8 @@ export function useCreateHive() {
   return useMutation({
     mutationFn: async (input: CreateHiveInput) => {
       const result = await client.mutation(CREATE_HIVE_MUTATION, { input }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.createHive as Hive;
+      throwIfGraphQLError(result, 'CreateHive mutation');
+      return assertData(result, 'createHive', 'CreateHive mutation') as Hive;
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: HIVE_KEYS.byApiary(variables.apiaryId) });
@@ -66,8 +67,8 @@ export function useUpdateHive() {
   return useMutation({
     mutationFn: async ({ id, input }: { id: string; input: UpdateHiveInput }) => {
       const result = await client.mutation(UPDATE_HIVE_MUTATION, { id, input }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.updateHive as Hive;
+      throwIfGraphQLError(result, 'UpdateHive mutation');
+      return assertData(result, 'updateHive', 'UpdateHive mutation') as Hive;
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: HIVE_KEYS.detail(variables.id) });
@@ -83,8 +84,8 @@ export function useDeleteHive() {
   return useMutation({
     mutationFn: async (id: string) => {
       const result = await client.mutation(DELETE_HIVE_MUTATION, { id }).toPromise();
-      if (result.error) throw new Error(result.error.message);
-      return result.data.deleteHive as boolean;
+      throwIfGraphQLError(result, 'DeleteHive mutation');
+      return assertData(result, 'deleteHive', 'DeleteHive mutation') as boolean;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['apiaries'] });
