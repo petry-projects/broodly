@@ -34,7 +34,7 @@ importers:
         specifier: ^8.71.0
         version: 8.71.0(eslint@10.11.0(jiti@1.21.7)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
       brace-expansion:
-        specifier: '>=5.0.12'
+        specifier: ^5.0.12
         version: 5.0.12
       eslint:
         specifier: ^10.11.0
