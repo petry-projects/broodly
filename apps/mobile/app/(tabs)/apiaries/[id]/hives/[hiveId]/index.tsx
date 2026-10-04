@@ -11,7 +11,7 @@ import type { HiveStatus } from '@broodly/graphql-types';
 export default function HiveDetailScreen() {
   const router = useRouter();
   const { id: apiaryId, hiveId } = useLocalSearchParams<{ id: string; hiveId: string }>();
-  const { data: hive, isLoading } = useHive(hiveId!);
+  const { data: hive, isLoading, isError } = useHive(hiveId!);
   const deleteHive = useDeleteHive();
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -37,10 +37,18 @@ export default function HiveDetailScreen() {
     );
   }
 
-  if (isLoading || !hive) {
+  if (isLoading) {
     return (
       <View className="flex-1 bg-background-0 justify-center items-center">
         <Text size="md" className="text-typography-500">Loading...</Text>
+      </View>
+    );
+  }
+
+  if (isError || !hive) {
+    return (
+      <View className="flex-1 bg-background-0 justify-center items-center px-6">
+        <Text size="md" className="text-error-600">Failed to load hive details</Text>
       </View>
     );
   }

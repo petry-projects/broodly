@@ -63,6 +63,7 @@ beforeEach(() => {
     },
     isLoading: false,
     isError: false,
+    isSuccess: true,
   });
 });
 
@@ -85,7 +86,7 @@ describe('Hive Detail Screen', () => {
     render(<HiveDetailScreen />);
 
     expect(screen.getByText('Test Hive')).toBeTruthy();
-    expect(screen.getByText('LANGSTROTH')).toBeTruthy();
+    expect(screen.getByText(/LANGSTROTH/)).toBeTruthy();
   });
 
   it('navigates to edit screen on edit button tap', () => {
@@ -108,6 +109,6 @@ describe('Hive Detail Screen', () => {
     const HiveDetailScreen = require('../app/(tabs)/apiaries/[id]/hives/[hiveId]/index').default;
     render(<HiveDetailScreen />);
 
-    expect(screen.getByText(/failed/i)).toBeTruthy();
+    expect(screen.getByText(/Failed to load hive details/i)).toBeTruthy();
   });
 });
