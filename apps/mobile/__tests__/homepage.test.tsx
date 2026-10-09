@@ -7,8 +7,8 @@ jest.mock('expo-router', () => ({
 }));
 
 jest.mock('../src/store/auth-store', () => ({
-  useAuthStore: (selector: (s: { user: { displayName: string } | null }) => unknown) =>
-    selector({ user: { displayName: 'DJ' } }),
+  useAuthStore: jest.fn((selector: (s: { user: { displayName: string } | null }) => unknown) =>
+    selector({ user: { displayName: 'DJ' } })),
 }));
 
 jest.mock('@expo/vector-icons', () => ({
@@ -98,8 +98,8 @@ describe('Homepage', () => {
 
   it('renders refresh control', () => {
     const HomeScreen = require('../app/(tabs)/index').default;
-    const { container } = render(<HomeScreen />);
-    expect(container).toBeTruthy();
+    const { root } = render(<HomeScreen />);
+    expect(root).toBeTruthy();
   });
 
   it('renders primary action buttons with correct accessibility labels', () => {
@@ -113,8 +113,8 @@ describe('Homepage', () => {
 
   it('renders context card backgrounds with correct colors', () => {
     const HomeScreen = require('../app/(tabs)/index').default;
-    const { container } = render(<HomeScreen />);
-    expect(container).toBeTruthy();
+    const { root } = render(<HomeScreen />);
+    expect(root).toBeTruthy();
   });
 
   it('displays all three context cards with icons and metadata', () => {
@@ -130,7 +130,7 @@ describe('Homepage', () => {
 
   it('renders ScrollView with RefreshControl', () => {
     const HomeScreen = require('../app/(tabs)/index').default;
-    const { container } = render(<HomeScreen />);
-    expect(container).toBeTruthy();
+    const { root } = render(<HomeScreen />);
+    expect(root).toBeTruthy();
   });
 });

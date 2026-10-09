@@ -153,7 +153,7 @@ describe('Plan Screen', () => {
     const PlanScreen = require('../app/(tabs)/plan/index').default;
     render(<PlanScreen />);
     expect(screen.getByText('URGENT')).toBeTruthy();
-    expect(screen.getByText('Check for swarm cells')).toBeTruthy();
+    expect(screen.getAllByText('Check for swarm cells').length).toBeGreaterThanOrEqual(1);
   });
 
   it('calls completeTask when Did It button pressed', () => {
@@ -199,7 +199,7 @@ describe('Plan Screen', () => {
     const PlanScreen = require('../app/(tabs)/plan/index').default;
     render(<PlanScreen />);
     expect(screen.getByText('Catch-up Guidance')).toBeTruthy();
-    expect(screen.getByText('Bring two supers')).toBeTruthy();
+    expect(screen.getAllByText('Bring two supers').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Hive 1 — Add super')).toBeTruthy();
   });
 

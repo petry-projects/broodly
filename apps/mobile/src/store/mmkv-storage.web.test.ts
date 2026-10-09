@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { mmkvStorage } from './mmkv-storage.web';
 
 describe('mmkvStorage (web localStorage fallback)', () => {

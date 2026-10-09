@@ -1,7 +1,10 @@
 import { groupByApiary } from '../src/features/planning/hooks/use-weekly-queue';
 import type { ApiaryQueue } from '../src/features/planning/hooks/use-weekly-queue';
 
-jest.mock('urql');
+jest.mock('urql', () => ({
+  gql: (strings: TemplateStringsArray) => strings.join(''),
+  useClient: jest.fn(),
+}));
 jest.mock('@tanstack/react-query');
 
 function makeTask(overrides: {
@@ -29,7 +32,7 @@ function makeTask(overrides: {
       },
     },
     priority: overrides.priority ?? 'MEDIUM',
-    dueDate: overrides.dueDate ?? '2026-05-10T00:00:00Z',
+    dueDate: overrides.dueDate === undefined ? '2026-05-10T00:00:00Z' : overrides.dueDate,
     status: overrides.status ?? 'PENDING',
     isOverdue: overrides.isOverdue ?? false,
     catchUpGuidance: overrides.catchUpGuidance ?? null,
@@ -203,9 +206,11 @@ describe('useWeeklyQueue hook', () => {
       },
     ];
 
-    mockClient.query.mockResolvedValueOnce({
-      data: { tasks: mockTaskData },
-      error: null,
+    mockClient.query.mockReturnValueOnce({
+      toPromise: () => Promise.resolve({
+        data: { tasks: mockTaskData },
+        error: null,
+      }),
     });
 
     const result = await capturedQueryFn();
@@ -226,9 +231,11 @@ describe('useWeeklyQueue hook', () => {
 
     useWeeklyQueue();
 
-    mockClient.query.mockResolvedValueOnce({
-      error: new Error('Network error'),
-      data: null,
+    mockClient.query.mockReturnValueOnce({
+      toPromise: () => Promise.resolve({
+        error: new Error('Network error'),
+        data: null,
+      }),
     });
 
     await expect(capturedQueryFn()).rejects.toThrow('Network error');
@@ -246,9 +253,11 @@ describe('useWeeklyQueue hook', () => {
 
     useWeeklyQueue();
 
-    mockClient.query.mockResolvedValueOnce({
-      data: null,
-      error: null,
+    mockClient.query.mockReturnValueOnce({
+      toPromise: () => Promise.resolve({
+        data: null,
+        error: null,
+      }),
     });
 
     await expect(capturedQueryFn()).rejects.toThrow('No data returned from weekly queue');
