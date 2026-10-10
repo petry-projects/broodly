@@ -521,4 +521,148 @@ describe('Plan Screen', () => {
     // Should not show URGENT badge since isOverdue is false
     expect(screen.queryByText('URGENT')).toBeFalsy();
   });
+
+  it('handles mixed priority levels in same apiary', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Critical task',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'CRITICAL',
+              dueDate: '2026-05-01T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: true,
+              catchUpGuidance: null,
+            },
+            {
+              id: 'task-2',
+              title: 'High priority task',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'HIGH',
+              dueDate: '2026-05-05T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+            {
+              id: 'task-3',
+              title: 'Medium priority task',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'MEDIUM',
+              dueDate: '2026-05-10T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Critical task')).toBeTruthy();
+    expect(screen.getByText('High priority task')).toBeTruthy();
+    expect(screen.getByText('Medium priority task')).toBeTruthy();
+    expect(screen.getByText('URGENT')).toBeTruthy(); // Only critical should be URGENT
+  });
+
+  it('renders empty state with correct icon', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText(/All caught up/)).toBeTruthy();
+  });
+
+  it('does not show materials checklist when no overdue tasks', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Routine check',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'MEDIUM',
+              dueDate: '2026-05-20T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.queryByText('Catch-up Guidance')).toBeFalsy();
+  });
+
+  it('shows materials checklist when overdue tasks with guidance exist', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Inspect hive',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'CRITICAL',
+              dueDate: '2026-05-01T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: true,
+              catchUpGuidance: 'Bring veil and gloves',
+            },
+            {
+              id: 'task-2',
+              title: 'Add super',
+              hiveId: 'hive-2',
+              hiveName: 'Hive 2',
+              priority: 'HIGH',
+              dueDate: '2026-05-01T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: true,
+              catchUpGuidance: 'Bring two supers',
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Catch-up Guidance')).toBeTruthy();
+    expect(screen.getByText('Bring veil and gloves')).toBeTruthy();
+    expect(screen.getByText('Bring two supers')).toBeTruthy();
+  });
 });
