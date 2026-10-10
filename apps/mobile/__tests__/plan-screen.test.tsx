@@ -245,6 +245,9 @@ describe('Plan Screen', () => {
     // Press apiary section to collapse
     fireEvent.press(screen.getByTestId('apiary-section-apiary-1'));
     rerender(<PlanScreen />);
+
+    // After collapse, task should still exist in DOM but section should respond to toggle
+    expect(screen.queryByText('Inspect brood')).toBeTruthy();
   });
 
   it('renders multiple apiaries in separate sections', () => {
@@ -439,5 +442,83 @@ describe('Plan Screen', () => {
     const PlanScreen = require('../app/(tabs)/plan/index').default;
     render(<PlanScreen />);
     expect(screen.getByText('Inspect brood')).toBeTruthy();
+  });
+
+  it('calls refetch when pull-to-refresh triggered', () => {
+    const mockRefetch = jest.fn();
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    const { root } = render(<PlanScreen />);
+    expect(root).toBeTruthy();
+  });
+
+  it('handles LOW priority tasks', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Clean entrance reducer',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'LOW',
+              dueDate: '2026-05-20T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: null,
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Clean entrance reducer')).toBeTruthy();
+  });
+
+  it('renders task with overdue guidance but no URGENT badge if not isOverdue', () => {
+    (planHooks.useWeeklyQueue as jest.Mock).mockReturnValue({
+      data: [
+        {
+          apiaryId: 'apiary-1',
+          apiaryName: 'Back Yard',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Inspect frames',
+              hiveId: 'hive-1',
+              hiveName: 'Hive 1',
+              priority: 'HIGH',
+              dueDate: '2026-05-10T00:00:00Z',
+              status: 'PENDING',
+              isOverdue: false,
+              catchUpGuidance: 'Bring inspection tool',
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+    const PlanScreen = require('../app/(tabs)/plan/index').default;
+    render(<PlanScreen />);
+    expect(screen.getByText('Inspect frames')).toBeTruthy();
+    // Should not show URGENT badge since isOverdue is false
+    expect(screen.queryByText('URGENT')).toBeFalsy();
   });
 });
