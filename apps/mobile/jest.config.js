@@ -1,3 +1,7 @@
+// babel-preset-expo inlines EXPO_PUBLIC_* values present at transform time, so a CI-level
+// emulator flag would override tests that unset it at runtime. Tests set it explicitly.
+delete process.env.EXPO_PUBLIC_FIREBASE_USE_EMULATOR;
+
 module.exports = {
   preset: 'jest-expo',
   testMatch: [
