@@ -51,7 +51,10 @@ jobs:
           fi
 
       - name: Test with coverage
-        run: pnpm run test -- --coverage --coverageReporters=text-summary --coverageReporters=lcov
+        # Coverage (lcov + text-summary) is configured in apps/mobile/jest.config.js.
+        # Passing CLI flags here forwards a literal `--` through nested pnpm, making
+        # jest treat the flags as test-path patterns (0 matches → exit 1).
+        run: pnpm run test
         continue-on-error: false
 
       - name: Upload test artifacts on failure
