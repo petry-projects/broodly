@@ -1,6 +1,14 @@
 /**
  * @jest-environment jsdom
  */
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+}));
+
+jest.mock('../src/store/auth-store', () => ({
+  useAuthStore: jest.fn((selector: (s: { user: null }) => unknown) => selector({ user: null })),
+}));
+
 jest.mock('@expo/vector-icons', () => ({
   Ionicons: 'Ionicons',
 }));
@@ -13,6 +21,14 @@ jest.mock('../components/ui/heading', () => {
 jest.mock('../components/ui/text', () => {
   const { Text } = require('react-native');
   return { Text: (props: Record<string, unknown>) => require('react').createElement(Text, props, props.children) };
+});
+
+jest.mock('../components/ui/button', () => {
+  const { View, Text } = require('react-native');
+  return {
+    Button: (props: Record<string, unknown>) => require('react').createElement(View, props, props.children),
+    ButtonText: (props: Record<string, unknown>) => require('react').createElement(Text, {}, props.children),
+  };
 });
 
 import React from 'react';

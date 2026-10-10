@@ -246,8 +246,8 @@ describe('Plan Screen', () => {
     fireEvent.press(screen.getByTestId('apiary-section-apiary-1'));
     rerender(<PlanScreen />);
 
-    // After collapse, task should still exist in DOM but section should respond to toggle
-    expect(screen.queryByText('Inspect brood')).toBeTruthy();
+    // After collapse, the section's tasks are hidden
+    expect(screen.queryByText('Inspect brood')).toBeNull();
   });
 
   it('renders multiple apiaries in separate sections', () => {
@@ -662,7 +662,8 @@ describe('Plan Screen', () => {
     const PlanScreen = require('../app/(tabs)/plan/index').default;
     render(<PlanScreen />);
     expect(screen.getByText('Catch-up Guidance')).toBeTruthy();
-    expect(screen.getByText('Bring veil and gloves')).toBeTruthy();
-    expect(screen.getByText('Bring two supers')).toBeTruthy();
+    // Guidance appears in both the checklist and the overdue task row
+    expect(screen.getAllByText('Bring veil and gloves')).toHaveLength(2);
+    expect(screen.getAllByText('Bring two supers')).toHaveLength(2);
   });
 });

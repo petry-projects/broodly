@@ -37,6 +37,12 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 
 describe('Homepage', () => {
+  beforeEach(() => {
+    const { useAuthStore } = require('../src/store/auth-store');
+    useAuthStore.mockImplementation((selector: (s: { user: { displayName: string } | null }) => unknown) =>
+      selector({ user: { displayName: 'DJ' } }));
+  });
+
   it('renders greeting with user name', () => {
     const HomeScreen = require('../app/(tabs)/index').default;
     render(<HomeScreen />);
